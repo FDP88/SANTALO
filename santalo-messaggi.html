@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Santalò — Messaggi Ospiti</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brown: #6B2D1F;
+    --brown-dark: #4A1E14;
+    --brown-light: #9A4A35;
+    --sand: #C4A882;
+    --sand-light: #F0E6D3;
+    --sand-xlight: #FAF6F0;
+    --text: #2C1A12;
+    --text-muted: #7A5C4E;
+    --border: rgba(107,45,31,0.15);
+    --radius: 10px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sand-xlight);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    background: var(--brown);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(107,45,31,0.25);
+  }
+
+  .logo-mark {
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-mark span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+
+  .header-text h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: white;
+    line-height: 1.1;
+  }
+
+  .header-text p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .container { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 6px rgba(107,45,31,0.06);
+  }
+
+  .card-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sand);
+    margin-bottom: 1rem;
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width: 420px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  input, select {
+    padding: 9px 12px;
+    border: 0.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--sand-xlight);
+    width: 100%;
+    transition: border-color .15s;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--brown);
+    background: white;
+  }
+
+  input::placeholder { color: #bba898; }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .tab {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    border: 0.5px solid var(--border);
+    background: white;
+    color: var(--text-muted);
+    transition: all .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tab:hover { border-color: var(--brown); color: var(--brown); }
+  .tab.active { background: var(--brown); color: white; border-color: var(--brown); }
+
+  .msg-section { position: relative; }
+
+  .msg-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .msg-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .channel-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .ch-wa { background: #e8f5e9; color: #2e7d32; }
+  .ch-bk { background: #e3f2fd; color: #1565c0; }
+  .ch-ab { background: #fce4ec; color: #c62828; }
+
+  .msg-box {
+    background: var(--sand-xlight);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 120px;
+  }
+
+  .copy-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    background: var(--brown);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: background .15s, transform .1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .copy-btn:active { transform: scale(0.98); }
+  .copy-btn:hover { background: var(--brown-dark); }
+  .copy-btn.copied { background: #2e7d32; }
+
+  .tip {
+    background: var(--sand-light);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-top: 1rem;
+  }
+
+  .tip strong { color: var(--brown); font-weight: 500; }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--sand);
+    padding: 2rem 0 1rem;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark"><span>S</span></div>
+  <div class="header-text">
+    <h1>Santalò</h1>
+    <p>Messaggi ospiti</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">Dati della prenotazione</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nome ospite</label>
+        <input type="text" id="nome" placeholder="es. Marco" oninput="update()">
+      </div>
+      <div class="form-group">
+        <label>Camera / n°</label>
+        <input type="text" id="camera" placeholder="es. 1954" oninput="update()">
+      </div>
+      <div class="form-group">
+        <label>Data arrivo</label>
+        <input type="date" id="arrivo" oninput="update()">
+      </div>
+      <div class="form-group">
+        <label>Data partenza</label>
+        <input type="date" id="partenza" oninput="update()">
+      </div>
+      <div class="form-group">
+        <label>Orario arrivo previsto</label>
+        <input type="time" id="orario" oninput="update()">
+      </div>
+      <div class="form-group">
+        <label>Canale</label>
+        <select id="canale" onchange="update()">
+          <option value="wa">WhatsApp</option>
+          <option value="bk">Booking.com</option>
+          <option value="ab">Airbnb</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="setTab(this,'conferma')">Conferma</div>
+    <div class="tab" onclick="setTab(this,'precheckin')">Pre check-in</div>
+    <div class="tab" onclick="setTab(this,'checkin')">Arrivo</div>
+    <div class="tab" onclick="setTab(this,'followup')">Follow-up</div>
+    <div class="tab" onclick="setTab(this,'checkout')">Check-out</div>
+  </div>
+
+  <div class="card msg-section">
+    <div class="msg-meta">
+      <span class="msg-label" id="tabLabel">Conferma prenotazione</span>
+      <span class="channel-badge ch-wa" id="chBadge">WhatsApp</span>
+    </div>
+    <div class="msg-box" id="msgbox"></div>
+    <button class="copy-btn" id="copybtn" onclick="copyMsg()">Copia messaggio</button>
+  </div>
+
+  <div class="tip">
+    <strong>Come usarlo:</strong> compila i dati in alto, scegli il tipo di messaggio, premi <em>Copia</em> e incollalo direttamente su WhatsApp, Booking o Airbnb.
+  </div>
+
+</div>
+
+<footer>Santalò B&amp;B · Bitonto, Puglia</footer>
+
+<script>
+let currentTab = 'conferma';
+
+const tabLabels = {
+  conferma: 'Conferma prenotazione',
+  precheckin: 'Pre check-in',
+  checkin: 'Istruzioni arrivo',
+  followup: 'Follow-up (giorno dopo)',
+  checkout: 'Check-out'
+};
+
+function g(id) { return document.getElementById(id); }
+
+function nome() { return g('nome').value.trim() || '[Nome ospite]'; }
+function camera() { return g('camera').value.trim() || '[Camera]'; }
+function canale() { return g('canale').value; }
+
+function fmtDate(id) {
+  const v = g(id).value;
+  if (!v) return id === 'arrivo' ? '[data arrivo]' : '[data partenza]';
+  const d = new Date(v + 'T12:00:00');
+  return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function orario() { return g('orario').value || '[orario]'; }
+
+const msgs = {
+  conferma: () =>
+`Ciao ${nome()}! 👋
+
+Grazie per aver scelto il B&B Santalò per il tuo soggiorno!
+
+Siamo lieti di confermarti la prenotazione dal ${fmtDate('arrivo')} al ${fmtDate('partenza')}.
+
+Gestiremo tutto in modo semplice: riceverai qui le istruzioni per il check-in prima del tuo arrivo, così potrai accedere all'appartamento in totale autonomia e senza attese.
+
+Siamo a disposizione per qualsiasi domanda o necessità. A presto! 🌿`,
+
+  precheckin: () =>
+`Ciao ${nome()}, come stai?
+
+Si avvicina il giorno del tuo arrivo a Santalò e vogliamo assicurarci che tutto sia pronto per te!
+
+🏠 Appartamento: ${camera()}
+📅 Arrivo: ${fmtDate('arrivo')} — Partenza: ${fmtDate('partenza')}
+
+ORARI CHECK-IN
+✅ Standard: dalle 16:00 alle 21:00
+🌙 Late check-in: dalle 21:00 alle 23:00 (supplemento €10,00)
+🔑 Self check-in: gratuito, dalle 16:00 in poi
+🕙 Check-out: entro le 10:00
+
+Puoi dirci a che ora prevedi di arrivare? Così ci organizziamo per accoglierti al meglio.
+
+Se viaggi in treno o aereo e hai bisogno di un taxi, possiamo prenotarlo per te — basta chiedere!
+
+Hai esigenze particolari (culla, sistemazione dei letti, ecc.)? Faccelo sapere in anticipo, saremo felici di venire incontro alle tue necessità.
+
+A presto! ☀️`,
+
+  checkin: () =>
+`Ciao ${nome()}! Tutto pronto per il tuo arrivo 🎉
+
+📍 INDIRIZZO
+Vico Storto Sant'Eligio 9, 70032 Bitonto (BA)
+
+─────────────────────
+
+🔐 STEP 1 — Portone principale
+Inserisci il codice: 75391
+
+🗝️ STEP 2 — Le tue chiavi
+Appena entrato, trova a destra il bicchiere di legno con le chiavi della camera ${camera()}. Sali al 1° piano: il tuo appartamento è sulla sinistra.
+
+🏠 STEP 3 — Benvenuto!
+Sei a casa. Per qualsiasi cosa, scrivimi qui.
+
+─────────────────────
+
+♻️ RACCOLTA DIFFERENZIATA
+🟡 Giallo → Plastica
+🟢 Verde → Vetro
+🔵 Blu → Carta
+⚫ Grigio → Indifferenziata
+Calendario raccolta: https://bitonto.trasparenzarifiuti.it
+
+─────────────────────
+
+🍽️ DOVE MANGIARE (i nostri consigli)
+• Pizza → Caveau o Patriarca
+• Carne e vino → Vinicio
+• Cucina tipica → Ragno Verde
+• Panzerotto → Manicaretto
+
+Buon soggiorno in Puglia! 🌿`,
+
+  followup: () =>
+`Ciao ${nome()}! 😊
+
+Com'è andata la prima notte da noi? Speriamo che tu stia trascorrendo un soggiorno piacevole a Bitonto!
+
+Se hai bisogno di qualcosa, se vuoi consigli su cosa vedere o dove mangiare, o se hai notato qualcosa che non va — scrivimi pure, sono qui.
+
+Buona giornata! ☀️`,
+
+  checkout: () =>
+`Caro ${nome()},
+
+grazie di cuore per aver soggiornato da noi al B&B Santalò! Speriamo che la tua permanenza a Bitonto sia stata piacevole e ricca di bei momenti.
+
+Al momento del check-out (entro le 10:00), ti chiediamo gentilmente di:
+🔑 Lasciare le chiavi sul desk della reception
+🚪 Assicurarti di chiudere il portone principale
+
+Se hai un momento, una recensione su Booking o Airbnb ci aiuterà tantissimo a far conoscere Santalò ad altri viaggiatori — per noi vale molto! 🙏
+
+Speriamo di rivederti presto in Puglia. Un caro saluto! 🌿`
+};
+
+function setTab(el, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  update();
+}
+
+function update() {
+  g('msgbox').textContent = msgs[currentTab]();
+  g('tabLabel').textContent = tabLabels[currentTab];
+
+  const c = canale();
+  const badge = g('chBadge');
+  badge.className = 'channel-badge ' + (c === 'wa' ? 'ch-wa' : c === 'bk' ? 'ch-bk' : 'ch-ab');
+  badge.textContent = c === 'wa' ? 'WhatsApp' : c === 'bk' ? 'Booking.com' : 'Airbnb';
+
+  const btn = g('copybtn');
+  btn.textContent = 'Copia messaggio';
+  btn.classList.remove('copied');
+}
+
+function copyMsg() {
+  const text = msgs[currentTab]();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(ok).catch(fallback);
+  } else { fallback(); }
+}
+
+function ok() {
+  const btn = g('copybtn');
+  btn.textContent = '✓ Copiato!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copia messaggio'; btn.classList.remove('copied'); }, 2500);
+}
+
+function fallback() {
+  const ta = document.createElement('textarea');
+  ta.value = msgs[currentTab]();
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  ok();
+}
+
+update();
+</script>
+</body>
+</html>
