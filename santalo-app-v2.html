@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Santalò — Gestione B&B</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --br:#6B2D1F;--br-dk:#4A1E14;--br-lt:#9A4A35;
+  --sand:#C4A882;--sand-lt:#F0E6D3;--sand-xl:#FAF6F0;
+  --tx:#2C1A12;--tx-m:#7A5C4E;--bdr:rgba(107,45,31,0.15);--r:10px;
+  --green:#2e7d32;--red:#c62828;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--sand-xl);color:var(--tx);min-height:100vh}
+
+header{background:var(--br);color:white;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(107,45,31,0.25)}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:38px;height:38px;border:1.5px solid rgba(255,255,255,0.35);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-mark span{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:white}
+.logo-text h1{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:white;line-height:1.1}
+.logo-text p{font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.09em;text-transform:uppercase;margin-top:1px}
+nav{display:flex;gap:4px}
+.nav-btn{padding:7px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.25);background:transparent;color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;transition:all .15s}
+.nav-btn:hover{background:rgba(255,255,255,0.1);color:white}
+.nav-btn.active{background:white;color:var(--br);border-color:white;font-weight:500}
+@media(max-width:560px){.nav-btn{padding:6px 9px;font-size:11px}}
+
+.container{max-width:780px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.section{display:none}
+.section.active{display:block}
+
+.card{background:white;border-radius:var(--r);border:0.5px solid var(--bdr);padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 6px rgba(107,45,31,0.05)}
+.card-title{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--sand);margin-bottom:1rem}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+label{font-size:11px;font-weight:500;color:var(--tx-m);letter-spacing:0.04em;text-transform:uppercase}
+label .req{color:var(--br)}
+input,select,textarea{padding:9px 12px;border:0.5px solid var(--bdr);border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--tx);background:var(--sand-xl);width:100%;transition:border-color .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--br);background:white}
+textarea{resize:vertical;min-height:70px;line-height:1.6}
+
+.btn{padding:9px 16px;border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:all .15s;border:0.5px solid var(--bdr)}
+.btn-primary{background:var(--br);color:white;border-color:var(--br)}
+.btn-primary:hover{background:var(--br-dk)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-ghost{background:white;color:var(--tx-m)}
+.btn-ghost:hover{border-color:var(--br);color:var(--br)}
+.btn-full{width:100%;padding:13px}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+.btn-green{background:var(--green);color:white;border-color:var(--green)}
+.btn-green:hover{background:#1b5e20}
+
+/* PRENOTAZIONI */
+.pren-card{background:white;border:0.5px solid var(--bdr);border-radius:var(--r);padding:1rem 1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;box-shadow:0 1px 4px rgba(107,45,31,0.04);margin-bottom:8px}
+.pren-nome{font-size:15px;font-weight:500;color:var(--tx)}
+.pren-date{font-size:12px;color:var(--tx-m);margin-top:2px}
+.pren-camera{font-size:11px;color:var(--sand);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
+.pren-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;margin-left:6px}
+.badge-arrivo{background:#fff8e1;color:#5c3d00}
+.badge-ospite{background:#e8f5e9;color:#1b5e20}
+.badge-partenza{background:#fce4ec;color:#880e4f}
+.badge-checkin{background:#e3f2fd;color:#1565c0}
+.pren-empty{text-align:center;padding:3rem 1rem;color:var(--tx-m);font-size:14px}
+
+/* LINK BOX */
+.link-box{background:var(--sand-xl);border:0.5px solid var(--bdr);border-radius:7px;padding:8px 12px;font-size:12px;font-family:monospace;color:var(--br);word-break:break-all;margin-top:6px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(44,26,18,0.45);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:14px;padding:1.5rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(107,45,31,0.2)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--tx)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx-m);padding:4px 8px;border-radius:6px}
+
+/* MESSAGGI */
+.tabs-msg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.tab-msg{padding:7px 14px;border-radius:20px;font-size:13px;cursor:pointer;border:0.5px solid var(--bdr);background:white;color:var(--tx-m);transition:all .15s}
+.tab-msg.active{background:var(--br);color:white;border-color:var(--br)}
+.msg-preview{background:var(--sand-xl);border:0.5px solid var(--bdr);border-radius:var(--r);padding:1.1rem 1.25rem;font-size:14px;line-height:1.75;color:var(--tx);white-space:pre-wrap;word-break:break-word;min-height:100px}
+
+/* SCHEDINE */
+.ospite-block-sch{background:var(--sand-xl);border-radius:var(--r);border:0.5px solid var(--bdr);padding:1rem;margin-bottom:.75rem}
+.chiave-row{display:flex;gap:8px;align-items:flex-end}
+.chiave-row input{flex:1;font-family:monospace;font-size:12px}
+.btn-toggle{padding:9px 14px;background:white;border:0.5px solid var(--bdr);border-radius:7px;font-size:12px;cursor:pointer;color:var(--tx-m);font-family:'DM Sans',sans-serif;white-space:nowrap}
+
+/* CHECKIN RICEVUTI */
+.checkin-card{background:white;border:0.5px solid var(--bdr);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 4px rgba(107,45,31,0.04)}
+.checkin-nome{font-size:14px;font-weight:500;color:var(--tx)}
+.checkin-ospiti{font-size:12px;color:var(--tx-m);margin-top:3px}
+.checkin-new{border-left:3px solid var(--br)}
+
+.alert{padding:1rem 1.25rem;border-radius:var(--r);font-size:14px;line-height:1.6;margin-top:1rem}
+.alert.success{background:#e8f5e9;color:#1b5e20;border:0.5px solid #a5d6a7}
+.alert.error{background:#ffebee;color:#b71c1c;border:0.5px solid #ef9a9a}
+.alert.info{background:#fff8e1;color:#5c3d00;border:0.5px solid #ffe082}
+
+.tip{background:var(--sand-lt);border-radius:var(--r);padding:.9rem 1.1rem;font-size:13px;color:var(--tx-m);line-height:1.6;margin-top:.5rem}
+.tip strong{color:var(--br);font-weight:500}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin-right:7px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{text-align:center;padding:2rem;color:var(--tx-m);font-size:14px}
+footer{text-align:center;font-size:12px;color:var(--sand);padding:2rem 0 1rem;letter-spacing:0.05em}
+
+/* NOTIFICA BADGE */
+.notif-badge{background:#c62828;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;margin-left:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"><span>S</span></div>
+    <div class="logo-text"><h1>Santalò</h1><p>Gestione B&B</p></div>
+  </div>
+  <nav>
+    <button class="nav-btn active" onclick="showSection('prenotazioni',this)">Prenotazioni</button>
+    <button class="nav-btn" onclick="showSection('checkin',this)" id="navCheckin">Check-in <span class="notif-badge" id="notifBadge" style="display:none">0</span></button>
+    <button class="nav-btn" onclick="showSection('messaggi',this)">Messaggi</button>
+    <button class="nav-btn" onclick="showSection('schedine',this)">Schedine</button>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- PRENOTAZIONI -->
+  <div class="section active" id="sec-prenotazioni">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600">Prenotazioni</div>
+      <button class="btn btn-primary btn-sm" onclick="apriModal()">+ Nuova</button>
+    </div>
+    <div id="prenList"><div class="loading">Caricamento...</div></div>
+  </div>
+
+  <!-- CHECK-IN RICEVUTI -->
+  <div class="section" id="sec-checkin">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:.5rem">Check-in ricevuti</div>
+    <p style="font-size:13px;color:var(--tx-m);margin-bottom:1rem">Dati compilati dagli ospiti online — pronti per l'invio ad Alloggiati Web.</p>
+    <div id="checkinList"><div class="loading">Caricamento...</div></div>
+  </div>
+
+  <!-- MESSAGGI -->
+  <div class="section" id="sec-messaggi">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:1rem">Messaggi ospiti</div>
+    <div class="card">
+      <div class="card-title">Dati ospite</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Nome ospite</label><input type="text" id="msg_nome" placeholder="es. Marco" oninput="aggiornaMsg()"></div>
+        <div class="form-group"><label>Camera</label><input type="text" id="msg_camera" placeholder="es. 1954" oninput="aggiornaMsg()"></div>
+        <div class="form-group"><label>Data arrivo</label><input type="date" id="msg_arrivo" oninput="aggiornaMsg()"></div>
+        <div class="form-group"><label>Data partenza</label><input type="date" id="msg_partenza" oninput="aggiornaMsg()"></div>
+        <div class="form-group"><label>Canale</label>
+          <select id="msg_canale" onchange="aggiornaMsg()">
+            <option value="wa">WhatsApp</option>
+            <option value="bk">Booking.com</option>
+            <option value="ab">Airbnb</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Carica da prenotazione</label>
+          <select id="msg_pren_select" onchange="caricaDaPren()">
+            <option value="">— seleziona —</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="tabs-msg">
+      <div class="tab-msg active" onclick="setTabMsg(this,'conferma')">Conferma</div>
+      <div class="tab-msg" onclick="setTabMsg(this,'precheckin')">Pre check-in</div>
+      <div class="tab-msg" onclick="setTabMsg(this,'checkin_link')">Link check-in</div>
+      <div class="tab-msg" onclick="setTabMsg(this,'checkin')">Arrivo</div>
+      <div class="tab-msg" onclick="setTabMsg(this,'followup')">Follow-up</div>
+      <div class="tab-msg" onclick="setTabMsg(this,'checkout')">Check-out</div>
+    </div>
+    <div class="card">
+      <div class="msg-preview" id="msgPreview"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-primary" id="btnCopyMsg" onclick="copyMsg()" style="flex:1">Copia messaggio</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEDINE -->
+  <div class="section" id="sec-schedine">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:1rem">Invio schedine Alloggiati Web</div>
+    <div class="card">
+      <div class="card-title">Configurazione (una volta sola)</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Chiave Web Service (WSKEY) <span class="req">*</span></label>
+          <div class="chiave-row">
+            <input type="password" id="wsKey" placeholder="Incolla la tua WSKEY">
+            <button class="btn-toggle" onclick="toggleKey()">Mostra</button>
+          </div>
+        </div>
+        <div class="form-group"><label>Username Alloggiati Web <span class="req">*</span></label><input type="text" id="wsUser" placeholder="Il tuo username"></div>
+        <div class="form-group"><label>Password Alloggiati Web <span class="req">*</span></label><input type="password" id="wsPass" placeholder="La tua password"></div>
+      </div>
+      <div class="tip" style="margin-top:.75rem"><strong>I tuoi dati rimangono solo su questo dispositivo.</strong> Non vengono inviati a nessuno tranne che al portale della Polizia di Stato.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Prenotazione da inviare</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Carica da check-in ricevuto</label>
+          <select id="sch_checkin_select" onchange="caricaDaCheckin()">
+            <option value="">— seleziona check-in compilato dall'ospite —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Camera (ID Appartamento) <span class="req">*</span></label>
+          <select id="sch_camera">
+            <option value="0">Camera 1 (ID: 0)</option>
+            <option value="1">Camera 2 (ID: 1)</option>
+            <option value="2">Camera 3 (ID: 2)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Data arrivo <span class="req">*</span></label><input type="date" id="sch_arrivo"></div>
+        <div class="form-group"><label>Data partenza <span class="req">*</span></label><input type="date" id="sch_partenza"></div>
+        <div class="form-group"><label>Num. ospiti <span class="req">*</span></label>
+          <select id="sch_numOspiti" onchange="renderOspitiSch()">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="ospitiContainerSch"></div>
+    <button class="btn btn-primary btn-full" id="btnInvia" onclick="inviaSchedine()">Effettua Check-in e invia ad Alloggiati Web</button>
+    <div id="schAlertBox" style="margin-top:1rem"></div>
+  </div>
+
+</div>
+
+<!-- MODAL NUOVA PRENOTAZIONE -->
+<div class="modal-overlay" id="modalOverlay" onclick="chiudiModalEsterno(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitolo">Nuova prenotazione</div>
+      <button class="modal-close" onclick="chiudiModal()">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Nome ospite <span class="req">*</span></label><input type="text" id="p_nome" placeholder="Nome e cognome"></div>
+      <div class="form-group"><label>Camera <span class="req">*</span></label>
+        <select id="p_camera">
+          <option value="Camera 1">Camera 1</option>
+          <option value="Camera 2">Camera 2</option>
+          <option value="Camera 3">Camera 3</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Num. ospiti</label><input type="number" id="p_numOspiti" value="1" min="1" max="10"></div>
+      <div class="form-group"><label>Data arrivo <span class="req">*</span></label><input type="date" id="p_arrivo"></div>
+      <div class="form-group"><label>Data partenza <span class="req">*</span></label><input type="date" id="p_partenza"></div>
+      <div class="form-group"><label>Canale</label>
+        <select id="p_canale">
+          <option>Booking.com</option><option>Airbnb</option><option>Diretto</option><option>WhatsApp</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Orario arrivo</label><input type="time" id="p_orario"></div>
+      <div class="form-group full"><label>Note</label><textarea id="p_note" placeholder="Richieste particolari..."></textarea></div>
+    </div>
+    <div style="margin-top:1rem">
+      <div class="tip"><strong>Link check-in per l'ospite:</strong> dopo aver salvato la prenotazione trovi il link da inviare all'ospite nella sezione Prenotazioni.</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn btn-ghost" onclick="chiudiModal()" style="flex:1">Annulla</button>
+      <button class="btn btn-primary" onclick="salvaPrenotazione()" style="flex:2">Salva prenotazione</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETTAGLIO CHECK-IN -->
+<div class="modal-overlay" id="modalCheckin" onclick="chiudiModalCheckinEsterno(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Dati check-in ospite</div>
+      <button class="modal-close" onclick="chiudiModalCheckin()">✕</button>
+    </div>
+    <div id="modalCheckinContent"></div>
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn btn-ghost" onclick="chiudiModalCheckin()" style="flex:1">Chiudi</button>
+      <button class="btn btn-primary" onclick="usaPerSchedina()" style="flex:2">Usa per invio schedina</button>
+    </div>
+  </div>
+</div>
+
+<footer>Santalò B&B · Bitonto, Puglia</footer>
+
+<script>
+const SUPABASE_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
+const CHECKIN_URL = 'https://fdp88.github.io/SANTALO/santalo-checkin-ospite.html';
+
+const PAESI_CODICI = {"ITALIA":"100000100","GERMANIA":"202000000","FRANCIA":"203000000","REGNO UNITO":"202000400","SPAGNA":"209000000","USA":"407000000","AUSTRALIA":"503000000","BRASILE":"303000000","ARGENTINA":"306000000","RUSSIA":"223000000","CINA":"357000000","GIAPPONE":"357000001","SVIZZERA":"215000000","BELGIO":"202000200","OLANDA":"208000000","AUSTRIA":"201000000","PORTOGALLO":"209000100","GRECIA":"204000000","POLONIA":"216000000","SVEZIA":"213000000"};
+const COMUNI_CODICI = {"BITONTO":"A892","BARI":"A662","ROMA":"H501","MILANO":"F205","NAPOLI":"F839","TORINO":"L219","FIRENZE":"D612","VENEZIA":"L736","BOLOGNA":"A944","PALERMO":"G273","BRINDISI":"B180","LECCE":"E631","TARANTO":"L049","FOGGIA":"D643","ANDRIA":"A285"};
+const DOC_CODICI = {"CARTA D'IDENTITA":"IDENT","CARTA D'IDENTITA ELETTRONICA":"IDENT","PASSAPORTO":"PASOR","PATENTE":"PATEN","PERMESSO DI SOGGIORNO":"PERMS"};
+const PROVINCE = {"BITONTO":"BA","BARI":"BA","BRINDISI":"BR","LECCE":"LE","TARANTO":"TA","FOGGIA":"FG","ANDRIA":"BT","ROMA":"RM","MILANO":"MI","NAPOLI":"NA","TORINO":"TO","FIRENZE":"FI","VENEZIA":"VE","BOLOGNA":"BO","PALERMO":"PA"};
+
+let prenotazioni = [];
+let checkinRicevuti = [];
+let editIdx = -1;
+let currentTabMsg = 'conferma';
+let currentCheckinData = null;
+
+// ==================== API SUPABASE ====================
+async function sbGet(table, params = '') {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}${params}`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  return r.json();
+}
+
+async function sbPost(table, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  });
+  return r.json();
+}
+
+async function sbPatch(table, id, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+    body: JSON.stringify(data)
+  });
+  return r.ok;
+}
+
+async function sbDelete(table, id) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  return r.ok;
+}
+
+// ==================== NAVIGAZIONE ====================
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'messaggi') { aggiornaSelectPren(); aggiornaMsg(); }
+  if (id === 'checkin') { caricaCheckin(); }
+  if (id === 'schedine') { aggiornaSelectCheckin(); renderOspitiSch(); }
+}
+
+// ==================== PRENOTAZIONI ====================
+function fmtDateIT(str) {
+  if (!str) return '—';
+  const d = new Date(str + 'T12:00:00');
+  return d.toLocaleDateString('it-IT', {day:'numeric', month:'short', year:'numeric'});
+}
+
+function statoPrenotazione(p) {
+  const oggi = new Date(); oggi.setHours(0,0,0,0);
+  const arr = new Date(p.arrivo + 'T12:00:00');
+  const par = new Date(p.partenza + 'T12:00:00');
+  if (oggi < arr) return {label:'In arrivo', cls:'badge-arrivo'};
+  if (oggi >= arr && oggi < par) return {label:'Ospite presente', cls:'badge-ospite'};
+  return {label:'Partito', cls:'badge-partenza'};
+}
+
+async function caricaPrenotazioni() {
+  prenotazioni = await sbGet('prenotazioni', '?order=arrivo.asc');
+  renderPrenotazioni();
+  aggiornaSelectPren();
+}
+
+function renderPrenotazioni() {
+  const list = document.getElementById('prenList');
+  if (!prenotazioni.length) {
+    list.innerHTML = '<div class="pren-empty">Nessuna prenotazione ancora.<br>Premi <strong>+ Nuova</strong> per aggiungerne una.</div>';
+    return;
+  }
+  list.innerHTML = prenotazioni.map(p => {
+    const stato = statoPrenotazione(p);
+    const checkinLink = `${CHECKIN_URL}?pren=${p.id}`;
+    return `<div class="pren-card">
+      <div>
+        <div class="pren-nome">${p.nome} <span class="badge ${stato.cls}">${stato.label}</span>${p.stato_checkin==='compilato'?'<span class="badge badge-checkin">Check-in ricevuto</span>':''}</div>
+        <div class="pren-date">${fmtDateIT(p.arrivo)} → ${fmtDateIT(p.partenza)} · ${p.num_ospiti} ospite${p.num_ospiti>1?'i':''}</div>
+        <div class="pren-camera">${p.camera} · ${p.canale}${p.orario?' · ore '+p.orario:''}</div>
+        ${p.note?`<div style="font-size:12px;color:var(--tx-m);margin-top:3px;font-style:italic">${p.note}</div>`:''}
+        <div style="margin-top:8px">
+          <div style="font-size:11px;color:var(--tx-m);margin-bottom:3px">Link check-in da inviare all'ospite:</div>
+          <div class="link-box">${checkinLink}</div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:5px" onclick="copiaLink('${checkinLink}', this)">Copia link</button>
+        </div>
+      </div>
+      <div class="pren-actions">
+        <button class="btn btn-ghost btn-sm" onclick="modificaPren(${p.id})">Modifica</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="eliminaPren(${p.id})">Elimina</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copiaLink(link, btn) {
+  navigator.clipboard.writeText(link).then(() => {
+    btn.textContent = '✓ Copiato!';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = 'Copia link'; btn.style.color = ''; }, 2000);
+  });
+}
+
+function apriModal() {
+  editIdx = -1;
+  document.getElementById('modalTitolo').textContent = 'Nuova prenotazione';
+  ['p_nome','p_note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('p_numOspiti').value = 1;
+  document.getElementById('p_arrivo').value = '';
+  document.getElementById('p_partenza').value = '';
+  document.getElementById('p_orario').value = '';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function modificaPren(id) {
+  const p = prenotazioni.find(x => x.id === id);
+  if (!p) return;
+  editIdx = id;
+  document.getElementById('modalTitolo').textContent = 'Modifica prenotazione';
+  document.getElementById('p_nome').value = p.nome;
+  document.getElementById('p_camera').value = p.camera;
+  document.getElementById('p_numOspiti').value = p.num_ospiti;
+  document.getElementById('p_arrivo').value = p.arrivo;
+  document.getElementById('p_partenza').value = p.partenza;
+  document.getElementById('p_canale').value = p.canale;
+  document.getElementById('p_orario').value = p.orario || '';
+  document.getElementById('p_note').value = p.note || '';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function eliminaPren(id) {
+  if (!confirm('Eliminare questa prenotazione?')) return;
+  await sbDelete('prenotazioni', id);
+  await caricaPrenotazioni();
+}
+
+function chiudiModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function chiudiModalEsterno(e) { if (e.target === document.getElementById('modalOverlay')) chiudiModal(); }
+
+async function salvaPrenotazione() {
+  const nome = document.getElementById('p_nome').value.trim();
+  const arrivo = document.getElementById('p_arrivo').value;
+  const partenza = document.getElementById('p_partenza').value;
+  if (!nome || !arrivo || !partenza) { alert('Compila almeno nome, data arrivo e partenza.'); return; }
+  const data = {
+    nome, arrivo, partenza,
+    camera: document.getElementById('p_camera').value,
+    num_ospiti: parseInt(document.getElementById('p_numOspiti').value) || 1,
+    canale: document.getElementById('p_canale').value,
+    orario: document.getElementById('p_orario').value || null,
+    note: document.getElementById('p_note').value.trim() || null,
+    stato_checkin: 'attesa'
+  };
+  if (editIdx >= 0) await sbPatch('prenotazioni', editIdx, data);
+  else await sbPost('prenotazioni', data);
+  chiudiModal();
+  await caricaPrenotazioni();
+}
+
+// ==================== CHECK-IN RICEVUTI ====================
+async function caricaCheckin() {
+  checkinRicevuti = await sbGet('prenotazioni', '?stato_checkin=eq.compilato&order=created_at.desc');
+  const ospitiPromises = checkinRicevuti.map(p =>
+    sbGet('checkin_ospiti', `?prenotazione_id=eq.${p.id}&order=is_capofamiglia.desc`)
+  );
+  const tuttiOspiti = await Promise.all(ospitiPromises);
+  checkinRicevuti = checkinRicevuti.map((p, i) => ({ ...p, ospiti: tuttiOspiti[i] }));
+  renderCheckin();
+  aggiornaSelectCheckin();
+
+  // Aggiorna badge
+  const badge = document.getElementById('notifBadge');
+  if (checkinRicevuti.length > 0) {
+    badge.textContent = checkinRicevuti.length;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderCheckin() {
+  const list = document.getElementById('checkinList');
+  if (!checkinRicevuti.length) {
+    list.innerHTML = '<div class="pren-empty">Nessun check-in ricevuto ancora.<br>Invia il link agli ospiti dalla sezione Prenotazioni.</div>';
+    return;
+  }
+  list.innerHTML = checkinRicevuti.map(p => {
+    const capo = p.ospiti?.find(o => o.is_capofamiglia);
+    const nomiOspiti = p.ospiti?.map(o => `${o.cognome} ${o.nome}`).join(', ') || '—';
+    return `<div class="checkin-card checkin-new">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <div class="checkin-nome">${p.nome} <span class="badge badge-checkin">Nuovo</span></div>
+          <div class="checkin-ospiti">Ospiti: ${nomiOspiti}</div>
+          <div style="font-size:11px;color:var(--tx-m);margin-top:2px">${fmtDateIT(p.arrivo)} → ${fmtDateIT(p.partenza)} · ${p.num_ospiti} ospiti</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-ghost btn-sm" onclick="vediDettaglio(${p.id})">Dettaglio</button>
+          <button class="btn btn-primary btn-sm" onclick="usaPerSchedulaById(${p.id})">Invia schedina</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function vediDettaglio(id) {
+  const p = checkinRicevuti.find(x => x.id === id);
+  if (!p) return;
+  currentCheckinData = p;
+  const content = document.getElementById('modalCheckinContent');
+  content.innerHTML = `
+    <div style="margin-bottom:1rem">
+      <div style="font-size:13px;color:var(--tx-m)">Prenotazione</div>
+      <div style="font-size:15px;font-weight:500">${p.nome} · ${fmtDateIT(p.arrivo)} → ${fmtDateIT(p.partenza)}</div>
+    </div>
+    ${(p.ospiti || []).map((o, i) => `
+    <div style="background:var(--sand-xl);border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem;border:0.5px solid var(--bdr)">
+      <div style="font-size:11px;font-weight:500;color:var(--br);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">${o.is_capofamiglia ? 'Capofamiglia' : 'Ospite '+(i+1)}</div>
+      <div style="font-size:14px;font-weight:500">${o.cognome} ${o.nome}</div>
+      <div style="font-size:12px;color:var(--tx-m);margin-top:3px">
+        Nato il ${o.data_nascita} · ${o.cittadinanza}<br>
+        ${o.comune_nascita || o.stato_nascita}<br>
+        ${o.tipo_documento ? o.tipo_documento + ': ' + o.numero_documento : ''}
+        ${o.luogo_rilascio ? ' · Rilasciato: ' + o.luogo_rilascio : ''}
+      </div>
+    </div>`).join('')}`;
+  document.getElementById('modalCheckin').classList.add('open');
+}
+
+function chiudiModalCheckin() { document.getElementById('modalCheckin').classList.remove('open'); }
+function chiudiModalCheckinEsterno(e) { if (e.target === document.getElementById('modalCheckin')) chiudiModalCheckin(); }
+
+function usaPerSchedina() {
+  chiudiModalCheckin();
+  usaPerSchedulaById(currentCheckinData.id);
+}
+
+function usaPerSchedulaById(id) {
+  const p = checkinRicevuti.find(x => x.id === id);
+  if (!p) return;
+  currentCheckinData = p;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('navCheckin').closest('nav').querySelectorAll('.nav-btn')[3].classList.add('active');
+  showSection('schedine', document.querySelectorAll('.nav-btn')[3]);
+  setTimeout(() => precompilaDaCheckin(p), 100);
+}
+
+function precompilaDaCheckin(p) {
+  const camMap = {'Camera 1':'0','Camera 2':'1','Camera 3':'2'};
+  document.getElementById('sch_camera').value = camMap[p.camera] || '0';
+  document.getElementById('sch_numOspiti').value = p.num_ospiti;
+  document.getElementById('sch_arrivo').value = p.arrivo;
+  document.getElementById('sch_partenza').value = p.partenza;
+  renderOspitiSch();
+  setTimeout(() => {
+    (p.ospiti || []).forEach((o, i) => {
+      const cog = document.getElementById('o_cog_sch_'+i);
+      if (!cog) return;
+      cog.value = o.cognome;
+      document.getElementById('o_nom_sch_'+i).value = o.nome;
+      document.getElementById('o_ses_sch_'+i).value = o.sesso === 'M' ? '1' : '2';
+      document.getElementById('o_nas_sch_'+i).value = o.data_nascita;
+      const citSel = document.getElementById('o_cit_sch_'+i);
+      citSel.value = o.cittadinanza;
+      toggleNascitaSch(i);
+      if (o.cittadinanza === 'ITALIA') {
+        document.getElementById('o_com_sch_'+i).value = o.comune_nascita || '';
+      } else {
+        const staSel = document.getElementById('o_sta_sch_'+i);
+        if (staSel) staSel.value = o.stato_nascita || '';
+      }
+      if (o.is_capofamiglia) {
+        const tdoEl = document.getElementById('o_tdo_sch_'+i);
+        const ndoEl = document.getElementById('o_ndo_sch_'+i);
+        const ldoEl = document.getElementById('o_ldo_sch_'+i);
+        if (tdoEl) tdoEl.value = o.tipo_documento || '';
+        if (ndoEl) ndoEl.value = o.numero_documento || '';
+        if (ldoEl) ldoEl.value = o.luogo_rilascio || '';
+      }
+    });
+  }, 100);
+}
+
+function aggiornaSelectCheckin() {
+  const sel = document.getElementById('sch_checkin_select');
+  sel.innerHTML = '<option value="">— seleziona check-in compilato dall\'ospite —</option>' +
+    checkinRicevuti.map(p => `<option value="${p.id}">${p.nome} · ${fmtDateIT(p.arrivo)}</option>`).join('');
+}
+
+function caricaDaCheckin() {
+  const id = parseInt(document.getElementById('sch_checkin_select').value);
+  const p = checkinRicevuti.find(x => x.id === id);
+  if (!p) return;
+  precompilaDaCheckin(p);
+}
+
+// ==================== MESSAGGI ====================
+function fmtDateLong(str) {
+  if (!str) return '[data]';
+  const d = new Date(str + 'T12:00:00');
+  return d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
+}
+
+function aggiornaSelectPren() {
+  const sel = document.getElementById('msg_pren_select');
+  sel.innerHTML = '<option value="">— seleziona —</option>' +
+    prenotazioni.map(p => `<option value="${p.id}">${p.nome} · ${fmtDateIT(p.arrivo)}</option>`).join('');
+}
+
+function caricaDaPren() {
+  const id = parseInt(document.getElementById('msg_pren_select').value);
+  const p = prenotazioni.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('msg_nome').value = p.nome.split(' ')[0];
+  document.getElementById('msg_camera').value = p.camera;
+  document.getElementById('msg_arrivo').value = p.arrivo;
+  document.getElementById('msg_partenza').value = p.partenza;
+  const cm = {'Booking.com':'bk','Airbnb':'ab','WhatsApp':'wa','Diretto':'wa'};
+  document.getElementById('msg_canale').value = cm[p.canale] || 'wa';
+  aggiornaMsg();
+}
+
+const msgTemplates = {
+  conferma: (n,cam,arr,par) =>
+`Ciao ${n}! 👋
+
+Grazie per aver scelto il B&B Santalò per il tuo soggiorno!
+
+Siamo lieti di confermarti la prenotazione dal ${arr} al ${par}.
+
+Gestiremo tutto in modo semplice: riceverai qui le istruzioni per il check-in prima del tuo arrivo.
+
+Siamo a disposizione per qualsiasi domanda. A presto! 🌿`,
+
+  precheckin: (n,cam,arr,par) =>
+`Ciao ${n}, come stai?
+
+Si avvicina il giorno del tuo arrivo a Santalò!
+
+🏠 Appartamento: ${cam}
+📅 Arrivo: ${arr} — Partenza: ${par}
+
+ORARI CHECK-IN
+✅ Standard: dalle 16:00 alle 21:00
+🌙 Late check-in: dalle 21:00 alle 23:00 (supplemento €10,00)
+🔑 Self check-in: gratuito, dalle 16:00 in poi
+🕙 Check-out: entro le 10:00
+
+Puoi dirci a che ora prevedi di arrivare?
+Hai esigenze particolari? Scrivici pure! A presto! ☀️`,
+
+  checkin_link: (n,cam,arr,par) =>
+`Ciao ${n}! 😊
+
+Per velocizzare il tuo arrivo e completare le procedure burocratiche, ti chiediamo di compilare il check-in online in anticipo — bastano 2 minuti!
+
+👉 ${CHECKIN_URL}
+
+Ti basta inserire i dati di tutti gli ospiti. Una volta completato, sei a posto — all'arrivo trovi tutto pronto!
+
+Grazie e a presto! 🌿`,
+
+  checkin: (n,cam,arr,par) =>
+`Ciao ${n}! Tutto pronto per il tuo arrivo 🎉
+
+📍 Vico Storto Sant'Eligio 9, 70032 Bitonto (BA)
+
+🔐 STEP 1 — Portone principale
+Inserisci il codice: 75391
+
+🗝️ STEP 2 — Le tue chiavi
+A destra trovi un bicchiere di legno con le chiavi della camera ${cam}. Sali al 1° piano: il tuo appartamento è sulla sinistra.
+
+🏠 STEP 3 — Benvenuto!
+Per qualsiasi cosa, scrivimi qui.
+
+♻️ RACCOLTA: 🟡 Plastica · 🟢 Vetro · 🔵 Carta · ⚫ Indifferenziata
+
+🍽️ DOVE MANGIARE: Pizza → Caveau o Patriarca · Carne → Vinicio · Tipico → Ragno Verde · Panzerotto → Manicaretto
+
+Buon soggiorno in Puglia! 🌿`,
+
+  followup: (n) =>
+`Ciao ${n}! 😊
+
+Com'è andata la prima notte da noi? Speriamo tutto bene!
+
+Per qualsiasi cosa o consiglio su cosa vedere, scrivimi pure. Buona giornata! ☀️`,
+
+  checkout: (n) =>
+`Caro ${n},
+
+grazie di cuore per aver soggiornato da noi al B&B Santalò!
+
+Al check-out (entro le 10:00):
+🔑 Lascia le chiavi sul desk della reception
+🚪 Assicurati di chiudere il portone
+
+Se hai un momento, una recensione su Booking o Airbnb ci aiuta tantissimo! 🙏
+
+A presto in Puglia! 🌿`
+};
+
+function aggiornaMsg() {
+  const n = document.getElementById('msg_nome').value || '[Nome ospite]';
+  const cam = document.getElementById('msg_camera').value || '[Camera]';
+  const arr = fmtDateLong(document.getElementById('msg_arrivo').value);
+  const par = fmtDateLong(document.getElementById('msg_partenza').value);
+  const fn = msgTemplates[currentTabMsg];
+  document.getElementById('msgPreview').textContent = fn(n, cam, arr, par);
+}
+
+function setTabMsg(el, tab) {
+  document.querySelectorAll('.tab-msg').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentTabMsg = tab;
+  aggiornaMsg();
+  const btn = document.getElementById('btnCopyMsg');
+  btn.textContent = 'Copia messaggio';
+  btn.style.background = 'var(--br)';
+}
+
+function copyMsg() {
+  const text = document.getElementById('msgPreview').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btnCopyMsg');
+    btn.textContent = '✓ Copiato!';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => { btn.textContent = 'Copia messaggio'; btn.style.background = 'var(--br)'; }, 2500);
+  });
+}
+
+// ==================== SCHEDINE ====================
+const PAESI_LIST = Object.keys(PAESI_CODICI);
+
+function toggleKey() {
+  const inp = document.getElementById('wsKey');
+  event.target.textContent = inp.type === 'password' ? 'Nascondi' : 'Mostra';
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function renderOspitiSch() {
+  const n = parseInt(document.getElementById('sch_numOspiti').value);
+  const container = document.getElementById('ospitiContainerSch');
+  container.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const isCapo = i === 0;
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<div class="card-title">${isCapo?'Capofamiglia / Ospite principale':'Ospite '+(i+1)}</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Cognome <span class="req">*</span></label>
+        <input type="text" id="o_cog_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="form-group"><label>Nome <span class="req">*</span></label>
+        <input type="text" id="o_nom_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="form-group"><label>Sesso <span class="req">*</span></label>
+        <select id="o_ses_sch_${i}"><option value="1">Maschio</option><option value="2">Femmina</option></select></div>
+      <div class="form-group"><label>Data di nascita <span class="req">*</span></label>
+        <input type="date" id="o_nas_sch_${i}"></div>
+      <div class="form-group"><label>Cittadinanza <span class="req">*</span></label>
+        <select id="o_cit_sch_${i}" onchange="toggleNascitaSch(${i})">
+          ${PAESI_LIST.map(p=>`<option value="${p}"${p==='ITALIA'?' selected':''}>${p}</option>`).join('')}
+        </select></div>
+      <div class="form-group" id="o_com_grp_sch_${i}"><label>Comune di nascita</label>
+        <input type="text" id="o_com_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="form-group" id="o_sta_grp_sch_${i}" style="display:none"><label>Stato di nascita</label>
+        <select id="o_sta_sch_${i}">${PAESI_LIST.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></div>
+      ${isCapo?`
+      <div class="form-group"><label>Tipo documento <span class="req">*</span></label>
+        <select id="o_tdo_sch_${i}">
+          <option value="CARTA D'IDENTITA">CARTA D'IDENTITA</option>
+          <option value="PASSAPORTO">PASSAPORTO</option>
+          <option value="PATENTE">PATENTE</option>
+          <option value="PERMESSO DI SOGGIORNO">PERMESSO DI SOGGIORNO</option>
+        </select></div>
+      <div class="form-group"><label>Numero documento <span class="req">*</span></label>
+        <input type="text" id="o_ndo_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="form-group"><label>Luogo rilascio</label>
+        <input type="text" id="o_ldo_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
+      `:''}
+    </div>`;
+    container.appendChild(div);
+  }
+}
+
+function toggleNascitaSch(i) {
+  const isIta = document.getElementById('o_cit_sch_'+i).value === 'ITALIA';
+  document.getElementById('o_com_grp_sch_'+i).style.display = isIta?'':'none';
+  document.getElementById('o_sta_grp_sch_'+i).style.display = isIta?'none':'';
+}
+
+function pad(str, len) { return String(str).padEnd(len, ' ').substring(0, len); }
+function padLeft(str, len) { return String(str).padStart(len, '0').substring(0, len); }
+
+function buildRiga(o, arrivo, notti, isCapo) {
+  const tipoAlloggiato = isCapo ? '16' : '17';
+  const d = new Date(arrivo + 'T12:00:00');
+  const dataArr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  const nottiStr = String(notti).padStart(2,'0');
+  const cognome = pad(o.cognome, 50);
+  const nome = pad(o.nome, 30);
+  const sesso = o.sesso;
+  const dn = new Date(o.dataNascita + 'T12:00:00');
+  const dataNasc = `${String(dn.getDate()).padStart(2,'0')}/${String(dn.getMonth()+1).padStart(2,'0')}/${dn.getFullYear()}`;
+  const isIta = o.cittadinanza === 'ITALIA';
+  const comuneNascita = isIta ? pad(COMUNI_CODICI[o.comuneNascita.toUpperCase()] || '        ', 9) : pad('', 9);
+  const provNascita = isIta ? pad(PROVINCE[o.comuneNascita.toUpperCase()] || '  ', 2) : '  ';
+  const statoCod = PAESI_CODICI[o.cittadinanza] || PAESI_CODICI['ITALIA'];
+  const statoNascitaCod = isIta ? PAESI_CODICI['ITALIA'] : (PAESI_CODICI[o.statoNascita] || statoCod);
+  const cittadinanzaCod = statoCod;
+  let tipoDoc = '     ', numDoc = pad('', 20), luogoRilascio = pad('', 9);
+  if (isCapo) {
+    tipoDoc = pad(DOC_CODICI[o.tipoDoc] || 'IDENT', 5);
+    numDoc = pad(o.numDoc, 20);
+    const luogo = o.luogoDoc ? o.luogoDoc.toUpperCase() : 'BITONTO';
+    luogoRilascio = pad(COMUNI_CODICI[luogo] || PAESI_CODICI[luogo] || 'A892     ', 9);
+  }
+  return tipoAlloggiato + dataArr + nottiStr + cognome + nome + sesso + dataNasc +
+    comuneNascita + provNascita + statoNascitaCod + cittadinanzaCod +
+    tipoDoc + numDoc + luogoRilascio;
+}
+
+async function generaToken() {
+  const user = document.getElementById('wsUser').value.trim();
+  const pass = document.getElementById('wsPass').value.trim();
+  const wsKey = document.getElementById('wsKey').value.trim();
+  const soap = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:all="AlloggiatiService">
+  <soap:Header/>
+  <soap:Body>
+    <all:GenerateToken>
+      <all:Utente>${user}</all:Utente>
+      <all:Password>${pass}</all:Password>
+      <all:WsKey>${wsKey}</all:WsKey>
+    </all:GenerateToken>
+  </soap:Body>
+</soap:Envelope>`;
+  const resp = await fetch('https://alloggiatiweb.poliziadistato.it/service/service.asmx', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/soap+xml; charset=utf-8', 'SOAPAction': '' },
+    body: soap
+  });
+  const text = await resp.text();
+  const match = text.match(/<token>(.*?)<\/token>/);
+  return match ? match[1] : null;
+}
+
+function showSchAlert(type, msg) {
+  const box = document.getElementById('schAlertBox');
+  box.innerHTML = `<div class="alert ${type}">${msg}</div>`;
+}
+
+async function inviaSchedine() {
+  const wsKey = document.getElementById('wsKey').value.trim();
+  const wsUser = document.getElementById('wsUser').value.trim();
+  const wsPass = document.getElementById('wsPass').value.trim();
+  const arrivo = document.getElementById('sch_arrivo').value;
+  const partenza = document.getElementById('sch_partenza').value;
+  const camera = document.getElementById('sch_camera').value;
+  const n = parseInt(document.getElementById('sch_numOspiti').value);
+
+  if (!wsKey || !wsUser || !wsPass) { showSchAlert('error','⚠️ Inserisci WSKEY, username e password.'); return; }
+  if (!arrivo || !partenza) { showSchAlert('error','⚠️ Inserisci le date.'); return; }
+
+  const notti = Math.round((new Date(partenza) - new Date(arrivo)) / 86400000);
+  const ospitiData = [];
+  for (let i = 0; i < n; i++) {
+    const cognome = document.getElementById('o_cog_sch_'+i)?.value.trim();
+    const nome = document.getElementById('o_nom_sch_'+i)?.value.trim();
+    const dataNascita = document.getElementById('o_nas_sch_'+i)?.value;
+    if (!cognome || !nome || !dataNascita) { showSchAlert('error',`⚠️ Campi obbligatori mancanti per ospite ${i+1}.`); return; }
+    const isCapo = i === 0;
+    const numDoc = isCapo ? document.getElementById('o_ndo_sch_0')?.value.trim() : '';
+    if (isCapo && !numDoc) { showSchAlert('error','⚠️ Inserisci il numero documento del capofamiglia.'); return; }
+    ospitiData.push({
+      cognome, nome,
+      sesso: document.getElementById('o_ses_sch_'+i).value,
+      dataNascita,
+      cittadinanza: document.getElementById('o_cit_sch_'+i).value,
+      comuneNascita: document.getElementById('o_cit_sch_'+i).value==='ITALIA' ? document.getElementById('o_com_sch_'+i).value.trim() : '',
+      statoNascita: document.getElementById('o_cit_sch_'+i).value!=='ITALIA' ? document.getElementById('o_sta_sch_'+i)?.value : '',
+      tipoDoc: isCapo ? document.getElementById('o_tdo_sch_0').value : '',
+      numDoc: isCapo ? numDoc : '',
+      luogoDoc: isCapo ? (document.getElementById('o_ldo_sch_0')?.value.trim() || '') : ''
+    });
+  }
+
+  const btn = document.getElementById('btnInvia');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Generazione token...';
+
+  try {
+    const token = await generaToken();
+    if (!token) throw new Error('Token non generato — verifica username, password e WSKEY');
+
+    btn.innerHTML = '<span class="spinner"></span>Invio schedine...';
+
+    const righe = ospitiData.map((o, i) => buildRiga(o, arrivo, notti, i === 0));
+
+    const soapSend = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:all="AlloggiatiService">
+  <soap:Header/>
+  <soap:Body>
+    <all:GestioneAppartamenti_Send>
+      <all:Utente>${wsUser}</all:Utente>
+      <all:token>${token}</all:token>
+      <all:ElencoSchedine>
+        ${righe.map(r=>`<all:string>${r}</all:string>`).join('\n        ')}
+      </all:ElencoSchedine>
+      <all:IdAppartamento>${camera}</all:IdAppartamento>
+    </all:GestioneAppartamenti_Send>
+  </soap:Body>
+</soap:Envelope>`;
+
+    const resp = await fetch('https://alloggiatiweb.poliziadistato.it/service/service.asmx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/soap+xml; charset=utf-8' },
+      body: soapSend
+    });
+    const text = await resp.text();
+
+    if (text.includes('<esito>true</esito>')) {
+      showSchAlert('success', `✅ <strong>Schedine inviate con successo!</strong><br>${n} schedina${n>1?'e':''} inviata${n>1?'e':''} ad Alloggiati Web.`);
+    } else {
+      const errMatch = text.match(/<ErroreDes>(.*?)<\/ErroreDes>/);
+      const errDet = text.match(/<ErroreDettaglio>(.*?)<\/ErroreDettaglio>/);
+      const errMsg = errMatch ? errMatch[1] : 'Errore sconosciuto';
+      const errDetMsg = errDet ? errDet[1] : '';
+      showSchAlert('error', `⚠️ <strong>Errore dal portale:</strong> ${errMsg}${errDetMsg?' — '+errDetMsg:''}<br><br><button onclick="scaricaTXT()" style="padding:7px 14px;background:var(--br);color:white;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">Scarica file TXT per invio manuale</button>`);
+      window._lastRighe = righe;
+    }
+  } catch(e) {
+    showSchAlert('error', `⚠️ <strong>${e.message}</strong><br><br><button onclick="scaricaTXT()" style="padding:7px 14px;background:var(--br);color:white;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">Scarica file TXT per invio manuale</button>`);
+    window._lastRighe = ospitiData.map((o, i) => buildRiga(o, arrivo, notti, i === 0));
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Effettua Check-in e invia ad Alloggiati Web';
+}
+
+function scaricaTXT() {
+  if (!window._lastRighe) return;
+  const content = window._lastRighe.join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type:'text/plain;charset=utf-8'}));
+  a.download = 'schedine_alloggiati.txt';
+  a.click();
+}
+
+// ==================== INIT ====================
+caricaPrenotazioni();
+caricaCheckin();
+aggiornaMsg();
+renderOspitiSch();
+
+// Polling ogni 2 minuti per nuovi check-in
+setInterval(caricaCheckin, 120000);
+</script>
+</body>
+</html>
