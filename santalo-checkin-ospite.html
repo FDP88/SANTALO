@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santalò B&B — Check-in online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --brown: #6B2D1F;
+      --sand: #C4A882;
+      --cream: #f8f4ef;
+      --ink: #2e241f;
+      --muted: #7b6a60;
+      --line: rgba(107,45,31,.14);
+      --ok: #1f7a45;
+      --shadow: 0 18px 40px rgba(58,30,18,.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #fcf8f4, #f3ebe2);
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
+    .hero {
+      background: linear-gradient(135deg, rgba(107,45,31,.98), rgba(140,79,53,.96));
+      color: white; border-radius: 30px; padding: 28px; box-shadow: var(--shadow); margin-bottom: 18px;
+    }
+    h1, h2 { font-family: 'Cormorant Garamond', serif; margin: 0 0 10px; }
+    h1 { font-size: 46px; }
+    h2 { font-size: 30px; color: var(--brown); }
+    .subtitle { opacity: .9; max-width: 720px; }
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 22px; box-shadow: var(--shadow); margin-bottom: 16px;
+    }
+    .grid { display:grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+    .full { grid-column: 1 / -1; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    input, select, textarea {
+      width:100%; padding:12px 13px; border-radius:14px; border:1px solid rgba(107,45,31,.18); font:inherit; background:#fff;
+    }
+    input[type="file"] { padding: 10px; }
+    .guest-card { border:1px solid var(--line); border-radius:18px; padding:16px; background:#fffdfb; margin-top:14px; }
+    .guest-title { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:12px; }
+    .pill { background:#f4ece4; color:var(--brown); border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
+    button {
+      border:0; border-radius:14px; padding:13px 18px; background:var(--brown); color:#fff; font-weight:700; cursor:pointer;
+    }
+    .note { font-size: 13px; color: var(--muted); }
+    .privacy { background:#faf6f1; border-radius:16px; padding:16px; border:1px solid var(--line); line-height:1.55; }
+    .success { display:none; text-align:center; padding:24px; }
+    .success.show { display:block; }
+    .success h2 { color: var(--ok); }
+    .status { display:none; position: sticky; bottom: 10px; background:#fff; border:1px solid var(--line); border-radius:18px; padding: 14px 16px; box-shadow: var(--shadow); }
+    .status.show { display:block; }
+    .required-note { background:#fff8ef; border:1px solid rgba(196,168,130,.5); border-radius:14px; padding:12px 14px; margin-top:12px; }
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 38px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="pill" style="display:inline-flex; margin-bottom:12px;">Santalò B&B · Bitonto, Puglia</div>
+      <h1>Check-in online</h1>
+      <div class="subtitle">Benvenuto. Compila i dati di tutti gli ospiti prima dell'arrivo: bastano pochi minuti e il check-in in struttura sarà molto più rapido.</div>
+    </section>
+
+    <form id="checkinForm">
+      <section class="card">
+        <h2>La tua prenotazione</h2>
+        <div class="grid">
+          <div><label>Nome del prenotante *</label><input id="nomePrenotante" required></div>
+          <div><label>Camera *</label>
+            <select id="camera" required>
+              <option value="">Seleziona</option>
+              <option>Camera 1954</option>
+              <option>Camera 1956</option>
+              <option>Camera 1920</option>
+            </select>
+          </div>
+          <div><label>Data arrivo *</label><input id="arrivo" type="date" required></div>
+          <div><label>Data partenza *</label><input id="partenza" type="date" required></div>
+          <div><label>Numero ospiti totali *</label><select id="numOspiti" required><option value="1">1 ospite</option><option value="2">2 ospiti</option></select></div>
+          <div><label>Orario di arrivo previsto</label><input id="orario" placeholder="Es. 18:30"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Dati degli ospiti</h2>
+        <div class="note">Inserisci i dati esattamente come compaiono sul documento. Il primo ospite viene considerato capofamiglia.</div>
+        <div class="required-note">Per ogni ospite sono obbligatorie tre immagini: <strong>documento fronte</strong>, <strong>documento retro</strong> e <strong>selfie con documento accanto al viso</strong>.</div>
+        <div id="guestsContainer"></div>
+      </section>
+
+      <section class="card">
+        <h2>Privacy</h2>
+        <div class="privacy">
+          I dati personali raccolti attraverso questo modulo sono trattati da B&amp;B Santalò (Vico Storto Sant'Eligio 9, Bitonto) esclusivamente per adempiere agli obblighi di legge di comunicazione alle Autorità di Pubblica Sicurezza ai sensi dell'art. 109 T.U.L.P.S. e della normativa applicabile. I dati non saranno ceduti a terzi per finalità commerciali e saranno conservati per il tempo previsto dalla normativa vigente. Titolare del trattamento: B&amp;B Santalò.
+        </div>
+        <label style="display:flex; gap:10px; align-items:flex-start; margin-top:14px; color:var(--ink);">
+          <input type="checkbox" id="privacyOk" style="width:auto; margin-top:2px;" required>
+          <span>Ho letto e accetto il trattamento dei miei dati personali per le finalità sopra descritte. *</span>
+        </label>
+      </section>
+
+      <section class="card">
+        <button type="submit">Completa il mio check-in</button>
+        <div class="note" style="margin-top:10px;">Se il caricamento dei documenti fallisce, controlla di aver eseguito lo script Supabase che crea il bucket e le colonne.</div>
+      </section>
+    </form>
+
+    <section id="successBox" class="card success">
+      <h2>Check-in completato!</h2>
+      <p>Grazie, abbiamo ricevuto tutti i tuoi dati e i documenti.</p>
+      <p>Non vediamo l'ora di accoglierti a Bitonto. Riceverai a breve le istruzioni per l'arrivo.</p>
+    </section>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
+    const DOC_BUCKET = 'documenti-ospiti';
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+
+    const qs = new URLSearchParams(window.location.search);
+    const prenotazioneId = Number(qs.get('prenotazione_id')) || null;
+    const guestsContainer = document.getElementById('guestsContainer');
+    const statusBox = document.getElementById('status');
+
+    const countryOptions = `<option value="Italia">Italia</option><option value="Albania">Albania</option><option value="Argentina">Argentina</option><option value="Australia">Australia</option><option value="Austria">Austria</option><option value="Belgio">Belgio</option><option value="Brasile">Brasile</option><option value="Bulgaria">Bulgaria</option><option value="Canada">Canada</option><option value="Cina">Cina</option><option value="Croazia">Croazia</option><option value="Danimarca">Danimarca</option><option value="Egitto">Egitto</option><option value="Francia">Francia</option><option value="Germania">Germania</option><option value="Giappone">Giappone</option><option value="Grecia">Grecia</option><option value="India">India</option><option value="Irlanda">Irlanda</option><option value="Marocco">Marocco</option><option value="Messico">Messico</option><option value="Paesi Bassi">Paesi Bassi</option><option value="Polonia">Polonia</option><option value="Portogallo">Portogallo</option><option value="Regno Unito">Regno Unito</option><option value="Romania">Romania</option><option value="Russia">Russia</option><option value="Spagna">Spagna</option><option value="Stati Uniti">Stati Uniti</option><option value="Svizzera">Svizzera</option><option value="Turchia">Turchia</option><option value="Ucraina">Ucraina</option><option value="Ungheria">Ungheria</option>`;
+
+    function showStatus(message, error = false) {
+      statusBox.textContent = message;
+      statusBox.className = 'status show';
+      statusBox.style.borderColor = error ? 'rgba(162,39,39,.22)' : 'rgba(31,122,69,.22)';
+    }
+
+    function ext(name='file.jpg') {
+      const part = name.split('.').pop();
+      return part && part !== name ? part.toLowerCase() : 'jpg';
+    }
+
+    function guestTemplate(index) {
+      return `
+        <article class="guest-card" data-guest-index="${index}">
+          <div class="guest-title">
+            <strong>Ospite ${index + 1}</strong>
+            <span class="pill">${index === 0 ? 'Capofamiglia' : 'Accompagnatore'}</span>
+          </div>
+          <div class="grid">
+            <div><label>Cognome *</label><input data-field="cognome" required></div>
+            <div><label>Nome *</label><input data-field="nome" required></div>
+            <div><label>Sesso *</label><select data-field="sesso" required><option value="">Seleziona</option><option value="M">Maschio</option><option value="F">Femmina</option></select></div>
+            <div><label>Data di nascita *</label><input data-field="data_nascita" type="date" required></div>
+            <div><label>Cittadinanza *</label><select data-field="cittadinanza" required><option value="">Seleziona</option>${countryOptions}</select></div>
+            <div><label>Comune di nascita</label><input data-field="comune_nascita"></div>
+            <div><label>Provincia di nascita</label><input data-field="provincia_nascita" maxlength="2" placeholder="BA"></div>
+            <div><label>Stato di nascita *</label><select data-field="stato_nascita" required><option value="">Seleziona</option>${countryOptions}</select></div>
+            <div><label>Tipo documento *</label><select data-field="tipo_documento" required><option value="">Seleziona</option><option value="Carta di identità">Carta di identità</option><option value="Passaporto">Passaporto</option><option value="Patente">Patente</option><option value="Permesso di soggiorno">Permesso di soggiorno</option></select></div>
+            <div><label>Numero documento *</label><input data-field="numero_documento" required></div>
+            <div class="full"><label>Luogo di rilascio *</label><input data-field="luogo_rilascio" required></div>
+            <div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" capture="environment" required></div>
+            <div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" capture="environment" required></div>
+            <div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" capture="user" required></div>
+          </div>
+        </article>`;
+    }
+
+    function renderGuests(count) {
+      guestsContainer.innerHTML = Array.from({ length: count }, (_, i) => guestTemplate(i)).join('');
+    }
+
+    async function preloadBooking() {
+      document.getElementById('nomePrenotante').value = qs.get('nome') || '';
+      document.getElementById('camera').value = qs.get('camera') || '';
+      document.getElementById('arrivo').value = qs.get('arrivo') || '';
+      document.getElementById('partenza').value = qs.get('partenza') || '';
+      document.getElementById('numOspiti').value = qs.get('num_ospiti') || '1';
+      renderGuests(Number(document.getElementById('numOspiti').value));
+
+      if (!prenotazioneId) return;
+      const { data, error } = await sb.from('prenotazioni').select('*').eq('id', prenotazioneId).maybeSingle();
+      if (error) throw error;
+      if (data) {
+        document.getElementById('nomePrenotante').value = data.nome || document.getElementById('nomePrenotante').value;
+        document.getElementById('camera').value = data.camera || document.getElementById('camera').value;
+        document.getElementById('arrivo').value = data.arrivo || document.getElementById('arrivo').value;
+        document.getElementById('partenza').value = data.partenza || document.getElementById('partenza').value;
+        document.getElementById('numOspiti').value = String(Math.min(Number(data.num_ospiti || 1), 2));
+        renderGuests(Number(document.getElementById('numOspiti').value));
+      }
+    }
+
+    async function uploadGuestFile(file, prenId, guestIndex, label) {
+      const path = `prenotazione-${prenId || 'manuale'}/guest-${guestIndex + 1}/${label}-${Date.now()}.${ext(file.name)}`;
+      const { error } = await sb.storage.from(DOC_BUCKET).upload(path, file, { upsert: true });
+      if (error) throw new Error(`Upload ${label} non riuscito: ${error.message}`);
+      return path;
+    }
+
+    async function collectGuests() {
+      const cards = [...guestsContainer.querySelectorAll('.guest-card')];
+      const guests = [];
+
+      for (const [idx, card] of cards.entries()) {
+        const obj = {
+          prenotazione_id: prenotazioneId,
+          is_capofamiglia: idx === 0,
+          schedina_inviata: false,
+          created_at: new Date().toISOString()
+        };
+
+        for (const input of card.querySelectorAll('[data-field]')) {
+          obj[input.dataset.field] = input.value.trim();
+        }
+
+        const fronte = card.querySelector('[data-file="documento_fronte"]').files[0];
+        const retro = card.querySelector('[data-file="documento_retro"]').files[0];
+        const selfie = card.querySelector('[data-file="selfie_documento"]').files[0];
+        if (!fronte || !retro || !selfie) throw new Error(`Carica tutti i documenti richiesti per l'ospite ${idx + 1}.`);
+
+        obj.documento_fronte_path = await uploadGuestFile(fronte, prenotazioneId, idx, 'fronte');
+        obj.documento_retro_path = await uploadGuestFile(retro, prenotazioneId, idx, 'retro');
+        obj.selfie_documento_path = await uploadGuestFile(selfie, prenotazioneId, idx, 'selfie');
+
+        guests.push(obj);
+      }
+
+      return guests;
+    }
+
+    async function submitCheckin(evt) {
+      evt.preventDefault();
+      if (!document.getElementById('privacyOk').checked) throw new Error("Devi accettare l'informativa privacy per continuare.");
+      const numOspiti = Number(document.getElementById('numOspiti').value || 1);
+      const guests = await collectGuests();
+      if (guests.length !== numOspiti) throw new Error('Il numero di ospiti compilati non corrisponde al totale selezionato.');
+
+      if (prenotazioneId) {
+        const { error: delError } = await sb.from('checkin_ospiti').delete().eq('prenotazione_id', prenotazioneId);
+        if (delError) throw delError;
+      }
+
+      const { error: insertError } = await sb.from('checkin_ospiti').insert(guests);
+      if (insertError) throw insertError;
+
+      if (prenotazioneId) {
+        const bookingPayload = {
+          nome: document.getElementById('nomePrenotante').value.trim(),
+          camera: document.getElementById('camera').value.trim(),
+          arrivo: document.getElementById('arrivo').value,
+          partenza: document.getElementById('partenza').value,
+          num_ospiti: numOspiti,
+          orario: document.getElementById('orario').value.trim(),
+          stato_checkin: 'completato'
+        };
+        const { error: updateError } = await sb.from('prenotazioni').update(bookingPayload).eq('id', prenotazioneId);
+        if (updateError) throw updateError;
+      }
+
+      document.getElementById('checkinForm').style.display = 'none';
+      document.getElementById('successBox').classList.add('show');
+      showStatus('Check-in inviato correttamente.');
+    }
+
+    document.getElementById('numOspiti').addEventListener('change', e => renderGuests(Number(e.target.value || 1)));
+    document.getElementById('checkinForm').addEventListener('submit', async (evt) => {
+      try {
+        showStatus('Invio in corso, attendi qualche secondo...');
+        await submitCheckin(evt);
+      } catch (err) {
+        console.error(err);
+        showStatus(`Errore: ${err.message}`, true);
+      }
+    });
+
+    preloadBooking().catch(err => {
+      console.error(err);
+      showStatus(`Impossibile caricare la prenotazione: ${err.message}`, true);
+    });
+  </script>
+</body>
+</html>
