@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santalò B&B · Gestionale</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--brown:#6B2D1F;--sand:#C4A882;--bg:#f6f1eb;--card:#fff;--ink:#2f241f;--muted:#826c61;--ok:#1f7a45;--warn:#b97912}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+    .wrap{max-width:1200px;margin:0 auto;padding:20px}.hero{background:linear-gradient(135deg,var(--brown),#9b593d);color:#fff;border-radius:28px;padding:26px;display:grid;grid-template-columns:1.5fr .9fr;gap:18px;align-items:start}
+    .pill{display:inline-block;background:#fff;color:var(--brown);padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.kpi{border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:16px}.kpi strong{font-size:40px;display:block}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.btn,.btn-outline{border:none;border-radius:16px;padding:12px 16px;font-weight:700;cursor:pointer}.btn{background:#fff;color:var(--brown)} .btn-outline{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff}
+    .layout{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}.card{background:#fff;border:1px solid rgba(107,45,31,.12);border-radius:24px;padding:22px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px} label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600} input,select,textarea{width:100%;padding:12px 14px;border:1px solid rgba(107,45,31,.18);border-radius:14px;font-size:15px} textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}
+    .booking{border:1px solid rgba(107,45,31,.14);border-radius:22px;padding:18px;margin-top:14px;background:#fcfaf8}.row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.chip{background:#efe5da;color:var(--brown);padding:8px 10px;border-radius:999px;font-size:12px;font-weight:700}.status-ok{background:#e1f1e7;color:var(--ok)}.status-warn{background:#fff1db;color:var(--warn)}
+    .mini{background:#f7f2ed;border-radius:14px;padding:10px}.link{font-size:12px;word-break:break-all;color:#6b2d1f}.guestCard{border:1px solid rgba(107,45,31,.12);border-radius:20px;padding:14px;margin-top:12px;background:#fcfaf8}.doclinks a{display:inline-block;margin:6px 8px 0 0;color:#6b2d1f}
+    .msg{margin-top:12px;padding:12px 14px;border-radius:16px;background:#fff;display:none;border:1px solid rgba(31,122,69,.22)} .msg.show{display:block}
+    @media(max-width:900px){.hero,.layout{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,1fr)}.grid,.grid-4{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <span class="pill">Santalò B&B · Vico Storto Sant'Eligio 9 · Bitonto</span>
+        <h1 style="font:56px Georgia,serif;line-height:1;margin:14px 0 10px">Gestione prenotazioni e check-in</h1>
+        <p style="max-width:760px">Inserisci prenotazioni, genera il link del check-in online e controlla i documenti caricati dagli ospiti.</p>
+        <div class="actions">
+          <button class="btn" id="reloadBtn">Ricarica dati</button>
+          <button class="btn-outline" id="testBtn">Test connessione</button>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><span>Prenotazioni</span><strong id="kpiPren">0</strong></div>
+        <div class="kpi"><span>Check-in ricevuti</span><strong id="kpiChk">0</strong></div>
+        <div class="kpi"><span>Da completare</span><strong id="kpiTodo">0</strong></div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div>
+        <section class="card">
+          <h2 style="font:44px Georgia,serif;margin:0 0 10px">Nuova prenotazione</h2>
+          <form id="bookingForm" class="grid">
+            <div><label>Nome ospite</label><input id="nome" required></div>
+            <div><label>Camera</label><select id="camera" required><option value="Camera 1954">Camera 1954</option><option value="Camera 1956">Camera 1956</option><option value="Camera 1920">Camera 1920</option></select></div>
+            <div><label>Arrivo</label><input id="arrivo" type="date" required></div>
+            <div><label>Partenza</label><input id="partenza" type="date" required></div>
+            <div><label>Numero ospiti</label><select id="num_ospiti" required><option value="1">1</option><option value="2">2</option></select></div>
+            <div><label>Canale</label><select id="canale"><option>Diretto</option><option>Booking.com</option><option>Airbnb</option></select></div>
+            <div><label>Orario</label><input id="orario" placeholder="es. dopo le 15:00"></div>
+            <div class="full"><label>Note</label><textarea id="note"></textarea></div>
+            <div class="full"><button class="btn" type="submit" style="background:var(--brown);color:#fff">Salva prenotazione</button></div>
+          </form>
+          <div id="formMsg" class="msg"></div>
+        </section>
+
+        <section class="card" style="margin-top:18px">
+          <h2 style="font:44px Georgia,serif;margin:0 0 10px">Prenotazioni</h2>
+          <div id="bookings"></div>
+        </section>
+      </div>
+
+      <div>
+        <section class="card">
+          <h2 style="font:44px Georgia,serif;margin:0 0 10px">Check-in ricevuti</h2>
+          <div id="checkins"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+<script>
+const SUPABASE_URL='https://ifdqcnjdnblvtflqsqmt.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+</script>
+<script>
+const REAL_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
+const sb=window.supabase.createClient(SUPABASE_URL,REAL_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const fmt=d=>d?new Date(d+'T00:00:00').toLocaleDateString('it-IT'): '—';
+const bookingsEl=document.getElementById('bookings'); const checkinsEl=document.getElementById('checkins'); const msgEl=document.getElementById('formMsg');
+function showMsg(t,e=false){msgEl.textContent=t;msgEl.className='msg show';msgEl.style.borderColor=e?'rgba(162,39,39,.22)':'rgba(31,122,69,.22)';}
+function escapeHtml(s=''){return s.replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));}
+function checkinLink(b){const p=new URLSearchParams({prenotazione_id:b.id,nome:b.nome||'',arrivo:b.arrivo||'',partenza:b.partenza||'',num_ospiti:b.num_ospiti||1,camera:b.camera||''}); return `${location.origin}${location.pathname.replace('santalo-app-v2.html','santalo-checkin-ospite.html')}?${p.toString()}`;}
+async function copyText(t){await navigator.clipboard.writeText(t);} 
+async function loadAll(){
+  const {data: bookings,error:e1}=await sb.from('prenotazioni').select('*').order('id',{ascending:false}); if(e1){showMsg(e1.message,true); return;}
+  const {data: guests,error:e2}=await sb.from('checkin_ospiti').select('*').order('created_at',{ascending:false}); if(e2){showMsg(e2.message,true); return;}
+  document.getElementById('kpiPren').textContent=bookings.length; const grouped={}; for(const g of guests){(grouped[g.prenotazione_id] ||= []).push(g);} document.getElementById('kpiChk').textContent=Object.keys(grouped).length; document.getElementById('kpiTodo').textContent=bookings.filter(b=>(b.stato_checkin||'da compilare')!=='completato').length;
+  bookingsEl.innerHTML=bookings.length?bookings.map(b=>{const link=checkinLink(b); const count=(grouped[b.id]||[]).length; const status=count===0?'da compilare':(count < Number(b.num_ospiti||1)?'parziale':'completato'); return `<article class="booking"><div class="row"><div><strong style="font-size:26px">${escapeHtml(b.nome||'Prenotazione')}</strong><div>ID prenotazione #${b.id}</div></div><span class="chip ${status==='completato'?'status-ok':'status-warn'}">${status}</span></div><div class="grid-4" style="margin-top:14px"><div class="mini"><label>Camera</label><div>${escapeHtml(b.camera||'')}</div></div><div class="mini"><label>Arrivo</label><div>${fmt(b.arrivo)}</div></div><div class="mini"><label>Partenza</label><div>${fmt(b.partenza)}</div></div><div class="mini"><label>Ospiti</label><div>${b.num_ospiti||1}</div></div></div><div class="chips"><span class="chip">${escapeHtml(b.canale||'Diretto')}</span><span class="chip">Check-in ricevuti: ${count}</span></div><div class="actions"><button class="btn" onclick='navigator.clipboard.writeText(${JSON.stringify(link)}).then(()=>alert("Link copiato"))'>Copia link check-in</button><button class="btn" onclick='window.open(${JSON.stringify(link)},"_blank")'>Apri form ospite</button></div><div class="link">${escapeHtml(link)}</div></article>`;}).join(''):'<p>Nessuna prenotazione.</p>';
+  checkinsEl.innerHTML=Object.entries(grouped).length?Object.entries(grouped).map(([prenId, arr])=>{const p=bookings.find(b=>String(b.id)===String(prenId)); return `<div class="guestCard"><strong style="font-size:24px">${arr.map(x=>`${x.cognome||''} ${x.nome||''}`.trim()).join(', ')}</strong><div>Prenotazione #${prenId}</div><div class="grid-4" style="margin-top:12px"><div class="mini"><label>Camera</label><div>${escapeHtml(p?.camera||'—')}</div></div><div class="mini"><label>Arrivo</label><div>${fmt(p?.arrivo)}</div></div><div class="mini"><label>Partenza</label><div>${fmt(p?.partenza)}</div></div><div class="mini"><label>Capofamiglia</label><div>${escapeHtml((arr.find(x=>x.is_capofamiglia)?.nome? ((arr.find(x=>x.is_capofamiglia)?.cognome||'')+' '+(arr.find(x=>x.is_capofamiglia)?.nome||'')):'—'))}</div></div></div>${arr.map(g=>`<div class="doclinks"><div style="margin-top:10px"><strong>${escapeHtml((g.cognome||'')+' '+(g.nome||''))}</strong></div>${g.documento_fronte_url?`<a href="${g.documento_fronte_url}" target="_blank">Documento fronte</a>`:''}${g.documento_retro_url?`<a href="${g.documento_retro_url}" target="_blank">Documento retro</a>`:''}${g.selfie_documento_url?`<a href="${g.selfie_documento_url}" target="_blank">Selfie con documento</a>`:''}</div>`).join('')}</div>`;}).join(''):'<p>Nessun check-in ricevuto finora.</p>';
+}
+
+document.getElementById('bookingForm').addEventListener('submit', async ev=>{ev.preventDefault(); const payload={nome:document.getElementById('nome').value.trim(),camera:document.getElementById('camera').value,arrivo:document.getElementById('arrivo').value,partenza:document.getElementById('partenza').value,num_ospiti:Number(document.getElementById('num_ospiti').value),canale:document.getElementById('canale').value,orario:document.getElementById('orario').value.trim()||null,note:document.getElementById('note').value.trim()||null,stato_checkin:'da compilare'}; const {error}=await sb.from('prenotazioni').insert(payload); if(error){showMsg(`Errore salvataggio: ${error.message}`,true); return;} ev.target.reset(); showMsg('Prenotazione salvata.'); loadAll();});
+document.getElementById('reloadBtn').addEventListener('click', loadAll); document.getElementById('testBtn').addEventListener('click', async()=>{const {error}=await sb.from('prenotazioni').select('id').limit(1); alert(error?`Errore: ${error.message}`:'Connessione OK');});
+loadAll();
+</script>
+</body>
+</html>
