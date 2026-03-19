@@ -1,971 +1,550 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Santalò — Gestione B&B</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --br:#6B2D1F;--br-dk:#4A1E14;--br-lt:#9A4A35;
-  --sand:#C4A882;--sand-lt:#F0E6D3;--sand-xl:#FAF6F0;
-  --tx:#2C1A12;--tx-m:#7A5C4E;--bdr:rgba(107,45,31,0.15);--r:10px;
-  --green:#2e7d32;--red:#c62828;
-}
-body{font-family:'DM Sans',sans-serif;background:var(--sand-xl);color:var(--tx);min-height:100vh}
-
-header{background:var(--br);color:white;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(107,45,31,0.25)}
-.logo{display:flex;align-items:center;gap:12px}
-.logo-mark{width:38px;height:38px;border:1.5px solid rgba(255,255,255,0.35);border-radius:8px;display:flex;align-items:center;justify-content:center}
-.logo-mark span{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:white}
-.logo-text h1{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:white;line-height:1.1}
-.logo-text p{font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.09em;text-transform:uppercase;margin-top:1px}
-nav{display:flex;gap:4px}
-.nav-btn{padding:7px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.25);background:transparent;color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;transition:all .15s}
-.nav-btn:hover{background:rgba(255,255,255,0.1);color:white}
-.nav-btn.active{background:white;color:var(--br);border-color:white;font-weight:500}
-@media(max-width:560px){.nav-btn{padding:6px 9px;font-size:11px}}
-
-.container{max-width:780px;margin:0 auto;padding:1.5rem 1rem 3rem}
-.section{display:none}
-.section.active{display:block}
-
-.card{background:white;border-radius:var(--r);border:0.5px solid var(--bdr);padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 6px rgba(107,45,31,0.05)}
-.card-title{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--sand);margin-bottom:1rem}
-
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:480px){.form-grid{grid-template-columns:1fr}}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group.full{grid-column:1/-1}
-label{font-size:11px;font-weight:500;color:var(--tx-m);letter-spacing:0.04em;text-transform:uppercase}
-label .req{color:var(--br)}
-input,select,textarea{padding:9px 12px;border:0.5px solid var(--bdr);border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--tx);background:var(--sand-xl);width:100%;transition:border-color .15s;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--br);background:white}
-textarea{resize:vertical;min-height:70px;line-height:1.6}
-
-.btn{padding:9px 16px;border-radius:var(--r);font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:all .15s;border:0.5px solid var(--bdr)}
-.btn-primary{background:var(--br);color:white;border-color:var(--br)}
-.btn-primary:hover{background:var(--br-dk)}
-.btn-primary:disabled{opacity:.6;cursor:not-allowed}
-.btn-ghost{background:white;color:var(--tx-m)}
-.btn-ghost:hover{border-color:var(--br);color:var(--br)}
-.btn-full{width:100%;padding:13px}
-.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
-.btn-green{background:var(--green);color:white;border-color:var(--green)}
-.btn-green:hover{background:#1b5e20}
-
-/* PRENOTAZIONI */
-.pren-card{background:white;border:0.5px solid var(--bdr);border-radius:var(--r);padding:1rem 1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;box-shadow:0 1px 4px rgba(107,45,31,0.04);margin-bottom:8px}
-.pren-nome{font-size:15px;font-weight:500;color:var(--tx)}
-.pren-date{font-size:12px;color:var(--tx-m);margin-top:2px}
-.pren-camera{font-size:11px;color:var(--sand);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
-.pren-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
-.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;margin-left:6px}
-.badge-arrivo{background:#fff8e1;color:#5c3d00}
-.badge-ospite{background:#e8f5e9;color:#1b5e20}
-.badge-partenza{background:#fce4ec;color:#880e4f}
-.badge-checkin{background:#e3f2fd;color:#1565c0}
-.pren-empty{text-align:center;padding:3rem 1rem;color:var(--tx-m);font-size:14px}
-
-/* LINK BOX */
-.link-box{background:var(--sand-xl);border:0.5px solid var(--bdr);border-radius:7px;padding:8px 12px;font-size:12px;font-family:monospace;color:var(--br);word-break:break-all;margin-top:6px}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(44,26,18,0.45);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
-.modal-overlay.open{display:flex}
-.modal{background:white;border-radius:14px;padding:1.5rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(107,45,31,0.2)}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--tx)}
-.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx-m);padding:4px 8px;border-radius:6px}
-
-/* MESSAGGI */
-.tabs-msg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
-.tab-msg{padding:7px 14px;border-radius:20px;font-size:13px;cursor:pointer;border:0.5px solid var(--bdr);background:white;color:var(--tx-m);transition:all .15s}
-.tab-msg.active{background:var(--br);color:white;border-color:var(--br)}
-.msg-preview{background:var(--sand-xl);border:0.5px solid var(--bdr);border-radius:var(--r);padding:1.1rem 1.25rem;font-size:14px;line-height:1.75;color:var(--tx);white-space:pre-wrap;word-break:break-word;min-height:100px}
-
-/* SCHEDINE */
-.ospite-block-sch{background:var(--sand-xl);border-radius:var(--r);border:0.5px solid var(--bdr);padding:1rem;margin-bottom:.75rem}
-.chiave-row{display:flex;gap:8px;align-items:flex-end}
-.chiave-row input{flex:1;font-family:monospace;font-size:12px}
-.btn-toggle{padding:9px 14px;background:white;border:0.5px solid var(--bdr);border-radius:7px;font-size:12px;cursor:pointer;color:var(--tx-m);font-family:'DM Sans',sans-serif;white-space:nowrap}
-
-/* CHECKIN RICEVUTI */
-.checkin-card{background:white;border:0.5px solid var(--bdr);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 4px rgba(107,45,31,0.04)}
-.checkin-nome{font-size:14px;font-weight:500;color:var(--tx)}
-.checkin-ospiti{font-size:12px;color:var(--tx-m);margin-top:3px}
-.checkin-new{border-left:3px solid var(--br)}
-
-.alert{padding:1rem 1.25rem;border-radius:var(--r);font-size:14px;line-height:1.6;margin-top:1rem}
-.alert.success{background:#e8f5e9;color:#1b5e20;border:0.5px solid #a5d6a7}
-.alert.error{background:#ffebee;color:#b71c1c;border:0.5px solid #ef9a9a}
-.alert.info{background:#fff8e1;color:#5c3d00;border:0.5px solid #ffe082}
-
-.tip{background:var(--sand-lt);border-radius:var(--r);padding:.9rem 1.1rem;font-size:13px;color:var(--tx-m);line-height:1.6;margin-top:.5rem}
-.tip strong{color:var(--br);font-weight:500}
-.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin-right:7px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading{text-align:center;padding:2rem;color:var(--tx-m);font-size:14px}
-footer{text-align:center;font-size:12px;color:var(--sand);padding:2rem 0 1rem;letter-spacing:0.05em}
-
-/* NOTIFICA BADGE */
-.notif-badge{background:#c62828;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;margin-left:5px;vertical-align:middle}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santalò — Gestione B&B</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --brown: #6B2D1F;
+      --sand: #C4A882;
+      --cream: #f8f4ef;
+      --ink: #2e241f;
+      --muted: #7d6d63;
+      --line: rgba(107,45,31,.14);
+      --ok: #1f7a45;
+      --warn: #a45d12;
+      --danger: #a22727;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(58, 30, 18, 0.08);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #fcf9f5 0%, #f4ece4 100%);
+    }
+    .wrap { max-width: 1220px; margin: 0 auto; padding: 24px; }
+    .hero {
+      background: linear-gradient(135deg, rgba(107,45,31,.98), rgba(140,79,53,.96));
+      color: #fff;
+      padding: 28px;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1.3fr .8fr;
+    }
+    .title { font-family: 'Cormorant Garamond', serif; font-size: 44px; line-height: 1; margin: 0 0 6px; }
+    .subtitle { opacity: .88; max-width: 780px; }
+    .mini-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .stat { background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.16); border-radius: 18px; padding: 16px; }
+    .stat b { display: block; font-size: 28px; margin-top: 4px; }
+    .top-actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+    .btn, button {
+      border: 0; border-radius: 14px; padding: 12px 16px; font-weight: 700; cursor: pointer;
+      background: var(--brown); color: #fff; transition: transform .15s ease, opacity .15s ease;
+    }
+    .btn:hover, button:hover { transform: translateY(-1px); }
+    .btn.secondary, button.secondary { background: #efe4d7; color: var(--brown); }
+    .btn.ghost, button.ghost { background: transparent; color: var(--brown); border: 1px solid var(--line); }
+    .btn.warn { background: var(--warn); }
+    .btn.ok { background: var(--ok); }
+    .grid { display:grid; grid-template-columns: 1.1fr .9fr; gap: 18px; margin-top: 18px; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    h2, h3 { margin: 0 0 14px; font-family: 'Cormorant Garamond', serif; color: var(--brown); }
+    h2 { font-size: 34px; }
+    h3 { font-size: 28px; }
+    .section-head { display:flex; justify-content:space-between; align-items:center; gap: 12px; margin-bottom: 16px; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .list { display:grid; gap: 14px; }
+    .item { border:1px solid var(--line); border-radius: 18px; padding: 16px; background: #fffdfb; }
+    .item-title { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom: 10px; }
+    .tag { display:inline-flex; align-items:center; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .tag.checkin-ok { background: rgba(31,122,69,.12); color: var(--ok); }
+    .tag.wait { background: rgba(164,93,18,.12); color: var(--warn); }
+    .tag.neutral { background: rgba(107,45,31,.1); color: var(--brown); }
+    .meta { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin: 12px 0; }
+    .meta div { background:#faf6f1; border-radius: 12px; padding:10px 12px; font-size: 13px; }
+    .meta strong { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+    .actions { display:flex; gap: 8px; flex-wrap: wrap; }
+    .empty { padding: 24px; text-align:center; color: var(--muted); border:1px dashed var(--line); border-radius: 18px; }
+    label { display:block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input, select, textarea {
+      width:100%; border:1px solid rgba(107,45,31,.18); border-radius: 14px; padding: 12px 13px;
+      font: inherit; background:#fff;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    .form-grid { display:grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .status-bar {
+      position: sticky; bottom: 12px; margin-top: 18px; background:#fff; border:1px solid var(--line);
+      border-radius: 18px; padding: 14px 16px; box-shadow: var(--shadow); display:none;
+    }
+    .status-bar.show { display:block; }
+    .status-bar.ok { border-color: rgba(31,122,69,.22); }
+    .status-bar.err { border-color: rgba(162,39,39,.22); }
+    .pillbar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .pill { background:#f4ece4; color:var(--brown); border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
+    .msg-box { background:#faf6f1; border:1px solid var(--line); border-radius:16px; padding:14px; white-space:pre-wrap; }
+    code.inline { background:#f7efe8; padding:2px 7px; border-radius:8px; }
+    .small { font-size:12px; }
+    .soap-note { background:#fff8ef; border-left: 4px solid var(--sand); padding: 12px 14px; border-radius: 14px; }
+    @media (max-width: 980px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+      .meta, .mini-grid, .form-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .wrap { padding: 14px; }
+      .title { font-size: 38px; }
+      .meta, .mini-grid, .form-grid { grid-template-columns: 1fr; }
+      .section-head, .item-title { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
 </head>
 <body>
-
-<header>
-  <div class="logo">
-    <div class="logo-mark"><span>S</span></div>
-    <div class="logo-text"><h1>Santalò</h1><p>Gestione B&B</p></div>
-  </div>
-  <nav>
-    <button class="nav-btn active" onclick="showSection('prenotazioni',this)">Prenotazioni</button>
-    <button class="nav-btn" onclick="showSection('checkin',this)" id="navCheckin">Check-in <span class="notif-badge" id="notifBadge" style="display:none">0</span></button>
-    <button class="nav-btn" onclick="showSection('messaggi',this)">Messaggi</button>
-    <button class="nav-btn" onclick="showSection('schedine',this)">Schedine</button>
-  </nav>
-</header>
-
-<div class="container">
-
-  <!-- PRENOTAZIONI -->
-  <div class="section active" id="sec-prenotazioni">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600">Prenotazioni</div>
-      <button class="btn btn-primary btn-sm" onclick="apriModal()">+ Nuova</button>
-    </div>
-    <div id="prenList"><div class="loading">Caricamento...</div></div>
-  </div>
-
-  <!-- CHECK-IN RICEVUTI -->
-  <div class="section" id="sec-checkin">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:.5rem">Check-in ricevuti</div>
-    <p style="font-size:13px;color:var(--tx-m);margin-bottom:1rem">Dati compilati dagli ospiti online — pronti per l'invio ad Alloggiati Web.</p>
-    <div id="checkinList"><div class="loading">Caricamento...</div></div>
-  </div>
-
-  <!-- MESSAGGI -->
-  <div class="section" id="sec-messaggi">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:1rem">Messaggi ospiti</div>
-    <div class="card">
-      <div class="card-title">Dati ospite</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nome ospite</label><input type="text" id="msg_nome" placeholder="es. Marco" oninput="aggiornaMsg()"></div>
-        <div class="form-group"><label>Camera</label><input type="text" id="msg_camera" placeholder="es. 1954" oninput="aggiornaMsg()"></div>
-        <div class="form-group"><label>Data arrivo</label><input type="date" id="msg_arrivo" oninput="aggiornaMsg()"></div>
-        <div class="form-group"><label>Data partenza</label><input type="date" id="msg_partenza" oninput="aggiornaMsg()"></div>
-        <div class="form-group"><label>Canale</label>
-          <select id="msg_canale" onchange="aggiornaMsg()">
-            <option value="wa">WhatsApp</option>
-            <option value="bk">Booking.com</option>
-            <option value="ab">Airbnb</option>
-          </select>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <p class="pill">Santalò B&B · Vico Storto Sant'Eligio 9 · Bitonto</p>
+        <h1 class="title">Gestione prenotazioni, check-in e schedine</h1>
+        <div class="subtitle">Questa versione usa il client ufficiale Supabase JS e corregge il problema tipico che genera <strong>401 Unauthorized</strong> nelle chiamate REST fatte a mano. Le operazioni di lettura e scrittura avvengono direttamente sulle tabelle <code class="inline">prenotazioni</code> e <code class="inline">checkin_ospiti</code>.</div>
+      </div>
+      <div>
+        <div class="top-actions">
+          <button id="btnTestConn" class="secondary">Test connessione</button>
+          <button id="btnReload" class="ghost">Ricarica dati</button>
+          <button id="btnNuova">+ Nuova prenotazione</button>
         </div>
-        <div class="form-group"><label>Carica da prenotazione</label>
-          <select id="msg_pren_select" onchange="caricaDaPren()">
-            <option value="">— seleziona —</option>
-          </select>
+        <div class="mini-grid" style="margin-top:18px;">
+          <div class="stat"><span>Prenotazioni</span><b id="statPren">0</b></div>
+          <div class="stat"><span>Check-in ricevuti</span><b id="statChk">0</b></div>
+          <div class="stat"><span>Da completare</span><b id="statTodo">0</b></div>
         </div>
       </div>
-    </div>
-    <div class="tabs-msg">
-      <div class="tab-msg active" onclick="setTabMsg(this,'conferma')">Conferma</div>
-      <div class="tab-msg" onclick="setTabMsg(this,'precheckin')">Pre check-in</div>
-      <div class="tab-msg" onclick="setTabMsg(this,'checkin_link')">Link check-in</div>
-      <div class="tab-msg" onclick="setTabMsg(this,'checkin')">Arrivo</div>
-      <div class="tab-msg" onclick="setTabMsg(this,'followup')">Follow-up</div>
-      <div class="tab-msg" onclick="setTabMsg(this,'checkout')">Check-out</div>
-    </div>
-    <div class="card">
-      <div class="msg-preview" id="msgPreview"></div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn btn-primary" id="btnCopyMsg" onclick="copyMsg()" style="flex:1">Copia messaggio</button>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- SCHEDINE -->
-  <div class="section" id="sec-schedine">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:1rem">Invio schedine Alloggiati Web</div>
-    <div class="card">
-      <div class="card-title">Configurazione (una volta sola)</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>Chiave Web Service (WSKEY) <span class="req">*</span></label>
-          <div class="chiave-row">
-            <input type="password" id="wsKey" placeholder="Incolla la tua WSKEY">
-            <button class="btn-toggle" onclick="toggleKey()">Mostra</button>
+    <div class="grid">
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Prenotazioni</h2>
+            <div class="muted">Salva una prenotazione, genera il link check-in e monitora lo stato.</div>
           </div>
         </div>
-        <div class="form-group"><label>Username Alloggiati Web <span class="req">*</span></label><input type="text" id="wsUser" placeholder="Il tuo username"></div>
-        <div class="form-group"><label>Password Alloggiati Web <span class="req">*</span></label><input type="password" id="wsPass" placeholder="La tua password"></div>
-      </div>
-      <div class="tip" style="margin-top:.75rem"><strong>I tuoi dati rimangono solo su questo dispositivo.</strong> Non vengono inviati a nessuno tranne che al portale della Polizia di Stato.</div>
+        <form id="bookingForm" class="item" style="display:none; margin-bottom:16px;">
+          <div class="form-grid">
+            <div><label>Nome ospite *</label><input name="nome" required></div>
+            <div><label>Camera *</label><select name="camera" required><option value="">Seleziona</option><option>Camera 1</option><option>Camera 2</option><option>Camera 3</option></select></div>
+            <div><label>Data arrivo *</label><input type="date" name="arrivo" required></div>
+            <div><label>Data partenza *</label><input type="date" name="partenza" required></div>
+            <div><label>Numero ospiti</label><input type="number" min="1" max="6" name="num_ospiti" value="1"></div>
+            <div><label>Canale</label><select name="canale"><option value="">—</option><option>Booking.com</option><option>Airbnb</option><option>Diretto</option><option>WhatsApp</option></select></div>
+            <div><label>Orario arrivo</label><input name="orario" placeholder="Es. 18:30"></div>
+            <div><label>Stato check-in</label><select name="stato_checkin"><option>da compilare</option><option>completato</option></select></div>
+            <div class="full"><label>Note</label><textarea name="note"></textarea></div>
+          </div>
+          <div class="actions" style="margin-top:14px;">
+            <button type="submit">Salva prenotazione</button>
+            <button type="button" class="secondary" id="btnAnnullaForm">Annulla</button>
+          </div>
+        </form>
+        <div id="prenotazioniList" class="list"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Check-in ricevuti</h2>
+            <div class="muted">Dati inviati dagli ospiti e pronti per l'invio delle schedine.</div>
+          </div>
+        </div>
+        <div id="checkinList" class="list"></div>
+      </section>
     </div>
-    <div class="card">
-      <div class="card-title">Prenotazione da inviare</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>Carica da check-in ricevuto</label>
-          <select id="sch_checkin_select" onchange="caricaDaCheckin()">
-            <option value="">— seleziona check-in compilato dall'ospite —</option>
-          </select>
+
+    <div class="grid">
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Messaggi ospiti</h2>
+            <div class="muted">Template rapidi per WhatsApp, Booking.com e Airbnb.</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Camera (ID Appartamento) <span class="req">*</span></label>
-          <select id="sch_camera">
-            <option value="0">Camera 1 (ID: 0)</option>
-            <option value="1">Camera 2 (ID: 1)</option>
-            <option value="2">Camera 3 (ID: 2)</option>
-          </select>
+        <div class="form-grid">
+          <div><label>Prenotazione</label><select id="msgBookingSelect"><option value="">— seleziona —</option></select></div>
+          <div><label>Tipo messaggio</label><select id="msgType"><option value="conferma">Conferma</option><option value="precheckin">Pre check-in</option><option value="arrivo">Arrivo</option><option value="checkout">Check-out</option></select></div>
         </div>
-        <div class="form-group"><label>Data arrivo <span class="req">*</span></label><input type="date" id="sch_arrivo"></div>
-        <div class="form-group"><label>Data partenza <span class="req">*</span></label><input type="date" id="sch_partenza"></div>
-        <div class="form-group"><label>Num. ospiti <span class="req">*</span></label>
-          <select id="sch_numOspiti" onchange="renderOspitiSch()">
-            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-          </select>
+        <div class="msg-box" id="msgPreview" style="margin-top:14px;"></div>
+        <div class="actions" style="margin-top:12px;"><button id="btnCopyMsg" class="secondary">Copia messaggio</button></div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Schedine Alloggiati Web</h2>
+            <div class="muted">Bozza operativa per token SOAP e tracciato record.</div>
+          </div>
         </div>
-      </div>
+        <div class="soap-note small">Il web service ufficiale espone i metodi <code class="inline">GenerateToken</code> e le funzioni <code class="inline">GestioneAppartamenti_*</code> sul dominio <code class="inline">alloggiatiweb.poliziadistato.it</code>. L'obbligo di comunicazione entro 24 ore dall'arrivo, o immediatamente per soggiorni inferiori a 24 ore, è riportato sul portale ufficiale. citeturn269024search0turn269024search6</div>
+        <div class="form-grid" style="margin-top:14px;">
+          <div><label>Check-in ricevuto</label><select id="soapCheckinSelect"><option value="">— seleziona check-in —</option></select></div>
+          <div><label>Camera (ID appartamento)</label><select id="soapApartment"><option value="0">Camera 1 (ID: 0)</option><option value="1">Camera 2 (ID: 1)</option><option value="2">Camera 3 (ID: 2)</option></select></div>
+          <div><label>Username Alloggiati Web</label><input id="soapUser" autocomplete="off"></div>
+          <div><label>Password Alloggiati Web</label><input id="soapPass" type="password" autocomplete="off"></div>
+          <div class="full"><label>WSKEY</label><input id="soapWskey" autocomplete="off"></div>
+        </div>
+        <div class="actions" style="margin-top:12px;">
+          <button id="btnBuildRecord" class="secondary">Genera tracciato</button>
+          <button id="btnSoapToken" class="ghost">Test token SOAP</button>
+        </div>
+        <textarea id="soapOutput" style="margin-top:12px; min-height:180px;" placeholder="Qui compariranno il record a lunghezza fissa e l'eventuale XML SOAP."></textarea>
+        <div class="muted" style="margin-top:10px;">Nota pratica: il metodo SOAP è documentato ufficialmente, ma l'invocazione diretta dal browser può essere bloccata da CORS o da vincoli del servizio. Se il test token non parte dal browser, sposta questo blocco in una Supabase Edge Function o in un proxy server-side. Il servizio e il WSDL ufficiale risultano pubblicati dal portale della Polizia di Stato. citeturn269024search2turn269024search4</div>
+      </section>
     </div>
-    <div id="ospitiContainerSch"></div>
-    <button class="btn btn-primary btn-full" id="btnInvia" onclick="inviaSchedine()">Effettua Check-in e invia ad Alloggiati Web</button>
-    <div id="schAlertBox" style="margin-top:1rem"></div>
+
+    <div id="statusBar" class="status-bar"></div>
   </div>
 
-</div>
+  <script>
+    const SUPABASE_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdWIiLCJyZWYiOiJpZmRxY25qZG5ibHZ0Zmxxc3FtdCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzczODQ1Mzc5LCJleHAiOjIwODk0MjEzNzl9.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
 
-<!-- MODAL NUOVA PRENOTAZIONE -->
-<div class="modal-overlay" id="modalOverlay" onclick="chiudiModalEsterno(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitolo">Nuova prenotazione</div>
-      <button class="modal-close" onclick="chiudiModal()">✕</button>
-    </div>
-    <div class="form-grid">
-      <div class="form-group full"><label>Nome ospite <span class="req">*</span></label><input type="text" id="p_nome" placeholder="Nome e cognome"></div>
-      <div class="form-group"><label>Camera <span class="req">*</span></label>
-        <select id="p_camera">
-          <option value="Camera 1">Camera 1</option>
-          <option value="Camera 2">Camera 2</option>
-          <option value="Camera 3">Camera 3</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Num. ospiti</label><input type="number" id="p_numOspiti" value="1" min="1" max="10"></div>
-      <div class="form-group"><label>Data arrivo <span class="req">*</span></label><input type="date" id="p_arrivo"></div>
-      <div class="form-group"><label>Data partenza <span class="req">*</span></label><input type="date" id="p_partenza"></div>
-      <div class="form-group"><label>Canale</label>
-        <select id="p_canale">
-          <option>Booking.com</option><option>Airbnb</option><option>Diretto</option><option>WhatsApp</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Orario arrivo</label><input type="time" id="p_orario"></div>
-      <div class="form-group full"><label>Note</label><textarea id="p_note" placeholder="Richieste particolari..."></textarea></div>
-    </div>
-    <div style="margin-top:1rem">
-      <div class="tip"><strong>Link check-in per l'ospite:</strong> dopo aver salvato la prenotazione trovi il link da inviare all'ospite nella sezione Prenotazioni.</div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:1.25rem">
-      <button class="btn btn-ghost" onclick="chiudiModal()" style="flex:1">Annulla</button>
-      <button class="btn btn-primary" onclick="salvaPrenotazione()" style="flex:2">Salva prenotazione</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL DETTAGLIO CHECK-IN -->
-<div class="modal-overlay" id="modalCheckin" onclick="chiudiModalCheckinEsterno(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Dati check-in ospite</div>
-      <button class="modal-close" onclick="chiudiModalCheckin()">✕</button>
-    </div>
-    <div id="modalCheckinContent"></div>
-    <div style="display:flex;gap:8px;margin-top:1.25rem">
-      <button class="btn btn-ghost" onclick="chiudiModalCheckin()" style="flex:1">Chiudi</button>
-      <button class="btn btn-primary" onclick="usaPerSchedina()" style="flex:2">Usa per invio schedina</button>
-    </div>
-  </div>
-</div>
-
-<footer>Santalò B&B · Bitonto, Puglia</footer>
-
-<script>
-const SUPABASE_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
-const CHECKIN_URL = 'https://fdp88.github.io/SANTALO/santalo-checkin-ospite.html';
-
-const PAESI_CODICI = {"ITALIA":"100000100","GERMANIA":"202000000","FRANCIA":"203000000","REGNO UNITO":"202000400","SPAGNA":"209000000","USA":"407000000","AUSTRALIA":"503000000","BRASILE":"303000000","ARGENTINA":"306000000","RUSSIA":"223000000","CINA":"357000000","GIAPPONE":"357000001","SVIZZERA":"215000000","BELGIO":"202000200","OLANDA":"208000000","AUSTRIA":"201000000","PORTOGALLO":"209000100","GRECIA":"204000000","POLONIA":"216000000","SVEZIA":"213000000"};
-const COMUNI_CODICI = {"BITONTO":"A892","BARI":"A662","ROMA":"H501","MILANO":"F205","NAPOLI":"F839","TORINO":"L219","FIRENZE":"D612","VENEZIA":"L736","BOLOGNA":"A944","PALERMO":"G273","BRINDISI":"B180","LECCE":"E631","TARANTO":"L049","FOGGIA":"D643","ANDRIA":"A285"};
-const DOC_CODICI = {"CARTA D'IDENTITA":"IDENT","CARTA D'IDENTITA ELETTRONICA":"IDENT","PASSAPORTO":"PASOR","PATENTE":"PATEN","PERMESSO DI SOGGIORNO":"PERMS"};
-const PROVINCE = {"BITONTO":"BA","BARI":"BA","BRINDISI":"BR","LECCE":"LE","TARANTO":"TA","FOGGIA":"FG","ANDRIA":"BT","ROMA":"RM","MILANO":"MI","NAPOLI":"NA","TORINO":"TO","FIRENZE":"FI","VENEZIA":"VE","BOLOGNA":"BO","PALERMO":"PA"};
-
-let prenotazioni = [];
-let checkinRicevuti = [];
-let editIdx = -1;
-let currentTabMsg = 'conferma';
-let currentCheckinData = null;
-
-// ==================== API SUPABASE ====================
-async function sbGet(table, params = '') {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}${params}`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-  });
-  return r.json();
-}
-
-async function sbPost(table, data) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'return=representation' },
-    body: JSON.stringify(data)
-  });
-  return r.json();
-}
-
-async function sbPatch(table, id, data) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-    body: JSON.stringify(data)
-  });
-  return r.ok;
-}
-
-async function sbDelete(table, id) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-  });
-  return r.ok;
-}
-
-// ==================== NAVIGAZIONE ====================
-function showSection(id, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('sec-' + id).classList.add('active');
-  btn.classList.add('active');
-  if (id === 'messaggi') { aggiornaSelectPren(); aggiornaMsg(); }
-  if (id === 'checkin') { caricaCheckin(); }
-  if (id === 'schedine') { aggiornaSelectCheckin(); renderOspitiSch(); }
-}
-
-// ==================== PRENOTAZIONI ====================
-function fmtDateIT(str) {
-  if (!str) return '—';
-  const d = new Date(str + 'T12:00:00');
-  return d.toLocaleDateString('it-IT', {day:'numeric', month:'short', year:'numeric'});
-}
-
-function statoPrenotazione(p) {
-  const oggi = new Date(); oggi.setHours(0,0,0,0);
-  const arr = new Date(p.arrivo + 'T12:00:00');
-  const par = new Date(p.partenza + 'T12:00:00');
-  if (oggi < arr) return {label:'In arrivo', cls:'badge-arrivo'};
-  if (oggi >= arr && oggi < par) return {label:'Ospite presente', cls:'badge-ospite'};
-  return {label:'Partito', cls:'badge-partenza'};
-}
-
-async function caricaPrenotazioni() {
-  prenotazioni = await sbGet('prenotazioni', '?order=arrivo.asc');
-  renderPrenotazioni();
-  aggiornaSelectPren();
-}
-
-function renderPrenotazioni() {
-  const list = document.getElementById('prenList');
-  if (!prenotazioni.length) {
-    list.innerHTML = '<div class="pren-empty">Nessuna prenotazione ancora.<br>Premi <strong>+ Nuova</strong> per aggiungerne una.</div>';
-    return;
-  }
-  list.innerHTML = prenotazioni.map(p => {
-    const stato = statoPrenotazione(p);
-    const checkinLink = `${CHECKIN_URL}?pren=${p.id}`;
-    return `<div class="pren-card">
-      <div>
-        <div class="pren-nome">${p.nome} <span class="badge ${stato.cls}">${stato.label}</span>${p.stato_checkin==='compilato'?'<span class="badge badge-checkin">Check-in ricevuto</span>':''}</div>
-        <div class="pren-date">${fmtDateIT(p.arrivo)} → ${fmtDateIT(p.partenza)} · ${p.num_ospiti} ospite${p.num_ospiti>1?'i':''}</div>
-        <div class="pren-camera">${p.camera} · ${p.canale}${p.orario?' · ore '+p.orario:''}</div>
-        ${p.note?`<div style="font-size:12px;color:var(--tx-m);margin-top:3px;font-style:italic">${p.note}</div>`:''}
-        <div style="margin-top:8px">
-          <div style="font-size:11px;color:var(--tx-m);margin-bottom:3px">Link check-in da inviare all'ospite:</div>
-          <div class="link-box">${checkinLink}</div>
-          <button class="btn btn-ghost btn-sm" style="margin-top:5px" onclick="copiaLink('${checkinLink}', this)">Copia link</button>
-        </div>
-      </div>
-      <div class="pren-actions">
-        <button class="btn btn-ghost btn-sm" onclick="modificaPren(${p.id})">Modifica</button>
-        <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="eliminaPren(${p.id})">Elimina</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function copiaLink(link, btn) {
-  navigator.clipboard.writeText(link).then(() => {
-    btn.textContent = '✓ Copiato!';
-    btn.style.color = 'var(--green)';
-    setTimeout(() => { btn.textContent = 'Copia link'; btn.style.color = ''; }, 2000);
-  });
-}
-
-function apriModal() {
-  editIdx = -1;
-  document.getElementById('modalTitolo').textContent = 'Nuova prenotazione';
-  ['p_nome','p_note'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('p_numOspiti').value = 1;
-  document.getElementById('p_arrivo').value = '';
-  document.getElementById('p_partenza').value = '';
-  document.getElementById('p_orario').value = '';
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-async function modificaPren(id) {
-  const p = prenotazioni.find(x => x.id === id);
-  if (!p) return;
-  editIdx = id;
-  document.getElementById('modalTitolo').textContent = 'Modifica prenotazione';
-  document.getElementById('p_nome').value = p.nome;
-  document.getElementById('p_camera').value = p.camera;
-  document.getElementById('p_numOspiti').value = p.num_ospiti;
-  document.getElementById('p_arrivo').value = p.arrivo;
-  document.getElementById('p_partenza').value = p.partenza;
-  document.getElementById('p_canale').value = p.canale;
-  document.getElementById('p_orario').value = p.orario || '';
-  document.getElementById('p_note').value = p.note || '';
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-async function eliminaPren(id) {
-  if (!confirm('Eliminare questa prenotazione?')) return;
-  await sbDelete('prenotazioni', id);
-  await caricaPrenotazioni();
-}
-
-function chiudiModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-function chiudiModalEsterno(e) { if (e.target === document.getElementById('modalOverlay')) chiudiModal(); }
-
-async function salvaPrenotazione() {
-  const nome = document.getElementById('p_nome').value.trim();
-  const arrivo = document.getElementById('p_arrivo').value;
-  const partenza = document.getElementById('p_partenza').value;
-  if (!nome || !arrivo || !partenza) { alert('Compila almeno nome, data arrivo e partenza.'); return; }
-  const data = {
-    nome, arrivo, partenza,
-    camera: document.getElementById('p_camera').value,
-    num_ospiti: parseInt(document.getElementById('p_numOspiti').value) || 1,
-    canale: document.getElementById('p_canale').value,
-    orario: document.getElementById('p_orario').value || null,
-    note: document.getElementById('p_note').value.trim() || null,
-    stato_checkin: 'attesa'
-  };
-  if (editIdx >= 0) await sbPatch('prenotazioni', editIdx, data);
-  else await sbPost('prenotazioni', data);
-  chiudiModal();
-  await caricaPrenotazioni();
-}
-
-// ==================== CHECK-IN RICEVUTI ====================
-async function caricaCheckin() {
-  checkinRicevuti = await sbGet('prenotazioni', '?stato_checkin=eq.compilato&order=created_at.desc');
-  const ospitiPromises = checkinRicevuti.map(p =>
-    sbGet('checkin_ospiti', `?prenotazione_id=eq.${p.id}&order=is_capofamiglia.desc`)
-  );
-  const tuttiOspiti = await Promise.all(ospitiPromises);
-  checkinRicevuti = checkinRicevuti.map((p, i) => ({ ...p, ospiti: tuttiOspiti[i] }));
-  renderCheckin();
-  aggiornaSelectCheckin();
-
-  // Aggiorna badge
-  const badge = document.getElementById('notifBadge');
-  if (checkinRicevuti.length > 0) {
-    badge.textContent = checkinRicevuti.length;
-    badge.style.display = 'inline-flex';
-  } else {
-    badge.style.display = 'none';
-  }
-}
-
-function renderCheckin() {
-  const list = document.getElementById('checkinList');
-  if (!checkinRicevuti.length) {
-    list.innerHTML = '<div class="pren-empty">Nessun check-in ricevuto ancora.<br>Invia il link agli ospiti dalla sezione Prenotazioni.</div>';
-    return;
-  }
-  list.innerHTML = checkinRicevuti.map(p => {
-    const capo = p.ospiti?.find(o => o.is_capofamiglia);
-    const nomiOspiti = p.ospiti?.map(o => `${o.cognome} ${o.nome}`).join(', ') || '—';
-    return `<div class="checkin-card checkin-new">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
-        <div>
-          <div class="checkin-nome">${p.nome} <span class="badge badge-checkin">Nuovo</span></div>
-          <div class="checkin-ospiti">Ospiti: ${nomiOspiti}</div>
-          <div style="font-size:11px;color:var(--tx-m);margin-top:2px">${fmtDateIT(p.arrivo)} → ${fmtDateIT(p.partenza)} · ${p.num_ospiti} ospiti</div>
-        </div>
-        <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="btn btn-ghost btn-sm" onclick="vediDettaglio(${p.id})">Dettaglio</button>
-          <button class="btn btn-primary btn-sm" onclick="usaPerSchedulaById(${p.id})">Invia schedina</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function vediDettaglio(id) {
-  const p = checkinRicevuti.find(x => x.id === id);
-  if (!p) return;
-  currentCheckinData = p;
-  const content = document.getElementById('modalCheckinContent');
-  content.innerHTML = `
-    <div style="margin-bottom:1rem">
-      <div style="font-size:13px;color:var(--tx-m)">Prenotazione</div>
-      <div style="font-size:15px;font-weight:500">${p.nome} · ${fmtDateIT(p.arrivo)} → ${fmtDateIT(p.partenza)}</div>
-    </div>
-    ${(p.ospiti || []).map((o, i) => `
-    <div style="background:var(--sand-xl);border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem;border:0.5px solid var(--bdr)">
-      <div style="font-size:11px;font-weight:500;color:var(--br);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">${o.is_capofamiglia ? 'Capofamiglia' : 'Ospite '+(i+1)}</div>
-      <div style="font-size:14px;font-weight:500">${o.cognome} ${o.nome}</div>
-      <div style="font-size:12px;color:var(--tx-m);margin-top:3px">
-        Nato il ${o.data_nascita} · ${o.cittadinanza}<br>
-        ${o.comune_nascita || o.stato_nascita}<br>
-        ${o.tipo_documento ? o.tipo_documento + ': ' + o.numero_documento : ''}
-        ${o.luogo_rilascio ? ' · Rilasciato: ' + o.luogo_rilascio : ''}
-      </div>
-    </div>`).join('')}`;
-  document.getElementById('modalCheckin').classList.add('open');
-}
-
-function chiudiModalCheckin() { document.getElementById('modalCheckin').classList.remove('open'); }
-function chiudiModalCheckinEsterno(e) { if (e.target === document.getElementById('modalCheckin')) chiudiModalCheckin(); }
-
-function usaPerSchedina() {
-  chiudiModalCheckin();
-  usaPerSchedulaById(currentCheckinData.id);
-}
-
-function usaPerSchedulaById(id) {
-  const p = checkinRicevuti.find(x => x.id === id);
-  if (!p) return;
-  currentCheckinData = p;
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('navCheckin').closest('nav').querySelectorAll('.nav-btn')[3].classList.add('active');
-  showSection('schedine', document.querySelectorAll('.nav-btn')[3]);
-  setTimeout(() => precompilaDaCheckin(p), 100);
-}
-
-function precompilaDaCheckin(p) {
-  const camMap = {'Camera 1':'0','Camera 2':'1','Camera 3':'2'};
-  document.getElementById('sch_camera').value = camMap[p.camera] || '0';
-  document.getElementById('sch_numOspiti').value = p.num_ospiti;
-  document.getElementById('sch_arrivo').value = p.arrivo;
-  document.getElementById('sch_partenza').value = p.partenza;
-  renderOspitiSch();
-  setTimeout(() => {
-    (p.ospiti || []).forEach((o, i) => {
-      const cog = document.getElementById('o_cog_sch_'+i);
-      if (!cog) return;
-      cog.value = o.cognome;
-      document.getElementById('o_nom_sch_'+i).value = o.nome;
-      document.getElementById('o_ses_sch_'+i).value = o.sesso === 'M' ? '1' : '2';
-      document.getElementById('o_nas_sch_'+i).value = o.data_nascita;
-      const citSel = document.getElementById('o_cit_sch_'+i);
-      citSel.value = o.cittadinanza;
-      toggleNascitaSch(i);
-      if (o.cittadinanza === 'ITALIA') {
-        document.getElementById('o_com_sch_'+i).value = o.comune_nascita || '';
-      } else {
-        const staSel = document.getElementById('o_sta_sch_'+i);
-        if (staSel) staSel.value = o.stato_nascita || '';
-      }
-      if (o.is_capofamiglia) {
-        const tdoEl = document.getElementById('o_tdo_sch_'+i);
-        const ndoEl = document.getElementById('o_ndo_sch_'+i);
-        const ldoEl = document.getElementById('o_ldo_sch_'+i);
-        if (tdoEl) tdoEl.value = o.tipo_documento || '';
-        if (ndoEl) ndoEl.value = o.numero_documento || '';
-        if (ldoEl) ldoEl.value = o.luogo_rilascio || '';
-      }
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false }
     });
-  }, 100);
-}
 
-function aggiornaSelectCheckin() {
-  const sel = document.getElementById('sch_checkin_select');
-  sel.innerHTML = '<option value="">— seleziona check-in compilato dall\'ospite —</option>' +
-    checkinRicevuti.map(p => `<option value="${p.id}">${p.nome} · ${fmtDateIT(p.arrivo)}</option>`).join('');
-}
+    const el = (id) => document.getElementById(id);
+    const bookingForm = el('bookingForm');
+    const prenotazioniList = el('prenotazioniList');
+    const checkinList = el('checkinList');
+    const statusBar = el('statusBar');
 
-function caricaDaCheckin() {
-  const id = parseInt(document.getElementById('sch_checkin_select').value);
-  const p = checkinRicevuti.find(x => x.id === id);
-  if (!p) return;
-  precompilaDaCheckin(p);
-}
+    let bookings = [];
+    let checkins = [];
 
-// ==================== MESSAGGI ====================
-function fmtDateLong(str) {
-  if (!str) return '[data]';
-  const d = new Date(str + 'T12:00:00');
-  return d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
-}
-
-function aggiornaSelectPren() {
-  const sel = document.getElementById('msg_pren_select');
-  sel.innerHTML = '<option value="">— seleziona —</option>' +
-    prenotazioni.map(p => `<option value="${p.id}">${p.nome} · ${fmtDateIT(p.arrivo)}</option>`).join('');
-}
-
-function caricaDaPren() {
-  const id = parseInt(document.getElementById('msg_pren_select').value);
-  const p = prenotazioni.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('msg_nome').value = p.nome.split(' ')[0];
-  document.getElementById('msg_camera').value = p.camera;
-  document.getElementById('msg_arrivo').value = p.arrivo;
-  document.getElementById('msg_partenza').value = p.partenza;
-  const cm = {'Booking.com':'bk','Airbnb':'ab','WhatsApp':'wa','Diretto':'wa'};
-  document.getElementById('msg_canale').value = cm[p.canale] || 'wa';
-  aggiornaMsg();
-}
-
-const msgTemplates = {
-  conferma: (n,cam,arr,par) =>
-`Ciao ${n}! 👋
-
-Grazie per aver scelto il B&B Santalò per il tuo soggiorno!
-
-Siamo lieti di confermarti la prenotazione dal ${arr} al ${par}.
-
-Gestiremo tutto in modo semplice: riceverai qui le istruzioni per il check-in prima del tuo arrivo.
-
-Siamo a disposizione per qualsiasi domanda. A presto! 🌿`,
-
-  precheckin: (n,cam,arr,par) =>
-`Ciao ${n}, come stai?
-
-Si avvicina il giorno del tuo arrivo a Santalò!
-
-🏠 Appartamento: ${cam}
-📅 Arrivo: ${arr} — Partenza: ${par}
-
-ORARI CHECK-IN
-✅ Standard: dalle 16:00 alle 21:00
-🌙 Late check-in: dalle 21:00 alle 23:00 (supplemento €10,00)
-🔑 Self check-in: gratuito, dalle 16:00 in poi
-🕙 Check-out: entro le 10:00
-
-Puoi dirci a che ora prevedi di arrivare?
-Hai esigenze particolari? Scrivici pure! A presto! ☀️`,
-
-  checkin_link: (n,cam,arr,par) =>
-`Ciao ${n}! 😊
-
-Per velocizzare il tuo arrivo e completare le procedure burocratiche, ti chiediamo di compilare il check-in online in anticipo — bastano 2 minuti!
-
-👉 ${CHECKIN_URL}
-
-Ti basta inserire i dati di tutti gli ospiti. Una volta completato, sei a posto — all'arrivo trovi tutto pronto!
-
-Grazie e a presto! 🌿`,
-
-  checkin: (n,cam,arr,par) =>
-`Ciao ${n}! Tutto pronto per il tuo arrivo 🎉
-
-📍 Vico Storto Sant'Eligio 9, 70032 Bitonto (BA)
-
-🔐 STEP 1 — Portone principale
-Inserisci il codice: 75391
-
-🗝️ STEP 2 — Le tue chiavi
-A destra trovi un bicchiere di legno con le chiavi della camera ${cam}. Sali al 1° piano: il tuo appartamento è sulla sinistra.
-
-🏠 STEP 3 — Benvenuto!
-Per qualsiasi cosa, scrivimi qui.
-
-♻️ RACCOLTA: 🟡 Plastica · 🟢 Vetro · 🔵 Carta · ⚫ Indifferenziata
-
-🍽️ DOVE MANGIARE: Pizza → Caveau o Patriarca · Carne → Vinicio · Tipico → Ragno Verde · Panzerotto → Manicaretto
-
-Buon soggiorno in Puglia! 🌿`,
-
-  followup: (n) =>
-`Ciao ${n}! 😊
-
-Com'è andata la prima notte da noi? Speriamo tutto bene!
-
-Per qualsiasi cosa o consiglio su cosa vedere, scrivimi pure. Buona giornata! ☀️`,
-
-  checkout: (n) =>
-`Caro ${n},
-
-grazie di cuore per aver soggiornato da noi al B&B Santalò!
-
-Al check-out (entro le 10:00):
-🔑 Lascia le chiavi sul desk della reception
-🚪 Assicurati di chiudere il portone
-
-Se hai un momento, una recensione su Booking o Airbnb ci aiuta tantissimo! 🙏
-
-A presto in Puglia! 🌿`
-};
-
-function aggiornaMsg() {
-  const n = document.getElementById('msg_nome').value || '[Nome ospite]';
-  const cam = document.getElementById('msg_camera').value || '[Camera]';
-  const arr = fmtDateLong(document.getElementById('msg_arrivo').value);
-  const par = fmtDateLong(document.getElementById('msg_partenza').value);
-  const fn = msgTemplates[currentTabMsg];
-  document.getElementById('msgPreview').textContent = fn(n, cam, arr, par);
-}
-
-function setTabMsg(el, tab) {
-  document.querySelectorAll('.tab-msg').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  currentTabMsg = tab;
-  aggiornaMsg();
-  const btn = document.getElementById('btnCopyMsg');
-  btn.textContent = 'Copia messaggio';
-  btn.style.background = 'var(--br)';
-}
-
-function copyMsg() {
-  const text = document.getElementById('msgPreview').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('btnCopyMsg');
-    btn.textContent = '✓ Copiato!';
-    btn.style.background = 'var(--green)';
-    setTimeout(() => { btn.textContent = 'Copia messaggio'; btn.style.background = 'var(--br)'; }, 2500);
-  });
-}
-
-// ==================== SCHEDINE ====================
-const PAESI_LIST = Object.keys(PAESI_CODICI);
-
-function toggleKey() {
-  const inp = document.getElementById('wsKey');
-  event.target.textContent = inp.type === 'password' ? 'Nascondi' : 'Mostra';
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-}
-
-function renderOspitiSch() {
-  const n = parseInt(document.getElementById('sch_numOspiti').value);
-  const container = document.getElementById('ospitiContainerSch');
-  container.innerHTML = '';
-  for (let i = 0; i < n; i++) {
-    const isCapo = i === 0;
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `<div class="card-title">${isCapo?'Capofamiglia / Ospite principale':'Ospite '+(i+1)}</div>
-    <div class="form-grid">
-      <div class="form-group"><label>Cognome <span class="req">*</span></label>
-        <input type="text" id="o_cog_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="form-group"><label>Nome <span class="req">*</span></label>
-        <input type="text" id="o_nom_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="form-group"><label>Sesso <span class="req">*</span></label>
-        <select id="o_ses_sch_${i}"><option value="1">Maschio</option><option value="2">Femmina</option></select></div>
-      <div class="form-group"><label>Data di nascita <span class="req">*</span></label>
-        <input type="date" id="o_nas_sch_${i}"></div>
-      <div class="form-group"><label>Cittadinanza <span class="req">*</span></label>
-        <select id="o_cit_sch_${i}" onchange="toggleNascitaSch(${i})">
-          ${PAESI_LIST.map(p=>`<option value="${p}"${p==='ITALIA'?' selected':''}>${p}</option>`).join('')}
-        </select></div>
-      <div class="form-group" id="o_com_grp_sch_${i}"><label>Comune di nascita</label>
-        <input type="text" id="o_com_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="form-group" id="o_sta_grp_sch_${i}" style="display:none"><label>Stato di nascita</label>
-        <select id="o_sta_sch_${i}">${PAESI_LIST.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></div>
-      ${isCapo?`
-      <div class="form-group"><label>Tipo documento <span class="req">*</span></label>
-        <select id="o_tdo_sch_${i}">
-          <option value="CARTA D'IDENTITA">CARTA D'IDENTITA</option>
-          <option value="PASSAPORTO">PASSAPORTO</option>
-          <option value="PATENTE">PATENTE</option>
-          <option value="PERMESSO DI SOGGIORNO">PERMESSO DI SOGGIORNO</option>
-        </select></div>
-      <div class="form-group"><label>Numero documento <span class="req">*</span></label>
-        <input type="text" id="o_ndo_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="form-group"><label>Luogo rilascio</label>
-        <input type="text" id="o_ldo_sch_${i}" oninput="this.value=this.value.toUpperCase()"></div>
-      `:''}
-    </div>`;
-    container.appendChild(div);
-  }
-}
-
-function toggleNascitaSch(i) {
-  const isIta = document.getElementById('o_cit_sch_'+i).value === 'ITALIA';
-  document.getElementById('o_com_grp_sch_'+i).style.display = isIta?'':'none';
-  document.getElementById('o_sta_grp_sch_'+i).style.display = isIta?'none':'';
-}
-
-function pad(str, len) { return String(str).padEnd(len, ' ').substring(0, len); }
-function padLeft(str, len) { return String(str).padStart(len, '0').substring(0, len); }
-
-function buildRiga(o, arrivo, notti, isCapo) {
-  const tipoAlloggiato = isCapo ? '16' : '17';
-  const d = new Date(arrivo + 'T12:00:00');
-  const dataArr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-  const nottiStr = String(notti).padStart(2,'0');
-  const cognome = pad(o.cognome, 50);
-  const nome = pad(o.nome, 30);
-  const sesso = o.sesso;
-  const dn = new Date(o.dataNascita + 'T12:00:00');
-  const dataNasc = `${String(dn.getDate()).padStart(2,'0')}/${String(dn.getMonth()+1).padStart(2,'0')}/${dn.getFullYear()}`;
-  const isIta = o.cittadinanza === 'ITALIA';
-  const comuneNascita = isIta ? pad(COMUNI_CODICI[o.comuneNascita.toUpperCase()] || '        ', 9) : pad('', 9);
-  const provNascita = isIta ? pad(PROVINCE[o.comuneNascita.toUpperCase()] || '  ', 2) : '  ';
-  const statoCod = PAESI_CODICI[o.cittadinanza] || PAESI_CODICI['ITALIA'];
-  const statoNascitaCod = isIta ? PAESI_CODICI['ITALIA'] : (PAESI_CODICI[o.statoNascita] || statoCod);
-  const cittadinanzaCod = statoCod;
-  let tipoDoc = '     ', numDoc = pad('', 20), luogoRilascio = pad('', 9);
-  if (isCapo) {
-    tipoDoc = pad(DOC_CODICI[o.tipoDoc] || 'IDENT', 5);
-    numDoc = pad(o.numDoc, 20);
-    const luogo = o.luogoDoc ? o.luogoDoc.toUpperCase() : 'BITONTO';
-    luogoRilascio = pad(COMUNI_CODICI[luogo] || PAESI_CODICI[luogo] || 'A892     ', 9);
-  }
-  return tipoAlloggiato + dataArr + nottiStr + cognome + nome + sesso + dataNasc +
-    comuneNascita + provNascita + statoNascitaCod + cittadinanzaCod +
-    tipoDoc + numDoc + luogoRilascio;
-}
-
-async function generaToken() {
-  const user = document.getElementById('wsUser').value.trim();
-  const pass = document.getElementById('wsPass').value.trim();
-  const wsKey = document.getElementById('wsKey').value.trim();
-  const soap = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:all="AlloggiatiService">
-  <soap:Header/>
-  <soap:Body>
-    <all:GenerateToken>
-      <all:Utente>${user}</all:Utente>
-      <all:Password>${pass}</all:Password>
-      <all:WsKey>${wsKey}</all:WsKey>
-    </all:GenerateToken>
-  </soap:Body>
-</soap:Envelope>`;
-  const resp = await fetch('https://alloggiatiweb.poliziadistato.it/service/service.asmx', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/soap+xml; charset=utf-8', 'SOAPAction': '' },
-    body: soap
-  });
-  const text = await resp.text();
-  const match = text.match(/<token>(.*?)<\/token>/);
-  return match ? match[1] : null;
-}
-
-function showSchAlert(type, msg) {
-  const box = document.getElementById('schAlertBox');
-  box.innerHTML = `<div class="alert ${type}">${msg}</div>`;
-}
-
-async function inviaSchedine() {
-  const wsKey = document.getElementById('wsKey').value.trim();
-  const wsUser = document.getElementById('wsUser').value.trim();
-  const wsPass = document.getElementById('wsPass').value.trim();
-  const arrivo = document.getElementById('sch_arrivo').value;
-  const partenza = document.getElementById('sch_partenza').value;
-  const camera = document.getElementById('sch_camera').value;
-  const n = parseInt(document.getElementById('sch_numOspiti').value);
-
-  if (!wsKey || !wsUser || !wsPass) { showSchAlert('error','⚠️ Inserisci WSKEY, username e password.'); return; }
-  if (!arrivo || !partenza) { showSchAlert('error','⚠️ Inserisci le date.'); return; }
-
-  const notti = Math.round((new Date(partenza) - new Date(arrivo)) / 86400000);
-  const ospitiData = [];
-  for (let i = 0; i < n; i++) {
-    const cognome = document.getElementById('o_cog_sch_'+i)?.value.trim();
-    const nome = document.getElementById('o_nom_sch_'+i)?.value.trim();
-    const dataNascita = document.getElementById('o_nas_sch_'+i)?.value;
-    if (!cognome || !nome || !dataNascita) { showSchAlert('error',`⚠️ Campi obbligatori mancanti per ospite ${i+1}.`); return; }
-    const isCapo = i === 0;
-    const numDoc = isCapo ? document.getElementById('o_ndo_sch_0')?.value.trim() : '';
-    if (isCapo && !numDoc) { showSchAlert('error','⚠️ Inserisci il numero documento del capofamiglia.'); return; }
-    ospitiData.push({
-      cognome, nome,
-      sesso: document.getElementById('o_ses_sch_'+i).value,
-      dataNascita,
-      cittadinanza: document.getElementById('o_cit_sch_'+i).value,
-      comuneNascita: document.getElementById('o_cit_sch_'+i).value==='ITALIA' ? document.getElementById('o_com_sch_'+i).value.trim() : '',
-      statoNascita: document.getElementById('o_cit_sch_'+i).value!=='ITALIA' ? document.getElementById('o_sta_sch_'+i)?.value : '',
-      tipoDoc: isCapo ? document.getElementById('o_tdo_sch_0').value : '',
-      numDoc: isCapo ? numDoc : '',
-      luogoDoc: isCapo ? (document.getElementById('o_ldo_sch_0')?.value.trim() || '') : ''
-    });
-  }
-
-  const btn = document.getElementById('btnInvia');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Generazione token...';
-
-  try {
-    const token = await generaToken();
-    if (!token) throw new Error('Token non generato — verifica username, password e WSKEY');
-
-    btn.innerHTML = '<span class="spinner"></span>Invio schedine...';
-
-    const righe = ospitiData.map((o, i) => buildRiga(o, arrivo, notti, i === 0));
-
-    const soapSend = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:all="AlloggiatiService">
-  <soap:Header/>
-  <soap:Body>
-    <all:GestioneAppartamenti_Send>
-      <all:Utente>${wsUser}</all:Utente>
-      <all:token>${token}</all:token>
-      <all:ElencoSchedine>
-        ${righe.map(r=>`<all:string>${r}</all:string>`).join('\n        ')}
-      </all:ElencoSchedine>
-      <all:IdAppartamento>${camera}</all:IdAppartamento>
-    </all:GestioneAppartamenti_Send>
-  </soap:Body>
-</soap:Envelope>`;
-
-    const resp = await fetch('https://alloggiatiweb.poliziadistato.it/service/service.asmx', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/soap+xml; charset=utf-8' },
-      body: soapSend
-    });
-    const text = await resp.text();
-
-    if (text.includes('<esito>true</esito>')) {
-      showSchAlert('success', `✅ <strong>Schedine inviate con successo!</strong><br>${n} schedina${n>1?'e':''} inviata${n>1?'e':''} ad Alloggiati Web.`);
-    } else {
-      const errMatch = text.match(/<ErroreDes>(.*?)<\/ErroreDes>/);
-      const errDet = text.match(/<ErroreDettaglio>(.*?)<\/ErroreDettaglio>/);
-      const errMsg = errMatch ? errMatch[1] : 'Errore sconosciuto';
-      const errDetMsg = errDet ? errDet[1] : '';
-      showSchAlert('error', `⚠️ <strong>Errore dal portale:</strong> ${errMsg}${errDetMsg?' — '+errDetMsg:''}<br><br><button onclick="scaricaTXT()" style="padding:7px 14px;background:var(--br);color:white;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">Scarica file TXT per invio manuale</button>`);
-      window._lastRighe = righe;
+    function showStatus(message, kind = 'ok') {
+      statusBar.textContent = message;
+      statusBar.className = `status-bar show ${kind === 'error' ? 'err' : 'ok'}`;
+      clearTimeout(showStatus.timer);
+      showStatus.timer = setTimeout(() => statusBar.classList.remove('show'), 4500);
     }
-  } catch(e) {
-    showSchAlert('error', `⚠️ <strong>${e.message}</strong><br><br><button onclick="scaricaTXT()" style="padding:7px 14px;background:var(--br);color:white;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px">Scarica file TXT per invio manuale</button>`);
-    window._lastRighe = ospitiData.map((o, i) => buildRiga(o, arrivo, notti, i === 0));
-  }
 
-  btn.disabled = false;
-  btn.innerHTML = 'Effettua Check-in e invia ad Alloggiati Web';
-}
+    function escapeHtml(str='') {
+      return str.replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+    }
 
-function scaricaTXT() {
-  if (!window._lastRighe) return;
-  const content = window._lastRighe.join('\r\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], {type:'text/plain;charset=utf-8'}));
-  a.download = 'schedine_alloggiati.txt';
-  a.click();
-}
+    function formatDate(v) {
+      if (!v) return '—';
+      return new Date(v + 'T00:00:00').toLocaleDateString('it-IT');
+    }
 
-// ==================== INIT ====================
-caricaPrenotazioni();
-caricaCheckin();
-aggiornaMsg();
-renderOspitiSch();
+    function buildCheckinLink(booking) {
+      const url = new URL('santalo-checkin-ospite.html', window.location.href);
+      url.searchParams.set('prenotazione_id', booking.id);
+      url.searchParams.set('nome', booking.nome || '');
+      url.searchParams.set('arrivo', booking.arrivo || '');
+      url.searchParams.set('partenza', booking.partenza || '');
+      url.searchParams.set('num_ospiti', booking.num_ospiti || 1);
+      url.searchParams.set('camera', booking.camera || '');
+      return url.toString();
+    }
 
-// Polling ogni 2 minuti per nuovi check-in
-setInterval(caricaCheckin, 120000);
-</script>
+    async function testConnection() {
+      const { data, error, status } = await sb.from('prenotazioni').select('id', { count: 'exact', head: true });
+      if (error) throw new Error(`Connessione fallita (${status || 'n/d'}): ${error.message}`);
+      showStatus('Connessione Supabase riuscita. Le policy RLS e la chiave anon sembrano operative.');
+    }
+
+    async function loadBookings() {
+      const { data, error } = await sb.from('prenotazioni').select('*').order('arrivo', { ascending: true });
+      if (error) throw error;
+      bookings = data || [];
+      renderBookings();
+      syncSelectors();
+    }
+
+    async function loadCheckins() {
+      const { data, error } = await sb.from('checkin_ospiti').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      checkins = data || [];
+      renderCheckins();
+      syncSelectors();
+    }
+
+    function renderBookings() {
+      el('statPren').textContent = bookings.length;
+      el('statTodo').textContent = bookings.filter(b => (b.stato_checkin || '').toLowerCase() !== 'completato').length;
+      if (!bookings.length) {
+        prenotazioniList.innerHTML = '<div class="empty">Nessuna prenotazione presente.</div>';
+        return;
+      }
+      prenotazioniList.innerHTML = bookings.map(booking => {
+        const stato = (booking.stato_checkin || 'da compilare').toLowerCase();
+        const cls = stato.includes('complet') ? 'checkin-ok' : 'wait';
+        const matchingGuests = checkins.filter(c => Number(c.prenotazione_id) === Number(booking.id));
+        const link = buildCheckinLink(booking);
+        return `
+          <article class="item">
+            <div class="item-title">
+              <div>
+                <strong>${escapeHtml(booking.nome || 'Prenotazione')}</strong>
+                <div class="muted">ID prenotazione #${booking.id}</div>
+              </div>
+              <span class="tag ${cls}">${escapeHtml(booking.stato_checkin || 'da compilare')}</span>
+            </div>
+            <div class="meta">
+              <div><strong>Camera</strong>${escapeHtml(booking.camera || '—')}</div>
+              <div><strong>Arrivo</strong>${formatDate(booking.arrivo)}</div>
+              <div><strong>Partenza</strong>${formatDate(booking.partenza)}</div>
+              <div><strong>Ospiti</strong>${booking.num_ospiti || 1}</div>
+            </div>
+            <div class="pillbar">
+              <span class="pill">${escapeHtml(booking.canale || 'Canale non indicato')}</span>
+              <span class="pill">Check-in ricevuti: ${matchingGuests.length}</span>
+            </div>
+            ${booking.note ? `<div class="muted" style="margin-bottom:10px;">${escapeHtml(booking.note)}</div>` : ''}
+            <div class="actions">
+              <button class="secondary" onclick="copyText('${link.replace(/'/g, "\\'")}')">Copia link check-in</button>
+              <button class="ghost" onclick="window.open('${link}', '_blank')">Apri form ospite</button>
+              <button class="ghost" onclick="prefillMessage(${booking.id})">Usa nei messaggi</button>
+            </div>
+            <div class="small muted" style="margin-top:10px; word-break: break-all;">${escapeHtml(link)}</div>
+          </article>`;
+      }).join('');
+    }
+
+    function groupCheckins() {
+      const map = new Map();
+      for (const row of checkins) {
+        const key = row.prenotazione_id || 'senza-prenotazione';
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(row);
+      }
+      return [...map.entries()];
+    }
+
+    function renderCheckins() {
+      el('statChk').textContent = groupCheckins().length;
+      const groups = groupCheckins();
+      if (!groups.length) {
+        checkinList.innerHTML = '<div class="empty">Nessun check-in ricevuto finora.</div>';
+        return;
+      }
+      checkinList.innerHTML = groups.map(([prenotazioneId, guests]) => {
+        const booking = bookings.find(b => Number(b.id) === Number(prenotazioneId));
+        const names = guests.map(g => `${g.nome || ''} ${g.cognome || ''}`.trim()).filter(Boolean).join(', ');
+        return `
+          <article class="item">
+            <div class="item-title">
+              <div>
+                <strong>${escapeHtml(booking?.nome || names || 'Check-in ospite')}</strong>
+                <div class="muted">Prenotazione #${escapeHtml(String(prenotazioneId || 'n/d'))}</div>
+              </div>
+              <span class="tag neutral">${guests.length} ospite/i</span>
+            </div>
+            <div class="meta">
+              <div><strong>Camera</strong>${escapeHtml(booking?.camera || '—')}</div>
+              <div><strong>Arrivo</strong>${formatDate(booking?.arrivo)}</div>
+              <div><strong>Partenza</strong>${formatDate(booking?.partenza)}</div>
+              <div><strong>Capofamiglia</strong>${escapeHtml((guests.find(g => g.is_capofamiglia) && ((guests.find(g => g.is_capofamiglia).nome || '') + ' ' + (guests.find(g => g.is_capofamiglia).cognome || ''))) || '—')}</div>
+            </div>
+            <div class="muted" style="margin-bottom:10px;">${escapeHtml(names || 'Dati ospiti compilati')}</div>
+            <div class="actions">
+              <button class="secondary" onclick="showCheckinDetails(${Number(prenotazioneId)})">Mostra dettagli</button>
+              <button class="ghost" onclick="useForSoap(${Number(prenotazioneId)})">Usa per schedina</button>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    function syncSelectors() {
+      const options = bookings.map(b => `<option value="${b.id}">#${b.id} · ${escapeHtml(b.nome || '')} · ${formatDate(b.arrivo)}</option>`).join('');
+      el('msgBookingSelect').innerHTML = '<option value="">— seleziona —</option>' + options;
+      const groups = groupCheckins().map(([id, rows]) => {
+        const booking = bookings.find(b => Number(b.id) === Number(id));
+        const label = booking ? `#${id} · ${booking.nome} · ${formatDate(booking.arrivo)}` : `#${id} · ${rows.length} ospiti`;
+        return `<option value="${id}">${escapeHtml(label)}</option>`;
+      }).join('');
+      el('soapCheckinSelect').innerHTML = '<option value="">— seleziona check-in —</option>' + groups;
+      updateMessagePreview();
+    }
+
+    async function saveBooking(evt) {
+      evt.preventDefault();
+      const fd = new FormData(bookingForm);
+      const payload = Object.fromEntries(fd.entries());
+      payload.num_ospiti = Number(payload.num_ospiti || 1);
+      const { data, error } = await sb.from('prenotazioni').insert(payload).select().single();
+      if (error) throw error;
+      bookingForm.reset();
+      bookingForm.style.display = 'none';
+      showStatus(`Prenotazione salvata correttamente. ID #${data.id}`);
+      await loadBookings();
+    }
+
+    function prefillMessage(id) {
+      el('msgBookingSelect').value = String(id);
+      updateMessagePreview();
+      window.scrollTo({ top: document.body.scrollHeight * .55, behavior: 'smooth' });
+    }
+
+    function updateMessagePreview() {
+      const booking = bookings.find(b => String(b.id) === el('msgBookingSelect').value);
+      const type = el('msgType').value;
+      if (!booking) {
+        el('msgPreview').textContent = 'Seleziona una prenotazione per generare il messaggio.';
+        return;
+      }
+      const link = buildCheckinLink(booking);
+      const txt = {
+        conferma: `Ciao ${booking.nome}, grazie per aver scelto Santalò B&B.\nTi confermiamo la prenotazione in ${booking.camera || 'struttura'} dal ${formatDate(booking.arrivo)} al ${formatDate(booking.partenza)}.\nPer qualsiasi necessità siamo qui.`,
+        precheckin: `Ciao ${booking.nome}, per velocizzare il tuo arrivo ti chiediamo di completare il check-in online prima dell'arrivo.\n\nCompila qui: ${link}\n\nGrazie da Santalò B&B 🌿`,
+        arrivo: `Ciao ${booking.nome}, ti aspettiamo oggi a Santalò B&B.\nQuando hai un orario indicativo di arrivo, scrivicelo pure qui così organizziamo tutto al meglio.`,
+        checkout: `Ciao ${booking.nome}, grazie per essere stato nostro ospite a Santalò B&B.\nTi ricordiamo il check-out entro l'orario previsto. Buon rientro e a presto!`
+      };
+      el('msgPreview').textContent = txt[type] || '';
+    }
+
+    function showCheckinDetails(prenotazioneId) {
+      const rows = checkins.filter(r => Number(r.prenotazione_id) === Number(prenotazioneId));
+      if (!rows.length) return showStatus('Nessun dettaglio disponibile per questa prenotazione.', 'error');
+      const text = rows.map((r, i) => `OSPITE ${i+1}\n${r.nome || ''} ${r.cognome || ''}\nSesso: ${r.sesso || '—'}\nData nascita: ${r.data_nascita || '—'}\nCittadinanza: ${r.cittadinanza || '—'}\nDocumento: ${r.tipo_documento || ''} ${r.numero_documento || ''}\nLuogo rilascio: ${r.luogo_rilascio || '—'}\nCapofamiglia: ${r.is_capofamiglia ? 'Sì' : 'No'}\n`).join('\n');
+      alert(text);
+    }
+
+    function useForSoap(prenotazioneId) {
+      el('soapCheckinSelect').value = String(prenotazioneId);
+      showStatus('Check-in caricato nella sezione schedine.');
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function pad(val, len) {
+      return String(val || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').slice(0, len).padEnd(len, ' ');
+    }
+
+    function fmtDateCompact(dateStr) {
+      if (!dateStr) return '00000000';
+      const [y,m,d] = dateStr.split('-');
+      return `${d}${m}${y}`;
+    }
+
+    function buildFixedRecord(guest, booking, apartmentId) {
+      const parts = [
+        pad(apartmentId, 3),
+        pad(guest.cognome, 50),
+        pad(guest.nome, 30),
+        pad(guest.sesso === 'F' ? 'F' : 'M', 1),
+        pad(fmtDateCompact(guest.data_nascita), 8),
+        pad(guest.comune_nascita || guest.stato_nascita, 40),
+        pad(guest.provincia_nascita || '', 2),
+        pad(guest.cittadinanza, 3),
+        pad(guest.tipo_documento, 5),
+        pad(guest.numero_documento, 20),
+        pad(guest.luogo_rilascio, 30),
+        pad(fmtDateCompact(booking.arrivo), 8),
+        pad(fmtDateCompact(booking.partenza), 8)
+      ];
+      return parts.join('').slice(0,168).padEnd(168, ' ');
+    }
+
+    function buildRecordsForSelectedCheckin() {
+      const prenotazioneId = Number(el('soapCheckinSelect').value);
+      const apartmentId = el('soapApartment').value;
+      const booking = bookings.find(b => Number(b.id) === prenotazioneId);
+      const guests = checkins.filter(r => Number(r.prenotazione_id) === prenotazioneId);
+      if (!booking || !guests.length) throw new Error('Seleziona un check-in con dati ospiti presenti.');
+      const records = guests.map(g => buildFixedRecord(g, booking, apartmentId));
+      el('soapOutput').value = records.join('\n');
+      return { booking, guests, records };
+    }
+
+    function parseXmlTag(xmlText, tagName) {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, 'text/xml');
+      const found = xml.getElementsByTagName(tagName)[0];
+      return found ? found.textContent : '';
+    }
+
+    async function testSoapToken() {
+      const user = el('soapUser').value.trim();
+      const pass = el('soapPass').value.trim();
+      const wskey = el('soapWskey').value.trim();
+      if (!user || !pass || !wskey) throw new Error('Inserisci username, password e WSKEY.');
+      const body = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GenerateToken xmlns="AlloggiatiService">
+      <Utente>${user}</Utente>
+      <Password>${pass}</Password>
+      <WsKey>${wskey}</WsKey>
+      <result />
+    </GenerateToken>
+  </soap:Body>
+</soap:Envelope>`;
+
+      const res = await fetch('https://alloggiatiweb.poliziadistato.it/service/Service.asmx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+          'SOAPAction': '"AlloggiatiService/GenerateToken"'
+        },
+        body
+      });
+
+      const xml = await res.text();
+      el('soapOutput').value = xml;
+      if (!res.ok) throw new Error(`HTTP ${res.status}. Possibile blocco CORS o credenziali non valide.`);
+      const token = parseXmlTag(xml, 'token');
+      showStatus(token ? 'Token SOAP ottenuto correttamente.' : 'Risposta SOAP ricevuta. Controlla XML di ritorno.');
+    }
+
+    async function boot() {
+      try {
+        await Promise.all([loadBookings(), loadCheckins()]);
+      } catch (err) {
+        console.error(err);
+        showStatus(`Errore iniziale: ${err.message}`, 'error');
+      }
+    }
+
+    window.copyText = async function(text) {
+      await navigator.clipboard.writeText(text);
+      showStatus('Contenuto copiato negli appunti.');
+    };
+    window.prefillMessage = prefillMessage;
+    window.showCheckinDetails = showCheckinDetails;
+    window.useForSoap = useForSoap;
+
+    el('btnNuova').addEventListener('click', () => bookingForm.style.display = 'block');
+    el('btnAnnullaForm').addEventListener('click', () => { bookingForm.reset(); bookingForm.style.display = 'none'; });
+    bookingForm.addEventListener('submit', async (evt) => {
+      try { await saveBooking(evt); } catch (err) { console.error(err); showStatus(`Errore salvataggio: ${err.message}`, 'error'); }
+    });
+    el('btnReload').addEventListener('click', boot);
+    el('btnTestConn').addEventListener('click', async () => { try { await testConnection(); } catch (err) { console.error(err); showStatus(err.message, 'error'); } });
+    el('msgBookingSelect').addEventListener('change', updateMessagePreview);
+    el('msgType').addEventListener('change', updateMessagePreview);
+    el('btnCopyMsg').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(el('msgPreview').textContent); showStatus('Messaggio copiato.'); } catch (err) { showStatus('Impossibile copiare il messaggio.', 'error'); }
+    });
+    el('btnBuildRecord').addEventListener('click', () => {
+      try { buildRecordsForSelectedCheckin(); showStatus('Tracciato record generato. Verifica i campi prima dell\'invio reale.'); } catch (err) { showStatus(err.message, 'error'); }
+    });
+    el('btnSoapToken').addEventListener('click', async () => {
+      try { await testSoapToken(); } catch (err) { console.error(err); showStatus(`Test SOAP non riuscito: ${err.message}`, 'error'); }
+    });
+
+    boot();
+  </script>
 </body>
 </html>
