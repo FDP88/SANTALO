@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santalò Gestionale</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --brown:#6B2D1F;
+      --sand:#C4A882;
+      --bg:#f6f1eb;
+      --card:#fffdfb;
+      --text:#3d2a24;
+      --line:#e7d9cc;
+      --ok:#2f7d4a;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1400px;margin:0 auto;padding:18px}
+    .hero{background:linear-gradient(135deg,#7a3725,#9a5a3c);color:#fff;border-radius:24px;padding:22px 24px;margin-bottom:18px}
+    .hero h1{margin:0 0 8px;font-size:44px;line-height:1.05}
+    .hero p{margin:0;font-size:18px;max-width:820px}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--brown);color:#fff}
+    .btn.secondary{background:#fff;color:var(--brown);border:1px solid rgba(255,255,255,.35)}
+    .btn.ghost{background:#f2e8df;color:var(--brown);border:1px solid var(--line)}
+    .grid{display:grid;grid-template-columns:1.2fr .9fr;gap:18px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
+    .card h2{margin:0 0 8px;color:var(--brown);font-size:24px}
+    .muted{color:#7b665e}
+    .pill{display:inline-block;background:#f2e8df;border:1px solid var(--line);padding:6px 10px;border-radius:999px;margin:4px 6px 0 0;font-size:13px;font-weight:700}
+    .list{display:flex;flex-direction:column;gap:14px;max-height:72vh;overflow:auto;padding-right:4px}
+    .booking{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff}
+    .booking.active{outline:3px solid rgba(107,45,31,.14);border-color:#cda98b}
+    .booking-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+    .booking h3{margin:0 0 4px;font-size:24px;color:#2f1f1a}
+    .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+    .meta div{background:#faf6f1;border-radius:14px;padding:10px;border:1px solid #f1e6da}
+    .meta b{display:block;font-size:12px;text-transform:uppercase;color:#8a6d60;margin-bottom:5px}
+    .inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .inline-actions .btn{padding:10px 12px;border-radius:10px;font-size:14px}
+    .phone-link{color:var(--brown);font-weight:700;text-decoration:none}
+    textarea,input,select{width:100%;padding:12px;border:1px solid #d8c7b7;border-radius:12px;background:#fff;font:inherit;color:inherit}
+    textarea{min-height:210px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .small{font-size:13px}
+    .bot-box{border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden}
+    .bot-messages{max-height:360px;overflow:auto;padding:14px;background:#fcfaf7}
+    .bot-bubble{margin:0 0 12px;max-width:92%;padding:12px 14px;border-radius:14px;line-height:1.45;white-space:pre-wrap}
+    .bot-bubble.user{margin-left:auto;background:#efe3d6}
+    .bot-bubble.bot{background:#fff;border:1px solid var(--line)}
+    .bot-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px;border-top:1px solid var(--line);background:#fff}
+    .footer{margin-top:20px;padding:18px;border-top:1px solid var(--line);text-align:center;color:#7b665e;font-size:14px}
+    .success{color:var(--ok);font-weight:700}
+    @media(max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      .meta{grid-template-columns:repeat(2,1fr)}
+      .bot-actions{grid-template-columns:1fr 1fr}
+      .hero h1{font-size:34px}
+    }
+    @media(max-width: 560px){
+      .meta{grid-template-columns:1fr 1fr}
+      .row{grid-template-columns:1fr}
+      .bot-actions{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Santalò Gestionale con Chat Ospite</h1>
+      <p>Gestione prenotazioni, messaggi rapidi, WhatsApp e assistente ospite collegato alla prenotazione.</p>
+      <div class="top-actions">
+        <button class="btn secondary" onclick="loadAll()">Ricarica dati</button>
+        <button class="btn secondary" onclick="testConnessione()">Test connessione</button>
+        <span id="statusConnessione" class="pill">in attesa</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Prenotazioni</h2>
+        <p class="muted">Seleziona una prenotazione per usare messaggi e chatbot con i dati già compilati.</p>
+        <div id="prenotazioni" class="list"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="card">
+          <h2>Messaggi ospiti</h2>
+          <div class="row" style="margin-bottom:10px;">
+            <div>
+              <label class="small">Template</label>
+              <select id="templateSelect" onchange="generaMessaggio()">
+                <option value="conferma">Conferma prenotazione</option>
+                <option value="checkin">Invio link check-in</option>
+                <option value="reminder">Reminder check-in</option>
+                <option value="istruzioni">Istruzioni accesso</option>
+              </select>
+            </div>
+            <div>
+              <label class="small">Telefono / WhatsApp</label>
+              <input id="telefonoOut" placeholder="Numero ospite" />
+            </div>
+          </div>
+          <textarea id="messaggio"></textarea>
+          <div class="inline-actions">
+            <button class="btn" onclick="copiaMessaggio()">Copia messaggio</button>
+            <button class="btn ghost" onclick="apriWhatsApp()">Apri WhatsApp</button>
+            <button class="btn ghost" onclick="copiaLinkCheckin()">Copia link check-in</button>
+            <button class="btn ghost" onclick="apriMaps()">Apri Maps</button>
+          </div>
+          <div id="messaggioEsito" class="small muted" style="margin-top:8px"></div>
+        </div>
+
+        <div class="card">
+          <h2>Chat ospite</h2>
+          <p class="muted">Bot collegato alla prenotazione selezionata. Puoi usarlo come simulazione o copiare le risposte su WhatsApp.</p>
+          <div class="bot-box">
+            <div id="botMessages" class="bot-messages"></div>
+            <div class="bot-actions">
+              <button class="btn ghost" onclick="botQuick('checkin')">1. Check-in</button>
+              <button class="btn ghost" onclick="botQuick('parcheggio')">2. Parcheggio</button>
+              <button class="btn ghost" onclick="botQuick('wifi')">3. Wi-Fi</button>
+              <button class="btn ghost" onclick="botQuick('istruzioni')">4. Istruzioni accesso</button>
+              <button class="btn ghost" onclick="botQuick('riscaldamento')">5. Riscaldamento</button>
+              <button class="btn ghost" onclick="botQuick('operatore')">6. Parla con noi</button>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <input id="botInput" placeholder="Scrivi ad esempio: ciao, wifi, checkin, termosifone..." onkeydown="if(event.key==='Enter') inviaBot()" />
+            <button class="btn" onclick="inviaBot()">Invia</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Santalò Bed and Breakfast · Vico Storto Sant’Eligio 9/10 · 70032 Bitonto (BA)<br>
+      CF: CQFGPP88E31A662T · P. IVA: 08212010725 · prenota@bebsantalo.it
+    </div>
+  </div>
+
+<script>
+const SUPABASE_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const MAPS_URL = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
+let prenotazioni = [];
+let selected = null;
+
+function formatDate(dateStr){
+  if(!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString('it-IT');
+}
+function escapeHtml(str=''){return str.replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
+function getCheckinLink(p){
+  const base = 'https://fdp88.github.io/SANTALO/santalo-checkin-ospite.html';
+  const q = new URLSearchParams({
+    prenotazione_id: p.id,
+    nome: p.nome || '',
+    arrivo: p.arrivo || '',
+    partenza: p.partenza || '',
+    num_ospiti: p.num_ospiti || '',
+    camera: p.camera || ''
+  });
+  return `${base}?${q.toString()}`;
+}
+function normalizePhone(phone){
+  if(!phone) return '';
+  let cleaned = String(phone).replace(/[^\d+]/g,'');
+  if(cleaned.startsWith('00')) cleaned = '+' + cleaned.slice(2);
+  if(cleaned.startsWith('+')) return cleaned.slice(1);
+  if(cleaned.startsWith('39')) return cleaned;
+  return '39' + cleaned;
+}
+function getIstruzioniCamera(camera){
+  if(camera === 'Camera 1920') {
+    return `🔑 Accesso struttura\nL’ingresso è automatizzato. All’esterno troverai una key box con la chiave del portone.\nCodice key box: 4660\nDopo aver aperto il portone, la camera si trova al piano terra.`;
+  }
+  if(camera === 'Camera 1954') {
+    return `🔑 Accesso struttura\nAccanto al portone principale trovi un portoncino con tastierino elettronico.\nCodice: 43757\nAll’interno troverai le chiavi della camera. Sali al 1° piano.`;
+  }
+  if(camera === 'Camera 1956') {
+    return `🔑 Accesso struttura\nAccanto al portone principale trovi un portoncino con tastierino elettronico.\nCodice: 43757\nAll’interno troverai le chiavi della camera. Sali al 2° piano.`;
+  }
+  return '🔑 Ti invieremo le istruzioni di accesso in base alla camera assegnata.';
+}
+
+function generaMessaggio(){
+  if(!selected){
+    document.getElementById('messaggio').value = 'Seleziona prima una prenotazione.';
+    return;
+  }
+  const nome = selected.nome || 'ospite';
+  const arrivo = formatDate(selected.arrivo);
+  const partenza = formatDate(selected.partenza);
+  const camera = selected.camera || 'camera';
+  const link = getCheckinLink(selected);
+  const istruzioni = getIstruzioniCamera(camera);
+  const tpl = document.getElementById('templateSelect').value;
+  let msg = '';
+
+  if(tpl === 'conferma'){
+    msg = `Buongiorno ${nome} 😊\n\ngrazie per aver scelto Santalò B&B.\n\nLa tua prenotazione è confermata dal ${arrivo} al ${partenza} per ${camera}.\n\n📍 Vico Storto Sant’Eligio 9 – Bitonto\n📍 Posizione esatta: ${MAPS_URL}\n\nA breve riceverai il link per completare il check-in online e tutte le istruzioni per accedere alla struttura.\n\nPer qualsiasi richiesta siamo a disposizione.\n\nA presto 🌿`;
+  }
+  if(tpl === 'checkin'){
+    msg = `Ciao ${nome} 😊\n\nè arrivato il momento di organizzare il tuo arrivo presso Santalò B&B.\n\nPer garantirti un accesso semplice e senza attese, ti chiediamo di completare il check-in online:\n\n👉 ${link}\n\n📍 Posizione struttura: ${MAPS_URL}\n\nTi basteranno pochi minuti e sarà necessario avere a portata di mano un documento d’identità.\n\nUna volta completato, riceverai tutte le istruzioni per accedere alla struttura.\n\nA presto 🌿`;
+  }
+  if(tpl === 'reminder'){
+    msg = `Buongiorno ${nome} 😊\n\nti ricordiamo gentilmente di completare il check-in online prima dell’arrivo del ${arrivo}.\n\n👉 ${link}\n\nÈ un passaggio necessario per garantirti un accesso rapido e senza attese.\n\nSe hai bisogno di supporto siamo a disposizione.\n\nGrazie 🌿`;
+  }
+  if(tpl === 'istruzioni'){
+    msg = `Perfetto 👍\nabbiamo ricevuto il tuo check-in.\n\nTi diamo il benvenuto a Santalò B&B 🌿\n\n📍 Indirizzo: Vico Storto Sant’Eligio 9 – Bitonto\n📍 Posizione esatta: ${MAPS_URL}\n🕒 Puoi accedere a partire dalle ore 14:00\n\n${istruzioni}\n\n🌐 Wi‑Fi\nNome: B&B_santalo\nPassword: acq2024!\n\n🅿 Parcheggio\nLa struttura si trova nel centro storico e non è raggiungibile direttamente in auto. Puoi parcheggiare nelle zone vicine; le strisce blu sono a pagamento. Su richiesta: posto auto 10€/giorno o garage nelle vicinanze.\n\n♻️ Raccolta differenziata\nAll’interno della camera troverai i contenitori dedicati.\n\n☕ Colazione\nDisponibile su richiesta al costo di 5€ a persona.\n\nPer qualsiasi necessità siamo sempre disponibili.\n\nBuon soggiorno 🌿`;
+  }
+
+  document.getElementById('messaggio').value = msg;
+  document.getElementById('telefonoOut').value = selected.telefono || '';
+}
+
+function renderPrenotazioni(){
+  const root = document.getElementById('prenotazioni');
+  if(!prenotazioni.length){
+    root.innerHTML = '<div class="muted">Nessuna prenotazione trovata.</div>';
+    return;
+  }
+  root.innerHTML = prenotazioni.map(p => `
+    <div class="booking ${selected && selected.id===p.id ? 'active' : ''}">
+      <div class="booking-head">
+        <div>
+          <h3>${escapeHtml(p.nome || 'Prenotazione')}</h3>
+          <div class="muted">ID prenotazione #${p.id}</div>
+        </div>
+        <span class="pill">${escapeHtml(p.stato_checkin || 'da compilare')}</span>
+      </div>
+      <div class="meta">
+        <div><b>Camera</b>${escapeHtml(p.camera || '—')}</div>
+        <div><b>Arrivo</b>${formatDate(p.arrivo)}</div>
+        <div><b>P﻿artenza</b>${formatDate(p.partenza)}</div>
+        <div><b>Ospiti</b>${escapeHtml(String(p.num_ospiti || '—'))}</div>
+      </div>
+      <div class="small muted">Canale: ${escapeHtml(p.canale || '—')} · Telefono: ${escapeHtml(p.telefono || 'non inserito')}</div>
+      <div class="inline-actions">
+        <button class="btn" onclick="selezionaPrenotazione(${p.id})">Seleziona</button>
+        <button class="btn ghost" onclick="copyText('${getCheckinLink(p).replace(/'/g, "%27")}','Link check-in copiato')">Copia link check-in</button>
+        <button class="btn ghost" onclick="openWhatsAppDirect(${p.id})">WhatsApp</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadAll(){
+  const { data, error } = await sb
+    .from('prenotazioni')
+    .select('*')
+    .order('id', { ascending: false });
+
+  if(error){
+    document.getElementById('statusConnessione').textContent = 'errore caricamento';
+    document.getElementById('statusConnessione').style.background = '#f8d7da';
+    document.getElementById('prenotazioni').innerHTML = `<div class="muted">Errore: ${escapeHtml(error.message)}</div>`;
+    return;
+  }
+
+  prenotazioni = data || [];
+  if(!selected && prenotazioni.length) selected = prenotazioni[0];
+  else if(selected) selected = prenotazioni.find(p => p.id === selected.id) || prenotazioni[0] || null;
+  renderPrenotazioni();
+  generaMessaggio();
+  resetBot();
+  document.getElementById('statusConnessione').textContent = 'connessione ok';
+  document.getElementById('statusConnessione').style.background = '#e7f5ec';
+}
+
+async function testConnessione(){
+  const el = document.getElementById('statusConnessione');
+  el.textContent = 'test in corso...';
+  const { error } = await sb.from('prenotazioni').select('id').limit(1);
+  if(error){
+    el.textContent = 'errore: ' + error.message;
+    el.style.background = '#f8d7da';
+  } else {
+    el.textContent = 'connessione ok';
+    el.style.background = '#e7f5ec';
+  }
+}
+
+function selezionaPrenotazione(id){
+  selected = prenotazioni.find(p => p.id === id) || null;
+  renderPrenotazioni();
+  generaMessaggio();
+  resetBot();
+}
+
+function copyText(text, okText='Copiato'){
+  navigator.clipboard.writeText(text).then(()=>{
+    document.getElementById('messaggioEsito').textContent = okText;
+  }).catch(()=>{
+    document.getElementById('messaggioEsito').textContent = 'Copia non riuscita';
+  });
+}
+function copiaMessaggio(){ copyText(document.getElementById('messaggio').value, 'Messaggio copiato'); }
+function copiaLinkCheckin(){ if(selected) copyText(getCheckinLink(selected), 'Link check-in copiato'); }
+function apriMaps(){ window.open(MAPS_URL, '_blank'); }
+function apriWhatsApp(){
+  const txt = document.getElementById('messaggio').value || '';
+  const phone = normalizePhone(document.getElementById('telefonoOut').value || '');
+  const base = phone ? `https://wa.me/${phone}` : 'https://wa.me/';
+  window.open(`${base}?text=${encodeURIComponent(txt)}`, '_blank');
+}
+function openWhatsAppDirect(id){
+  const p = prenotazioni.find(x=>x.id===id);
+  if(!p){ return; }
+  selected = p;
+  renderPrenotazioni();
+  generaMessaggio();
+  apriWhatsApp();
+}
+
+function botAdd(text, who='bot'){
+  const root = document.getElementById('botMessages');
+  const div = document.createElement('div');
+  div.className = 'bot-bubble ' + who;
+  div.textContent = text;
+  root.appendChild(div);
+  root.scrollTop = root.scrollHeight;
+}
+function resetBot(){
+  const root = document.getElementById('botMessages');
+  root.innerHTML = '';
+  botAdd(`Ciao 😊 Sono l’assistente di Santalò B&B.${selected ? `\nPrenotazione selezionata: ${selected.nome} · ${selected.camera}` : ''}\n\nCome posso aiutarti?\n1. Check-in\n2. Parcheggio\n3. Wi‑Fi\n4. Istruzioni accesso\n5. Riscaldamento\n6. Parlare con noi`,'bot');
+}
+function botQuick(key){ rispondiBot(key, true); }
+function inviaBot(){
+  const input = document.getElementById('botInput');
+  const txt = (input.value || '').trim();
+  if(!txt) return;
+  botAdd(txt, 'user');
+  input.value = '';
+  rispondiBot(txt, false);
+}
+function rispondiBot(raw){
+  const t = String(raw || '').toLowerCase();
+  if(!selected){ botAdd('Seleziona prima una prenotazione dal gestionale.'); return; }
+  const link = getCheckinLink(selected);
+  const camera = selected.camera || '';
+  if(['ciao','salve','hello','hi','menu'].includes(t)){
+    resetBot();
+    return;
+  }
+  if(t==='1' || t.includes('checkin') || t.includes('check-in')){
+    botAdd(`Puoi completare il check-in qui:\n${link}\n\nTi basteranno pochi minuti.`); return;
+  }
+  if(t==='2' || t.includes('parcheggio') || t.includes('auto') || t.includes('garage')){
+    botAdd('La struttura si trova nel centro storico e non è accessibile direttamente in auto. Puoi parcheggiare nelle zone vicine; le strisce blu sono a pagamento. Su richiesta: posto auto 10€/giorno oppure garage nelle vicinanze.'); return;
+  }
+  if(t==='3' || t.includes('wifi') || t.includes('wi-fi') || t.includes('internet')){
+    botAdd('Wi‑Fi\nNome: B&B_santalo\nPassword: acq2024!'); return;
+  }
+  if(t==='4' || t.includes('istruzioni') || t.includes('ingresso') || t.includes('accesso') || t.includes('chiave')){
+    botAdd(`${getIstruzioniCamera(camera)}\n\n📍 Posizione esatta: ${MAPS_URL}`); return;
+  }
+  if(t==='5' || t.includes('riscaldamento') || t.includes('termosifone') || t.includes('cronotermostato') || t.includes('freddo') || t.includes('caldo')){
+    botAdd('Per il riscaldamento:\n1. Se vedi OFF, premi il tasto ON/OFF per riattivarlo.\n2. Ruota la manopola e imposta una temperatura più alta di quella ambiente, ad esempio 21°C.\n3. Attendi qualche minuto: il cronotermostato aggiorna la temperatura circa ogni 3 minuti.\n\nSe non funziona, mandaci una foto del display e ti guidiamo passo passo.'); return;
+  }
+  if(t==='6' || t.includes('operatore') || t.includes('parlare') || t.includes('aiuto') || t.includes('umano')){
+    botAdd('Certo 😊 scrivici pure qui su WhatsApp e ti aiutiamo subito.'); return;
+  }
+  if(t.includes('off')){
+    botAdd('Se compare OFF, il termostato è spento. Premi il tasto ON/OFF per riattivarlo. Anche da spento può restare attiva la protezione antigelo.'); return;
+  }
+  if(t.includes('non funziona') || t.includes('non va')){
+    botAdd('Controlla che il display sia acceso, che non compaia OFF e che la temperatura impostata sia più alta di quella ambiente. Se vuoi, mandaci una foto del display e ti aiutiamo subito.'); return;
+  }
+  botAdd('Posso aiutarti con:\n1. Check-in\n2. Parcheggio\n3. Wi‑Fi\n4. Istruzioni accesso\n5. Riscaldamento\n6. Parlare con noi');
+}
+
+loadAll();
+</script>
+</body>
+</html>
