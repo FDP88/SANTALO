@@ -582,4 +582,12 @@ function generaSchedina(prenId) {
     });
   };
   if (pren) { doDownload(pren); return; }
- 
+  sb.from('prenotazioni').select('*').eq('id', prenId).maybeSingle().then(function(r) {
+    if (r.data) doDownload(r.data);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() { loadAll(); });
+</script>
+</body>
+</html>
