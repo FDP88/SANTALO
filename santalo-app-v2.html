@@ -30,7 +30,7 @@
     .grid-main{display:grid;grid-template-columns:1.1fr .95fr;gap:16px}
     .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}
     .card-title{font-size:1rem;font-weight:600;color:var(--brown);margin-bottom:14px}
-    .tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-bottom:14px}
+    .tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
     .tab{padding:7px 13px;border-radius:8px 8px 0 0;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);font-family:inherit;transition:all .15s}
     .tab.active{background:var(--brown);color:#fff}
     .list{display:flex;flex-direction:column;gap:11px;max-height:72vh;overflow-y:auto;padding-right:4px}
@@ -98,6 +98,7 @@
           <button class="tab" id="tab-nuova" onclick="showTab('nuova')">+ Nuova</button>
           <button class="tab" id="tab-checkin" onclick="showTab('checkin')">Check-in ricevuti</button>
           <button class="tab" id="tab-chat" onclick="showTab('chat')">💬 Conversazioni</button>
+          <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">📋 Alloggiati</button>
         </div>
 
         <div id="panel-lista">
@@ -113,9 +114,9 @@
             <div class="ff"><label>Camera *</label>
               <select id="f-camera">
                 <option value="">-- Seleziona --</option>
-                <option value="1920">Camera 1920 (piano terra)</option>
-                <option value="1954">Camera 1954 (1° piano)</option>
-                <option value="1956">Camera 1956 (2° piano)</option>
+                <option value="Camera 1920">Camera 1920 (piano terra)</option>
+                <option value="Camera 1954">Camera 1954 (1° piano)</option>
+                <option value="Camera 1956">Camera 1956 (2° piano)</option>
               </select>
             </div>
             <div class="ff"><label>N. ospiti</label>
@@ -136,15 +137,24 @@
           <div id="salvataEsito" class="esito"></div>
         </div>
 
-        <div id="panel-chat" style="display:none">
-          <div id="listaConversazioni" class="list">
-            <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
-          </div>
-        </div>
-
         <div id="panel-checkin" style="display:none">
           <div id="listaCheckin" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento check-in...</div>
+          </div>
+        </div>
+
+        <div id="panel-chat" style="display:none">
+          <div id="listaConversazioni" class="list">
+            <div style="color:var(--muted);text-align:center;padding:30px">Caricamento conversazioni...</div>
+          </div>
+        </div>
+
+        <div id="panel-alloggiati" style="display:none">
+          <div style="padding:8px 0 14px;color:var(--muted);font-size:13px">
+            Prenotazioni con check-in completato. Clicca "Genera schedina" per scaricare il file .txt da caricare su <strong>alloggiati.poliziadistato.it</strong>.
+          </div>
+          <div id="listaAlloggiati" class="list">
+            <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
           </div>
         </div>
       </div>
@@ -188,11 +198,11 @@
 
   <div class="footer">
     Santalò Bed &amp; Breakfast · Vico Storto Sant'Eligio 9 · 70032 Bitonto (BA)<br>
-    CF: CQFGPP88E31A662T · P. IVA: 08212010725 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4b22252d240b292e29382a253f2a272465223f">[email&#160;protected]</a>
+    CF: CQFGPP88E31A662T · P. IVA: 08212010725 · info@bebsantalo.it
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 var SB_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
@@ -203,6 +213,7 @@ var MAPS_URL = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
 var prenotazioni = [];
 var selected = null;
 
+// ===== UTILITY =====
 function fmt(d) {
   if (!d) return '--';
   var x = new Date(d);
@@ -236,14 +247,20 @@ function esito(id, msg, c) {
 function copy(text, ok) {
   navigator.clipboard.writeText(text).then(function() { esito('messaggioEsito', ok || 'Copiato'); }).catch(function() { esito('messaggioEsito', 'Errore copia', 'var(--err)'); });
 }
+
+// ===== TABS =====
 function showTab(t) {
-  ['lista','nuova','checkin','chat'].forEach(function(x) {
+  ['lista','nuova','checkin','chat','alloggiati'].forEach(function(x) {
     document.getElementById('panel-'+x).style.display = x===t ? '' : 'none';
-    document.getElementById('tab-'+x).classList.toggle('active', x===t);
+    var tabEl = document.getElementById('tab-'+x);
+    if (tabEl) tabEl.classList.toggle('active', x===t);
   });
   if (t === 'checkin') loadCheckin();
   if (t === 'chat') loadConversazioni();
+  if (t === 'alloggiati') loadAlloggiati();
 }
+
+// ===== PRENOTAZIONI =====
 function loadAll() {
   var el = document.getElementById('connStatus');
   el.textContent = 'caricamento...'; el.className = 'pill';
@@ -260,11 +277,13 @@ function loadAll() {
     renderPrenotazioni(); generaMessaggio(); aggiornaLink();
   });
 }
+
 function sClass(s) {
   if (!s || s === 'da compilare') return 's-da';
   if (s === 'completato') return 's-ok';
   return 's-inv';
 }
+
 function renderPrenotazioni() {
   var root = document.getElementById('listaPrenotazioni');
   if (!prenotazioni.length) { root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessuna prenotazione</div>'; return; }
@@ -288,10 +307,12 @@ function renderPrenotazioni() {
       '</div></div>';
   }).join('');
 }
+
 function seleziona(id) {
   selected = prenotazioni.find(function(p) { return p.id === id; }) || null;
   renderPrenotazioni(); generaMessaggio(); aggiornaLink();
 }
+
 function aggiornaLink() {
   var el = document.getElementById('linkRapidi');
   if (!selected) { el.innerHTML = '<span style="color:var(--muted)">Seleziona una prenotazione dalla lista.</span>'; return; }
@@ -302,19 +323,22 @@ function aggiornaLink() {
     '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + cl.replace(/'/g,'%27') + '\',\'Copiato\')">Copia</button>' +
     '<button class="btn btn-green btn-sm" onclick="waLink(\'' + cl.replace(/'/g,'%27') + '\')">WhatsApp</button>' +
     '</div></div>' +
-    '<div class="link-box"><div class="link-box-label">Link Assistente AI (Alo)</div><div class="link-box-url">' + esc(bot) + '</div><div class="link-box-btns">' +
+    '<div class="link-box"><div class="link-box-label">Link Assistente AI (Alò)</div><div class="link-box-url">' + esc(bot) + '</div><div class="link-box-btns">' +
     '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + bot.replace(/'/g,'%27') + '\',\'Copiato\')">Copia</button>' +
     '<button class="btn btn-green btn-sm" onclick="waLink(\'' + bot.replace(/'/g,'%27') + '\')">WhatsApp</button>' +
     '<button class="btn btn-ghost btn-sm" onclick="window.open(\'' + bot.replace(/'/g,'%27') + '\',\'_blank\')">Apri</button>' +
     '</div></div>';
 }
+
+// ===== MESSAGGI WHATSAPP =====
 function istr(cam) {
   var c = String(cam||'').replace('Camera ','');
-  if (c==='1920') return 'Accesso Camera 1920 - Piano terra\nAll\'esterno trovi una key box sul muro.\nCodice: 4660\nAbbassa la leva, estrai la chiave e apri il portone.';
+  if (c==='1920') return 'Accesso Camera 1920 - Piano terra\nAll'esterno trovi una key box sul muro.\nCodice: 4660\nAbbassa la leva, estrai la chiave e apri il portone.';
   if (c==='1954') return 'Accesso Camera 1954 - Primo piano\nAccanto al portone trovi un portoncino con tastierino digitale.\nCodice: 43757\nAttendi il click, entra, prendi le chiavi a destra. Sali al 1 piano - camera a sinistra.';
   if (c==='1956') return 'Accesso Camera 1956 - Secondo piano\nAccanto al portone trovi un portoncino con tastierino digitale.\nCodice: 43757\nAttendi il click, entra, prendi le chiavi a destra. Sali al 2 piano - camera a sinistra.';
   return 'Ti invieremo le istruzioni specifiche per la tua camera.';
 }
+
 function generaMessaggio() {
   if (!selected) { document.getElementById('messaggio').value = 'Seleziona prima una prenotazione.'; return; }
   var p = selected;
@@ -324,21 +348,22 @@ function generaMessaggio() {
   var tpl = document.getElementById('templateSelect').value;
   var msg = '';
   if (tpl==='conferma') {
-    msg = 'Buongiorno ' + nome + ', benvenuto/a a Santalo B&B!\n\nSiamo felici di ospitarti. Ecco il riepilogo della tua prenotazione:\n\nDal ' + arrivo + ' al ' + partenza + '\n' + camera + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nHai gia\' il tuo assistente personale disponibile H24 per qualsiasi domanda prima e durante il soggiorno:\n\n' + bot + '\n\nA breve ti inviamo il link per completare il check-in online (ci vogliono solo 2 minuti).\n\nA presto!';
+    msg = 'Buongiorno ' + nome + ', benvenuto/a a Santalò B&B!\n\nSiamo felici di ospitarti. Ecco il riepilogo della tua prenotazione:\n\nDal ' + arrivo + ' al ' + partenza + '\n' + camera + '\nVico Storto Sant'Eligio 9 - Bitonto\n\nHai già il tuo assistente personale disponibile H24:\n\n' + bot + '\n\nA breve ti inviamo il link per completare il check-in online.\n\nA presto!';
   } else if (tpl==='checkin') {
-    msg = 'Ciao ' + nome + '!\n\nPer garantirti un accesso rapido e autonomo alla struttura, ti chiediamo di completare il check-in online prima dell\'arrivo. Avrai bisogno di un documento d\'identita\'.\n\nClicca qui per compilarlo:\n' + cl + '\n\nDove siamo: ' + MAPS_URL + '\n\nGrazie!';
+    msg = 'Ciao ' + nome + '!\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell'arrivo:\n\n' + cl + '\n\nDove siamo: ' + MAPS_URL + '\n\nGrazie!';
   } else if (tpl==='chatbot') {
-    msg = 'Ciao ' + nome + '!\n\nTi presento Alo, il tuo assistente personale H24 per tutto il soggiorno:\n\n' + bot + '\n\nPuoi scrivergli in qualsiasi lingua, a qualsiasi ora. Sa rispondere su: come accedere alla camera, WiFi, parcheggio, riscaldamento, dove mangiare a Bitonto e molto altro.\n\nBuon soggiorno!';
+    msg = 'Ciao ' + nome + '!\n\nTi presento Alò, il tuo assistente personale H24 per tutto il soggiorno:\n\n' + bot + '\n\nPuoi scrivergli in qualsiasi lingua, a qualsiasi ora.\n\nBuon soggiorno!';
   } else if (tpl==='reminder') {
-    msg = 'Ciao ' + nome + '!\n\nTi ricordiamo che il tuo arrivo e\' previsto per il ' + arrivo + '. Se non hai ancora completato il check-in online, fallo ora in 2 minuti:\n\n' + cl + '\n\nE\' necessario per ricevere le istruzioni di accesso alla struttura. Grazie!';
+    msg = 'Ciao ' + nome + '!\n\nTi ricordiamo che il tuo arrivo è previsto per il ' + arrivo + '. Se non hai ancora completato il check-in online:\n\n' + cl + '\n\nGrazie!';
   } else if (tpl==='istruzioni') {
-    msg = 'Ciao ' + nome + ', siamo pronti ad accoglierti!\n\nEcco tutto quello che ti serve per arrivare:\n\nIndirizzo: Vico Storto Sant\'Eligio 9 - Bitonto\nPosizione su mappa: ' + MAPS_URL + '\nCheck-in dalle ore 14:00\n\n' + istr(camera) + '\n\nWiFi\nRete: B&B_santalo\nPassword: acq2024!\n\nParcheggio\nIl centro storico e\' ZTL. Puoi parcheggiare nelle strisce blu in Piazza Cavour o Via Traiana, a 2-5 minuti a piedi.\n\nPer qualsiasi altra domanda, Alo e\' disponibile H24:\n' + bot + '\n\nBuon soggiorno!';
+    msg = 'Ciao ' + nome + ', siamo pronti ad accoglierti!\n\nIndirizzo: Vico Storto Sant'Eligio 9 - Bitonto\nMappa: ' + MAPS_URL + '\nCheck-in dalle ore 14:00\n\n' + istr(camera) + '\n\nWiFi\nRete: B&B_santalo\nPassword: acq2024!\n\nParcheggio\nZTL nel centro storico. Strisce blu in Piazza Cavour o Via Traiana.\n\nAssistente H24: ' + bot + '\n\nBuon soggiorno!';
   } else if (tpl==='checkout') {
-    msg = 'Ciao ' + nome + '!\n\nSperiamo che il tuo soggiorno a Santalo B&B sia stato piacevole. E\' stato un piacere ospitarti!\n\nSe hai 2 minuti, una recensione su Google ci aiuterebbe tantissimo a farci conoscere:\n\n' + MAPS_URL + '\n\nGrazie di cuore. Speriamo di rivederti presto a Bitonto!';
+    msg = 'Ciao ' + nome + '!\n\nSperiamo che il soggiorno sia stato piacevole. Se hai 2 minuti, una recensione su Google ci aiuterebbe moltissimo:\n\n' + MAPS_URL + '\n\nGrazie di cuore!';
   }
   document.getElementById('messaggio').value = msg;
   document.getElementById('telefonoOut').value = p.telefono || '';
 }
+
 function copiaMessaggio() { copy(document.getElementById('messaggio').value, 'Messaggio copiato'); }
 function apriMaps() { window.open(MAPS_URL, '_blank'); }
 function apriWhatsApp() {
@@ -357,6 +382,8 @@ function waDiretto(id) {
   if (!p) return;
   selected = p; renderPrenotazioni(); generaMessaggio(); aggiornaLink(); apriWhatsApp();
 }
+
+// ===== NUOVA PRENOTAZIONE =====
 function salvaPrenotazione() {
   var nome = document.getElementById('f-nome').value.trim();
   var camera = document.getElementById('f-camera').value;
@@ -380,6 +407,8 @@ function salvaPrenotazione() {
     loadAll(); showTab('lista');
   });
 }
+
+// ===== CHECK-IN RICEVUTI =====
 function loadCheckin() {
   var root = document.getElementById('listaCheckin');
   root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Caricamento...</div>';
@@ -389,8 +418,176 @@ function loadCheckin() {
     root.innerHTML = result.data.map(function(c) {
       return '<div class="checkin-item">' +
         '<div class="checkin-name">' + esc(c.nome||'') + ' ' + esc(c.cognome||'') + '</div>' +
-        '<div class="checkin-meta">Prenotazione #' + (c.prenotazione_id||'--') + ' · ' + esc(c.tipo_documento||'--') + ' ' + esc(c.numero_documento||'') + ' · ' + esc(c.cittadinanza||'--') + '</div>' +
+        '<div class="checkin-meta">Pren. #' + (c.prenotazione_id||'--') + ' · ' + esc(c.tipo_documento||'--') + ' ' + esc(c.numero_documento||'') + ' · ' + esc(c.cittadinanza_nome||c.cittadinanza||'--') + '</div>' +
         '<div class="checkin-meta" style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">' +
-        (c.documento_fronte_url ? '<a href="' + esc(c.documento_fronte_url) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Fronte</a>' : '') +
-        (c.documento_retro_url ? '<a href="' + esc(c.documento_retro_url) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Retro</a>' : '') +
-        (c.selfie_documento_url ? '<a href="' + esc(c.selfie_documento_url) + '" target="_bla
+        (c.documento_fronte_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.documento_fronte_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Fronte</a>' : '') +
+        (c.documento_retro_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.documento_retro_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Retro</a>' : '') +
+        (c.selfie_documento_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.selfie_documento_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Selfie</a>' : '') +
+        '</div></div>';
+    }).join('');
+  });
+}
+
+// ===== CONVERSAZIONI =====
+function loadConversazioni() {
+  var root = document.getElementById('listaConversazioni');
+  root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Caricamento...</div>';
+  fetch(SB_URL + '/rest/v1/conversazioni?select=*&order=created_at.desc&limit=200', {
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
+  }).then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data || !data.length) { root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessuna conversazione ancora</div>'; return; }
+    var groups = {};
+    data.forEach(function(m) {
+      var key = (m.prenotazione_id || 'anonimo') + '_' + (m.created_at || '').slice(0,10);
+      if (!groups[key]) groups[key] = { nome: m.nome_ospite, camera: m.camera, data: (m.created_at||'').slice(0,10), messaggi: [] };
+      groups[key].messaggi.push(m);
+    });
+    root.innerHTML = Object.values(groups).map(function(g) {
+      var msgs = g.messaggi.slice().reverse().map(function(m) {
+        var isBot = m.ruolo === 'alo';
+        return '<div style="margin:4px 0;padding:7px 11px;border-radius:10px;font-size:13px;line-height:1.5;' +
+          (isBot ? 'background:var(--cream);border:1px solid var(--line);' : 'background:var(--brown);color:#fff;margin-left:20px;') + '">' +
+          '<span style="font-size:10px;font-weight:700;opacity:.6;display:block;margin-bottom:2px">' + (isBot ? 'ALÒ' : 'OSPITE') + '</span>' +
+          esc(m.messaggio) + '</div>';
+      }).join('');
+      return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<div><strong style="font-size:.95rem">' + esc(g.nome||'Ospite') + '</strong> · <span style="color:var(--muted);font-size:12px">Camera ' + esc(g.camera||'--') + '</span></div>' +
+        '<span style="font-size:11px;color:var(--muted)">' + g.data + '</span></div>' +
+        msgs + '</div>';
+    }).join('');
+  }).catch(function() {
+    root.innerHTML = '<div style="color:var(--err);padding:16px">Errore caricamento conversazioni</div>';
+  });
+}
+
+// ===== ALLOGGIATI WEB =====
+var CODICE_STRUTTURA = 'BA008847 ';
+
+var TIPI_DOC_AW = {
+  'Carta di identità': '02013',
+  'Passaporto': '01001',
+  'Patente': '02003',
+  'Permesso di soggiorno': '02012',
+};
+
+var UE_CODES = ['Z102','Z103','Z104','Z107','Z109','Z110','Z112','Z114','Z115',
+  'Z116','Z119','Z122','Z125','Z127','Z128','Z129','Z131','Z132','Z133',
+  'Z134','Z138','Z139','Z144','Z145','Z146','Z148','Z149','Z150','Z153',
+  'Z154','Z155','Z156'];
+
+function awPad(s, len) {
+  s = String(s || '');
+  s = s.substring(0, len);
+  while (s.length < len) s = s + ' ';
+  return s;
+}
+
+function awDate(iso) {
+  if (!iso || iso.length < 10) return '          ';
+  var p = iso.split('-');
+  if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+  return '          ';
+}
+
+function awDays(a, b) {
+  try {
+    var diff = Math.round((new Date(b) - new Date(a)) / 86400000);
+    return Math.max(1, diff);
+  } catch(e) { return 1; }
+}
+
+function buildRecord(ospite, arrivo, partenza) {
+  var citt = ospite.cittadinanza_codice || '';
+  var tipo;
+  if (!citt || citt === 'Z000') { tipo = '20'; }
+  else if (UE_CODES.indexOf(citt) >= 0) { tipo = '21'; }
+  else { tipo = '22'; }
+
+  var giorni = String(awDays(arrivo, partenza)).padStart(4, '0');
+  var natoItalia = ospite.nato_italia || ospite.stato_nascita_codice === 'Z000' || !ospite.stato_nascita_codice;
+
+  var comuneNascita, provinciaNascita, statoNascita;
+  if (natoItalia) {
+    comuneNascita = awPad(ospite.comune_nascita_codice || '', 9);
+    provinciaNascita = awPad(ospite.provincia_nascita || '', 2);
+    statoNascita = awPad('Z000', 9);
+  } else {
+    comuneNascita = awPad('', 9);
+    provinciaNascita = awPad('EE', 2);
+    statoNascita = awPad(ospite.stato_nascita_codice || '', 9);
+  }
+
+  return tipo +
+    CODICE_STRUTTURA +
+    awDate(arrivo) +
+    giorni +
+    awPad(ospite.cognome || '', 50) +
+    awPad(ospite.nome || '', 30) +
+    awPad(ospite.sesso || '1', 1) +
+    awDate(ospite.data_nascita) +
+    comuneNascita +
+    provinciaNascita +
+    statoNascita +
+    awPad(ospite.cittadinanza_codice || 'Z000', 9) +
+    awPad(TIPI_DOC_AW[ospite.tipo_documento] || '01001', 5) +
+    awPad(ospite.numero_documento || '', 20) +
+    awPad(ospite.luogo_rilascio_codice || '', 9);
+}
+
+function buildFile(pren, ospiti) {
+  var header = '00' + CODICE_STRUTTURA + awDate(pren.arrivo) + String(ospiti.length).padStart(4,'0') + awPad('', 70);
+  var lines = [header];
+  ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); });
+  return lines.join('\r\n') + '\r\n';
+}
+
+function loadAlloggiati() {
+  var root = document.getElementById('listaAlloggiati');
+  root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Caricamento...</div>';
+  sb.from('prenotazioni').select('*').order('arrivo', {ascending:false}).then(function(result) {
+    if (result.error) { root.innerHTML = '<div style="color:var(--err);padding:16px">Errore: ' + esc(result.error.message) + '</div>'; return; }
+    var completate = (result.data || []).filter(function(p) { return p.stato_checkin === 'completato'; });
+    if (!completate.length) {
+      root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessuna prenotazione con check-in completato</div>';
+      return;
+    }
+    root.innerHTML = completate.map(function(p) {
+      return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
+        '<div>' +
+        '<div style="font-weight:600;font-size:.95rem">' + esc(p.nome||'--') + '</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' · ' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + ' · ' + (p.num_ospiti||1) + ' ospiti</div>' +
+        '</div>' +
+        '<button class="btn btn-primary btn-sm" onclick="generaSchedina(' + p.id + ')">📋 Genera schedina</button>' +
+        '</div>';
+    }).join('');
+  });
+}
+
+function generaSchedina(prenId) {
+  var pren = prenotazioni.find(function(p) { return p.id === prenId; });
+  var doDownload = function(pr) {
+    sb.from('checkin_ospiti').select('*').eq('prenotazione_id', pr.id).order('numero_ospite').then(function(result) {
+      if (result.error) { alert('Errore: ' + result.error.message); return; }
+      if (!result.data || !result.data.length) { alert('Nessun dato check-in trovato. Assicurati che il check-in sia stato completato.'); return; }
+      var content = buildFile(pr, result.data);
+      var blob = new Blob([content], { type: 'text/plain' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'alloggiati_' + (pr.arrivo||'data') + '_' + (pr.nome||'ospite').replace(/\s+/g,'_') + '.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  };
+  if (pren) { doDownload(pren); return; }
+  sb.from('prenotazioni').select('*').eq('id', prenId).maybeSingle().then(function(r) {
+    if (r.data) doDownload(r.data);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() { loadAll(); });
+</script>
+</body>
+</html>
