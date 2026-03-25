@@ -21,9 +21,9 @@
       --line: rgba(107,45,31,.13);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
+    html {
       height: 100%;
-      overflow: hidden;
+      height: -webkit-fill-available;
     }
     body {
       font-family: 'DM Sans', system-ui, sans-serif;
@@ -31,12 +31,10 @@
       color: var(--ink);
       display: flex;
       flex-direction: column;
-      position: fixed;
-      width: 100%;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
+      min-height: 100%;
+      min-height: -webkit-fill-available;
+      height: 100dvh;
+      overflow: hidden;
     }
 
     /* HEADER */
@@ -278,9 +276,16 @@
     #sendBtn svg { width: 16px; height: 16px; }
     .input-hint { font-size: 10px; color: var(--muted); text-align: center; margin-top: 7px; opacity: 0.65; }
 
+    .chat-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      width: 100%;
+    }
     @media (min-width: 600px) {
-      body { background: var(--cream-d); align-items: center; justify-content: center; flex-direction: row; }
-      body { position: static; } .chat-wrap { width: 100%; max-width: 460px; height: min(800px, 95dvh); border-radius: 22px; overflow: hidden; box-shadow: 0 8px 40px rgba(58,30,18,.15), 0 32px 80px rgba(58,30,18,.12); display: flex; flex-direction: column; }
+      body { background: var(--cream-d); align-items: center; justify-content: center; }
+      .chat-wrap { width: 100%; max-width: 460px; height: min(800px, 95dvh); flex: none; border-radius: 22px; overflow: hidden; box-shadow: 0 8px 40px rgba(58,30,18,.15), 0 32px 80px rgba(58,30,18,.12); }
     }
   </style>
 </head>
