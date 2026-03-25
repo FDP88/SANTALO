@@ -198,11 +198,11 @@
 
   <div class="footer">
     Santalò Bed &amp; Breakfast · Vico Storto Sant'Eligio 9 · 70032 Bitonto (BA)<br>
-    CF: CQFGPP88E31A662T · P. IVA: 08212010725 · info@bebsantalo.it
+    CF: CQFGPP88E31A662T · P. IVA: 08212010725 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8de4e3ebe2cdefe8effeece3f9ece1e2a3e4f9">[email&#160;protected]</a>
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 var SB_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
@@ -333,7 +333,7 @@ function aggiornaLink() {
 // ===== MESSAGGI WHATSAPP =====
 function istr(cam) {
   var c = String(cam||'').replace('Camera ','');
-  if (c==='1920') return 'Accesso Camera 1920 - Piano terra\nAll'esterno trovi una key box sul muro.\nCodice: 4660\nAbbassa la leva, estrai la chiave e apri il portone.';
+  if (c==='1920') return 'Accesso Camera 1920 - Piano terra\nAll\'esterno trovi una key box sul muro.\nCodice: 4660\nAbbassa la leva, estrai la chiave e apri il portone.';
   if (c==='1954') return 'Accesso Camera 1954 - Primo piano\nAccanto al portone trovi un portoncino con tastierino digitale.\nCodice: 43757\nAttendi il click, entra, prendi le chiavi a destra. Sali al 1 piano - camera a sinistra.';
   if (c==='1956') return 'Accesso Camera 1956 - Secondo piano\nAccanto al portone trovi un portoncino con tastierino digitale.\nCodice: 43757\nAttendi il click, entra, prendi le chiavi a destra. Sali al 2 piano - camera a sinistra.';
   return 'Ti invieremo le istruzioni specifiche per la tua camera.';
@@ -582,12 +582,4 @@ function generaSchedina(prenId) {
     });
   };
   if (pren) { doDownload(pren); return; }
-  sb.from('prenotazioni').select('*').eq('id', prenId).maybeSingle().then(function(r) {
-    if (r.data) doDownload(r.data);
-  });
-}
-
-window.addEventListener('DOMContentLoaded', function() { loadAll(); });
-</script>
-</body>
-</html>
+ 
