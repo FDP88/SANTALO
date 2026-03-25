@@ -97,6 +97,7 @@
           <button class="tab active" id="tab-lista" onclick="showTab('lista')">Prenotazioni</button>
           <button class="tab" id="tab-nuova" onclick="showTab('nuova')">+ Nuova</button>
           <button class="tab" id="tab-checkin" onclick="showTab('checkin')">Check-in ricevuti</button>
+          <button class="tab" id="tab-chat" onclick="showTab('chat')">💬 Conversazioni</button>
         </div>
 
         <div id="panel-lista">
@@ -133,6 +134,12 @@
             <button class="btn btn-ghost" onclick="showTab('lista')">Annulla</button>
           </div>
           <div id="salvataEsito" class="esito"></div>
+        </div>
+
+        <div id="panel-chat" style="display:none">
+          <div id="listaConversazioni" class="list">
+            <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
+          </div>
         </div>
 
         <div id="panel-checkin" style="display:none">
@@ -181,11 +188,11 @@
 
   <div class="footer">
     Santalò Bed &amp; Breakfast · Vico Storto Sant'Eligio 9 · 70032 Bitonto (BA)<br>
-    CF: CQFGPP88E31A662T · P. IVA: 08212010725 · info@bebsantalo.it
+    CF: CQFGPP88E31A662T · P. IVA: 08212010725 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4b22252d240b292e29382a253f2a272465223f">[email&#160;protected]</a>
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 var SB_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
 var sb = window.supabase.createClient(SB_URL, SB_KEY);
@@ -230,11 +237,12 @@ function copy(text, ok) {
   navigator.clipboard.writeText(text).then(function() { esito('messaggioEsito', ok || 'Copiato'); }).catch(function() { esito('messaggioEsito', 'Errore copia', 'var(--err)'); });
 }
 function showTab(t) {
-  ['lista','nuova','checkin'].forEach(function(x) {
+  ['lista','nuova','checkin','chat'].forEach(function(x) {
     document.getElementById('panel-'+x).style.display = x===t ? '' : 'none';
     document.getElementById('tab-'+x).classList.toggle('active', x===t);
   });
   if (t === 'checkin') loadCheckin();
+  if (t === 'chat') loadConversazioni();
 }
 function loadAll() {
   var el = document.getElementById('connStatus');
@@ -385,12 +393,4 @@ function loadCheckin() {
         '<div class="checkin-meta" style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">' +
         (c.documento_fronte_url ? '<a href="' + esc(c.documento_fronte_url) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Fronte</a>' : '') +
         (c.documento_retro_url ? '<a href="' + esc(c.documento_retro_url) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Retro</a>' : '') +
-        (c.selfie_documento_url ? '<a href="' + esc(c.selfie_documento_url) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Selfie</a>' : '') +
-        '</div></div>';
-    }).join('');
-  });
-}
-window.addEventListener('DOMContentLoaded', function() { loadAll(); });
-</script>
-</body>
-</html>
+        (c.selfie_documento_url ? '<a href="' + esc(c.selfie_documento_url) + '" target="_bla
