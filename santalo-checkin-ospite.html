@@ -42,8 +42,9 @@
     .success { display:none; text-align:center; padding:24px; }
     .success.show { display:block; }
     .success h2 { color:var(--ok); }
-    .status { display:none; position:sticky; bottom:10px; background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px 16px; box-shadow:var(--shadow); }
+    .status { display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:calc(100% - 40px); max-width:600px; background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px 16px; box-shadow:var(--shadow); z-index:999; font-weight:600; font-size:14px; text-align:center; }
     .status.show { display:block; }
+    .status.err { background:#fff0f0; border-color:rgba(162,39,39,.3); color:#b91c1c; }
     .required-note { background:#fff8ef; border:1px solid rgba(196,168,130,.5); border-radius:14px; padding:12px 14px; margin-top:12px; }
     .footer { margin-top:18px; padding:18px; text-align:center; color:var(--brown); background:rgba(255,255,255,.55); border:1px solid var(--line); border-radius:22px; }
     .footer img { width:70px; height:70px; object-fit:contain; margin-bottom:8px; }
@@ -125,11 +126,11 @@
     <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Logo Santalò">
     <div style="font-size:28px;font-family:'Cormorant Garamond',serif;font-weight:700;">Santalò Bed and Breakfast</div>
     <div>Vico Storto Sant'Eligio 9 – 70032 Bitonto (BA)</div>
-    <div>Email: info@bebsantalo.it</div>
+    <div>Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91f8fff7fed1f3f4f3e2f0ffe5f0fdfebff8e5">[email&#160;protected]</a></div>
   </footer>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const COMUNI_ITALIANI = [
   {n:'Acquaviva delle Fonti',c:'A048',p:'BA'},
   {n:'Adelfia',c:'A055',p:'BA'},
@@ -374,14 +375,26 @@ const roomConfig = {
 
 function showStatus(msg, err=false) {
   statusBox.textContent = msg;
-  statusBox.className = 'status show';
-  statusBox.style.borderColor = err ? 'rgba(162,39,39,.22)' : 'rgba(31,122,69,.22)';
+  statusBox.className = 'status show' + (err ? ' err' : '');
+  if (!err) {
+    setTimeout(function() { statusBox.className = 'status'; }, 4000);
+  }
 }
 
 function ext(name='file.jpg') {
   var p = name.split('.').pop();
   return p && p !== name ? p.toLowerCase() : 'jpg';
 }
+
+// Reset red border when file is selected
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.type === 'file') {
+    e.target.style.border = '';
+    if (e.target.files && e.target.files[0]) {
+      statusBox.className = 'status';
+    }
+  }
+});
 
 // Autocomplete search component
 function makeSearchField(id, placeholder, dataset, onSelect) {
@@ -457,9 +470,9 @@ function guestTemplate(index) {
     '</select></div>' +
     '<div><label>Numero documento *</label><input data-field="numero_documento" required></div>' +
     '<div id="luogo_rilascio_wrap_' + index + '"><label>Comune rilascio doc *</label></div>' +
-    '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" capture="environment" required></div>' +
-    '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" capture="environment" required></div>' +
-    '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" capture="user" required></div>' +
+    '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" required></div>' +
+    '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" required></div>' +
+    '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" required></div>' +
     '</div>';
   
   // Add search fields
@@ -593,7 +606,7 @@ async function collectGuests() {
     var fronte = card.querySelector('[data-file="documento_fronte"]').files[0];
     var retro = card.querySelector('[data-file="documento_retro"]').files[0];
     var selfie = card.querySelector('[data-file="selfie_documento"]').files[0];
-    if (!fronte || !retro || !selfie) throw new Error('Carica tutti i documenti richiesti per l'ospite ' + (idx+1) + '.');
+    if (!fronte || !retro || !selfie) throw new Error('Carica tutti i documenti richiesti per l\'ospite ' + (idx+1) + '.');
     
     obj.documento_fronte_path = await uploadGuestFile(fronte, prenotazioneId, idx, 'fronte');
     obj.documento_retro_path = await uploadGuestFile(retro, prenotazioneId, idx, 'retro');
@@ -605,7 +618,43 @@ async function collectGuests() {
 
 async function submitCheckin(evt) {
   evt.preventDefault();
-  if (!document.getElementById('privacyOk').checked) throw new Error("Devi accettare l'informativa privacy.");
+
+  // Validate photos explicitly before anything else
+  var cards = Array.from(guestsContainer.querySelectorAll('.guest-card'));
+  for (var idx = 0; idx < cards.length; idx++) {
+    var card = cards[idx];
+    var nomeOspite = 'Ospite ' + (idx+1);
+    var fronte = card.querySelector('[data-file="documento_fronte"]').files[0];
+    var retro = card.querySelector('[data-file="documento_retro"]').files[0];
+    var selfie = card.querySelector('[data-file="selfie_documento"]').files[0];
+    if (!fronte) {
+      var el = card.querySelector('[data-file="documento_fronte"]');
+      el.style.border = '2px solid red';
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      showStatus('⚠️ ' + nomeOspite + ': carica la foto del documento fronte.', true);
+      return;
+    }
+    if (!retro) {
+      var el = card.querySelector('[data-file="documento_retro"]');
+      el.style.border = '2px solid red';
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      showStatus('⚠️ ' + nomeOspite + ': carica la foto del documento retro.', true);
+      return;
+    }
+    if (!selfie) {
+      var el = card.querySelector('[data-file="selfie_documento"]');
+      el.style.border = '2px solid red';
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      showStatus('⚠️ ' + nomeOspite + ': carica il selfie con il documento.', true);
+      return;
+    }
+  }
+
+  if (!document.getElementById('privacyOk').checked) {
+    document.getElementById('privacyOk').scrollIntoView({behavior:'smooth', block:'center'});
+    showStatus('⚠️ Devi accettare l'informativa privacy per continuare.', true);
+    return;
+  }
   var numOspiti = Number(document.getElementById('numOspiti').value || 1);
   var guests = await collectGuests();
   if (guests.length !== numOspiti) throw new Error('Numero ospiti non corrispondente.');
@@ -645,15 +694,4 @@ document.getElementById('checkinForm').addEventListener('submit', async function
     showStatus('Invio in corso, attendi qualche secondo...');
     await submitCheckin(evt);
   } catch(err) {
-    console.error(err);
-    showStatus('Errore: ' + err.message, true);
-  }
-});
-
-preloadBooking().catch(function(err) {
-  console.error(err);
-  showStatus('Impossibile caricare la prenotazione: ' + err.message, true);
-});
-</script>
-</body>
-</html>
+    console.error(
