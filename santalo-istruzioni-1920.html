@@ -16,7 +16,7 @@
     h1,h2{font-family:'Cormorant Garamond',Georgia,serif;margin:0}
     h1{font-size:56px;line-height:.95;margin-bottom:8px}
     h2{font-size:26px;margin-bottom:12px}
-    .eyebrow{display:inline-block;background:#fff;color:var(--brown);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700}
+    .eyebrow{display:inline-block;background:#fff;color:var(--brown);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px}
     .card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;margin-top:18px}
     p{line-height:1.7;margin:0 0 10px}
     p:last-child{margin-bottom:0}
@@ -24,84 +24,299 @@
     .video-link{display:inline-flex;align-items:center;gap:7px;background:var(--brown);color:#fff;text-decoration:none;padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px;margin:8px 0}
     .bot-btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#743321,#9a593c);color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:700;font-size:15px;margin-top:8px}
     .footer{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+    .lang-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+    .lang-btn{border:1px solid var(--line);background:#fff;color:var(--brown);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+    .lang-btn.active{background:var(--brown);color:#fff;border-color:var(--brown)}
+    @media(max-width:600px){h1{font-size:38px}.lang-selector{gap:6px}.lang-btn{font-size:12px;padding:6px 10px}}
   </style>
 </head>
 <body>
 <div class="wrap">
-
+  <div class="lang-selector"><button onclick="setLang('it')" id="btn_it" class="lang-btn">🇮🇹 Italiano</button> <button onclick="setLang('en')" id="btn_en" class="lang-btn">🇬🇧 English</button> <button onclick="setLang('fr')" id="btn_fr" class="lang-btn">🇫🇷 Français</button> <button onclick="setLang('de')" id="btn_de" class="lang-btn">🇩🇪 Deutsch</button> <button onclick="setLang('es')" id="btn_es" class="lang-btn">🇪🇸 Español</button></div>
   <section class="hero">
     <span class="eyebrow">Santalò Bed and Breakfast</span>
     <h1>Camera 1920</h1>
-    <p>Guida accesso dedicata · piano terra</p>
+    <p id="hero-sub"></p>
   </section>
+  
+    <div class="lang-content" id="content_it" style="display:none">
+      <section class="card">
+        <h2>📍 Come arrivare</h2>
+        <p>Indirizzo: <strong>Vico Storto Sant'Eligio 9, 70032 Bitonto</strong></p>
+        <p>🗺️ <a href="https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8" target="_blank">Apri su Google Maps</a></p>
+        <p>Check-in dalle <strong>15:00</strong> · Check-out entro le <strong>10:00</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚪 Come entrare</h2>
+        
+        <a href="https://youtu.be/9kUTB6ZsaPc" target="_blank" class="video-link">▶ Guarda il video su come arrivare</a>
+        <p style="margin-top:12px">Sul portone principale trovi una <strong>key box</strong>. Inserisci <strong>4660</strong>, abbassa la leva, estrai la chiave. Serratura a molla: spingi e ruota a <strong>destra</strong> per aprire.</p>
+        <p>La cucina è a uso esclusivo degli ospiti della Camera 1920.</p>
+        <p>Verifica sempre di avere con te la chiave quando esci.</p>
+      </section>
+      <section class="card">
+        <h2>🔑 Al check-out</h2>
+        <p>Inserisci la chiave nel portone, spingi e ruota verso sinistra per chiudere. Inserisci il codice 4660 sulla key box, riponi la chiave e cambia il codice ruotando i numeri a caso.</p>
+      </section>
+      <section class="card">
+        <h2>⚡ Se la luce si spegne</h2>
+        <p>Niente paura! Probabilmente è un sovraccarico:</p>
+        <p><strong>1.</strong> Nel tuo pannello elettrico (sulla <strong>destra appena entri</strong>) assicurati che tutti gli interruttori siano <strong>ON</strong>.</p>
+        <p><strong>2.</strong> Se non funziona, il contatore generale è al <strong>piano terra sopra il desk della reception</strong>. Se persiste, contattaci.</p>
+      </section>
+      <section class="card">
+        <h2>📶 WiFi</h2>
+        <p>Rete: <strong>B&amp;B_santalo</strong><br>Password: <strong>acq2024!</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚗 Parcheggio</h2>
+        <p>Non si può arrivare in auto davanti alla struttura — solo <strong>2 minuti a piedi</strong>.</p>
+        <p>📍 Parcheggio più vicino: <a href="https://maps.app.goo.gl/MpDZGwZXi5QtMATk6" target="_blank">Apri su Maps</a></p>
+        <p><strong>Strisce blu</strong> (destra): a pagamento 9–13 e 17–21, si paga ai parchimetri.<br><strong>Strisce bianche</strong> (sinistra): gratuite.</p>
+        <p>Garage custodito su richiesta e previa disponibilità: <strong>€15/giorno</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>☕ Servizi extra</h2>
+        <p>Colazione su richiesta: <strong>€5/persona</strong> al Mazzini Place (<a href="https://maps.app.goo.gl/89qrzqKMwbvxjdeP7" target="_blank">Via Giuseppe Mazzini 11</a>). Comunicare la sera prima.</p>
+        <p>Pulizia giornaliera su richiesta: <strong>€15</strong>. Cambio biancheria: <strong>€8/persona</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🔇 Silenzio</h2>
+        <p>Silenzio notturno <strong>22:00–8:00</strong> e silenzio pomeridiano <strong>14:00–16:30</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🤖 Assistente Alò — H24</h2>
+        <p>Hai domande? Alò è disponibile H24 in qualsiasi lingua.</p>
+        <a href="https://fdp88.github.io/SANTALO/santalo-chat.html" target="_blank" class="bot-btn">💬 Chatta con Alò</a>
+      </section>
+    </div>
 
-  <section class="card">
-    <h2>📍 Come arrivare</h2>
-    <p>Indirizzo: <strong>Vico Storto Sant'Eligio 9, 70032 Bitonto</strong></p>
-    <p>🗺️ <a href="https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8" target="_blank">Apri su Google Maps</a></p>
-    <p>Check-in dalle <strong>15:00</strong> · Check-out entro le <strong>10:00</strong></p>
-  </section>
+    <div class="lang-content" id="content_en" style="display:none">
+      <section class="card">
+        <h2>📍 How to get here</h2>
+        <p>Address: <strong>Vico Storto Sant'Eligio 9, 70032 Bitonto</strong></p>
+        <p>🗺️ <a href="https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8" target="_blank">Open in Google Maps</a></p>
+        <p>Check-in from <strong>3:00 PM</strong> · Check-out by <strong>10:00 AM</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚪 How to enter</h2>
+        
+        <a href="https://youtu.be/9kUTB6ZsaPc" target="_blank" class="video-link">▶ Watch the arrival video guide</a>
+        <p style="margin-top:12px">On the main door find a <strong>key box</strong>. Enter <strong>4660</strong>, pull the lever, take the key. Spring lock: push and turn <strong>right</strong> to open.</p>
+        <p>The kitchen is for the exclusive use of Room 1920 guests.</p>
+        <p>Always make sure you have your key when you go out.</p>
+      </section>
+      <section class="card">
+        <h2>🔑 At check-out</h2>
+        <p>Insert the key, push and turn left to lock. Enter code 4660 on the key box, put the key back and scramble the code by turning the numbers randomly.</p>
+      </section>
+      <section class="card">
+        <h2>⚡ If the lights go out</h2>
+        <p>No worries — probably a power overload:</p>
+        <p><strong>1.</strong> In your electrical panel (on the <strong>right as you enter</strong>) make sure all switches are <strong>ON</strong>.</p>
+        <p><strong>2.</strong> If it still does not work, the main breaker is on the <strong>ground floor above the reception desk</strong>. If it persists, contact us.</p>
+      </section>
+      <section class="card">
+        <h2>📶 WiFi</h2>
+        <p>Network: <strong>B&amp;B_santalo</strong><br>Password: <strong>acq2024!</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚗 Parking</h2>
+        <p>You cannot drive up to the building — only a <strong>2-minute walk</strong>.</p>
+        <p>📍 Nearest parking: <a href="https://maps.app.goo.gl/MpDZGwZXi5QtMATk6" target="_blank">Open in Maps</a></p>
+        <p><strong>Blue lines</strong> (right): paid 9–13 and 17–21, pay at parking meters.<br><strong>White lines</strong> (left): free.</p>
+        <p>Private guarded parking on request (subject to availability): <strong>€15/day</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>☕ Extra services</h2>
+        <p>Breakfast on request: <strong>€5/person</strong> at Mazzini Place (<a href="https://maps.app.goo.gl/89qrzqKMwbvxjdeP7" target="_blank">Via Giuseppe Mazzini 11</a>). Let us know the evening before.</p>
+        <p>Daily cleaning on request: <strong>€15</strong>. Linen change: <strong>€8/person</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🔇 Quiet hours</h2>
+        <p>Night quiet hours <strong>10 PM–8 AM</strong> and afternoon quiet hours <strong>2:00–4:30 PM</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🤖 Alò — Your 24/7 Assistant</h2>
+        <p>Got questions? Alò is available 24/7 in any language.</p>
+        <a href="https://fdp88.github.io/SANTALO/santalo-chat.html" target="_blank" class="bot-btn">💬 Chat with Alò</a>
+      </section>
+    </div>
 
-  <section class="card">
-    <h2>🚪 Come entrare</h2>
-    <a href="https://youtu.be/9kUTB6ZsaPc" target="_blank" class="video-link">▶ Guarda il video su come arrivare</a>
-    <p style="margin-top:12px">Sul <strong>portone grande principale</strong> trovi una <strong>key box</strong> sul muro.</p>
-    <p>Inserisci il codice: <strong style="font-size:1.3em;letter-spacing:2px">4660</strong></p>
-    <p>Abbassa la leva e tira verso di te lo sportellino. Estrai la chiave.</p>
-    <p>È una serratura a molla: inserisci la chiave, <strong>spingi e ruota verso destra</strong> per aprire.</p>
-    <p>La cucina è a <strong>uso esclusivo</strong> degli ospiti della Camera 1920.</p>
-    <p>Dopo l'accesso, verifica sempre di avere con te la chiave quando esci.</p>
-  </section>
+    <div class="lang-content" id="content_fr" style="display:none">
+      <section class="card">
+        <h2>📍 Comment arriver</h2>
+        <p>Adresse: <strong>Vico Storto Sant'Eligio 9, 70032 Bitonto</strong></p>
+        <p>🗺️ <a href="https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8" target="_blank">Ouvrir sur Google Maps</a></p>
+        <p>Check-in à partir de <strong>15h00</strong> · Check-out avant <strong>10h00</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚪 Comment entrer</h2>
+        
+        <a href="https://youtu.be/9kUTB6ZsaPc" target="_blank" class="video-link">▶ Regardez la vidéo d'arrivée</a>
+        <p style="margin-top:12px">Sur la porte principale, un <strong>coffret à clé</strong>. Entrez <strong>4660</strong>, abaissez le levier, prenez la clé. Serrure à ressort: poussez et tournez à <strong>droite</strong>.</p>
+        <p>La cuisine est réservée aux hôtes de la Chambre 1920.</p>
+        <p>Vérifiez toujours avoir votre clé quand vous sortez.</p>
+      </section>
+      <section class="card">
+        <h2>🔑 Au check-out</h2>
+        <p>Insérez la clé, poussez et tournez à gauche pour fermer. Entrez le code 4660, replacez la clé et changez le code en tournant les chiffres au hasard.</p>
+      </section>
+      <section class="card">
+        <h2>⚡ Si les lumières s'éteignent</h2>
+        <p>Pas de panique! Probablement une surcharge:</p>
+        <p><strong>1.</strong> Dans votre tableau électrique (à <strong>droite en entrant</strong>) vérifiez que tous les interrupteurs sont sur <strong>ON</strong>.</p>
+        <p><strong>2.</strong> Si ça ne marche pas, le compteur principal est au <strong>rez-de-chaussée au-dessus de la réception</strong>. Si ça persiste, contactez-nous.</p>
+      </section>
+      <section class="card">
+        <h2>📶 WiFi</h2>
+        <p>Réseau: <strong>B&amp;B_santalo</strong><br>Password: <strong>acq2024!</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚗 Stationnement</h2>
+        <p>Vous ne pouvez pas vous garer devant — seulement <strong>2 minutes à pied</strong>.</p>
+        <p>📍 Parking le plus proche : <a href="https://maps.app.goo.gl/MpDZGwZXi5QtMATk6" target="_blank">Ouvrir dans Maps</a></p>
+        <p><strong>Lignes bleues</strong> (droite): payant 9–13 et 17–21, paiement aux horodateurs.<br><strong>Lignes blanches</strong> (gauche): gratuit.</p>
+        <p>Parking gardé privé sur demande (sous réserve): <strong>15 €/jour</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>☕ Services supplémentaires</h2>
+        <p>Petit-déjeuner sur demande: <strong>5 €/personne</strong> au Mazzini Place (<a href="https://maps.app.goo.gl/89qrzqKMwbvxjdeP7" target="_blank">Via Giuseppe Mazzini 11</a>). Prévenez-nous la veille.</p>
+        <p>Nettoyage quotidien sur demande: <strong>15 €</strong>. Changement de linge: <strong>8 €/personne</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🔇 Heures calmes</h2>
+        <p>Silence nocturne <strong>22h–8h</strong> et silence de l'après-midi <strong>14h–16h30</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🤖 Alò — Votre assistant H24</h2>
+        <p>Des questions? Alò est disponible H24 dans toutes les langues.</p>
+        <a href="https://fdp88.github.io/SANTALO/santalo-chat.html" target="_blank" class="bot-btn">💬 Chattez avec Alò</a>
+      </section>
+    </div>
 
-  <section class="card">
-    <h2>🔑 Al check-out</h2>
-    <p>Inserisci la chiave nel portone, spingi e <strong>ruota verso sinistra</strong> per chiudere.</p>
-    <p>Inserisci il codice <strong>4660</strong> sulla key box e riponi la chiave dove l'hai trovata.</p>
-    <p>Una volta chiuso lo sportellino, <strong>cambia il codice</strong> ruotando i numeri a caso.</p>
-  </section>
+    <div class="lang-content" id="content_de" style="display:none">
+      <section class="card">
+        <h2>📍 Anreise</h2>
+        <p>Adresse: <strong>Vico Storto Sant'Eligio 9, 70032 Bitonto</strong></p>
+        <p>🗺️ <a href="https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8" target="_blank">In Google Maps öffnen</a></p>
+        <p>Check-in ab <strong>15:00 Uhr</strong> · Check-out bis <strong>10:00 Uhr</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚪 So kommen Sie rein</h2>
+        
+        <a href="https://youtu.be/9kUTB6ZsaPc" target="_blank" class="video-link">▶ Ankunftsvideo ansehen</a>
+        <p style="margin-top:12px">An der Haupttür eine <strong>Key Box</strong>. Code <strong>4660</strong> eingeben, Hebel drücken, Schlüssel nehmen. Federriegel: drücken und nach <strong>rechts</strong> drehen.</p>
+        <p>Die Küche steht ausschließlich den Gästen von Zimmer 1920 zur Verfügung.</p>
+        <p>Vergewissern Sie sich immer, Ihren Schlüssel dabeizuhaben.</p>
+      </section>
+      <section class="card">
+        <h2>🔑 Beim Check-out</h2>
+        <p>Schlüssel einführen, drücken und nach links drehen zum Schließen. Code 4660 eingeben, Schlüssel zurücklegen und den Code durch zufälliges Drehen ändern.</p>
+      </section>
+      <section class="card">
+        <h2>⚡ Wenn das Licht ausgeht</h2>
+        <p>Keine Sorge! Wahrscheinlich eine Überlastung:</p>
+        <p><strong>1.</strong> Im Sicherungskasten (rechts beim Eingang) alle Schalter auf <strong>ON</strong> stellen.</p>
+        <p><strong>2.</strong> Wenn es nicht funktioniert, befindet sich der Hauptschalter im <strong>Erdgeschoss über dem Empfang</strong>. Wenn es anhält, kontaktieren Sie uns.</p>
+      </section>
+      <section class="card">
+        <h2>📶 WLAN</h2>
+        <p>Netzwerk: <strong>B&amp;B_santalo</strong><br>Password: <strong>acq2024!</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚗 Parken</h2>
+        <p>Sie können nicht direkt vor dem Gebäude parken — nur <strong>2 Gehminuten</strong> entfernt.</p>
+        <p>📍 Nächster Parkplatz: <a href="https://maps.app.goo.gl/MpDZGwZXi5QtMATk6" target="_blank">In Maps öffnen</a></p>
+        <p><strong>Blaue Linien</strong> (rechts): kostenpflichtig 9–13 und 17–21 Uhr, Parkscheinautomat.<br><strong>Weiße Linien</strong> (links): kostenlos.</p>
+        <p>Bewachter Parkplatz auf Anfrage (je nach Verfügbarkeit): <strong>€15/Tag</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>☕ Zusätzliche Dienste</h2>
+        <p>Frühstück auf Anfrage: <strong>5 €/Person</strong> im Mazzini Place (<a href="https://maps.app.goo.gl/89qrzqKMwbvxjdeP7" target="_blank">Via Giuseppe Mazzini 11</a>). Bitte am Vorabend Bescheid geben.</p>
+        <p>Tägliche Reinigung auf Anfrage: <strong>€15</strong>. Bettwäschewechsel: <strong>€8/Person</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🔇 Ruhezeiten</h2>
+        <p>Nachtruhe <strong>22:00–8:00 Uhr</strong> und Mittagsruhe <strong>14:00–16:30 Uhr</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🤖 Alò — Ihr 24/7-Assistent</h2>
+        <p>Fragen? Alò ist rund um die Uhr in jeder Sprache verfügbar.</p>
+        <a href="https://fdp88.github.io/SANTALO/santalo-chat.html" target="_blank" class="bot-btn">💬 Mit Alò chatten</a>
+      </section>
+    </div>
 
-  <section class="card">
-    <h2>⚡ Se la luce si spegne</h2>
-    <p>Niente paura! È probabilmente un sovraccarico. Ecco cosa fare:</p>
-    <p><strong>1.</strong> Appena entri nella camera, sulla <strong>destra</strong> trovi il pannello elettrico — assicurati che tutti gli interruttori siano in posizione <strong>ON</strong>.</p>
-    <p><strong>2.</strong> Se non funziona, il contatore generale è al <strong>piano terra sopra il desk della reception</strong>. Se il problema persiste, contattaci.</p>
-  </section>
-
-  <section class="card">
-    <h2>📶 WiFi</h2>
-    <p>Rete: <strong>B&amp;B_santalo</strong><br>Password: <strong>acq2024!</strong></p>
-  </section>
-
-  <section class="card">
-    <h2>🚗 Parcheggio</h2>
-    <p>La nostra struttura non dispone di un parcheggio custodito. Non si può arrivare in auto davanti alla struttura, dovrai camminare per <strong>2 minuti soltanto</strong>.</p>
-    <p>Il punto più vicino per parcheggiare: <a href="https://maps.app.goo.gl/MpDZGwZXi5QtMATk6" target="_blank">📍 Apri su Maps</a></p>
-    <p>Le <strong>strisce blu</strong> sul lato destro sono a pagamento dalle 9:00 alle 13:00 e dalle 17:00 alle 21:00 — si paga ai parchimetri inserendo targa e tempo di sosta.<br>
-    Le <strong>strisce bianche</strong> sul lato sinistro sono parcheggi gratuiti.</p>
-    <p>Garage custodito disponibile su richiesta e previa disponibilità a <strong>€15/giorno</strong>.</p>
-  </section>
-
-  <section class="card">
-    <h2>☕ Servizi extra</h2>
-    <p>Colazione disponibile su richiesta: <strong>€5 a persona</strong> al Mazzini Place (<a href="https://maps.app.goo.gl/89qrzqKMwbvxjdeP7" target="_blank">Via Giuseppe Mazzini 11</a>). Comunicare la sera prima.</p>
-    <p>Pulizia giornaliera su richiesta: <strong>€15</strong>. Cambio biancheria su richiesta: <strong>€8 a persona</strong>.</p>
-  </section>
-
-  <section class="card">
-    <h2>🔇 Silenzio</h2>
-    <p>Ti chiediamo di rispettare il <strong>silenzio notturno dalle 22:00 alle 8:00</strong> e il <strong>silenzio pomeridiano dalle 14:00 alle 16:30</strong>.</p>
-  </section>
-
-  <section class="card">
-    <h2>🤖 Assistente Alò — H24</h2>
-    <p>Hai domande? Alò è il tuo assistente personale disponibile 24 ore su 24, in qualsiasi lingua.</p>
-    <a href="https://fdp88.github.io/SANTALO/santalo-chat.html" target="_blank" class="bot-btn">💬 Chatta con Alò</a>
-  </section>
-
-  <div class="footer">
-    Vico Storto Sant'Eligio 9 – 70032 Bitonto (BA) · CF CQFGPP88E31A662T · P. IVA 08212010725
-  </div>
-
+    <div class="lang-content" id="content_es" style="display:none">
+      <section class="card">
+        <h2>📍 Cómo llegar</h2>
+        <p>Dirección: <strong>Vico Storto Sant'Eligio 9, 70032 Bitonto</strong></p>
+        <p>🗺️ <a href="https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8" target="_blank">Abrir en Google Maps</a></p>
+        <p>Check-in desde las <strong>15:00</strong> · Check-out antes de las <strong>10:00</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚪 Cómo entrar</h2>
+        
+        <a href="https://youtu.be/9kUTB6ZsaPc" target="_blank" class="video-link">▶ Ver el video de llegada</a>
+        <p style="margin-top:12px">En la puerta principal hay un <strong>key box</strong>. Introduce <strong>4660</strong>, baja la palanca, saca la llave. Cerradura de muelle: empuja y gira a la <strong>derecha</strong>.</p>
+        <p>La cocina es de uso exclusivo de los huéspedes de la Habitación 1920.</p>
+        <p>Asegúrese siempre de llevar su llave al salir.</p>
+      </section>
+      <section class="card">
+        <h2>🔑 Al hacer el check-out</h2>
+        <p>Inserte la llave, empuje y gire a la izquierda. Introduzca el código 4660, coloque la llave y cambie el código girando los números al azar.</p>
+      </section>
+      <section class="card">
+        <h2>⚡ Si se va la luz</h2>
+        <p>¡No se preocupe! Probablemente una sobrecarga:</p>
+        <p><strong>1.</strong> En el cuadro eléctrico (a la <strong>derecha al entrar</strong>) asegúrese de que todos los interruptores estén en <strong>ON</strong>.</p>
+        <p><strong>2.</strong> Si no funciona, el contador principal está en la <strong>planta baja sobre la recepción</strong>. Si persiste, contáctenos.</p>
+      </section>
+      <section class="card">
+        <h2>📶 WiFi</h2>
+        <p>Red: <strong>B&amp;B_santalo</strong><br>Password: <strong>acq2024!</strong></p>
+      </section>
+      <section class="card">
+        <h2>🚗 Aparcamiento</h2>
+        <p>No puede llegar en coche a la puerta — solo a <strong>2 minutos a pie</strong>.</p>
+        <p>📍 Aparcamiento más cercano: <a href="https://maps.app.goo.gl/MpDZGwZXi5QtMATk6" target="_blank">Abrir en Maps</a></p>
+        <p><strong>Líneas azules</strong> (derecha): de pago 9–13 y 17–21, pague en el parquímetro.<br><strong>Líneas blancas</strong> (izquierda): gratuitas.</p>
+        <p>Aparcamiento vigilado bajo petición (sujeto a disponibilidad): <strong>€15/día</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>☕ Servicios extra</h2>
+        <p>Desayuno bajo petición: <strong>5 €/persona</strong> en Mazzini Place (<a href="https://maps.app.goo.gl/89qrzqKMwbvxjdeP7" target="_blank">Via Giuseppe Mazzini 11</a>). Avísenos la noche anterior.</p>
+        <p>Limpieza diaria bajo petición: <strong>€15</strong>. Cambio de ropa de cama: <strong>€8/persona</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🔇 Horas de silencio</h2>
+        <p>Silencio nocturno <strong>22:00–8:00</strong> y silencio de tarde <strong>14:00–16:30</strong>.</p>
+      </section>
+      <section class="card">
+        <h2>🤖 Alò — Tu asistente 24/7</h2>
+        <p>¿Preguntas? Alò está disponible 24/7 en cualquier idioma.</p>
+        <a href="https://fdp88.github.io/SANTALO/santalo-chat.html" target="_blank" class="bot-btn">💬 Chatear con Alò</a>
+      </section>
+    </div>
+  <div class="footer">Vico Storto Sant'Eligio 9 – 70032 Bitonto (BA) · CF CQFGPP88E31A662T · P. IVA 08212010725</div>
 </div>
+<script>
+var SUBS = {"it": "Guida accesso dedicata · piano terra", "en": "Access guide · ground floor", "fr": "Guide d'accès · rez-de-chaussée", "de": "Zugangsanleitung · Erdgeschoss", "es": "Guía de acceso · planta baja"};
+function setLang(lang) {
+  document.querySelectorAll('.lang-content').forEach(function(e) { e.style.display='none'; });
+  document.querySelectorAll('.lang-btn').forEach(function(e) { e.classList.remove('active'); });
+  var c = document.getElementById('content_'+lang);
+  if (c) c.style.display='';
+  var b = document.getElementById('btn_'+lang);
+  if (b) b.classList.add('active');
+  document.getElementById('hero-sub').textContent = SUBS[lang] || '';
+  try { localStorage.setItem('santalo_lang', lang); } catch(e) {}
+}
+window.addEventListener('DOMContentLoaded', function() {
+  var saved = 'it';
+  try { saved = localStorage.getItem('santalo_lang') || 'it'; } catch(e) {}
+  setLang(saved);
+});
+</script>
 </body>
 </html>
