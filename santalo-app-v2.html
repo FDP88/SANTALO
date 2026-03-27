@@ -68,6 +68,7 @@
     .checkin-name{font-weight:600;font-size:.95rem;margin-bottom:3px}
     .checkin-meta{font-size:12px;color:var(--muted)}
     .footer{margin-top:20px;padding:16px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:13px}
+    .badge{display:inline-flex;align-items:center;justify-content:center;background:#b91c1c;color:#fff;border-radius:999px;font-size:11px;font-weight:700;min-width:18px;height:18px;padding:0 5px;margin-left:5px;vertical-align:middle}
     @media(max-width:1000px){.grid-main{grid-template-columns:1fr}}
     @media(max-width:600px){.meta-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.msg-row{grid-template-columns:1fr}}
   </style>
@@ -96,7 +97,7 @@
         <div class="tabs">
           <button class="tab active" id="tab-lista" onclick="showTab('lista')">Prenotazioni</button>
           <button class="tab" id="tab-nuova" onclick="showTab('nuova')">+ Nuova</button>
-          <button class="tab" id="tab-checkin" onclick="showTab('checkin')">Check-in ricevuti</button>
+          <button class="tab" id="tab-checkin" onclick="showTab('checkin')">Check-in ricevuti<span id="badgeCheckin" class="badge" style="display:none"></span></button>
           <button class="tab" id="tab-chat" onclick="showTab('chat')">💬 Conversazioni</button>
           <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">📋 Alloggiati</button>
         </div>
@@ -182,6 +183,7 @@
               <option value="reminder">Reminder check-in</option>
               <option value="istruzioni">Istruzioni accesso</option>
               <option value="checkout">Richiesta recensione</option>
+              <option value="pulizie">🧹 Pulizie (Marianna)</option>
             </select>
           </div>
           <div class="ff">
@@ -219,6 +221,7 @@ var BASE = 'https://fdp88.github.io/SANTALO';
 var CHECKIN_URL = BASE + '/santalo-checkin-ospite.html';
 var CHATBOT_URL = BASE + '/santalo-chat.html';
 var MAPS_URL = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
+var PULIZIE_PHONE = '393802473821';
 var prenotazioni = [];
 var selected = null;
 
@@ -264,7 +267,13 @@ function showTab(t) {
     var tabEl = document.getElementById('tab-'+x);
     if (tabEl) tabEl.classList.toggle('active', x===t);
   });
-  if (t === 'checkin') loadCheckin();
+  if (t === 'checkin') {
+    loadCheckin();
+    sb.from('checkin_ospiti').select('id', {count:'exact', head:true}).then(function(r) {
+      if (r.count) localStorage.setItem('santalo_checkin_visti', r.count);
+      document.getElementById('badgeCheckin').style.display = 'none';
+    });
+  }
   if (t === 'chat') loadConversazioni();
   if (t === 'alloggiati') loadAlloggiati();
 }
@@ -277,6 +286,22 @@ function eliminaPrenotazione(id, evt) {
     if (result.error) { alert('Errore: ' + result.error.message); return; }
     if (selected && selected.id === id) selected = null;
     loadAll();
+  });
+}
+
+function loadBadgeCheckin() {
+  var LAST_KEY = 'santalo_checkin_visti';
+  var lastVisti = parseInt(localStorage.getItem(LAST_KEY) || '0');
+  sb.from('checkin_ospiti').select('id', {count:'exact', head:true}).then(function(result) {
+    var totale = result.count || 0;
+    var badge = document.getElementById('badgeCheckin');
+    var nuovi = Math.max(0, totale - lastVisti);
+    if (nuovi > 0) {
+      badge.textContent = nuovi;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
   });
 }
 
@@ -294,6 +319,7 @@ function loadAll() {
     else if (selected) selected = prenotazioni.find(function(p) { return p.id === selected.id; }) || prenotazioni[0] || null;
     el.textContent = prenotazioni.length + ' prenotazioni'; el.className = 'pill ok';
     renderPrenotazioni(); generaMessaggio(); aggiornaLink();
+    loadBadgeCheckin();
   });
 }
 
@@ -432,6 +458,11 @@ var TEMPLATES = {
     fr: function(n,canale,rev) { return 'Bonjour ' + n + ' !\n\nNous espérons que votre séjour a été agréable.\nSi vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait énormément :\n\n' + rev + '\n\nMerci du fond du cœur, à bientôt !'; },
     de: function(n,canale,rev) { return 'Hallo ' + n + '!\n\nWir hoffen, Ihr Aufenthalt war angenehm.\nWenn Sie 2 Minuten Zeit haben, würde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\n\n' + rev + '\n\nVielen herzlichen Dank, bis zum nächsten Mal!'; },
     es: function(n,canale,rev) { return '¡Hola ' + n + '!\n\nEsperamos que su estancia haya sido agradable.\nSi tiene 2 minutos, una reseña' + (canale ? ' en ' + canale : '') + ' nos ayudaría muchísimo:\n\n' + rev + '\n\n¡Muchísimas gracias, hasta la próxima!'; }
+  },
+  pulizie: {
+    it: function(cam, par, note) {
+      return 'Ciao Marianna!\nCi sarebbe da pulire la ' + cam + ' il giorno di check out (' + par + ').' + (note ? '\n\nNote: ' + note : '') + '\n\nGrazie!';
+    }
   }
 };
 
@@ -451,6 +482,13 @@ function generaMessaggio() {
     ? 'https://fdp88.github.io/SANTALO/santalo-istruzioni-' + camNum + '.html'
     : MAPS_URL;
   var GOOGLE_REVIEW = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
+  if (tpl === 'pulizie') {
+    var pfn = (TEMPLATES.pulizie || {}).it;
+    msg = pfn ? pfn(camera, partenza, p.note||'') : '';
+    document.getElementById('messaggio').value = msg;
+    document.getElementById('telefonoOut').value = PULIZIE_PHONE;
+    return;
+  }
   if (fn) {
     if (tpl==='conferma') msg = fn(nome, arrivo, partenza, camera, cl);
     else if (tpl==='checkin') msg = fn(nome, cl);
