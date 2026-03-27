@@ -176,7 +176,7 @@
 
   "trasporti": {
     "aeroporto": "Aeroporto di Bari Karol Wojtyla a 20 minuti in auto",
-    "treno": "Stazione di Bitonto a 10 minuti a piedi — collegamento diretto con Bari Centrale (15-20 min) con le Ferrovie del Nord Barese",
+    "treno": "Stazione di Bitonto a 10 minuti a piedi (https://maps.app.goo.gl/XKqAZUt5KT93N9Ps9) — collegamento diretto con Bari Centrale (15-20 min) con le Ferrovie del Nord Barese",
     "bus": "Fermate nelle vicinanze del centro storico. Collegamento con Bari (Marozzi, Scoppio Autolinee, STP)",
     "taxi": {
       "info": "Taxi H24. Trasferimento per aeroporto Bari: circa 12-20 minuti, costo stimato 25-30€.",
@@ -229,7 +229,7 @@
     },
     {
       "domanda": "Come arrivo dalla stazione?",
-      "risposta": "Circa 10 minuti a piedi. Usa Google Maps: Vico Storto Sant'Eligio 9, Bitonto."
+      "risposta": "Circa 10 minuti a piedi. Usa questo link per navigare direttamente: https://maps.app.goo.gl/XKqAZUt5KT93N9Ps9"
     },
     {
       "domanda": "Posso fare il check-in tardi la sera?",
