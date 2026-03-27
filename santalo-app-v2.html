@@ -334,8 +334,8 @@ function aggiornaLink() {
 function istr(cam) {
   var c = String(cam||'').replace('Camera ','');
   if (c==='1920') return 'Accesso Camera 1920 - Piano terra\nAll\'esterno trovi una key box sul muro.\nCodice: 4660\nAbbassa la leva, estrai la chiave e apri il portone.';
-  if (c==='1954') return 'Accesso Camera 1954 - Primo piano\nAccanto al portone trovi un portoncino con tastierino digitale.\nCodice: 43757\nAttendi il click, entra, prendi le chiavi a destra. Sali al 1 piano - camera a sinistra.';
-  if (c==='1956') return 'Accesso Camera 1956 - Secondo piano\nAccanto al portone trovi un portoncino con tastierino digitale.\nCodice: 43757\nAttendi il click, entra, prendi le chiavi a destra. Sali al 2 piano - camera a sinistra.';
+  if (c==='1954') return 'Accesso Camera 1954 - Primo piano\n\nIn questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\n\nLo vedi il portone grande con su scritto 1920! NON è QUELLO!\nC\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\n\nUna volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1954.\n\nSali al 1 piano e trovi la tua camera.';
+  if (c==='1956') return 'Accesso Camera 1956 - Secondo piano\n\nIn questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\n\nLo vedi il portone grande con su scritto 1920! NON è QUELLO!\nC\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\n\nUna volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1956.\n\nSali al 2 piano e trovi la tua camera.';
   return 'Ti invieremo le istruzioni specifiche per la tua camera.';
 }
 
@@ -348,7 +348,7 @@ function generaMessaggio() {
   var tpl = document.getElementById('templateSelect').value;
   var msg = '';
   if (tpl==='conferma') {
-    msg = 'Buongiorno ' + nome + ', benvenuto/a a Santalò B&B!\n\nSiamo felici di ospitarti. Ecco il riepilogo della tua prenotazione:\n\nDal ' + arrivo + ' al ' + partenza + '\n' + camera + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nHai già il tuo assistente personale disponibile H24:\n\n' + bot + '\n\nA breve ti inviamo il link per completare il check-in online.\n\nA presto!';
+    msg = 'Buongiorno ' + nome + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\n\nEcco il riepilogo della tua prenotazione:\n\nDal ' + arrivo + ' al ' + partenza + '\nCamera ' + camera + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl + '';
   } else if (tpl==='checkin') {
     msg = 'Ciao ' + nome + '!\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl + '\n\nDove siamo: ' + MAPS_URL + '\n\nGrazie!';
   } else if (tpl==='chatbot') {
@@ -356,7 +356,11 @@ function generaMessaggio() {
   } else if (tpl==='reminder') {
     msg = 'Ciao ' + nome + '!\n\nTi ricordiamo che il tuo arrivo è previsto per il ' + arrivo + '. Se non hai ancora completato il check-in online:\n\n' + cl + '\n\nGrazie!';
   } else if (tpl==='istruzioni') {
-    msg = 'Ciao ' + nome + ', siamo pronti ad accoglierti!\n\nIndirizzo: Vico Storto Sant\'Eligio 9 - Bitonto\nMappa: ' + MAPS_URL + '\nCheck-in dalle ore 14:00\n\n' + istr(camera) + '\n\nWiFi\nRete: B&B_santalo\nPassword: acq2024!\n\nParcheggio\nZTL nel centro storico. Strisce blu in Piazza Cavour o Via Traiana.\n\nAssistente H24: ' + bot + '\n\nBuon soggiorno!';
+    var camNum = String(camera||'').replace('Camera ','');
+    var istrUrl = (camNum==='1954' || camNum==='1956')
+      ? 'https://fdp88.github.io/SANTALO/santalo-istruzioni-' + camNum + '.html'
+      : MAPS_URL;
+    msg = 'Ciao ' + nome + ', siamo pronti ad accoglierti!\n\nClicca qui per scoprire come entrare e tutte le info utili per il tuo soggiorno:\n\n' + istrUrl + '\n\nPer qualsiasi domanda il tuo assistente H24 Alò è sempre disponibile:\n\n' + bot + '\n\nBuon soggiorno!';
   } else if (tpl==='checkout') {
     msg = 'Ciao ' + nome + '!\n\nSperiamo che il soggiorno sia stato piacevole. Se hai 2 minuti, una recensione su Google ci aiuterebbe moltissimo:\n\n' + MAPS_URL + '\n\nGrazie di cuore!';
   }
