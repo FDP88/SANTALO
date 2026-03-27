@@ -361,33 +361,146 @@ function loadPren(id) {
 
 function buildPrompt(kb, pren) {
   var g = kb || {};
-  var camere = g.camere || {
-    '1920': { piano:'Piano terra', codice:'4660', istruzioni:'Inserisci 4660 sul key box, abbassa la leva, estrai la chiave, apri il portone.' },
-    '1954': { piano:'Primo piano', codice:'43757', istruzioni:'Digita 43757 sul tastierino accanto al portone, attendi il click, entra. Chiavi a destra, sali al 1° piano a sinistra.' },
-    '1956': { piano:'Secondo piano', codice:'43757', istruzioni:'Digita 43757 sul tastierino accanto al portone, attendi il click, entra. Chiavi a destra, sali al 2° piano a sinistra.' }
-  };
-  var wifi = g.wifi || { rete:'B&B_santalo', password:'acq2024!' };
-  var orari = g.orari || { checkin:'dalle 14:00', checkout:'entro le 11:00' };
 
+  // Legge tutto dal knowledge base JSON
+  var camere = g.camere || {};
+  var wifi = g.wifi || { rete:'B&B_santalo', password:'acq2024!' };
+  var orari = g.orari || { checkin:'dalle 15:00', checkout:'entro le 10:00' };
+  var parcheggio = g.parcheggio || {};
+  var struttura = g.struttura || {};
+  var servizi = g.servizi || {};
+  var colazione = servizi.colazione || {};
+  var elettricita = g.elettricita || {};
+  var riscaldamento = g.riscaldamento_raffrescamento || {};
+  var condizionatore = riscaldamento.condizionatore || {};
+  var cronotermostato = riscaldamento.cronotermostato || {};
+  var dove_mangiare = g.dove_mangiare || {};
+  var cosa_vedere = g.cosa_vedere_bitonto || {};
+  var dintorni = g.dintorni || {};
+  var trasporti = g.trasporti || {};
+  var farmacie = g.farmacie || {};
+  var raccolta = g.raccolta_differenziata || {};
+  var regole = g.regole_casa || {};
+
+  // Sezione ospite
   var guestSection = '';
   if (pren && pren.nome) {
     var nome1 = pren.nome.split(' ')[0];
-    var cam = pren.camera || '';
+    var cam = String(pren.camera || '').replace('Camera ', '');
     var ci = camere[cam] || {};
-    guestSection = '\n## OSPITE IDENTIFICATO\nNome: ' + pren.nome + ' (chiamalo ' + nome1 + ')\nCamera: ' + cam + (ci.piano ? ' - ' + ci.piano : '') + '\nArrivo: ' + (pren.arrivo||'n.d.') + ' | Partenza: ' + (pren.partenza||'n.d.') + '\nIstruzioni camera ' + cam + ': ' + (ci.istruzioni||'') + '\nCodice: ' + (ci.codice||'') + '\nUSA QUESTE INFO senza che l\'ospite le chieda.\n';
+    guestSection = '\n## OSPITE IDENTIFICATO\n' +
+      'Nome: ' + pren.nome + ' (chiamalo ' + nome1 + ')\n' +
+      'Camera: ' + cam + (ci.piano ? ' - ' + ci.piano : '') + '\n' +
+      'Arrivo: ' + (pren.arrivo||'n.d.') + ' | Partenza: ' + (pren.partenza||'n.d.') + '\n' +
+      'Istruzioni accesso: ' + (ci.istruzioni||'') + '\n' +
+      'Codice: ' + (ci.codice||'') + '\n' +
+      'Checkout: ' + (ci.checkout||'') + '\n' +
+      'USA QUESTE INFO senza che l\'ospite le chieda.\n';
   } else {
-    guestSection = '\n## OSPITE NON IDENTIFICATO\nNON fornire codici di accesso o istruzioni di entrata.\nRispondi esattamente: "Per motivi di sicurezza i codici di accesso vengono forniti solo tramite il link personalizzato che ricevi su WhatsApp. Usa i pulsanti qui sotto per contattarci."\nNON scrivere numeri di telefono o link nel testo.\nPuoi rispondere a domande generali: WiFi, parcheggio, orari, ristoranti, trasporti.\n';
+    guestSection = '\n## OSPITE NON IDENTIFICATO\n' +
+      'NON fornire codici di accesso o istruzioni di entrata.\n' +
+      'Rispondi esattamente: "Per motivi di sicurezza i codici di accesso vengono forniti solo tramite il link personalizzato che ricevi su WhatsApp. Usa i pulsanti qui sotto per contattarci."\n' +
+      'NON scrivere numeri di telefono o link nel testo.\n' +
+      'Puoi rispondere a domande generali: WiFi, parcheggio, orari, ristoranti, trasporti, cosa vedere.\n';
   }
 
-  var faqStr = (g.faq || []).map(function(f) { return 'D: ' + f.domanda + '\nR: ' + f.risposta; }).join('\n\n');
-  var ristStr = ((g.dove_mangiare || {}).ristoranti || []).map(function(r) { return '- ' + r.nome + ': ' + r.tipo; }).join('\n');
+  // Ristoranti dal JSON
+  var ristStr = (dove_mangiare.ristoranti || []).map(function(r) {
+    return '- ' + r.nome + ': ' + r.tipo + (r.nota ? ' (' + r.nota + ')' : '');
+  }).join('\n');
 
-  return 'REGOLA ASSOLUTA: Rispondi SEMPRE nella stessa lingua usata dall\'ospite. Se scrive in inglese, rispondi in inglese. Se scrive in francese, rispondi in francese. Non usare mai l\'italiano se l\'ospite scrive in un\'altra lingua. Questa regola ha priorità su tutto.\n\nSei Alo, l\'assistente virtuale di Santalo B&B a Bitonto, Puglia. Il tuo nome e\' Alo (da "Ciao" e "Santalo"). Tono: caldo, cordiale, leggero. Sii conciso (max 180 parole).' +
+  // Attrazioni dal JSON
+  var attrazioniStr = (cosa_vedere.attrazioni || []).map(function(a) {
+    return '- ' + a.nome + ': ' + a.descrizione;
+  }).join('\n');
+
+  // Dintorni dal JSON
+  var dintorniStr = (dintorni.destinazioni || []).map(function(d) {
+    return '- ' + d.nome + ': ' + d.distanza + (d.note ? ' — ' + d.note : '');
+  }).join('\n');
+
+  // Spiagge dal JSON
+  var spiaggeStr = (dintorni.spiagge || []).map(function(s) {
+    return '- ' + s.nome + ': ' + s.distanza;
+  }).join('\n');
+
+  // FAQ dal JSON
+  var faqStr = (g.faq || []).map(function(f) {
+    return 'D: ' + f.domanda + '\nR: ' + f.risposta;
+  }).join('\n\n');
+
+  // Farmacie dal JSON
+  var farmacieStr = (farmacie.elenco || []).slice(0,3).map(function(f) {
+    return '- ' + f.nome + ' (' + f.indirizzo + ') tel. ' + f.telefono;
+  }).join('\n');
+
+  // Taxi dal JSON
+  var taxiStr = '';
+  if (trasporti.taxi && trasporti.taxi.contatti) {
+    taxiStr = trasporti.taxi.contatti.slice(0,3).map(function(t) {
+      return '- ' + (t.nome||t.zona||'') + ': ' + t.telefono;
+    }).join('\n');
+  }
+
+  return 'REGOLA ASSOLUTA: Rispondi SEMPRE nella stessa lingua usata dall\'ospite. Italiano, inglese, francese, tedesco, spagnolo — adattati sempre. Questa regola ha priorità su tutto.\n\n' +
+    'Sei Alò, l\'assistente virtuale di Santalò B&B a Bitonto, Puglia. Tono: caldo, cordiale, leggero. Sii conciso (max 180 parole). Usa emoji con moderazione.' +
     guestSection +
-    '\n## STRUTTURA\nIndirizzo: Vico Storto Sant\'Eligio 9, 70032 Bitonto (BA)\nMaps: https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8\nEmail: info@bebsantalo.it\n\n## WIFI\nRete: ' + wifi.rete + ' | Password: ' + wifi.password +
-    '\n\n## ORARI\nCheck-in: ' + orari.checkin + ' | Check-out: ' + orari.checkout + '\nSilenzio notturno: 22:00 - 8:00\n\n## PARCHEGGIO\nZTL nel centro storico. Strisce blu in Piazza Cavour o Via Traiana (2-5 min a piedi). Posto auto privato 10euro/giorno su richiesta.\n\n## COLAZIONE\nDisponibile su richiesta: 5euro/persona (comunicare la sera prima).\n\n## CONDIZIONATORE\nOgni camera ha condizionatore (estate e inverno). Modalita\' gia\' preimpostata. Premi accensione, regola temperatura, attendi qualche minuto.\n\n## CRONOTERMOSTATO Seitron Freetime Evo\nAccanto al lavandino. Come usarlo: 1) ON/OFF 2) Tasto sole per Comfort 3) Ruota manopola 4) Premi OK 5) Attendi 3-5 min.\nSe display OFF: premi ON/OFF. Se bAtt: batterie scariche.\n\n## DOVE MANGIARE\n' + ristStr +
-    '\n\n## COSA VEDERE\nBitonto: Cattedrale romanica XII sec, Castello Normanno, Museo Civico, Frantoio ipogeo\nDintorni: Bari 20min, Castel del Monte 40min, Polignano 35min, Alberobello 1h, Matera 1h30\n\n## FAQ\n' + faqStr +
-    '\n\n## REGOLE\n- Rispondi nella lingua dell\'ospite\n- Se non sai rispondere: "Non ho questa informazione - scrivi a info@bebsantalo.it"\n- Per problemi urgenti suggerisci di contattare il proprietario via WhatsApp';
+    '\n## STRUTTURA\n' +
+    'Indirizzo: ' + (struttura.indirizzo || 'Vico Storto Sant\'Eligio 9, 70032 Bitonto (BA)') + '\n' +
+    'Maps: ' + (struttura.google_maps || 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8') + '\n' +
+    'Email: ' + (struttura.email || 'info@bebsantalo.it') + '\n\n' +
+    '## WIFI\nRete: ' + wifi.rete + ' | Password: ' + wifi.password + '\n\n' +
+    '## ORARI\n' +
+    'Check-in: ' + orari.checkin + '\n' +
+    'Check-out: ' + orari.checkout + '\n' +
+    'Silenzio notturno: ' + (orari.silenzio_notturno || '22:00 - 8:00') + '\n' +
+    'Silenzio pomeridiano: ' + (orari.silenzio_pomeridiano || '14:00 - 16:30') + '\n\n' +
+    '## PARCHEGGIO\n' +
+    (parcheggio.info || '') + '\n' +
+    'Punto più vicino: ' + (parcheggio.punto_piu_vicino || '') + '\n' +
+    'Strisce blu: ' + (parcheggio.strisce_blu || '') + '\n' +
+    'Strisce bianche: ' + (parcheggio.strisce_bianche || 'gratuite') + '\n' +
+    'Garage: ' + (parcheggio.garage || '') + '\n\n' +
+    '## COLAZIONE\n' +
+    'Disponibile su richiesta: ' + (colazione.costo || '5€/persona') + '\n' +
+    'Dove: ' + (colazione.dove || 'Mazzini Place') + '\n' +
+    'Modalità: ' + (colazione.modalita || 'comunicare la sera prima') + '\n\n' +
+    '## CONDIZIONATORE\n' +
+    (condizionatore.descrizione || '') + '\n' +
+    (condizionatore.istruzioni || '') + '\n' +
+    'Se non funziona: ' + (condizionatore.se_non_funziona || '') + '\n\n' +
+    '## CRONOTERMOSTATO (Seitron Freetime Evo)\n' +
+    'Posizione: ' + (cronotermostato.posizione || 'accanto al lavandino') + '\n' +
+    (cronotermostato.istruzioni_brevi || '') + '\n' +
+    (cronotermostato.se_non_funziona || '') + '\n\n' +
+    '## ELETTRICITÀ\n' +
+    (elettricita.descrizione || '') + '\n' +
+    (elettricita.istruzioni || '') + '\n\n' +
+    '## PULIZIA E BIANCHERIA\n' +
+    'Pulizia giornaliera: ' + (servizi.pulizia && servizi.pulizia.su_richiesta || '15€ su richiesta') + '\n' +
+    'Cambio biancheria: ' + (servizi.pulizia && servizi.pulizia.biancheria || '8€ su richiesta') + '\n\n' +
+    '## RACCOLTA DIFFERENZIATA\n' +
+    (raccolta.descrizione || '') + '\n' +
+    'Calendario: Umido lun/mer/sab | Plastica mar | Secco gio | Vetro 1° ven | Carta 2°-4° ven\n' +
+    'Per dubbi: ' + (raccolta.riciclario || 'sanbspa.it/riciclario') + '\n\n' +
+    '## DOVE MANGIARE\n' + ristStr + '\n' +
+    'Panificio: ' + (dove_mangiare.panificio || '') + '\n\n' +
+    '## COSA VEDERE A BITONTO\n' + attrazioniStr + '\n\n' +
+    '## DINTORNI\n' + dintorniStr + '\n\n' +
+    '## SPIAGGE VICINE\n' + spiaggeStr + '\n\n' +
+    '## TRASPORTI\n' +
+    'Aeroporto: ' + (trasporti.aeroporto || '') + '\n' +
+    'Treno: ' + (trasporti.treno || '') + '\n' +
+    'Taxi: ' + (trasporti.taxi && trasporti.taxi.info || '') + '\n' +
+    (taxiStr ? 'Contatti taxi:\n' + taxiStr + '\n' : '') + '\n' +
+    '## FARMACIE\n' + farmacieStr + '\n' +
+    'Turni notturni/festivi: ' + (farmacie.turni || '') + '\n\n' +
+    '## FAQ\n' + faqStr + '\n\n' +
+    '## REGOLE RISPOSTA\n' +
+    '- Rispondi SEMPRE nella lingua dell\'ospite\n' +
+    '- Se non sai rispondere: "Non ho questa informazione — scrivi a info@bebsantalo.it"\n' +
+    '- Per problemi urgenti suggerisci WhatsApp con Giuseppe o Dario\n' +
+    '- Non inventare informazioni non presenti nel contesto';
 }
 
 var msgEl = document.getElementById('messages');
