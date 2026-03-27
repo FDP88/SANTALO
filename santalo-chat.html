@@ -276,6 +276,19 @@
     #sendBtn svg { width: 16px; height: 16px; }
     .input-hint { font-size: 10px; color: var(--muted); text-align: center; margin-top: 7px; opacity: 0.65; }
 
+    /* LANG SELECTOR */
+    .lang-selector {
+      display: flex; gap: 5px; flex-shrink: 0;
+    }
+    .lang-flag {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.2rem; padding: 3px 4px; border-radius: 6px;
+      opacity: 0.5; transition: opacity .15s, transform .15s;
+      line-height: 1;
+    }
+    .lang-flag.active { opacity: 1; transform: scale(1.15); }
+    .lang-flag:hover { opacity: 0.85; }
+
     .chat-wrap {
       display: flex;
       flex-direction: column;
@@ -300,8 +313,15 @@
       <div class="header-name">Al<span>ò</span></div>
       <div class="header-sub">
         <span class="dot-live"></span>
-        Assistente Santalò B&B · H24
+        <span id="headerSub">Assistente Santalò B&B · H24</span>
       </div>
+    </div>
+    <div class="lang-selector">
+      <button class="lang-flag active" data-lang="it" title="Italiano">🇮🇹</button>
+      <button class="lang-flag" data-lang="en" title="English">🇬🇧</button>
+      <button class="lang-flag" data-lang="fr" title="Français">🇫🇷</button>
+      <button class="lang-flag" data-lang="de" title="Deutsch">🇩🇪</button>
+      <button class="lang-flag" data-lang="es" title="Español">🇪🇸</button>
     </div>
   </div>
 
@@ -642,6 +662,79 @@ function send(text) {
     });
 }
 
+// ===== MULTILINGUAL UI =====
+var UI_LANGS = {
+  it: {
+    placeholder: 'Scrivi ad Alò...',
+    hint: 'Puoi scrivere in italiano, inglese o qualsiasi altra lingua',
+    sub: 'Assistente Santalò B&B · H24',
+    greeting: function(n) { return 'Ciao' + (n ? ' ' + n : '') + ', sono Al<span style="color:var(--sand-l)">ò</span>!'; },
+    intro: 'Il tuo assistente personale H24 per tutto quello che ti serve durante il soggiorno a Bitonto.',
+    body: 'Sono qui per aiutarti con accesso alla camera, WiFi, parcheggio, riscaldamento, dove mangiare e molto altro.<br><br>Come posso aiutarti?',
+    quick: ['Come accedo?', 'WiFi', 'Parcheggio', 'Termostato', 'Dove mangiare?'],
+  },
+  en: {
+    placeholder: 'Write to Alò...',
+    hint: 'You can write in English, Italian or any other language',
+    sub: 'Santalò B&B Assistant · 24/7',
+    greeting: function(n) { return 'Hi' + (n ? ' ' + n : '') + ', I'm Al<span style="color:var(--sand-l)">ò</span>!'; },
+    intro: 'Your personal 24/7 assistant for everything you need during your stay in Bitonto.',
+    body: 'I'm here to help with room access, WiFi, parking, heating, where to eat and much more.<br><br>How can I help you?',
+    quick: ['How do I get in?', 'WiFi', 'Parking', 'Thermostat', 'Where to eat?'],
+  },
+  fr: {
+    placeholder: 'Écrivez à Alò...',
+    hint: 'Vous pouvez écrire en français, italien ou toute autre langue',
+    sub: 'Assistant Santalò B&B · H24',
+    greeting: function(n) { return 'Bonjour' + (n ? ' ' + n : '') + ', je suis Al<span style="color:var(--sand-l)">ò</span> !'; },
+    intro: 'Votre assistant personnel H24 pour tout ce dont vous avez besoin pendant votre séjour à Bitonto.',
+    body: 'Je suis là pour vous aider avec l'accès à la chambre, le WiFi, le stationnement, le chauffage, où manger et bien plus.<br><br>Comment puis-je vous aider ?',
+    quick: ['Comment entrer ?', 'WiFi', 'Stationnement', 'Thermostat', 'Où manger ?'],
+  },
+  de: {
+    placeholder: 'Schreiben Sie an Alò...',
+    hint: 'Sie können auf Deutsch, Italienisch oder jeder anderen Sprache schreiben',
+    sub: 'Santalò B&B Assistent · 24/7',
+    greeting: function(n) { return 'Hallo' + (n ? ' ' + n : '') + ', ich bin Al<span style="color:var(--sand-l)">ò</span>!'; },
+    intro: 'Ihr persönlicher 24/7-Assistent für alles, was Sie während Ihres Aufenthalts in Bitonto benötigen.',
+    body: 'Ich helfe Ihnen bei Zimmerzugang, WLAN, Parken, Heizung, Restaurantempfehlungen und vielem mehr.<br><br>Wie kann ich Ihnen helfen?',
+    quick: ['Wie komme ich rein?', 'WLAN', 'Parken', 'Thermostat', 'Wo essen?'],
+  },
+  es: {
+    placeholder: 'Escríbele a Alò...',
+    hint: 'Puedes escribir en español, italiano o cualquier otro idioma',
+    sub: 'Asistente Santalò B&B · 24/7',
+    greeting: function(n) { return '¡Hola' + (n ? ' ' + n : '') + ', soy Al<span style="color:var(--sand-l)">ò</span>!'; },
+    intro: 'Tu asistente personal 24/7 para todo lo que necesites durante tu estancia en Bitonto.',
+    body: 'Estoy aquí para ayudarte con el acceso a la habitación, WiFi, aparcamiento, calefacción, dónde comer y mucho más.<br><br>¿En qué puedo ayudarte?',
+    quick: ['¿Cómo entro?', 'WiFi', 'Aparcamiento', 'Termostato', '¿Dónde comer?'],
+  },
+};
+
+var currentLang = 'it';
+
+function setLang(lang) {
+  if (!UI_LANGS[lang]) return;
+  currentLang = lang;
+  // Update buttons
+  document.querySelectorAll('.lang-flag').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+  // Update input placeholder and hint
+  document.getElementById('userInput').placeholder = UI_LANGS[lang].placeholder;
+  document.querySelector('.input-hint').textContent = UI_LANGS[lang].hint;
+  document.getElementById('headerSub').textContent = UI_LANGS[lang].sub;
+  // Save preference
+  try { localStorage.setItem('santalo_chat_lang', lang); } catch(e) {}
+}
+
+// Bind lang buttons
+document.querySelectorAll('.lang-flag').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    setLang(this.dataset.lang);
+  });
+});
+
 function init() {
   showTyping();
   var params = urlParams();
@@ -665,16 +758,23 @@ function init() {
 
     var nome1 = pren ? pren.nome.split(' ')[0] : null;
 
+    // Detect preferred lang from localStorage or browser
+    var savedLang = 'it';
+    try { savedLang = localStorage.getItem('santalo_chat_lang') || 'it'; } catch(e) {}
+    if (!UI_LANGS[savedLang]) savedLang = 'it';
+    setLang(savedLang);
+
+    var L = UI_LANGS[currentLang];
     var introHtml = '<div class="intro-card">' +
       '<div class="intro-card-logo"><img src="' + LOGO_DATA + '" alt="Santalo"/></div>' +
       '<div class="intro-card-text">' +
-      '<h2>Ciao' + (nome1 ? ' ' + nome1 : '') + ', sono Al<span style="color:var(--sand-l)">ò</span>!</h2>' +
-      '<p>Il tuo assistente personale H24 per tutto quello che ti serve durante il soggiorno a Bitonto.</p>' +
+      '<h2>' + L.greeting(nome1) + '</h2>' +
+      '<p>' + L.intro + '</p>' +
       '</div></div>' +
-      '<br>Sono qui per aiutarti con accesso alla camera, WiFi, parcheggio, riscaldamento, dove mangiare e molto altro.<br><br>Come posso aiutarti?';
+      '<br>' + L.body;
 
     addMsgHTML('bot', introHtml);
-    addQuick(['Come accedo?', 'WiFi', 'Parcheggio', 'Termostato', 'Condizionatore', 'Dove mangiare?']);
+    addQuick(L.quick);
   });
 }
 
