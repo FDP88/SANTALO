@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Santalò Bed & Breakfast · Bitonto, Puglia</title>
+  <meta name="description" content="B&B nel cuore del centro storico di Bitonto. Tre camere indipendenti con accesso autonomo, a 20 minuti da Bari.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brown: #6B2D1F;
+      --brown-d: #3d1a10;
+      --brown-l: #8C4F35;
+      --sand: #C4A882;
+      --sand-l: #E8D9C0;
+      --sand-ll: #F5EDE0;
+      --cream: #FAF7F2;
+      --ink: #2E241F;
+      --muted: #7A6B61;
+      --line: rgba(107,45,31,.13);
+      --shadow: 0 20px 60px rgba(58,30,18,.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--cream); color: var(--ink); }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,247,242,.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--ink);
+    }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; }
+    .nav-logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-weight: 600; line-height: 1;
+    }
+    .nav-logo-text span { color: var(--brown); }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--brown); }
+    .lang-btns { display: flex; gap: 3px; }
+    .lang-btn {
+      background: none; border: none; cursor: pointer; font-size: 1.1rem;
+      padding: 3px 4px; border-radius: 6px; opacity: .45; transition: opacity .15s;
+    }
+    .lang-btn.active { opacity: 1; }
+    .lang-btn:hover { opacity: .8; }
+    .nav-wa {
+      background: var(--brown); color: #fff; text-decoration: none;
+      padding: 9px 18px; border-radius: 999px; font-size: 13px; font-weight: 600;
+      transition: background .18s; white-space: nowrap;
+    }
+    .nav-wa:hover { background: var(--brown-l); }
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .nav-wa { padding: 8px 14px; font-size: 12px; }
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      background: linear-gradient(160deg, #fcf8f4 0%, #f0e6d8 60%, #e8d5c0 100%);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196,168,130,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 999px; padding: 7px 16px;
+      font-size: 12px; font-weight: 600; color: var(--brown);
+      margin-bottom: 28px; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--brown); }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(52px, 8vw, 100px);
+      font-weight: 600; line-height: .95;
+      color: var(--brown-d); margin-bottom: 12px;
+    }
+    .hero h1 em { font-style: italic; color: var(--brown); }
+    .hero-sub {
+      font-size: clamp(14px, 2vw, 17px); color: var(--muted);
+      max-width: 520px; line-height: 1.7; margin-bottom: 40px;
+    }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: var(--brown); color: #fff; text-decoration: none;
+      padding: 14px 28px; border-radius: 999px; font-weight: 600; font-size: 14px;
+      transition: all .18s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: var(--brown-d); transform: translateY(-1px); }
+    .btn-secondary {
+      background: #fff; color: var(--brown); text-decoration: none;
+      padding: 14px 28px; border-radius: 999px; font-weight: 600; font-size: 14px;
+      border: 1.5px solid var(--sand); transition: all .18s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-secondary:hover { border-color: var(--brown); background: var(--sand-ll); }
+    .hero-img {
+      width: min(700px, 90%); height: 340px; background: var(--sand-l);
+      border-radius: 28px; margin-top: 56px;
+      overflow: hidden; box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+    .img-placeholder {
+      color: var(--muted); font-size: 13px; text-align: center; padding: 20px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .img-placeholder svg { opacity: .4; }
+
+    /* STRIP */
+    .strip {
+      background: var(--brown-d); color: #fff;
+      padding: 16px 24px; overflow: hidden;
+    }
+    .strip-inner {
+      display: flex; gap: 48px; width: max-content;
+      animation: marquee 22s linear infinite;
+    }
+    .strip-item { font-size: 13px; font-weight: 500; white-space: nowrap; opacity: .85; }
+    .strip-item::before { content: '✦'; margin-right: 10px; opacity: .5; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* SECTION */
+    section { padding: 90px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--brown); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 58px); font-weight: 600; line-height: 1.05;
+      color: var(--brown-d); margin-bottom: 20px;
+    }
+    .section-title em { font-style: italic; color: var(--brown); }
+    .section-sub { font-size: 15px; color: var(--muted); line-height: 1.75; max-width: 580px; }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+      margin-top: 56px;
+    }
+    .about-text p { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+    .about-features { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; }
+    .feature {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px; background: #fff; border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    .feature-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .feature-text strong { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+    .feature-text span { font-size: 12px; color: var(--muted); }
+    .about-img {
+      height: 480px; background: var(--sand-l); border-radius: 24px;
+      overflow: hidden; box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .about-img img { width: 100%; height: 100%; object-fit: cover; }
+    @media (max-width: 800px) {
+      .about-grid { grid-template-columns: 1fr; gap: 36px; }
+      .about-img { height: 280px; }
+    }
+
+    /* CAMERE */
+    .rooms-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px;
+    }
+    .room-card {
+      background: #fff; border: 1px solid var(--line); border-radius: 24px;
+      overflow: hidden; box-shadow: 0 4px 20px rgba(58,30,18,.06);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .room-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .room-img {
+      height: 220px; background: var(--sand-l);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .room-img img { width: 100%; height: 100%; object-fit: cover; }
+    .room-body { padding: 22px; }
+    .room-year {
+      font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700;
+      color: var(--brown); line-height: 1; margin-bottom: 6px;
+    }
+    .room-floor { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+    .room-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+    .room-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .room-tag {
+      background: var(--sand-ll); color: var(--brown);
+      border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 600;
+    }
+    @media (max-width: 900px) { .rooms-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .rooms-grid { grid-template-columns: 1fr; } }
+
+    /* LOCATION */
+    .location-wrap {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;
+      margin-top: 56px;
+    }
+    .location-map {
+      height: 380px; border-radius: 24px; overflow: hidden;
+      box-shadow: var(--shadow); border: 1px solid var(--line);
+    }
+    .location-map iframe { width: 100%; height: 100%; border: none; }
+    .location-info { display: flex; flex-direction: column; gap: 20px; }
+    .loc-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 18px; background: #fff; border: 1px solid var(--line); border-radius: 18px;
+    }
+    .loc-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .loc-text strong { display: block; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+    .loc-text span { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    @media (max-width: 800px) {
+      .location-wrap { grid-template-columns: 1fr; }
+      .location-map { height: 260px; }
+    }
+
+    /* GALLERY */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 200px 200px;
+      gap: 12px; margin-top: 48px;
+    }
+    .gallery-item {
+      border-radius: 16px; overflow: hidden; background: var(--sand-l);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gallery-item:first-child { grid-row: 1 / 3; grid-column: 1; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    @media (max-width: 700px) {
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 160px); }
+      .gallery-item:first-child { grid-row: 1; grid-column: 1 / 3; }
+    }
+
+    /* CTA SECTION */
+    .cta-section {
+      background: linear-gradient(135deg, var(--brown-d) 0%, var(--brown-l) 100%);
+      border-radius: 32px; padding: 70px 48px; text-align: center; color: #fff;
+      margin: 0 24px 90px;
+    }
+    .cta-section .section-label { color: rgba(255,255,255,.6); }
+    .cta-section .section-title { color: #fff; }
+    .cta-section .section-sub { color: rgba(255,255,255,.75); margin: 0 auto 36px; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-white {
+      background: #fff; color: var(--brown); text-decoration: none;
+      padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 14px;
+      transition: all .18s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-white:hover { background: var(--sand-ll); transform: translateY(-1px); }
+    .btn-outline-white {
+      background: rgba(255,255,255,.12); color: #fff; text-decoration: none;
+      padding: 14px 28px; border-radius: 999px; font-weight: 600; font-size: 14px;
+      border: 1.5px solid rgba(255,255,255,.3); transition: all .18s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-outline-white:hover { background: rgba(255,255,255,.2); }
+    @media (max-width: 600px) { .cta-section { padding: 48px 24px; } }
+
+    /* FOOTER */
+    footer {
+      background: var(--brown-d); color: rgba(255,255,255,.65);
+      padding: 40px 24px; text-align: center; font-size: 13px;
+    }
+    footer strong { color: #fff; }
+    footer a { color: rgba(255,255,255,.65); text-decoration: none; }
+    footer a:hover { color: #fff; }
+    .footer-logo {
+      width: 48px; height: 48px; background: rgba(255,255,255,.1);
+      border-radius: 12px; margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .footer-logo img { width: 40px; height: 40px; object-fit: contain; }
+    .footer-name {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600;
+      color: #fff; margin-bottom: 8px;
+    }
+
+    /* WA FLOAT */
+    .wa-float {
+      position: fixed; bottom: 24px; right: 24px; z-index: 200;
+      background: #25D366; color: #fff; border-radius: 999px;
+      padding: 14px 20px; font-weight: 700; font-size: 14px;
+      text-decoration: none; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 8px 24px rgba(37,211,102,.4);
+      transition: all .2s;
+    }
+    .wa-float:hover { background: #128C7E; transform: translateY(-2px); }
+    @media (max-width: 500px) { .wa-float span.wa-label { display: none; } }
+
+    /* DIVIDER */
+    .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalò">
+    <div class="nav-logo-text">Santalò <span>B&B</span></div>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#camere" data-i18n="nav.rooms">Camere</a>
+      <a href="#dove" data-i18n="nav.location">Dove siamo</a>
+      <a href="#gallery" data-i18n="nav.gallery">Gallery</a>
+      <a href="#contatti" data-i18n="nav.contact">Contatti</a>
+    </div>
+    <div class="lang-btns">
+      <button class="lang-btn active" data-lang="it">🇮🇹</button>
+      <button class="lang-btn" data-lang="en">🇬🇧</button>
+      <button class="lang-btn" data-lang="fr">🇫🇷</button>
+      <button class="lang-btn" data-lang="de">🇩🇪</button>
+      <button class="lang-btn" data-lang="es">🇪🇸</button>
+    </div>
+    <a href="https://wa.me/393336410329?text=Ciao%2C+vorrei+informazioni+per+una+prenotazione" target="_blank" class="nav-wa" data-i18n="nav.book">Prenota ora</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow" data-i18n="hero.eyebrow">Bitonto · Puglia · Centro storico</div>
+  <h1 data-i18n-html="hero.title">San<em>talò</em><br>Bed & Breakfast</h1>
+  <p class="hero-sub" data-i18n="hero.sub">Nel cuore del centro storico di Bitonto, a 20 minuti da Bari. Tre camere indipendenti con accesso autonomo, in un vicolo medievale unico.</p>
+  <div class="hero-ctas">
+    <a href="https://wa.me/393336410329?text=Ciao%2C+vorrei+informazioni+per+una+prenotazione" target="_blank" class="btn-primary" data-i18n="hero.cta1">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Prenota su WhatsApp
+    </a>
+    <a href="#camere" class="btn-secondary" data-i18n="hero.cta2">Scopri le camere</a>
+  </div>
+  <div class="hero-img">
+    <div class="img-placeholder">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span data-i18n="placeholder.hero">Inserisci qui la foto principale del B&B</span>
+    </div>
+  </div>
+</div>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-inner" id="strip-inner"></div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label" data-i18n="about.label">Il nostro B&B</div>
+  <h2 class="section-title" data-i18n-html="about.title">Un angolo <em>autentico</em><br>nel centro medievale</h2>
+  <p class="section-sub" data-i18n="about.sub">Santalò è un B&B ricavato in un palazzo storico nel cuore del centro antico di Bitonto, la città dell'olio DOP pugliese.</p>
+  <div class="about-grid">
+    <div class="about-text">
+      <p data-i18n="about.p1">Tre camere indipendenti su piani diversi, ognuna con accesso autonomo tramite codice o key box. Nessun orario di reception, massima libertà.</p>
+      <p data-i18n="about.p2">A pochi passi dalla Cattedrale romanica del XII secolo, da piazza Cavour e dai migliori ristoranti della città. A 20 minuti da Bari e dal mare.</p>
+      <div class="about-features">
+        <div class="feature">
+          <div class="feature-icon">🔑</div>
+          <div class="feature-text">
+            <strong data-i18n="feat.access.title">Accesso autonomo H24</strong>
+            <span data-i18n="feat.access.sub">Check-in dalle 15:00 con codice personale</span>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📍</div>
+          <div class="feature-text">
+            <strong data-i18n="feat.location.title">Posizione unica</strong>
+            <span data-i18n="feat.location.sub">Vico Storto Sant'Eligio 9, centro storico medievale</span>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-text">
+            <strong data-i18n="feat.alo.title">Assistente Alò H24</strong>
+            <span data-i18n="feat.alo.sub">Supporto in 5 lingue, sempre disponibile</span>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🌊</div>
+          <div class="feature-text">
+            <strong data-i18n="feat.sea.title">Vicino al mare</strong>
+            <span data-i18n="feat.sea.sub">Giovinazzo e Santo Spirito a 10-15 minuti</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="about-img">
+      <div class="img-placeholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span data-i18n="placeholder.about">Foto del vicolo o della struttura</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CAMERE -->
+<section id="camere">
+  <div class="section-label" data-i18n="rooms.label">Le camere</div>
+  <h2 class="section-title" data-i18n-html="rooms.title">Tre camere,<br>tre <em>storie</em></h2>
+  <p class="section-sub" data-i18n="rooms.sub">Ogni camera porta il nome dell'anno in cui è stato costruito il palazzo. Indipendenti, silenziose, con tutto il necessario per un soggiorno perfetto.</p>
+  <div class="rooms-grid">
+
+    <div class="room-card">
+      <div class="room-img">
+        <div class="img-placeholder">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span style="font-size:11px" data-i18n="placeholder.room1920">Foto Camera 1920</span>
+        </div>
+      </div>
+      <div class="room-body">
+        <div class="room-year">1920</div>
+        <div class="room-floor" data-i18n="room.1920.floor">Piano terra · Accesso con key box</div>
+        <div class="room-desc" data-i18n="room.1920.desc">Camera al piano terra con cucina privata ad uso esclusivo. Accesso con key box sul portone principale.</div>
+        <div class="room-tags">
+          <span class="room-tag" data-i18n="tag.kitchen">Cucina privata</span>
+          <span class="room-tag" data-i18n="tag.ac">Aria condizionata</span>
+          <span class="room-tag" data-i18n="tag.wifi">WiFi</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="room-card">
+      <div class="room-img">
+        <div class="img-placeholder">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span style="font-size:11px" data-i18n="placeholder.room1954">Foto Camera 1954</span>
+        </div>
+      </div>
+      <div class="room-body">
+        <div class="room-year">1954</div>
+        <div class="room-floor" data-i18n="room.1954.floor">1° piano · Codice 43757</div>
+        <div class="room-desc" data-i18n="room.1954.desc">Camera al primo piano con cucina condivisa sulla terrazza panoramica. Accesso con tastierino digitale.</div>
+        <div class="room-tags">
+          <span class="room-tag" data-i18n="tag.terrace">Terrazza</span>
+          <span class="room-tag" data-i18n="tag.ac">Aria condizionata</span>
+          <span class="room-tag" data-i18n="tag.wifi">WiFi</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="room-card">
+      <div class="room-img">
+        <div class="img-placeholder">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span style="font-size:11px" data-i18n="placeholder.room1956">Foto Camera 1956</span>
+        </div>
+      </div>
+      <div class="room-body">
+        <div class="room-year">1956</div>
+        <div class="room-floor" data-i18n="room.1956.floor">2° piano · Codice 43757</div>
+        <div class="room-desc" data-i18n="room.1956.desc">Camera al secondo piano con vista sui tetti del centro storico. Cucina condivisa sulla terrazza panoramica.</div>
+        <div class="room-tags">
+          <span class="room-tag" data-i18n="tag.view">Vista centro storico</span>
+          <span class="room-tag" data-i18n="tag.ac">Aria condizionata</span>
+          <span class="room-tag" data-i18n="tag.wifi">WiFi</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- GALLERY -->
+<section id="gallery" style="padding-bottom: 40px;">
+  <div class="section-label" data-i18n="gallery.label">Gallery</div>
+  <h2 class="section-title" data-i18n-html="gallery.title">Immagini<br>della <em>struttura</em></h2>
+  <div class="gallery-grid">
+    <div class="gallery-item"><div class="img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span style="font-size:11px;color:var(--muted)" data-i18n="placeholder.g1">Foto principale</span></div></div>
+    <div class="gallery-item"><div class="img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
+    <div class="gallery-item"><div class="img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
+    <div class="gallery-item"><div class="img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
+    <div class="gallery-item"><div class="img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DOVE SIAMO -->
+<section id="dove">
+  <div class="section-label" data-i18n="loc.label">Dove siamo</div>
+  <h2 class="section-title" data-i18n-html="loc.title">Nel cuore<br>di <em>Bitonto</em></h2>
+  <p class="section-sub" data-i18n="loc.sub">Centro storico medievale, a 20 minuti da Bari e dall'aeroporto, vicino a Castel del Monte, Polignano e Alberobello.</p>
+  <div class="location-wrap">
+    <div class="location-map">
+      <iframe src="https://maps.google.com/maps?q=Vico+Storto+Sant%27Eligio+9+Bitonto&output=embed&z=16" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="location-info">
+      <div class="loc-item">
+        <div class="loc-icon">📍</div>
+        <div class="loc-text">
+          <strong data-i18n="loc.address.title">Indirizzo</strong>
+          <span>Vico Storto Sant'Eligio 9<br>70032 Bitonto (BA), Puglia</span>
+        </div>
+      </div>
+      <div class="loc-item">
+        <div class="loc-icon">✈️</div>
+        <div class="loc-text">
+          <strong data-i18n="loc.airport.title">Aeroporto di Bari</strong>
+          <span data-i18n="loc.airport.sub">20 minuti in auto</span>
+        </div>
+      </div>
+      <div class="loc-item">
+        <div class="loc-icon">🚂</div>
+        <div class="loc-text">
+          <strong data-i18n="loc.train.title">Stazione ferroviaria</strong>
+          <span data-i18n="loc.train.sub">10 minuti a piedi · collegamento diretto con Bari</span>
+        </div>
+      </div>
+      <div class="loc-item">
+        <div class="loc-icon">🏖️</div>
+        <div class="loc-text">
+          <strong data-i18n="loc.sea.title">Mare</strong>
+          <span data-i18n="loc.sea.sub">Giovinazzo e Santo Spirito a 10-15 minuti</span>
+        </div>
+      </div>
+      <a href="https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8" target="_blank" class="btn-secondary" style="margin-top:4px;justify-content:center" data-i18n="loc.maps.btn">
+        🗺️ Apri su Google Maps
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div style="max-width:1100px;margin:0 auto;padding:0 24px;" id="contatti">
+  <div class="cta-section">
+    <div class="section-label" data-i18n="cta.label">Prenota il tuo soggiorno</div>
+    <h2 class="section-title" data-i18n-html="cta.title">Pronto ad esplorare<br>la <em>Puglia</em>?</h2>
+    <p class="section-sub" data-i18n="cta.sub">Scrivici su WhatsApp per disponibilità e prezzi. Risposta garantita entro poche ore.</p>
+    <div class="cta-btns">
+      <a href="https://wa.me/393336410329?text=Ciao%2C+vorrei+informazioni+per+una+prenotazione" target="_blank" class="btn-white" data-i18n="cta.btn1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Scrivici su WhatsApp
+      </a>
+      <a href="mailto:info@bebsantalo.it" class="btn-outline-white" data-i18n="cta.btn2">
+        ✉️ info@bebsantalo.it
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalò">
+  </div>
+  <div class="footer-name">Santalò Bed and Breakfast</div>
+  <p>Vico Storto Sant'Eligio 9 · 70032 Bitonto (BA) · Puglia</p>
+  <p style="margin-top:6px">CF CQFGPP88E31A662T · P.IVA 08212010725</p>
+  <p style="margin-top:12px"><a href="mailto:info@bebsantalo.it">info@bebsantalo.it</a></p>
+</footer>
+
+<!-- WA FLOAT -->
+<a href="https://wa.me/393336410329?text=Ciao%2C+vorrei+informazioni+per+una+prenotazione" target="_blank" class="wa-float">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="wa-label" data-i18n="wa.float">Prenota su WhatsApp</span>
+</a>
+
+<script>
+// ===== TRANSLATIONS =====
+var T = {
+  it: {
+    'nav.rooms':'Camere','nav.location':'Dove siamo','nav.gallery':'Gallery','nav.contact':'Contatti','nav.book':'Prenota ora',
+    'hero.eyebrow':'Bitonto · Puglia · Centro storico',
+    'hero.title':'San<em>talò</em><br>Bed & Breakfast',
+    'hero.sub':'Nel cuore del centro storico di Bitonto, a 20 minuti da Bari. Tre camere indipendenti con accesso autonomo, in un vicolo medievale unico.',
+    'hero.cta1':'Prenota su WhatsApp','hero.cta2':'Scopri le camere',
+    'about.label':'Il nostro B&B',
+    'about.title':'Un angolo <em>autentico</em><br>nel centro medievale',
+    'about.sub':'Santalò è un B&B ricavato in un palazzo storico nel cuore del centro antico di Bitonto, la città dell\'olio DOP pugliese.',
+    'about.p1':'Tre camere indipendenti su piani diversi, ognuna con accesso autonomo tramite codice o key box. Nessun orario di reception, massima libertà.',
+    'about.p2':'A pochi passi dalla Cattedrale romanica del XII secolo, da piazza Cavour e dai migliori ristoranti della città. A 20 minuti da Bari e dal mare.',
+    'feat.access.title':'Accesso autonomo H24','feat.access.sub':'Check-in dalle 15:00 con codice personale',
+    'feat.location.title':'Posizione unica','feat.location.sub':'Vico Storto Sant\'Eligio 9, centro storico medievale',
+    'feat.alo.title':'Assistente Alò H24','feat.alo.sub':'Supporto in 5 lingue, sempre disponibile',
+    'feat.sea.title':'Vicino al mare','feat.sea.sub':'Giovinazzo e Santo Spirito a 10-15 minuti',
+    'rooms.label':'Le camere','rooms.title':'Tre camere,<br>tre <em>storie</em>',
+    'rooms.sub':'Ogni camera porta il nome dell\'anno in cui è stato costruito il palazzo. Indipendenti, silenziose, con tutto il necessario per un soggiorno perfetto.',
+    'room.1920.floor':'Piano terra · Accesso con key box',
+    'room.1920.desc':'Camera al piano terra con cucina privata ad uso esclusivo. Accesso con key box sul portone principale.',
+    'room.1954.floor':'1° piano · Codice 43757',
+    'room.1954.desc':'Camera al primo piano con cucina condivisa sulla terrazza panoramica. Accesso con tastierino digitale.',
+    'room.1956.floor':'2° piano · Codice 43757',
+    'room.1956.desc':'Camera al secondo piano con vista sui tetti del centro storico. Cucina condivisa sulla terrazza panoramica.',
+    'tag.kitchen':'Cucina privata','tag.ac':'Aria condizionata','tag.wifi':'WiFi','tag.terrace':'Terrazza','tag.view':'Vista centro storico',
+    'gallery.label':'Gallery','gallery.title':'Immagini<br>della <em>struttura</em>',
+    'loc.label':'Dove siamo','loc.title':'Nel cuore<br>di <em>Bitonto</em>',
+    'loc.sub':'Centro storico medievale, a 20 minuti da Bari e dall\'aeroporto, vicino a Castel del Monte, Polignano e Alberobello.',
+    'loc.address.title':'Indirizzo','loc.airport.title':'Aeroporto di Bari','loc.airport.sub':'20 minuti in auto',
+    'loc.train.title':'Stazione ferroviaria','loc.train.sub':'10 minuti a piedi · collegamento diretto con Bari',
+    'loc.sea.title':'Mare','loc.sea.sub':'Giovinazzo e Santo Spirito a 10-15 minuti',
+    'loc.maps.btn':'🗺️ Apri su Google Maps',
+    'cta.label':'Prenota il tuo soggiorno','cta.title':'Pronto ad esplorare<br>la <em>Puglia</em>?',
+    'cta.sub':'Scrivici su WhatsApp per disponibilità e prezzi. Risposta garantita entro poche ore.',
+    'cta.btn1':'Scrivici su WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'wa.float':'Prenota su WhatsApp',
+    'strip':['Bitonto · Puglia','Accesso autonomo H24','3 camere indipendenti','A 20 min da Bari','Assistente Alò H24','Centro storico medievale','A 10 min dal mare','Cattedrale romanica XII sec'],
+    'placeholder.hero':'Inserisci qui la foto principale del B&B',
+    'placeholder.about':'Foto del vicolo o della struttura',
+    'placeholder.room1920':'Foto Camera 1920','placeholder.room1954':'Foto Camera 1954','placeholder.room1956':'Foto Camera 1956',
+    'placeholder.g1':'Foto principale',
+  },
+  en: {
+    'nav.rooms':'Rooms','nav.location':'Location','nav.gallery':'Gallery','nav.contact':'Contact','nav.book':'Book now',
+    'hero.eyebrow':'Bitonto · Puglia · Historic centre',
+    'hero.title':'San<em>talò</em><br>Bed & Breakfast',
+    'hero.sub':'In the heart of Bitonto\'s historic centre, 20 minutes from Bari. Three independent rooms with self check-in, in a unique medieval alley.',
+    'hero.cta1':'Book on WhatsApp','hero.cta2':'Discover the rooms',
+    'about.label':'Our B&B',
+    'about.title':'An <em>authentic</em> corner<br>in the medieval centre',
+    'about.sub':'Santalò is a B&B inside a historic building in the heart of Bitonto, the DOP olive oil capital of Puglia.',
+    'about.p1':'Three independent rooms on different floors, each with autonomous access via code or key box. No reception hours — total freedom.',
+    'about.p2':'Steps from the 12th-century Romanesque Cathedral, Piazza Cavour and the best restaurants. 20 minutes from Bari and the sea.',
+    'feat.access.title':'Self check-in 24/7','feat.access.sub':'Check-in from 3:00 PM with personal code',
+    'feat.location.title':'Unique location','feat.location.sub':'Vico Storto Sant\'Eligio 9, medieval historic centre',
+    'feat.alo.title':'Alò Assistant 24/7','feat.alo.sub':'Support in 5 languages, always available',
+    'feat.sea.title':'Near the sea','feat.sea.sub':'Giovinazzo and Santo Spirito 10-15 minutes away',
+    'rooms.label':'The rooms','rooms.title':'Three rooms,<br>three <em>stories</em>',
+    'rooms.sub':'Each room is named after the year the building was constructed. Independent, quiet, with everything you need for a perfect stay.',
+    'room.1920.floor':'Ground floor · Key box access',
+    'room.1920.desc':'Ground floor room with private kitchen for exclusive use. Access via key box on the main door.',
+    'room.1954.floor':'1st floor · Code 43757',
+    'room.1954.desc':'First floor room with shared kitchen on the panoramic rooftop terrace. Access with digital keypad.',
+    'room.1956.floor':'2nd floor · Code 43757',
+    'room.1956.desc':'Second floor room with views over the rooftops of the historic centre. Shared kitchen on the panoramic terrace.',
+    'tag.kitchen':'Private kitchen','tag.ac':'Air conditioning','tag.wifi':'WiFi','tag.terrace':'Terrace','tag.view':'Historic centre view',
+    'gallery.label':'Gallery','gallery.title':'Photos of<br>the <em>property</em>',
+    'loc.label':'Location','loc.title':'In the heart<br>of <em>Bitonto</em>',
+    'loc.sub':'Medieval historic centre, 20 minutes from Bari and the airport, close to Castel del Monte, Polignano and Alberobello.',
+    'loc.address.title':'Address','loc.airport.title':'Bari Airport','loc.airport.sub':'20 minutes by car',
+    'loc.train.title':'Train station','loc.train.sub':'10 minutes on foot · direct connection to Bari',
+    'loc.sea.title':'Sea','loc.sea.sub':'Giovinazzo and Santo Spirito 10-15 minutes away',
+    'loc.maps.btn':'🗺️ Open in Google Maps',
+    'cta.label':'Book your stay','cta.title':'Ready to explore<br><em>Puglia</em>?',
+    'cta.sub':'Write to us on WhatsApp for availability and prices. Reply guaranteed within a few hours.',
+    'cta.btn1':'Write on WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'wa.float':'Book on WhatsApp',
+    'strip':['Bitonto · Puglia','Self check-in 24/7','3 independent rooms','20 min from Bari','Alò Assistant 24/7','Medieval historic centre','10 min from the sea','12th-century Cathedral'],
+    'placeholder.hero':'Insert main photo of the B&B here',
+    'placeholder.about':'Photo of the alley or building',
+    'placeholder.room1920':'Photo Room 1920','placeholder.room1954':'Photo Room 1954','placeholder.room1956':'Photo Room 1956',
+    'placeholder.g1':'Main photo',
+  },
+  fr: {
+    'nav.rooms':'Chambres','nav.location':'Où nous sommes','nav.gallery':'Galerie','nav.contact':'Contact','nav.book':'Réserver',
+    'hero.eyebrow':'Bitonto · Pouilles · Centre historique',
+    'hero.title':'San<em>talò</em><br>Bed & Breakfast',
+    'hero.sub':'Au cœur du centre historique de Bitonto, à 20 minutes de Bari. Trois chambres indépendantes avec accès autonome, dans une ruelle médiévale unique.',
+    'hero.cta1':'Réserver sur WhatsApp','hero.cta2':'Découvrir les chambres',
+    'about.label':'Notre B&B',
+    'about.title':'Un coin <em>authentique</em><br>dans le centre médiéval',
+    'about.sub':'Santalò est un B&B aménagé dans un bâtiment historique au cœur de Bitonto, la capitale de l\'huile d\'olive DOP des Pouilles.',
+    'about.p1':'Trois chambres indépendantes à différents étages, chacune avec accès autonome par code ou boîte à clé. Pas d\'horaires de réception — liberté totale.',
+    'about.p2':'À quelques pas de la Cathédrale romane du XIIe siècle, de la Piazza Cavour et des meilleurs restaurants. À 20 minutes de Bari et de la mer.',
+    'feat.access.title':'Accès autonome H24','feat.access.sub':'Check-in à partir de 15h00 avec code personnel',
+    'feat.location.title':'Emplacement unique','feat.location.sub':'Vico Storto Sant\'Eligio 9, centre historique médiéval',
+    'feat.alo.title':'Assistant Alò H24','feat.alo.sub':'Assistance en 5 langues, toujours disponible',
+    'feat.sea.title':'Près de la mer','feat.sea.sub':'Giovinazzo et Santo Spirito à 10-15 minutes',
+    'rooms.label':'Les chambres','rooms.title':'Trois chambres,<br>trois <em>histoires</em>',
+    'rooms.sub':'Chaque chambre porte le nom de l\'année de construction du bâtiment. Indépendantes, silencieuses, avec tout le nécessaire.',
+    'room.1920.floor':'Rez-de-chaussée · Accès boîte à clé',
+    'room.1920.desc':'Chambre au rez-de-chaussée avec cuisine privée à usage exclusif. Accès par boîte à clé sur la porte principale.',
+    'room.1954.floor':'1er étage · Code 43757',
+    'room.1954.desc':'Chambre au premier étage avec cuisine partagée sur la terrasse panoramique. Accès par clavier numérique.',
+    'room.1956.floor':'2ème étage · Code 43757',
+    'room.1956.desc':'Chambre au deuxième étage avec vue sur les toits du centre historique. Cuisine partagée sur la terrasse panoramique.',
+    'tag.kitchen':'Cuisine privée','tag.ac':'Climatisation','tag.wifi':'WiFi','tag.terrace':'Terrasse','tag.view':'Vue centre historique',
+    'gallery.label':'Galerie','gallery.title':'Photos de<br>la <em>structure</em>',
+    'loc.label':'Où nous sommes','loc.title':'Au cœur<br>de <em>Bitonto</em>',
+    'loc.sub':'Centre historique médiéval, à 20 minutes de Bari et de l\'aéroport, près de Castel del Monte, Polignano et Alberobello.',
+    'loc.address.title':'Adresse','loc.airport.title':'Aéroport de Bari','loc.airport.sub':'20 minutes en voiture',
+    'loc.train.title':'Gare ferroviaire','loc.train.sub':'10 minutes à pied · liaison directe avec Bari',
+    'loc.sea.title':'Mer','loc.sea.sub':'Giovinazzo et Santo Spirito à 10-15 minutes',
+    'loc.maps.btn':'🗺️ Ouvrir sur Google Maps',
+    'cta.label':'Réservez votre séjour','cta.title':'Prêt à explorer<br>les <em>Pouilles</em> ?',
+    'cta.sub':'Écrivez-nous sur WhatsApp pour disponibilités et tarifs. Réponse garantie en quelques heures.',
+    'cta.btn1':'Écrire sur WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'wa.float':'Réserver sur WhatsApp',
+    'strip':['Bitonto · Pouilles','Accès autonome H24','3 chambres indépendantes','20 min de Bari','Assistant Alò H24','Centre historique médiéval','10 min de la mer','Cathédrale romane XIIe s.'],
+    'placeholder.hero':'Insérez ici la photo principale','placeholder.about':'Photo de la ruelle','placeholder.room1920':'Photo Chambre 1920','placeholder.room1954':'Photo Chambre 1954','placeholder.room1956':'Photo Chambre 1956','placeholder.g1':'Photo principale',
+  },
+  de: {
+    'nav.rooms':'Zimmer','nav.location':'Lage','nav.gallery':'Galerie','nav.contact':'Kontakt','nav.book':'Jetzt buchen',
+    'hero.eyebrow':'Bitonto · Apulien · Altstadt',
+    'hero.title':'San<em>talò</em><br>Bed & Breakfast',
+    'hero.sub':'Im Herzen der Altstadt von Bitonto, 20 Minuten von Bari. Drei unabhängige Zimmer mit Selbst-Check-in in einer einzigartigen mittelalterlichen Gasse.',
+    'hero.cta1':'Auf WhatsApp buchen','hero.cta2':'Zimmer entdecken',
+    'about.label':'Unser B&B',
+    'about.title':'Ein <em>authentischer</em> Ort<br>im mittelalterlichen Zentrum',
+    'about.sub':'Santalò ist ein B&B in einem historischen Gebäude im Herzen von Bitonto, der DOP-Olivenöl-Hauptstadt Apuliens.',
+    'about.p1':'Drei unabhängige Zimmer auf verschiedenen Etagen, jedes mit autonomem Zugang per Code oder Schlüsselbox. Keine Rezeptionszeiten — maximale Freiheit.',
+    'about.p2':'Nur wenige Schritte vom romanischen Dom aus dem 12. Jahrhundert, vom Piazza Cavour und den besten Restaurants. 20 Minuten von Bari und dem Meer.',
+    'feat.access.title':'Selbst-Check-in 24/7','feat.access.sub':'Check-in ab 15:00 Uhr mit persönlichem Code',
+    'feat.location.title':'Einzigartige Lage','feat.location.sub':'Vico Storto Sant\'Eligio 9, mittelalterliche Altstadt',
+    'feat.alo.title':'Assistent Alò 24/7','feat.alo.sub':'Unterstützung in 5 Sprachen, immer verfügbar',
+    'feat.sea.title':'In Meeresnähe','feat.sea.sub':'Giovinazzo und Santo Spirito 10-15 Minuten entfernt',
+    'rooms.label':'Die Zimmer','rooms.title':'Drei Zimmer,<br>drei <em>Geschichten</em>',
+    'rooms.sub':'Jedes Zimmer trägt den Namen des Baujahres des Gebäudes. Unabhängig, ruhig, mit allem Notwendigen für einen perfekten Aufenthalt.',
+    'room.1920.floor':'Erdgeschoss · Schlüsselbox-Zugang',
+    'room.1920.desc':'Erdgeschoss-Zimmer mit privater Küche zur alleinigen Nutzung. Zugang über Schlüsselbox an der Haupttür.',
+    'room.1954.floor':'1. Stock · Code 43757',
+    'room.1954.desc':'Zimmer im ersten Stock mit gemeinsamer Küche auf der Panoramaterrasse. Zugang mit digitalem Tastenfeld.',
+    'room.1956.floor':'2. Stock · Code 43757',
+    'room.1956.desc':'Zimmer im zweiten Stock mit Blick über die Dächer der Altstadt. Gemeinsame Küche auf der Panoramaterrasse.',
+    'tag.kitchen':'Private Küche','tag.ac':'Klimaanlage','tag.wifi':'WLAN','tag.terrace':'Terrasse','tag.view':'Altstadtblick',
+    'gallery.label':'Galerie','gallery.title':'Fotos der<br><em>Unterkunft</em>',
+    'loc.label':'Lage','loc.title':'Im Herzen<br>von <em>Bitonto</em>',
+    'loc.sub':'Mittelalterliche Altstadt, 20 Minuten von Bari und dem Flughafen, nahe Castel del Monte, Polignano und Alberobello.',
+    'loc.address.title':'Adresse','loc.airport.title':'Flughafen Bari','loc.airport.sub':'20 Minuten mit dem Auto',
+    'loc.train.title':'Bahnhof','loc.train.sub':'10 Minuten zu Fuß · Direktverbindung nach Bari',
+    'loc.sea.title':'Meer','loc.sea.sub':'Giovinazzo und Santo Spirito 10-15 Minuten entfernt',
+    'loc.maps.btn':'🗺️ In Google Maps öffnen',
+    'cta.label':'Buchen Sie Ihren Aufenthalt','cta.title':'Bereit, <em>Apulien</em><br>zu entdecken?',
+    'cta.sub':'Schreiben Sie uns auf WhatsApp für Verfügbarkeit und Preise. Antwort garantiert innerhalb weniger Stunden.',
+    'cta.btn1':'WhatsApp schreiben','cta.btn2':'✉️ info@bebsantalo.it',
+    'wa.float':'Auf WhatsApp buchen',
+    'strip':['Bitonto · Apulien','Selbst-Check-in 24/7','3 unabhängige Zimmer','20 Min. von Bari','Assistent Alò 24/7','Mittelalterliche Altstadt','10 Min. vom Meer','Dom aus dem 12. Jh.'],
+    'placeholder.hero':'Hauptfoto des B&B einfügen','placeholder.about':'Foto der Gasse','placeholder.room1920':'Foto Zimmer 1920','placeholder.room1954':'Foto Zimmer 1954','placeholder.room1956':'Foto Zimmer 1956','placeholder.g1':'Hauptfoto',
+  },
+  es: {
+    'nav.rooms':'Habitaciones','nav.location':'Ubicación','nav.gallery':'Galería','nav.contact':'Contacto','nav.book':'Reservar',
+    'hero.eyebrow':'Bitonto · Apulia · Centro histórico',
+    'hero.title':'San<em>talò</em><br>Bed & Breakfast',
+    'hero.sub':'En el corazón del centro histórico de Bitonto, a 20 minutos de Bari. Tres habitaciones independientes con acceso autónomo, en un callejón medieval único.',
+    'hero.cta1':'Reservar en WhatsApp','hero.cta2':'Ver las habitaciones',
+    'about.label':'Nuestro B&B',
+    'about.title':'Un rincón <em>auténtico</em><br>en el centro medieval',
+    'about.sub':'Santalò es un B&B en un edificio histórico en el corazón de Bitonto, la capital del aceite de oliva DOP de Apulia.',
+    'about.p1':'Tres habitaciones independientes en diferentes plantas, cada una con acceso autónomo por código o caja de llaves. Sin horario de recepción — libertad total.',
+    'about.p2':'A pocos pasos de la Catedral románica del siglo XII, de la Piazza Cavour y los mejores restaurantes. A 20 minutos de Bari y el mar.',
+    'feat.access.title':'Acceso autónomo 24/7','feat.access.sub':'Check-in desde las 15:00 con código personal',
+    'feat.location.title':'Ubicación única','feat.location.sub':'Vico Storto Sant\'Eligio 9, centro histórico medieval',
+    'feat.alo.title':'Asistente Alò 24/7','feat.alo.sub':'Soporte en 5 idiomas, siempre disponible',
+    'feat.sea.title':'Cerca del mar','feat.sea.sub':'Giovinazzo y Santo Spirito a 10-15 minutos',
+    'rooms.label':'Las habitaciones','rooms.title':'Tres habitaciones,<br>tres <em>historias</em>',
+    'rooms.sub':'Cada habitación lleva el nombre del año de construcción del edificio. Independientes, tranquilas, con todo lo necesario.',
+    'room.1920.floor':'Planta baja · Acceso con caja de llaves',
+    'room.1920.desc':'Habitación en planta baja con cocina privada de uso exclusivo. Acceso con caja de llaves en la puerta principal.',
+    'room.1954.floor':'1ª planta · Código 43757',
+    'room.1954.desc':'Habitación en primera planta con cocina compartida en la terraza panorámica. Acceso con teclado digital.',
+    'room.1956.floor':'2ª planta · Código 43757',
+    'room.1956.desc':'Habitación en segunda planta con vistas a los tejados del centro histórico. Cocina compartida en la terraza panorámica.',
+    'tag.kitchen':'Cocina privada','tag.ac':'Aire acondicionado','tag.wifi':'WiFi','tag.terrace':'Terraza','tag.view':'Vista centro histórico',
+    'gallery.label':'Galería','gallery.title':'Fotos de<br>la <em>propiedad</em>',
+    'loc.label':'Ubicación','loc.title':'En el corazón<br>de <em>Bitonto</em>',
+    'loc.sub':'Centro histórico medieval, a 20 minutos de Bari y el aeropuerto, cerca de Castel del Monte, Polignano y Alberobello.',
+    'loc.address.title':'Dirección','loc.airport.title':'Aeropuerto de Bari','loc.airport.sub':'20 minutos en coche',
+    'loc.train.title':'Estación de tren','loc.train.sub':'10 minutos a pie · conexión directa con Bari',
+    'loc.sea.title':'Mar','loc.sea.sub':'Giovinazzo y Santo Spirito a 10-15 minutos',
+    'loc.maps.btn':'🗺️ Abrir en Google Maps',
+    'cta.label':'Reserve su estancia','cta.title':'¿Listo para explorar<br><em>Apulia</em>?',
+    'cta.sub':'Escríbanos por WhatsApp para disponibilidad y precios. Respuesta garantizada en pocas horas.',
+    'cta.btn1':'Escribir en WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'wa.float':'Reservar en WhatsApp',
+    'strip':['Bitonto · Apulia','Acceso autónomo 24/7','3 habitaciones independientes','20 min de Bari','Asistente Alò 24/7','Centro histórico medieval','10 min del mar','Catedral románica S. XII'],
+    'placeholder.hero':'Insertar foto principal del B&B','placeholder.about':'Foto del callejón','placeholder.room1920':'Foto Habitación 1920','placeholder.room1954':'Foto Habitación 1954','placeholder.room1956':'Foto Habitación 1956','placeholder.g1':'Foto principal',
+  }
+};
+
+var currentLang = 'it';
+
+function setLang(lang) {
+  if (!T[lang]) return;
+  currentLang = lang;
+  var d = T[lang];
+
+  // Update lang buttons
+  document.querySelectorAll('.lang-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+
+  // Update text nodes
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (d[key] !== undefined) el.textContent = d[key];
+  });
+
+  // Update HTML nodes (for italic tags etc.)
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-html');
+    if (d[key] !== undefined) el.innerHTML = d[key];
+  });
+
+  // Update strip
+  var strip = document.getElementById('strip-inner');
+  if (strip && d['strip']) {
+    var items = d['strip'].concat(d['strip']); // duplicate for loop
+    strip.innerHTML = items.map(function(s) {
+      return '<span class="strip-item">' + s + '</span>';
+    }).join('');
+  }
+
+  // Update html lang attr
+  document.documentElement.lang = lang;
+
+  try { localStorage.setItem('santalo_site_lang', lang); } catch(e) {}
+}
+
+// Bind buttons
+document.querySelectorAll('.lang-btn').forEach(function(b) {
+  b.addEventListener('click', function() { setLang(this.dataset.lang); });
+});
+
+// Init
+window.addEventListener('DOMContentLoaded', function() {
+  var saved = 'it';
+  try { saved = localStorage.getItem('santalo_site_lang') || 'it'; } catch(e) {}
+  setLang(saved);
+});
+</script>
+</body>
+</html>
