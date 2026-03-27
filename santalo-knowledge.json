@@ -1,5 +1,5 @@
 {
-  "_istruzioni": "Questo file contiene le informazioni che il chatbot del B&B Santalò usa per rispondere agli ospiti. Puoi modificarlo liberamente senza toccare il codice del chatbot. Salva e carica su GitHub - le modifiche saranno attive subito.",
+  "_istruzioni": "Questo file contiene le informazioni che il chatbot Alò usa per rispondere agli ospiti. Modificalo e carica su GitHub — le modifiche saranno attive subito.",
 
   "struttura": {
     "nome": "Santalò Bed & Breakfast",
@@ -12,28 +12,32 @@
   "camere": {
     "1920": {
       "piano": "Piano terra",
-      "accesso": "Key box sul muro esterno accanto al portone",
+      "accesso": "Key box sul portone grande principale",
       "codice": "4660",
-      "istruzioni": "Inserisci il codice 4660 sul key box, abbassa la leva, estrai la chiave. Apri il portone principale e trovi la camera al piano terra."
+      "istruzioni": "Inserisci 4660 sulla key box, abbassa la leva e tira verso di te lo sportellino. Estrai la chiave. È una serratura a molla: inserisci la chiave, spingi e ruota verso destra per aprire. La cucina è a uso esclusivo degli ospiti della camera 1920.",
+      "checkout": "Al check-out inserisci la chiave nel portone, spingi e ruota verso sinistra per chiudere. Inserisci il codice 4660 sulla key box, riponi la chiave dove l'hai trovata e cambia il codice ruotando i numeri a caso."
     },
     "1954": {
       "piano": "Primo piano",
-      "accesso": "Portoncino con tastierino digitale adiacente al portone principale",
+      "accesso": "Tastierino digitale sul portoncino laterale che trovi percorrendo la stradina alla destra del portone grande",
       "codice": "43757",
-      "istruzioni": "Digita 43757 sul tastierino adiacente al portone, attendi il click di apertura, entra nel portoncino. Sulla destra trovi il contenitore chiavi. Sali al 1° piano, la camera 1954 è a sinistra."
+      "istruzioni": "Digita 43757 sul tastierino, attendi il click di apertura, entra. Sulla destra trovi un contenitore in legno con le chiavi: prendi quelle con il portachiavi 1954 e sali al 1° piano. La cucina sulla terrazza è in condivisione con la camera al secondo piano.",
+      "checkout": "Al check-out chiudi a chiave la tua camera e riponi la chiave nel contenitore in legno sul desk della reception al piano terra."
     },
     "1956": {
       "piano": "Secondo piano",
-      "accesso": "Portoncino con tastierino digitale adiacente al portone principale",
+      "accesso": "Tastierino digitale sul portoncino laterale alla destra del portone grande",
       "codice": "43757",
-      "istruzioni": "Digita 43757 sul tastierino adiacente al portone, attendi il click di apertura, entra nel portoncino. Sulla destra trovi il contenitore chiavi. Sali al 2° piano, la camera 1956 è a sinistra."
+      "istruzioni": "Digita 43757 sul tastierino, attendi il click di apertura, entra. Sulla destra trovi un contenitore in legno con le chiavi: prendi quelle con il portachiavi 1956 e sali al 2° piano. La cucina sulla terrazza è in condivisione con la camera al primo piano.",
+      "checkout": "Al check-out chiudi a chiave la tua camera e riponi la chiave nel contenitore in legno sul desk della reception al piano terra."
     }
   },
 
   "orari": {
-    "checkin": "Dalle 14:00 (comunicare l'orario di arrivo in anticipo)",
-    "checkout": "Entro le 11:00 (salvo accordi precedenti)",
-    "silenzio_notturno": "Dalle 22:00 alle 8:00"
+    "checkin": "Dalle 15:00 (comunicare l'orario di arrivo in anticipo)",
+    "checkout": "Entro le 10:00 (salvo richieste accordate in anticipo)",
+    "silenzio_notturno": "Dalle 22:00 alle 8:00",
+    "silenzio_pomeridiano": "Dalle 14:00 alle 16:30"
   },
 
   "wifi": {
@@ -42,30 +46,29 @@
   },
 
   "parcheggio": {
-    "info": "Il centro storico di Bitonto è ZTL (Zona a Traffico Limitato) - non è accessibile in auto.",
-    "alternativa_gratuita": "Strisce bianche nelle vie limitrofe al centro storico",
-    "alternativa_pagamento": "Strisce blu a pagamento in Piazza Cavour o Via Traiana, a 2-5 minuti a piedi",
-    "garage": "Garage convenzionato disponibile su richiesta a circa 15€/giorno",
-    "posto_privato": "Posto auto privato disponibile su richiesta a 10€/giorno"
+    "info": "Il centro storico di Bitonto è ZTL. Non è possibile arrivare in auto davanti alla struttura: dovrai camminare circa 2 minuti.",
+    "punto_piu_vicino": "https://maps.app.goo.gl/MpDZGwZXi5QtMATk6",
+    "strisce_blu": "A pagamento dalle 9:00 alle 13:00 e dalle 17:00 alle 21:00 (lato destro della strada). Si paga ai parchimetri inserendo targa e tempo di sosta.",
+    "strisce_bianche": "Parcheggio gratuito (lato sinistro della strada)",
+    "garage": "Posto auto custodito disponibile su richiesta e previa disponibilità a circa 15€/giorno"
+  },
+
+  "elettricita": {
+    "descrizione": "Se la luce si spegne improvvisamente è probabilmente dovuto a un sovraccarico di energia.",
+    "istruzioni": "1) Controlla il pannello elettrico nella tua camera (sulla destra appena entri): assicurati che tutti gli interruttori siano in posizione ON. 2) Se non funziona, il contatore generale è al piano terra sopra il desk della reception. Se il problema persiste, contatta la struttura."
   },
 
   "riscaldamento_raffrescamento": {
     "condizionatore": {
-      "descrizione": "Ogni camera è dotata di condizionatore che funziona sia in modalità raffrescamento (estate) che riscaldamento (inverno).",
-      "istruzioni_estate": "Le funzioni di raffrescamento sono già preimpostate. Premi il pulsante di accensione sul telecomando e regola la temperatura desiderata. Il condizionatore si avvierà dopo alcuni minuti - durante questo tempo non premere altri tasti per non modificare le impostazioni.",
-      "istruzioni_inverno": "Le funzioni di riscaldamento sono già preimpostate. Premi il pulsante di accensione sul telecomando e regola la temperatura desiderata. Il condizionatore si avvierà dopo alcuni minuti - durante questo tempo non premere altri tasti per non modificare le impostazioni.",
-      "nota": "Se il condizionatore non parte dopo 5 minuti, verifica che il telecomando sia puntato verso l'unità interna e riprova."
+      "descrizione": "Ogni camera è dotata di condizionatore (raffrescamento estate + riscaldamento inverno). Le funzioni sono già preimpostate.",
+      "istruzioni": "Premi il pulsante di accensione sul telecomando e regola la temperatura. Si avvierà dopo alcuni minuti.",
+      "se_non_funziona": "Verifica che il condizionatore e il telecomando siano entrambi accesi. Se non funziona ancora: accanto alla porta c'è un quadro elettrico — abbassa la levetta 'clima/condizionatore', aspetta 5 minuti, poi alza la levetta e riprova. Se persiste, contatta la struttura."
     },
     "cronotermostato": {
       "modello": "Seitron Freetime Evo",
       "posizione": "Accanto al lavandino in camera",
-      "descrizione": "Cronotermostato elettronico per il controllo del termosifone (riscaldamento autonomo). Può essere usato in alternativa o in aggiunta al condizionatore.",
-      "accensione_spegnimento": "Premi il tasto ON/OFF (simbolo cerchio con linea in basso a destra). Quando è spento il display mostra 'OFF' e rimane attiva la protezione antigelo.",
-      "regolare_temperatura": "Premi il tasto con il sole (☀) per impostare la temperatura Comfort. Ruota la manopola per scegliere la temperatura desiderata. Premi di nuovo la manopola o OK per confermare.",
-      "nota_importante": "Il termostato rileva la temperatura ogni 3 minuti - è normale se il termosifone non parte immediatamente dopo aver cambiato l'impostazione. Attendi almeno 3-5 minuti.",
-      "se_non_funziona": "Se il display mostra 'OFF': premi il tasto ON/OFF per riattivarlo. Se fa freddo nonostante sia acceso: verifica che la temperatura impostata (numero a destra sul display con il simbolo ☀) sia più alta della temperatura ambiente (numero grande al centro). Se il display mostra 'bAtt': le batterie sono scariche - contatta la struttura.",
-      "modalita_manuale": "Puoi forzare la temperatura manualmente: premi il tasto con la figura stilizzata (simbolo manuale) una volta per modalità Manuale 24h, due volte per Manuale Permanente. Poi ruota la manopola per impostare la temperatura desiderata.",
-      "istruzioni_brevi": "1) Premi ON/OFF per accendere → 2) Premi il tasto sole ☀ → 3) Ruota la manopola fino alla temperatura desiderata → 4) Premi OK o la manopola per confermare → 5) Attendi 3-5 minuti"
+      "istruzioni_brevi": "1) Premi ON/OFF → 2) Premi il tasto sole ☀ → 3) Ruota la manopola alla temperatura desiderata → 4) Premi OK → 5) Attendi 3-5 minuti",
+      "se_non_funziona": "Se mostra OFF: premi ON/OFF. Se mostra bAtt: batterie scariche, contatta la struttura."
     }
   },
 
@@ -73,83 +76,134 @@
     "fumo": "Vietato fumare in tutta la struttura",
     "animali": "Animali domestici non ammessi",
     "ospiti_esterni": "Non è consentito ospitare persone non registrate",
-    "rumore": "Rispettare il silenzio notturno dalle 22:00 alle 8:00",
-    "pulizia": "Si prega di mantenere la camera in ordine e di non danneggiare gli arredi",
-    "chiavi": "Riconsegnare le chiavi al check-out entro le 11:00"
+    "silenzio_notturno": "Rispettare il silenzio dalle 22:00 alle 8:00",
+    "silenzio_pomeridiano": "Rispettare il silenzio pomeridiano dalle 14:00 alle 16:30",
+    "checkout_1920": "Spingi la chiave e ruota verso sinistra per chiudere. Inserisci 4660 sulla key box, riponi la chiave e cambia il codice ruotando i numeri a caso.",
+    "checkout_1954_1956": "Chiudi a chiave la camera e riponi la chiave nel contenitore in legno sul desk della reception al piano terra."
   },
 
   "servizi": {
     "colazione": {
       "disponibile": true,
-      "costo": "5€ a persona",
-      "modalita": "Su prenotazione - comunicare la sera prima o al momento del check-in"
+      "costo": "5€ a persona al giorno",
+      "modalita": "Su prenotazione — comunicare la sera prima o al check-in",
+      "dove": "Mazzini Place — Via Giuseppe Mazzini 11, 70032 Bitonto",
+      "maps_colazione": "https://maps.app.goo.gl/89qrzqKMwbvxjdeP7"
     },
     "pulizia": {
       "standard": "Pulizia effettuata tra un soggiorno e l'altro",
-      "su_richiesta": "Pulizia giornaliera disponibile su richiesta (da concordare)",
-      "biancheria": "Cambio biancheria ogni 3 giorni o su richiesta"
+      "su_richiesta": "Pulizia giornaliera disponibile su richiesta al costo extra di 15€",
+      "biancheria": "Cambio biancheria ogni 3 giorni o su richiesta al costo extra di 8€ a persona"
     },
     "asciugamani": "Asciugamani aggiuntivi disponibili su richiesta",
     "ferro_da_stiro": "Disponibile su richiesta"
   },
 
   "raccolta_differenziata": {
-    "descrizione": "In camera sono presenti contenitori separati per la raccolta differenziata.",
-    "giallo": "Plastica e lattine",
-    "verde": "Vetro",
-    "blu": "Carta e cartone",
-    "grigio_nero": "Rifiuti indifferenziati",
-    "marrone": "Organico/umido (se presente)"
+    "descrizione": "Servizio porta a porta. Esporre i rifiuti dalle 13:30 alle 15:30 (nei giorni festivi infrasettimanali dalle 6:00 alle 8:00).",
+    "calendario": {
+      "lunedi_mercoledi_sabato": "Umido (mastello marrone)",
+      "martedi": "Plastica e lattine (sacchetto giallo)",
+      "giovedi": "Secco residuo (sacchetto nero)",
+      "primo_venerdi_mese": "Vetro (mastello verde)",
+      "secondo_terzo_quarto_venerdi_mese": "Carta e cartoncino (mastello blu)"
+    },
+    "riciclario": "https://sanbspa.it/riciclario/",
+    "segnalazioni": "WhatsApp 393.8434.995 oppure segnalazioni@sanbspa.it",
+    "ingombranti": "Ritiro gratuito prenotando al numero verde 800 71 40 28 (lun-ven 9:30-13:30)"
   },
 
   "dove_mangiare": {
+    "intro": "Bitonto ha tantissimi posti fantastici dove mangiare: dalla pizza alle prelibatezze della cucina locale, fino alla cucina etnica.",
     "ristoranti": [
-      { "nome": "Caveau", "tipo": "Cucina pugliese raffinata", "nota": "Ottima selezione di vini locali" },
-      { "nome": "Il Patriarca", "tipo": "Tradizionale pugliese", "nota": "Ottimi antipasti misti" },
-      { "nome": "Vinicio", "tipo": "Pesce e cucina del territorio" },
-      { "nome": "Ragno Verde", "tipo": "Pizzeria storica", "nota": "La più storica di Bitonto" },
-      { "nome": "Manicaretto", "tipo": "Gastronomia e panzerotto", "nota": "Ideale per uno spuntino veloce, prodotti tipici da asporto" }
+      { "nome": "Il Patriarca", "tipo": "Ristorante pizzeria tradizionale pugliese", "nota": "Nel cuore del centro storico accanto alla cattedrale. Ottimi antipasti misti, cucina ricercata e pizza." },
+      { "nome": "Il Quarto Storto", "tipo": "Trattoria tipica bitontina", "nota": "Ai piedi della cattedrale. Sapori autentici della tradizione contadina locale." },
+      { "nome": "Caveau", "tipo": "Ristorante pizzeria", "nota": "Vicino al Teatro Traetta. Da provare gli spaghetti all'assassina. Ottima selezione di vini locali." },
+      { "nome": "Piazza Vecchia del Cenobio", "tipo": "Cucina pugliese", "nota": "Piatti tradizionali e cucina ricercata. Pizza buonissima." },
+      { "nome": "Il Ragno Verde", "tipo": "Ristorante pizzeria storica", "nota": "Attivo dagli anni '50. Pesce fresco, antipasti, terra e mare. La più storica di Bitonto." },
+      { "nome": "Il Torrione dei Sapori", "tipo": "Ristorante", "nota": "Locale caratteristico con ottimo cibo di pesce e terra. Pizza e piatti tradizionali." },
+      { "nome": "Vinicio", "tipo": "Ristorante cucina pugliese", "nota": "Affacciato su piazza Cavour. Cucina ottima, prezzi leggermente sopra la media." },
+      { "nome": "Cartoleria", "tipo": "Hamburgeria", "nota": "Di fronte alla Galleria Nazionale. Ottimi hamburger con abbinamenti interessanti." },
+      { "nome": "LAB.aguette", "tipo": "Panini, piadine, poke", "nota": "Ideale per pranzo o cena leggera. Panini abbondanti e di qualità." },
+      { "nome": "Braceria Garofalo", "tipo": "Braceria", "nota": "Nel centro della città. Diverse varietà di carne e pietanze tipiche locali." },
+      { "nome": "Tikifish", "tipo": "Pesce", "nota": "Cucina di mare pugliese con nuove tendenze gastronomiche. Buon rapporto qualità-prezzo." },
+      { "nome": "Il Manicaretto", "tipo": "Gastronomia e panzerotto", "nota": "Tappa obbligata per il panzerotto, una delle pietanze più famose della Terra di Bari. Classico e in varianti creative." }
     ],
-    "colazione_bar": "Diversi bar nel centro storico nelle immediate vicinanze della struttura",
-    "supermercati": "Supermercati a circa 10-15 minuti a piedi dal centro storico"
+    "colazione_bar": "Diversi bar nel centro storico nelle immediate vicinanze",
+    "panificio": "Panificio Bove — focaccia eccellente. Via Giovanni Antonio de Ildaris 8 (https://maps.app.goo.gl/H9uHTFcKb2ydJfW96)",
+    "supermercato": "Il più vicino: Via Giacomo Matteotti 79 (https://maps.app.goo.gl/vZjpahJ5T3TQ5amv7). Diversi alimentari e fruttivendoli nelle vicinanze."
   },
 
   "cosa_vedere_bitonto": {
-    "attrazioni_principali": [
-      { "nome": "Cattedrale di Bitonto", "descrizione": "Capolavoro del romanico pugliese del XII secolo, una delle più belle della regione" },
-      { "nome": "Castello Normanno", "descrizione": "Fortezza storica nel cuore della città" },
-      { "nome": "Museo Civico", "descrizione": "Arte e storia locale, reperti dalla preistoria all'epoca moderna" },
-      { "nome": "Porta Baresana", "descrizione": "Ingresso monumentale storico alla città medievale" },
-      { "nome": "Frantoio ipogeo", "descrizione": "Oleificio sotterraneo medievale, esempio unico di archeologia industriale pugliese" },
-      { "nome": "Centro storico", "descrizione": "Vicoli medievali, palazzi storici e chiese barocche da esplorare a piedi" }
+    "descrizione": "Bitonto è la capitale dell'olio pugliese con il titolo DOP Terra di Bari. Centro storico medievale caratterizzato da strette viuzze su una gravina.",
+    "attrazioni": [
+      { "nome": "Centro storico", "descrizione": "Vicoli stretti e suggestivi, palazzi e chiese dalla storia millenaria. Ogni angolo racconta una storia." },
+      { "nome": "Cattedrale di Bitonto", "descrizione": "Dedicata a San Valentino, XII secolo. Splendido romanico pugliese. Da non perdere la cripta e il mosaico paleocristiano sotto il pavimento." },
+      { "nome": "Torrione Angioino e Piazza Cavour", "descrizione": "Unico bastione medievale sopravvissuto, oggi galleria d'arte contemporanea. Si affaccia su Piazza Cavour, il 'salotto' della città, ideale per caffè e aperitivo." },
+      { "nome": "Teatro Traetta", "descrizione": "Importante contenitore culturale con ricca programmazione di spettacoli." },
+      { "nome": "Galleria Nazionale della Puglia 'Devanna'", "descrizione": "In Palazzo Sylos Calò su piazza Cavour. Opere di Tiziano, Veronese, Giaquinto, De Nittis e arte contemporanea." },
+      { "nome": "Museo Civico Eustachio Rogadeo", "descrizione": "Reperti archeologici preistorici, greci e romani in palazzo settecentesco con biblioteca." },
+      { "nome": "Museo Archeologico De Palo Ungaro", "descrizione": "Reperti di età peucezia e romana (VI-III sec. a.C.). Biblioteca, pinacoteca e archivio storico." },
+      { "nome": "Chiesa del Purgatorio", "descrizione": "Portale con bassorilievi di scheletri umani. Punto di partenza della processione del Venerdì Santo." },
+      { "nome": "Frantoio ipogeo", "descrizione": "Oleificio sotterraneo medievale, esempio unico di archeologia industriale pugliese." },
+      { "nome": "Villa Comunale", "descrizione": "Giardino umbertino (1905-1908), 5.000 mq. Citata nel Decamerone di Boccaccio." },
+      { "nome": "Abbazia di San Leo", "descrizione": "Benedettina del IX secolo. Chiostro del '500, campanile del '300." }
     ],
+    "tripadvisor": "https://www.tripadvisor.it/Attractions-g1972586-Activities-Bitonto_Province_of_Bari_Puglia.html",
     "mercato": "Mercato settimanale il lunedì"
   },
 
   "dintorni": {
     "destinazioni": [
-      { "nome": "Bari", "distanza": "20 minuti in auto", "note": "Capoluogo di regione, lungomare, centro storico, Basilica di San Nicola" },
-      { "nome": "Castel del Monte", "distanza": "40 minuti in auto", "note": "Castello ottagonale patrimonio UNESCO di Federico II" },
+      { "nome": "Bari", "distanza": "20 minuti in auto", "note": "Lungomare, centro storico, Basilica di San Nicola" },
+      { "nome": "Castel del Monte", "distanza": "40 minuti in auto", "note": "Castello ottagonale UNESCO di Federico II" },
       { "nome": "Polignano a Mare", "distanza": "35 minuti in auto", "note": "Borgo sul mare con grotte e calette spettacolari" },
-      { "nome": "Alberobello e i Trulli", "distanza": "1 ora in auto", "note": "Patrimonio UNESCO, i caratteristici trulli in pietra" },
-      { "nome": "Matera", "distanza": "1 ora e 30 minuti in auto", "note": "Città dei Sassi, patrimonio UNESCO" },
+      { "nome": "Alberobello", "distanza": "1 ora in auto", "note": "I trulli, patrimonio UNESCO" },
+      { "nome": "Matera", "distanza": "1 ora in auto", "note": "Città dei Sassi, patrimonio UNESCO" },
       { "nome": "Trani", "distanza": "30 minuti in auto", "note": "Porto antico e cattedrale romanica sul mare" },
       { "nome": "Ostuni", "distanza": "1 ora in auto", "note": "La città bianca, panorama mozzafiato" },
       { "nome": "Grotte di Castellana", "distanza": "30 minuti in auto", "note": "Il sistema di grotte carsiche più famoso d'Italia" }
     ],
     "spiagge": [
+      { "nome": "Santo Spirito", "distanza": "10 minuti", "note": "Spiaggia libera e stabilimenti balneari" },
+      { "nome": "Giovinazzo", "distanza": "10-15 minuti", "note": "Spiaggia libera e stabilimenti balneari" },
       { "nome": "Torre a Mare", "distanza": "25 minuti", "note": "Spiaggia libera e stabilimenti balneari" },
       { "nome": "Molfetta", "distanza": "15 minuti", "note": "Porto storico e piccole calette" },
-      { "nome": "Bisceglie", "distanza": "25 minuti", "note": "Spiagge attrezzate e grotte" }
-    ]
+      { "nome": "Bisceglie", "distanza": "25 minuti", "note": "Spiagge attrezzate" }
+    ],
+    "consiglio_spostamenti": "Per treni e autobus ti consigliamo l'app Trainline per orari e biglietti."
   },
 
   "trasporti": {
     "aeroporto": "Aeroporto di Bari Karol Wojtyla a 20 minuti in auto",
-    "treno": "Stazione di Bitonto a 10 minuti a piedi - collegamento diretto con Bari Centrale (15-20 minuti)",
-    "bus": "Fermate bus nelle vicinanze del centro storico",
-    "taxi": "Taxi disponibili - chiedere alla struttura per contatti locali",
-    "noleggio_auto": "Agenzie di noleggio auto all'aeroporto di Bari e in città"
+    "treno": "Stazione di Bitonto a 10 minuti a piedi — collegamento diretto con Bari Centrale (15-20 min) con le Ferrovie del Nord Barese",
+    "bus": "Fermate nelle vicinanze del centro storico. Collegamento con Bari (Marozzi, Scoppio Autolinee, STP)",
+    "taxi": {
+      "info": "Taxi H24. Trasferimento per aeroporto Bari: circa 12-20 minuti, costo stimato 25-30€.",
+      "contatti": [
+        { "zona": "Bitonto", "nome": "Taxi Bitonto", "telefono": "346 6153134", "note": "Anche via WhatsApp, fino a 8 posti" },
+        { "zona": "Bitonto", "nome": "Taxi-NCC Città di Bitonto", "telefono": "371 1914565", "note": "H24" },
+        { "zona": "Bitonto", "nome": "NCC Taxi Puglia", "telefono": "335 8187628", "note": "Minivan" },
+        { "zona": "Bari", "nome": "Taxi Bari", "telefono": "+39 080 534 3333", "note": "taxibari.it" },
+        { "zona": "Polignano a Mare", "telefono": "+39 346 615 3134" },
+        { "zona": "Giovinazzo", "telefono": "+39 349 187 7018" },
+        { "zona": "Ostuni", "telefono": "+39 328 899 6643" }
+      ]
+    },
+    "noleggio_auto": "Agenzie di noleggio all'aeroporto di Bari e in città"
+  },
+
+  "farmacie": {
+    "descrizione": "Diverse farmacie nel centro storico e nelle vicinanze.",
+    "elenco": [
+      { "nome": "Farmacia De Pinto", "indirizzo": "Piazza Marconi 50", "telefono": "080 3751134" },
+      { "nome": "Farmacia Vacca", "indirizzo": "Piazza Cavour 9", "telefono": "080 3751107" },
+      { "nome": "Farmacia Donadio Vincenzo", "indirizzo": "Corso Vittorio Emanuele II 3", "telefono": "080 3751130" },
+      { "nome": "Farmacia Saracino", "indirizzo": "Via Giovanni Antonio de Ildaris 55", "telefono": "080 3751080" },
+      { "nome": "Farmacia Matteotti", "indirizzo": "Via Giacomo Matteotti 18", "telefono": "080 3717008" },
+      { "nome": "Farmacia Donadio Albino", "indirizzo": "Via Giacomo Matteotti 91", "telefono": "080 3714922" }
+    ],
+    "turni": "Per farmacie di turno nei festivi e notturni: https://www.farmacieditturno.net/farmacie-di-turno/ba/bitonto/"
   },
 
   "contatti_utili": {
@@ -157,42 +211,56 @@
     "emergenze_generali": "112",
     "polizia": "113",
     "vigili_del_fuoco": "115",
-    "ambulanza": "118",
-    "guardia_medica_bitonto": "Da chiedere alla struttura",
-    "farmacia": "Diverse farmacie nel centro storico di Bitonto"
+    "ambulanza": "118"
   },
 
   "faq": [
     {
       "domanda": "Posso ricevere ospiti esterni nella mia camera?",
-      "risposta": "Non è consentito ospitare in camera persone non registrate come ospiti della struttura."
+      "risposta": "No, non è consentito ospitare persone non registrate."
     },
     {
       "domanda": "C'è un supermercato vicino?",
-      "risposta": "I supermercati si trovano a circa 10-15 minuti a piedi dal centro storico. Nel centro storico ci sono piccoli negozi alimentari e panifici."
+      "risposta": "Il più vicino è in Via Giacomo Matteotti 79. Ci sono anche diversi alimentari e fruttivendoli nelle vicinanze."
     },
     {
-      "domanda": "Dove posso parcheggiare la mia auto?",
-      "risposta": "Il centro storico è ZTL (zona a traffico limitato). Puoi parcheggiare nelle strisce bianche (gratuite) nelle vie limitrofe, oppure nelle strisce blu a pagamento in Piazza Cavour o Via Traiana, a pochi minuti a piedi. Su richiesta è disponibile anche un posto auto privato a 10€/giorno."
+      "domanda": "Dove posso parcheggiare?",
+      "risposta": "Il centro storico è ZTL. Il parcheggio più vicino è a 2 minuti a piedi. Strisce bianche sul lato sinistro: gratuite. Strisce blu sul lato destro: a pagamento 9:00-13:00 e 17:00-21:00, si paga ai parchimetri inserendo targa e tempo. Disponibile posto custodito a 15€/giorno su richiesta."
     },
     {
-      "domanda": "Come arrivo dalla stazione di Bitonto?",
-      "risposta": "La struttura è a circa 10 minuti a piedi dalla stazione. Ti consigliamo di usare Google Maps con l'indirizzo: Vico Storto Sant'Eligio 9, Bitonto."
+      "domanda": "Come arrivo dalla stazione?",
+      "risposta": "Circa 10 minuti a piedi. Usa Google Maps: Vico Storto Sant'Eligio 9, Bitonto."
     },
     {
       "domanda": "Posso fare il check-in tardi la sera?",
-      "risposta": "Sì, le camere sono accessibili autonomamente tramite codice/key box, quindi puoi arrivare in qualsiasi orario a partire dalle 14:00. Ti chiediamo solo di comunicarci l'orario previsto di arrivo."
+      "risposta": "Sì, accesso autonomo tramite codice o key box dalle 15:00. Comunicaci l'orario previsto."
     },
     {
       "domanda": "C'è aria condizionata?",
-      "risposta": "Sì, ogni camera è dotata di condizionatore che funziona sia in modalità raffrescamento (estate) che in modalità riscaldamento (inverno). Sono già impostate le funzioni corrette per la stagione - basta premere accensione e regolare la temperatura."
+      "risposta": "Sì, ogni camera ha il condizionatore (estate e inverno). Già preimpostato — basta accendere e regolare la temperatura."
     },
     {
       "domanda": "La colazione è inclusa?",
-      "risposta": "La colazione non è inclusa nel prezzo, ma è disponibile su richiesta al costo di 5€ a persona. Comunicaci la sera prima o al check-in se sei interessato/a."
+      "risposta": "No, disponibile su richiesta a 5€ a persona al Mazzini Place (Via Giuseppe Mazzini 11). Comunicare la sera prima."
+    },
+    {
+      "domanda": "Quando è il silenzio in struttura?",
+      "risposta": "Silenzio notturno dalle 22:00 alle 8:00, silenzio pomeridiano dalle 14:00 alle 16:30."
+    },
+    {
+      "domanda": "La luce si è spenta, cosa faccio?",
+      "risposta": "Probabilmente un sovraccarico. Controlla il pannello elettrico nella tua camera (sulla destra appena entri): tutti gli interruttori in posizione ON. Se non funziona, il contatore generale è al piano terra sopra il desk. Se persiste, contattaci."
+    },
+    {
+      "domanda": "Come funziona la raccolta differenziata?",
+      "risposta": "Porta a porta, esporre dalle 13:30 alle 15:30. Umido: lun/mer/sab. Plastica: mar. Secco: gio. Vetro: 1° venerdì. Carta: 2°/3°/4° venerdì. Dubbi: sanbspa.it/riciclario"
+    },
+    {
+      "domanda": "C'è una farmacia vicina?",
+      "risposta": "Sì. La Farmacia Vacca è in Piazza Cavour 9 (080 3751107). La Farmacia De Pinto in Piazza Marconi 50 (080 3751134). Per turni notturni e festivi: farmacieditturno.net"
     }
   ],
 
-  "_ultimo_aggiornamento": "2026-03-20",
-  "_versione": "1.0"
+  "_ultimo_aggiornamento": "2026-03-27",
+  "_versione": "3.0"
 }
