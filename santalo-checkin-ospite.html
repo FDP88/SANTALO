@@ -469,7 +469,747 @@ function guestTemplate(index) {
     '<option value="Permesso di soggiorno">Permesso di soggiorno</option>' +
     '</select></div>' +
     '<div><label>Numero documento *</label><input data-field="numero_documento" required></div>' +
-    '<div id="luogo_rilascio_wrap_' + index + '"><label>Comune rilascio doc *</label></div>' +
+    '<div><label>Data rilascio documento *</label><input data-field="data_rilascio_documento" type="date" required></div>' +
+    '<div id="luogo_rilascio_wrap_' + index + '"><label>Comune/Ente rilascio *</label></div>' +
+    '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" required></div>' +
+    '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" required></div>' +
+    '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" required></div>' +
+    '</div>';
+  
+  // Add search fields
+  var cittWrap = div.querySelector('#cittadinanza_wrap_' + index);
+  var cittSearch = makeSearchField('citt_' + index, 'Cerca paese...', 
+    [{n:'Italia',c:'Z000'}].concat(STATI_ESTERI), null);
+  cittSearch.querySelector('input').dataset.field = 'cittadinanza_nome';
+  cittWrap.appendChild(cittSearch);
+  
+  var comuneWrap = div.querySelector('#comune_nascita_wrap_' + index);
+  var comuneSearch = makeSearchField('comune_' + index, 'Cerca comune...', COMUNI_ITALIANI, function(codice, nome) {
+    // Auto-fill provincia from comune
+    var found = COMUNI_ITALIANI.find(function(c) { return c.c === codice; });
+    if (found) {
+      var provInput = div.querySelector('[data-field="provincia_nascita"]');
+      if (provInput && !provInput.value) provInput.value = found.p;
+    }
+  });
+  comuneSearch.querySelector('input').dataset.field = 'comune_nascita_nome';
+  comuneWrap.appendChild(comuneSearch);
+  
+  var statoWrap = div.querySelector('#stato_nascita_wrap_' + index);
+  var statoSearch = makeSearchField('stato_' + index, 'Cerca stato...', STATI_ESTERI, null);
+  statoSearch.querySelector('input').dataset.field = 'stato_nascita_nome';
+  statoWrap.appendChild(statoSearch);
+  
+  var luogoWrap = div.querySelector('#luogo_rilascio_wrap_' + index);
+  var luogoSearch = makeSearchField('luogo_' + index, 'Cerca comune...', COMUNI_ITALIANI, null);
+  luogoSearch.querySelector('input').dataset.field = 'luogo_rilascio_nome';
+  luogoWrap.appendChild(luogoSearch);
+  
+  // Toggle nato in Italia
+  var natoSel = div.querySelector('#nato_italia_' + index);
+  natoSel.addEventListener('change', function() {
+    var isSi = this.value === 'si';
+    div.querySelector('#comune_nascita_wrap_' + index).style.display = isSi ? '' : 'none';
+    div.querySelector('[data-field="provincia_nascita"]').closest('div').style.display = isSi ? '' : 'none';
+    div.querySelector('#stato_nascita_wrap_' + index).style.display = isSi ? 'none' : '';
+  });
+  
+  return div;
+}
+
+function renderGuests(count) {
+  guestsContainer.innerHTML = '';
+  for (var i = 0; i < count; i++) {
+    guestsContainer.appendChild(guestTemplate(i));
+  }
+}
+
+async function preloadBooking() {
+  document.getElementById('nomePrenotante').value = qs.get('nome') || '';
+  document.getElementById('camera').value = qs.get('camera') || '';
+  document.getElementById('arrivo').value = qs.get('arrivo') || '';
+  document.getElementById('partenza').value = qs.get('partenza') || '';
+  document.getElementById('numOspiti').value = qs.get('num_ospiti') || '1';
+  renderGuests(Number(document.getElementById('numOspiti').value));
+
+  if (!prenotazioneId) return;
+  var result = await sb.from('prenotazioni').select('*').eq('id', prenotazioneId).maybeSingle();
+  if (result.data) {
+    var d = result.data;
+    document.getElementById('nomePrenotante').value = d.nome || document.getElementById('nomePrenotante').value;
+    document.getElementById('camera').value = d.camera || document.getElementById('camera').value;
+    document.getElementById('arrivo').value = d.arrivo || document.getElementById('arrivo').value;
+    document.getElementById('partenza').value = d.partenza || document.getElementById('partenza').value;
+    document.getElementById('telefono').value = d.telefono || '';
+    document.getElementById('email').value = d.email || '';
+    document.getElementById('numOspiti').value = String(Math.min(Number(d.num_ospiti || 1), 2));
+    renderGuests(Number(document.getElementById('numOspiti').value));
+  }
+}
+
+async function uploadGuestFile(file, prenId, guestIndex, label) {
+  var path = 'prenotazione-' + (prenId || 'manuale') + '/guest-' + (guestIndex+1) + '/' + label + '-' + Date.now() + '.' + ext(file.name);
+  var res = await sb.storage.from(DOC_BUCKET).upload(path, file, {upsert: true});
+  if (res.error) throw new Error('Upload ' + label + ' non riuscito: ' + res.error.message);
+  return path;
+}
+
+function getCodiceComune(searchInput) {
+  // Try to get ISTAT code from autocomplete field
+  var inp = searchInput.querySelector('input');
+  if (inp && inp.dataset.codice) return inp.dataset.codice;
+  // Try to match by name
+  var val = inp ? inp.value.trim() : '';
+  var found = COMUNI_ITALIANI.find(function(c) { return c.n.toLowerCase() === val.toLowerCase(); });
+  return found ? found.c : val;
+}
+
+function getCodiceStato(searchInput) {
+  var inp = searchInput.querySelector('input');
+  if (inp && inp.dataset.codice) return inp.dataset.codice;
+  var val = inp ? inp.value.trim() : '';
+  if (val.toLowerCase() === 'italia') return 'Z000';
+  var found = STATI_ESTERI.find(function(s) { return s.n.toLowerCase() === val.toLowerCase(); });
+  return found ? found.c : val;
+}
+
+async function collectGuests() {
+  var cards = Array.from(guestsContainer.querySelectorAll('.guest-card'));
+  var guests = [];
+  for (var idx = 0; idx < cards.length; idx++) {
+    var card = cards[idx];
+    var obj = {
+      prenotazione_id: prenotazioneId,
+      is_capofamiglia: idx === 0,
+      schedina_inviata: false,
+      created_at: new Date().toISOString(),
+      privacy_accettata: true,
+      numero_ospite: idx + 1
+    };
+    for (var input of card.querySelectorAll('[data-field]')) {
+      obj[input.dataset.field] = input.value ? input.value.trim() : '';
+    }
+    
+    // Get ISTAT codes
+    var natoItalia = card.querySelector('[id^="nato_italia_"]').value === 'si';
+    if (natoItalia) {
+      obj.comune_nascita_codice = getCodiceComune(card.querySelector('[id^="comune_nascita_wrap_"]').querySelector('.search-wrap'));
+      obj.stato_nascita_codice = 'Z000';
+    } else {
+      obj.comune_nascita_codice = '';
+      obj.stato_nascita_codice = getCodiceStato(card.querySelector('[id^="stato_nascita_wrap_"]').querySelector('.search-wrap'));
+      obj.provincia_nascita = 'EE';
+    }
+    obj.cittadinanza_codice = getCodiceStato(card.querySelector('[id^="cittadinanza_wrap_"]').querySelector('.search-wrap'));
+    obj.luogo_rilascio_codice = getCodiceComune(card.querySelector('[id^="luogo_rilascio_wrap_"]').querySelector('.search-wrap'));
+    obj.nato_italia = natoItalia;
+    
+    var fronte = card.querySelector('[data-file="documento_fronte"]').files[0];
+    var retro = card.querySelector('[data-file="documento_retro"]').files[0];
+    var selfie = card.querySelector('[data-file="selfie_documento"]').files[0];
+    if (!fronte || !retro || !selfie) throw new Error('Carica tutti i documenti richiesti per l\'ospite ' + (idx+1) + '.');
+    
+    obj.documento_fronte_path = await uploadGuestFile(fronte, prenotazioneId, idx, 'fronte');
+    obj.documento_retro_path = await uploadGuestFile(retro, prenotazioneId, idx, 'retro');
+    obj.selfie_documento_path = await uploadGuestFile(selfie, prenotazioneId, idx, 'selfie');
+    guests.push(obj);
+  }
+  return guests;
+}
+
+async function submitCheckin(evt) {
+  evt.preventDefault();
+
+  // ---- VALIDAZIONE COMPLETA ----
+  var cards = Array.from(guestsContainer.querySelectorAll('.guest-card'));
+
+  // Campi prenotazione obbligatori
+  var campiPren = [
+    {id:'nomePrenotante', label:'Nome del prenotante'},
+    {id:'camera', label:'Camera'},
+    {id:'arrivo', label:'Data arrivo'},
+    {id:'partenza', label:'Data partenza'},
+  ];
+  for (var cp of campiPren) {
+    var elCp = document.getElementById(cp.id);
+    if (!elCp.value.trim()) {
+      elCp.style.border = '2px solid red';
+      elCp.scrollIntoView({behavior:'smooth', block:'center'});
+      showStatus('\u26a0\ufe0f Campo obbligatorio mancante: ' + cp.label, true);
+      return;
+    }
+    elCp.style.border = '';
+  }
+
+  // Validazione per ogni ospite
+  for (var idx = 0; idx < cards.length; idx++) {
+    var card = cards[idx];
+    var nomeOspite = 'Ospite ' + (idx+1);
+
+    // Campi testo/select obbligatori
+    var campiOsp = [
+      {field:'cognome', label:'Cognome'},
+      {field:'nome', label:'Nome'},
+      {field:'sesso', label:'Sesso'},
+      {field:'data_nascita', label:'Data di nascita'},
+      {field:'tipo_documento', label:'Tipo documento'},
+      {field:'numero_documento', label:'Numero documento'},
+      {field:'data_rilascio_documento', label:'Data rilascio documento'},
+    ];
+    for (var cf of campiOsp) {
+      var elCf = card.querySelector('[data-field="' + cf.field + '"]');
+      if (elCf && !elCf.value.trim()) {
+        elCf.style.border = '2px solid red';
+        elCf.scrollIntoView({behavior:'smooth', block:'center'});
+        showStatus('\u26a0\ufe0f ' + nomeOspite + ': campo obbligatorio mancante \u2014 ' + cf.label, true);
+        return;
+      }
+      if (elCf) elCf.style.border = '';
+    }
+
+    // Cittadinanza
+    var cittInp = card.querySelector('#citt_' + idx);
+    if (!cittInp || !cittInp.value.trim()) {
+      if (cittInp) { cittInp.style.border = '2px solid red'; cittInp.scrollIntoView({behavior:'smooth', block:'center'}); }
+      showStatus('\u26a0\ufe0f ' + nomeOspite + ': inserisci la cittadinanza', true);
+      return;
+    }
+    cittInp.style.border = '';
+
+    // Nascita: comune o stato
+    var natoItalia = card.querySelector('[id^="nato_italia_"]').value === 'si';
+    if (natoItalia) {
+      var comuneInp = card.querySelector('#comune_' + idx);
+      if (!comuneInp || !comuneInp.value.trim()) {
+        if (comuneInp) { comuneInp.style.border = '2px solid red'; comuneInp.scrollIntoView({behavior:'smooth', block:'center'}); }
+        showStatus('\u26a0\ufe0f ' + nomeOspite + ': inserisci il comune di nascita', true);
+        return;
+      }
+      comuneInp.style.border = '';
+      var provEl = card.querySelector('[data-field="provincia_nascita"]');
+      if (provEl && !provEl.value.trim()) {
+        provEl.style.border = '2px solid red';
+        provEl.scrollIntoView({behavior:'smooth', block:'center'});
+        showStatus('\u26a0\ufe0f ' + nomeOspite + ': inserisci la provincia di nascita', true);
+        return;
+      }
+      if (provEl) provEl.style.border = '';
+    } else {
+      var statoInp = card.querySelector('#stato_' + idx);
+      if (!statoInp || !statoInp.value.trim()) {
+        if (statoInp) { statoInp.style.border = '2px solid red'; statoInp.scrollIntoView({behavior:'smooth', block:'center'}); }
+        showStatus('\u26a0\ufe0f ' + nomeOspite + ': inserisci lo stato di nascita', true);
+        return;
+      }
+      statoInp.style.border = '';
+    }
+
+    // Luogo rilascio documento
+    var luogoInp = card.querySelector('#luogo_' + idx);
+    if (!luogoInp || !luogoInp.value.trim()) {
+      if (luogoInp) { luogoInp.style.border = '2px solid red'; luogoInp.scrollIntoView({behavior:'smooth', block:'center'}); }
+      showStatus('\u26a0\ufe0f ' + nomeOspite + ': inserisci il comune/ente di rilascio del documento', true);
+      return;
+    }
+    luogoInp.style.border = '';
+
+    // Foto documento
+    var fronte = card.querySelector('[data-file="documento_fronte"]').files[0];
+    var retro = card.querySelector('[data-file="documento_retro"]').files[0];
+    var selfie = card.querySelector('[data-file="selfie_documento"]').files[0];
+    if (!fronte) {
+      var elF = card.querySelector('[data-file="documento_fronte"]');
+      elF.style.border = '2px solid red'; elF.scrollIntoView({behavior:'smooth', block:'center'});
+      showStatus('\u26a0\ufe0f ' + nomeOspite + ': carica la foto del documento fronte.', true); return;
+    }
+    if (!retro) {
+      var elR = card.querySelector('[data-file="documento_retro"]');
+      elR.style.border = '2px solid red'; elR.scrollIntoView({behavior:'smooth', block:'center'});
+      showStatus('\u26a0\ufe0f ' + nomeOspite + ': carica la foto del documento retro.', true); return;
+    }
+    if (!selfie) {
+      var elS = card.querySelector('[data-file="selfie_documento"]');
+      elS.style.border = '2px solid red'; elS.scrollIntoView({behavior:'smooth', block:'center'});
+      showStatus('\u26a0\ufe0f ' + nomeOspite + ': carica il selfie con il documento.', true); return;
+    }
+    card.querySelector('[data-file="documento_fronte"]').style.border = '';
+    card.querySelector('[data-file="documento_retro"]').style.border = '';
+    card.querySelector('[data-file="selfie_documento"]').style.border = '';
+  }
+
+  if (!document.getElementById('privacyOk').checked) {
+    document.getElementById('privacyOk').scrollIntoView({behavior:'smooth', block:'center'});
+    showStatus('\u26a0\ufe0f Devi accettare l\'informativa privacy per continuare.', true);
+    return;
+  }ent="width=device-width, initial-scale=1.0" />
+  <title>Santalò B&B — Check-in online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { --brown:#6B2D1F; --sand:#C4A882; --ink:#2e241f; --muted:#7b6a60; --line:rgba(107,45,31,.14); --ok:#1f7a45; --shadow:0 18px 40px rgba(58,30,18,.08); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'DM Sans',system-ui,sans-serif; color:var(--ink); background:linear-gradient(180deg,#fcf8f4,#f3ebe2); }
+    .wrap { max-width:980px; margin:0 auto; padding:18px; }
+    .hero { background:linear-gradient(135deg,rgba(107,45,31,.98),rgba(140,79,53,.96)); color:#fff; border-radius:30px; padding:28px; box-shadow:var(--shadow); margin-bottom:18px; }
+    .hero-head { display:flex; gap:16px; align-items:center; }
+    .hero-logo { width:72px; height:72px; background:rgba(255,255,255,.92); border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .hero-logo img { width:130%; height:130%; object-fit:cover; margin:-15%; }
+    h1, h2 { font-family:'Cormorant Garamond',serif; margin:0 0 10px; }
+    h1 { font-size:46px; }
+    h2 { font-size:30px; color:var(--brown); }
+    .subtitle { opacity:.92; max-width:720px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:24px; padding:22px; box-shadow:var(--shadow); margin-bottom:16px; }
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+    .full { grid-column:1 / -1; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    input, select, textarea { width:100%; padding:12px 13px; border-radius:14px; border:1px solid rgba(107,45,31,.18); font:inherit; background:#fff; font-size:14px; }
+    input[type="file"] { padding:10px; }
+    .search-wrap { position:relative; }
+    .search-wrap input { width:100%; }
+    .dropdown { position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid rgba(107,45,31,.2); border-radius:12px; max-height:220px; overflow-y:auto; z-index:100; box-shadow:0 8px 24px rgba(58,30,18,.12); display:none; }
+    .dropdown.show { display:block; }
+    .dropdown-item { padding:10px 14px; cursor:pointer; font-size:14px; border-bottom:1px solid rgba(107,45,31,.06); }
+    .dropdown-item:hover { background:#faf6f1; }
+    .dropdown-item small { color:var(--muted); font-size:11px; margin-left:6px; }
+    .guest-card { border:1px solid var(--line); border-radius:18px; padding:16px; background:#fffdfb; margin-top:14px; }
+    .guest-title { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:12px; }
+    .pill { display:inline-flex; align-items:center; background:#f4ece4; color:var(--brown); border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; }
+    button { border:0; border-radius:14px; padding:13px 18px; background:var(--brown); color:#fff; font-weight:700; cursor:pointer; font-family:inherit; }
+    .note { font-size:13px; color:var(--muted); }
+    .privacy { background:#faf6f1; border-radius:16px; padding:16px; border:1px solid var(--line); line-height:1.55; }
+    .success { display:none; text-align:center; padding:24px; }
+    .success.show { display:block; }
+    .success h2 { color:var(--ok); }
+    .status { display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:calc(100% - 40px); max-width:600px; background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px 16px; box-shadow:var(--shadow); z-index:999; font-weight:600; font-size:14px; text-align:center; }
+    .status.show { display:block; }
+    .status.err { background:#fff0f0; border-color:rgba(162,39,39,.3); color:#b91c1c; }
+    .required-note { background:#fff8ef; border:1px solid rgba(196,168,130,.5); border-radius:14px; padding:12px 14px; margin-top:12px; }
+    .footer { margin-top:18px; padding:18px; text-align:center; color:var(--brown); background:rgba(255,255,255,.55); border:1px solid var(--line); border-radius:22px; }
+    .footer img { width:70px; height:70px; object-fit:contain; margin-bottom:8px; }
+    @media (max-width:700px) { .grid { grid-template-columns:1fr; } h1 { font-size:38px; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-head">
+      <div class="hero-logo">
+        <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalo"/>
+      </div>
+      <div>
+        <div class="pill" style="background:rgba(255,255,255,.14);color:#fff;margin-bottom:12px;">Santalò B&B · Bitonto, Puglia</div>
+        <h1>Check-in online</h1>
+        <div class="subtitle">Compila i dati di tutti gli ospiti prima dell'arrivo. Il check-in è dalle 15:00, il check-out entro le 10:00. Servono anche le foto del documento fronte/retro e un selfie con il documento accanto al viso.</div>
+      </div>
+    </div>
+  </section>
+
+  <form id="checkinForm">
+    <section class="card">
+      <h2>La tua prenotazione</h2>
+      <div class="grid">
+        <div><label>Nome del prenotante *</label><input id="nomePrenotante" required></div>
+        <div><label>Camera *</label>
+          <select id="camera" required>
+            <option value="">Seleziona</option>
+            <option value="Camera 1954">Camera 1954 (1° piano)</option>
+            <option value="Camera 1956">Camera 1956 (2° piano)</option>
+            <option value="Camera 1920">Camera 1920 (piano terra)</option>
+          </select>
+        </div>
+        <div><label>Data arrivo *</label><input id="arrivo" type="date" required></div>
+        <div><label>Data partenza *</label><input id="partenza" type="date" required></div>
+        <div><label>Numero ospiti totali *</label>
+          <select id="numOspiti" required>
+            <option value="1">1 ospite</option>
+            <option value="2">2 ospiti</option>
+          </select>
+        </div>
+        <div><label>Orario di arrivo previsto</label><input id="orario" placeholder="Es. 18:30"></div>
+        <div><label>Telefono referente</label><input id="telefono" placeholder="Es. 393331234567"></div>
+        <div><label>Email referente</label><input id="email" type="email" placeholder="nome@email.com"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Dati degli ospiti</h2>
+      <div class="note">Inserisci i dati esattamente come compaiono sul documento.</div>
+      <div class="required-note">Per ogni ospite sono obbligatorie tre immagini: <strong>documento fronte</strong>, <strong>documento retro</strong> e <strong>selfie con documento accanto al viso</strong>.</div>
+      <div id="guestsContainer"></div>
+    </section>
+
+    <section class="card">
+      <h2>Privacy</h2>
+      <div class="privacy">I dati personali raccolti attraverso questo modulo sono trattati da Santalò Bed and Breakfast esclusivamente per gli obblighi di legge connessi al soggiorno e alla comunicazione alle Autorità di Pubblica Sicurezza, ai sensi dell'art. 109 T.U.L.P.S.</div>
+      <label style="display:flex;gap:10px;align-items:flex-start;margin-top:14px;color:var(--ink);">
+        <input type="checkbox" id="privacyOk" style="width:auto;margin-top:2px;" required>
+        <span>Ho letto e accetto il trattamento dei miei dati personali. *</span>
+      </label>
+    </section>
+
+    <section class="card">
+      <button type="submit">Completa il mio check-in</button>
+    </section>
+  </form>
+
+  <section id="successBox" class="card success">
+    <h2>Check-in completato!</h2>
+    <p>Grazie, abbiamo ricevuto correttamente i dati e i documenti.</p>
+    <p>Riceverai a breve le istruzioni per l'arrivo.</p>
+  </section>
+
+  <div id="status" class="status"></div>
+
+  <footer class="footer">
+    <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Logo Santalò">
+    <div style="font-size:28px;font-family:'Cormorant Garamond',serif;font-weight:700;">Santalò Bed and Breakfast</div>
+    <div>Vico Storto Sant'Eligio 9 – 70032 Bitonto (BA)</div>
+    <div>Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91f8fff7fed1f3f4f3e2f0ffe5f0fdfebff8e5">[email&#160;protected]</a></div>
+  </footer>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const COMUNI_ITALIANI = [
+  {n:'Acquaviva delle Fonti',c:'A048',p:'BA'},
+  {n:'Adelfia',c:'A055',p:'BA'},
+  {n:'Agrigento',c:'A089',p:'AG'},
+  {n:'Alberobello',c:'A149',p:'BA'},
+  {n:'Alessandria',c:'A182',p:'AL'},
+  {n:'Altamura',c:'A225',p:'BA'},
+  {n:'Ancona',c:'A271',p:'AN'},
+  {n:'Andria',c:'A285',p:'BT'},
+  {n:'Aosta',c:'A326',p:'AO'},
+  {n:'Arezzo',c:'A390',p:'AR'},
+  {n:'Asti',c:'A480',p:'AT'},
+  {n:'Avellino',c:'A509',p:'AV'},
+  {n:'Avetrana',c:'A514',p:'TA'},
+  {n:'Bari',c:'A662',p:'BA'},
+  {n:'Barletta',c:'A734',p:'BT'},
+  {n:'Belluno',c:'A757',p:'BL'},
+  {n:'Benevento',c:'A783',p:'BN'},
+  {n:'Bergamo',c:'A794',p:'BG'},
+  {n:'Biella',c:'A859',p:'BI'},
+  {n:'Binetto',c:'A874',p:'BA'},
+  {n:'Bisceglie',c:'A882',p:'BT'},
+  {n:'Bitetto',c:'A891',p:'BA'},
+  {n:'Bitonto',c:'A892',p:'BA'},
+  {n:'Bitritto',c:'A895',p:'BA'},
+  {n:'Bologna',c:'A944',p:'BO'},
+  {n:'Bolzano',c:'A952',p:'BZ'},
+  {n:'Brescia',c:'B157',p:'BS'},
+  {n:'Brindisi',c:'B065',p:'BR'},
+  {n:'Cagliari',c:'B354',p:'CA'},
+  {n:'Campobasso',c:'B519',p:'CB'},
+  {n:'Canosa di Puglia',c:'B619',p:'BT'},
+  {n:'Capurso',c:'B716',p:'BA'},
+  {n:'Carovigno',c:'B808',p:'BR'},
+  {n:'Casamassima',c:'B923',p:'BA'},
+  {n:'Caserta',c:'B963',p:'CE'},
+  {n:'Cassano delle Murge',c:'C003',p:'BA'},
+  {n:'Castellana Grotte',c:'C134',p:'BA'},
+  {n:'Castellaneta',c:'C136',p:'TA'},
+  {n:'Catania',c:'C351',p:'CT'},
+  {n:'Catanzaro',c:'C352',p:'CZ'},
+  {n:'Ceglie Messapica',c:'C424',p:'BR'},
+  {n:'Cellamare',c:'C436',p:'BA'},
+  {n:'Cerignola',c:'C514',p:'FG'},
+  {n:'Chieti',c:'C632',p:'CH'},
+  {n:'Cisternino',c:'C741',p:'BR'},
+  {n:'Como',c:'C933',p:'CO'},
+  {n:'Conversano',c:'C975',p:'BA'},
+  {n:'Corato',c:'C983',p:'BA'},
+  {n:'Cosenza',c:'D086',p:'CS'},
+  {n:'Cremona',c:'D142',p:'CR'},
+  {n:'Crotone',c:'D122',p:'KR'},
+  {n:'Cuneo',c:'D205',p:'CN'},
+  {n:'Erchie',c:'D422',p:'BR'},
+  {n:'Fasano',c:'D508',p:'BR'},
+  {n:'Ferrara',c:'D548',p:'FE'},
+  {n:'Firenze',c:'D612',p:'FI'},
+  {n:'Foggia',c:'D643',p:'FG'},
+  {n:'Francavilla Fontana',c:'D761',p:'BR'},
+  {n:'Frosinone',c:'D843',p:'FR'},
+  {n:'Galatina',c:'D862',p:'LE'},
+  {n:'Gallipoli',c:'D883',p:'LE'},
+  {n:'Genova',c:'D969',p:'GE'},
+  {n:'Gioia del Colle',c:'E038',p:'BA'},
+  {n:'Giovinazzo',c:'E047',p:'BA'},
+  {n:'Gorizia',c:'E098',p:'GO'},
+  {n:'Gravina in Puglia',c:'E152',p:'BA'},
+  {n:'Grosseto',c:'E202',p:'GR'},
+  {n:'Grottaglie',c:'E205',p:'TA'},
+  {n:'Grumo Appula',c:'E222',p:'BA'},
+  {n:'Imperia',c:'E290',p:'IM'},
+  {n:'L\'Aquila',c:'A345',p:'AQ'},
+  {n:'Latiano',c:'E471',p:'BR'},
+  {n:'Latina',c:'E472',p:'LT'},
+  {n:'Lecce',c:'E506',p:'LE'},
+  {n:'Livorno',c:'E617',p:'LI'},
+  {n:'Locorotondo',c:'E645',p:'BA'},
+  {n:'Lucca',c:'E715',p:'LU'},
+  {n:'Lucera',c:'E716',p:'FG'},
+  {n:'Macerata',c:'E783',p:'MC'},
+  {n:'Maglie',c:'E818',p:'LE'},
+  {n:'Manduria',c:'E882',p:'TA'},
+  {n:'Manfredonia',c:'E885',p:'FG'},
+  {n:'Mantova',c:'E897',p:'MN'},
+  {n:'Margherita di Savoia',c:'E946',p:'BT'},
+  {n:'Martina Franca',c:'E986',p:'TA'},
+  {n:'Massafra',c:'F027',p:'TA'},
+  {n:'Matera',c:'F052',p:'MT'},
+  {n:'Mesagne',c:'F152',p:'BR'},
+  {n:'Messina',c:'F158',p:'ME'},
+  {n:'Milano',c:'F205',p:'MI'},
+  {n:'Minervino Murge',c:'F220',p:'BT'},
+  {n:'Modena',c:'F257',p:'MO'},
+  {n:'Modugno',c:'F262',p:'BA'},
+  {n:'Mola di Bari',c:'F280',p:'BA'},
+  {n:'Molfetta',c:'F284',p:'BA'},
+  {n:'Monopoli',c:'F376',p:'BA'},
+  {n:'Monza',c:'F704',p:'MB'},
+  {n:'Napoli',c:'F839',p:'NA'},
+  {n:'Nardo',c:'F842',p:'LE'},
+  {n:'Noci',c:'F915',p:'BA'},
+  {n:'Noicattaro',c:'F923',p:'BA'},
+  {n:'Novara',c:'F952',p:'NO'},
+  {n:'Nuoro',c:'F979',p:'NU'},
+  {n:'Oria',c:'G098',p:'BR'},
+  {n:'Oristano',c:'G088',p:'OR'},
+  {n:'Ostuni',c:'G185',p:'BR'},
+  {n:'Padova',c:'G224',p:'PD'},
+  {n:'Palermo',c:'G273',p:'PA'},
+  {n:'Palo del Colle',c:'G291',p:'BA'},
+  {n:'Parma',c:'G337',p:'PR'},
+  {n:'Pavia',c:'G388',p:'PV'},
+  {n:'Perugia',c:'G478',p:'PG'},
+  {n:'Pesaro',c:'G453',p:'PU'},
+  {n:'Pescara',c:'G482',p:'PE'},
+  {n:'Piacenza',c:'G535',p:'PC'},
+  {n:'Pisa',c:'G702',p:'PI'},
+  {n:'Pistoia',c:'G646',p:'PT'},
+  {n:'Poggiorsini',c:'G769',p:'BA'},
+  {n:'Polignano a Mare',c:'G797',p:'BA'},
+  {n:'Pordenone',c:'G888',p:'PN'},
+  {n:'Potenza',c:'G942',p:'PZ'},
+  {n:'Prato',c:'G999',p:'PO'},
+  {n:'Putignano',c:'H096',p:'BA'},
+  {n:'Ragusa',c:'H163',p:'RG'},
+  {n:'Ravenna',c:'H199',p:'RA'},
+  {n:'Reggio Calabria',c:'H224',p:'RC'},
+  {n:'Reggio Emilia',c:'H223',p:'RE'},
+  {n:'Rimini',c:'H294',p:'RN'},
+  {n:'Roma',c:'H501',p:'RM'},
+  {n:'Rutigliano',c:'H643',p:'BA'},
+  {n:'Ruvo di Puglia',c:'H645',p:'BA'},
+  {n:'Salerno',c:'H703',p:'SA'},
+  {n:'Sammichele di Bari',c:'H749',p:'BA'},
+  {n:'San Donaci',c:'H822',p:'BR'},
+  {n:'San Ferdinando di Puglia',c:'H839',p:'BT'},
+  {n:'San Giovanni Rotondo',c:'H926',p:'FG'},
+  {n:'San Michele Salentino',c:'I045',p:'BR'},
+  {n:'San Pancrazio Salentino',c:'I066',p:'BR'},
+  {n:'San Pietro Vernotico',c:'I119',p:'BR'},
+  {n:'San Severo',c:'I158',p:'FG'},
+  {n:'San Vito dei Normanni',c:'I396',p:'BR'},
+  {n:'Sannicandro di Bari',c:'I053',p:'BA'},
+  {n:'Santeramo in Colle',c:'I330',p:'BA'},
+  {n:'Sassari',c:'I492',p:'SS'},
+  {n:'Savona',c:'I480',p:'SV'},
+  {n:'Siena',c:'I726',p:'SI'},
+  {n:'Siracusa',c:'I754',p:'SR'},
+  {n:'Spinazzola',c:'I907',p:'BT'},
+  {n:'Taranto',c:'L049',p:'TA'},
+  {n:'Teramo',c:'L103',p:'TE'},
+  {n:'Terlizzi',c:'L109',p:'BA'},
+  {n:'Terni',c:'L117',p:'TR'},
+  {n:'Torchiarolo',c:'L212',p:'BR'},
+  {n:'Torino',c:'L219',p:'TO'},
+  {n:'Toritto',c:'L220',p:'BA'},
+  {n:'Torre Santa Susanna',c:'L280',p:'BR'},
+  {n:'Torremaggiore',c:'L274',p:'FG'},
+  {n:'Trani',c:'L328',p:'BT'},
+  {n:'Trapani',c:'L331',p:'TP'},
+  {n:'Trento',c:'L378',p:'TN'},
+  {n:'Treviso',c:'L407',p:'TV'},
+  {n:'Tricase',c:'L419',p:'LE'},
+  {n:'Trieste',c:'L424',p:'TS'},
+  {n:'Triggiano',c:'L426',p:'BA'},
+  {n:'Trinitapoli',c:'L423',p:'BT'},
+  {n:'Turi',c:'L517',p:'BA'},
+  {n:'Udine',c:'L483',p:'UD'},
+  {n:'Valenzano',c:'L572',p:'BA'},
+  {n:'Varese',c:'L682',p:'VA'},
+  {n:'Venezia',c:'L736',p:'VE'},
+  {n:'Verbania',c:'L746',p:'VB'},
+  {n:'Vercelli',c:'L750',p:'VC'},
+  {n:'Verona',c:'L781',p:'VR'},
+  {n:'Vibo Valentia',c:'L905',p:'VV'},
+  {n:'Vicenza',c:'L840',p:'VI'},
+  {n:'Vieste',c:'L858',p:'FG'},
+  {n:'Villa Castelli',c:'L920',p:'BR'},
+  {n:'Viterbo',c:'L872',p:'VT'},
+];
+
+const STATI_ESTERI = [
+  {n:'Afghanistan',c:'Z200'},{n:'Albania',c:'Z100'},{n:'Algeria',c:'Z301'},
+  {n:'Andorra',c:'Z101'},{n:'Angola',c:'Z302'},{n:'Arabia Saudita',c:'Z203'},
+  {n:'Argentina',c:'Z600'},{n:'Armenia',c:'Z252'},{n:'Australia',c:'Z700'},
+  {n:'Austria',c:'Z102'},{n:'Azerbaigian',c:'Z253'},{n:'Bangladesh',c:'Z205'},
+  {n:'Belgio',c:'Z103'},{n:'Bielorussia',c:'Z139'},{n:'Bolivia',c:'Z601'},
+  {n:'Bosnia Erzegovina',c:'Z153'},{n:'Brasile',c:'Z602'},{n:'Bulgaria',c:'Z104'},
+  {n:'Canada',c:'Z401'},{n:'Cile',c:'Z603'},{n:'Cina',c:'Z210'},
+  {n:'Colombia',c:'Z604'},{n:'Croazia',c:'Z149'},{n:'Cuba',c:'Z404'},
+  {n:'Danimarca',c:'Z107'},{n:'Ecuador',c:'Z605'},{n:'Egitto',c:'Z336'},
+  {n:'Eritrea',c:'Z315'},{n:'Estonia',c:'Z144'},{n:'Etiopia',c:'Z315'},
+  {n:'Filippine',c:'Z216'},{n:'Finlandia',c:'Z109'},{n:'Francia',c:'Z110'},
+  {n:'Georgia',c:'Z254'},{n:'Germania',c:'Z112'},{n:'Ghana',c:'Z320'},
+  {n:'Giappone',c:'Z219'},{n:'Giordania',c:'Z220'},{n:'Gran Bretagna',c:'Z114'},
+  {n:'Grecia',c:'Z115'},{n:'Guatemala',c:'Z406'},{n:'India',c:'Z222'},
+  {n:'Indonesia',c:'Z223'},{n:'Iran',c:'Z224'},{n:'Iraq',c:'Z225'},
+  {n:'Irlanda',c:'Z116'},{n:'Israele',c:'Z226'},{n:'Kazakistan',c:'Z255'},
+  {n:'Kenya',c:'Z323'},{n:'Kosovo',c:'Z160'},{n:'Lettonia',c:'Z145'},
+  {n:'Libano',c:'Z229'},{n:'Libia',c:'Z326'},{n:'Lituania',c:'Z146'},
+  {n:'Lussemburgo',c:'Z119'},{n:'Macedonia',c:'Z148'},{n:'Malesia',c:'Z231'},
+  {n:'Mali',c:'Z328'},{n:'Marocco',c:'Z330'},{n:'Messico',c:'Z410'},
+  {n:'Moldova',c:'Z140'},{n:'Montenegro',c:'Z159'},{n:'Mozambico',c:'Z334'},
+  {n:'Nepal',c:'Z234'},{n:'Nigeria',c:'Z335'},{n:'Norvegia',c:'Z125'},
+  {n:'Nuova Zelanda',c:'Z702'},{n:'Pakistan',c:'Z235'},{n:'Paraguay',c:'Z609'},
+  {n:'Paesi Bassi',c:'Z122'},{n:'Peru',c:'Z612'},{n:'Polonia',c:'Z127'},
+  {n:'Portogallo',c:'Z128'},{n:'Repubblica Ceca',c:'Z156'},
+  {n:'Repubblica Dominicana',c:'Z415'},{n:'Romania',c:'Z129'},{n:'Russia',c:'Z154'},
+  {n:'Senegal',c:'Z343'},{n:'Serbia',c:'Z158'},{n:'Slovacchia',c:'Z155'},
+  {n:'Slovenia',c:'Z150'},{n:'Somalia',c:'Z347'},{n:'Spagna',c:'Z131'},
+  {n:'Sri Lanka',c:'Z249'},{n:'Stati Uniti',c:'Z404'},{n:'Sudan',c:'Z348'},
+  {n:'Svezia',c:'Z132'},{n:'Svizzera',c:'Z133'},{n:'Tunisia',c:'Z352'},
+  {n:'Turchia',c:'Z243'},{n:'Ucraina',c:'Z138'},{n:'Uganda',c:'Z353'},
+  {n:'Ungheria',c:'Z134'},{n:'Uruguay',c:'Z614'},{n:'Venezuela',c:'Z614'},
+  {n:'Vietnam',c:'Z251'},{n:'Yemen',c:'Z246'},
+];
+
+const TIPI_DOC = {
+  'Carta di identità': '02013',
+  'Passaporto': '01001',
+  'Patente': '02003',
+  'Permesso di soggiorno': '02012',
+};
+
+const SUPABASE_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
+const DOC_BUCKET = 'documenti-checkin';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
+
+const qs = new URLSearchParams(window.location.search);
+const prenotazioneId = Number(qs.get('prenotazione_id')) || null;
+const guestsContainer = document.getElementById('guestsContainer');
+const statusBox = document.getElementById('status');
+
+const roomConfig = {
+  'Camera 1954': 'Camera 1954 · primo piano · codice 43757 · check-in dalle 15:00',
+  'Camera 1956': 'Camera 1956 · secondo piano · codice 43757 · check-in dalle 15:00',
+  'Camera 1920': 'Camera 1920 · piano terra · codice 4660 · check-in dalle 15:00'
+};
+
+function showStatus(msg, err=false) {
+  statusBox.textContent = msg;
+  statusBox.className = 'status show' + (err ? ' err' : '');
+  if (!err) {
+    setTimeout(function() { statusBox.className = 'status'; }, 4000);
+  }
+}
+
+function ext(name='file.jpg') {
+  var p = name.split('.').pop();
+  return p && p !== name ? p.toLowerCase() : 'jpg';
+}
+
+// Reset red border when file is selected
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.type === 'file') {
+    e.target.style.border = '';
+    if (e.target.files && e.target.files[0]) {
+      statusBox.className = 'status';
+    }
+  }
+});
+
+// Autocomplete search component
+function makeSearchField(id, placeholder, dataset, onSelect) {
+  var wrap = document.createElement('div');
+  wrap.className = 'search-wrap';
+  
+  var inp = document.createElement('input');
+  inp.id = id;
+  inp.placeholder = placeholder;
+  inp.autocomplete = 'off';
+  inp.dataset.codice = '';
+  
+  var drop = document.createElement('div');
+  drop.className = 'dropdown';
+  
+  wrap.appendChild(inp);
+  wrap.appendChild(drop);
+  
+  inp.addEventListener('input', function() {
+    var val = this.value.toLowerCase().trim();
+    inp.dataset.codice = '';
+    if (!val) { drop.className = 'dropdown'; return; }
+    var results = dataset.filter(function(d) {
+      return d.n.toLowerCase().startsWith(val) || d.n.toLowerCase().includes(val);
+    }).slice(0, 30);
+    if (!results.length) { drop.className = 'dropdown'; return; }
+    drop.innerHTML = results.map(function(d) {
+      var extra = d.p ? ' <small>(' + d.p + ')</small>' : '';
+      return '<div class="dropdown-item" data-codice="' + d.c + '" data-nome="' + d.n + '">' + d.n + extra + '</div>';
+    }).join('');
+    drop.className = 'dropdown show';
+  });
+  
+  drop.addEventListener('click', function(e) {
+    var item = e.target.closest('.dropdown-item');
+    if (!item) return;
+    inp.value = item.dataset.nome;
+    inp.dataset.codice = item.dataset.codice;
+    drop.className = 'dropdown';
+    if (onSelect) onSelect(item.dataset.codice, item.dataset.nome);
+  });
+  
+  document.addEventListener('click', function(e) {
+    if (!wrap.contains(e.target)) drop.className = 'dropdown';
+  });
+  
+  return wrap;
+}
+
+function guestTemplate(index) {
+  var div = document.createElement('div');
+  div.className = 'guest-card';
+  div.dataset.guestIndex = index;
+  
+  div.innerHTML = '<div class="guest-title"><strong>Ospite ' + (index+1) + '</strong>' +
+    '<span class="pill">' + (index===0 ? 'Capofamiglia' : 'Accompagnatore') + '</span></div>' +
+    '<div class="grid" id="grid_' + index + '">' +
+    '<div><label>Cognome *</label><input data-field="cognome" required></div>' +
+    '<div><label>Nome *</label><input data-field="nome" required></div>' +
+    '<div><label>Sesso *</label><select data-field="sesso" required><option value="">Seleziona</option><option value="1">Maschio</option><option value="2">Femmina</option></select></div>' +
+    '<div><label>Data di nascita *</label><input data-field="data_nascita" type="date" required></div>' +
+    '<div id="cittadinanza_wrap_' + index + '"><label>Cittadinanza *</label></div>' +
+    '<div><label>Nato in Italia?</label><select id="nato_italia_' + index + '"><option value="si">Sì</option><option value="no">No</option></select></div>' +
+    '<div id="comune_nascita_wrap_' + index + '"><label>Comune di nascita *</label></div>' +
+    '<div><label>Provincia nascita *</label><input data-field="provincia_nascita" maxlength="2" placeholder="BA" required></div>' +
+    '<div id="stato_nascita_wrap_' + index + '" style="display:none"><label>Stato di nascita *</label></div>' +
+    '<div><label>Tipo documento *</label><select data-field="tipo_documento" required>' +
+    '<option value="">Seleziona</option>' +
+    '<option value="Carta di identità">Carta di identità</option>' +
+    '<option value="Passaporto">Passaporto</option>' +
+    '<option value="Patente">Patente</option>' +
+    '<option value="Permesso di soggiorno">Permesso di soggiorno</option>' +
+    '</select></div>' +
+    '<div><label>Numero documento *</label><input data-field="numero_documento" required></div>' +
+    '<div><label>Data rilascio documento *</label><input data-field="data_rilascio_documento" type="date" required></div>' +
+    '<div id="luogo_rilascio_wrap_' + index + '"><label>Comune/Ente rilascio *</label></div>' +
     '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" required></div>' +
     '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" required></div>' +
     '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" required></div>' +
