@@ -309,6 +309,12 @@ function showTab(t) {
     var tabEl = document.getElementById('tab-'+x);
     if (tabEl) tabEl.classList.toggle('active', x===t);
   });
+  // Mostra il pannello destro solo nella lista prenotazioni
+  var rp = document.querySelector('.right-panel');
+  if (rp) rp.style.display = t === 'lista' ? '' : 'none';
+  // Su mobile adatta la griglia
+  var gm = document.querySelector('.grid-main');
+  if (gm) gm.style.gridTemplateColumns = t === 'lista' ? '' : '1fr';
   if (t === 'checkin') {
     loadCheckin();
     sb.from('checkin_ospiti').select('id', {count:'exact', head:true}).then(function(r) {
