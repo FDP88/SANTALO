@@ -679,7 +679,7 @@ function buildFile(pren, ospiti) {
   var header = '00' + CODICE_STRUTTURA + awDate(pren.arrivo) + String(ospiti.length).padStart(4,'0') + awPad('', 77);
   var lines = [header];
   ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); });
-  return lines.join('\r\n') + '\r\n';
+  return lines.join('\r\n');
 }
 
 function loadAlloggiati() {
@@ -711,7 +711,12 @@ function generaSchedina(prenId) {
       if (result.error) { alert('Errore: ' + result.error.message); return; }
       if (!result.data || !result.data.length) { alert('Nessun dato check-in trovato. Assicurati che il check-in sia stato completato.'); return; }
       var content = buildFile(pr, result.data);
-      var blob = new Blob([content], { type: 'text/plain' });
+      // Converti in Windows-1252 per Alloggiati Web
+  var bytes = new Uint8Array(content.length);
+  for (var i = 0; i < content.length; i++) {
+    bytes[i] = content.charCodeAt(i) & 0xff;
+  }
+  var blob = new Blob([bytes], { type: 'text/plain;charset=windows-1252' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
