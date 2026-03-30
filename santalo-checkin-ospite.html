@@ -183,6 +183,7 @@ var T = {
     opt_singolo:"Ospite Singolo", opt_capo_fam:"Capo Famiglia", opt_capo_grp:"Capo Gruppo", opt_familiare:"Familiare", opt_membro:"Membro Gruppo",
     ph_paese:"Cerca paese...", ph_comune:"Cerca comune...", ph_stato:"Cerca stato...",
     opt_ci:"Carta di identità", opt_pass:"Passaporto", opt_pat:"Patente", opt_perm:"Permesso di soggiorno",
+    lbl_luogo_stato:"Stato rilascio documento *",
     sending:"Invio in corso, attendi qualche secondo..."
   },
   en:{
@@ -1791,6 +1792,7 @@ function guestTemplate(index, totalGuests) {
   var luogoWrap = div.querySelector('#luogo_rilascio_wrap_'+index);
   var luogoSearch = makeSearchField('luogo_'+index, L.ph_comune, COMUNI_ITALIANI, null);
   luogoSearch.querySelector('input').dataset.field = 'luogo_rilascio_nome';
+  luogoSearch.dataset.mode = 'comune';
   luogoWrap.appendChild(luogoSearch);
 
   // Toggle nato in Italia
@@ -1799,6 +1801,19 @@ function guestTemplate(index, totalGuests) {
     div.querySelector('#comune_nascita_wrap_'+index).style.display = si ? '' : 'none';
     div.querySelector('[data-field="provincia_nascita"]').closest('div').style.display = si ? '' : 'none';
     div.querySelector('#stato_nascita_wrap_'+index).style.display = si ? 'none' : '';
+    // Switch campo luogo rilascio: comuni per italiani, stati per stranieri
+    var lw = div.querySelector('#luogo_rilascio_wrap_'+index);
+    var oldSW = lw.querySelector('.search-wrap');
+    var L2 = T[currentLang] || T.it;
+    var newSW = si
+      ? makeSearchField('luogo_'+index, L2.ph_comune, COMUNI_ITALIANI, null)
+      : makeSearchField('luogo_'+index, L2.ph_paese, STATI_ESTERI, null);
+    newSW.querySelector('input').dataset.field = 'luogo_rilascio_nome';
+    newSW.dataset.mode = si ? 'comune' : 'stato';
+    lw.replaceChild(newSW, oldSW);
+    // Aggiorna label
+    var lbl = lw.querySelector('label');
+    if (lbl) lbl.textContent = si ? (L2.lbl_luogo||'Comune/Ente rilascio *') : (L2.lbl_luogo_stato||'Stato rilascio *');
   });
 
   return div;
@@ -2026,7 +2041,13 @@ document.getElementById('checkinForm').addEventListener('submit', async function
         obj.provincia_nascita = 'EE';
       }
       obj.cittadinanza_codice = getCodiceStato(card.querySelector('#cittadinanza_wrap_'+idx).querySelector('.search-wrap'));
-      obj.luogo_rilascio_codice = getCodiceComune(card.querySelector('#luogo_rilascio_wrap_'+idx).querySelector('.search-wrap'));
+      // Luogo rilascio: comuni per italiani, stato per stranieri
+      var luogoSW = card.querySelector('#luogo_rilascio_wrap_'+idx).querySelector('.search-wrap');
+      if (natoItalia) {
+        obj.luogo_rilascio_codice = getCodiceComune(luogoSW);
+      } else {
+        obj.luogo_rilascio_codice = getCodiceStato(luogoSW);
+      }
 
       var fronte = card.querySelector('[data-file="documento_fronte"]').files[0];
       var retro = card.querySelector('[data-file="documento_retro"]').files[0];
