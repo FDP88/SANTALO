@@ -672,14 +672,14 @@ function buildRecord(ospite, arrivo, partenza) {
     awPad(ospite.cittadinanza_codice || 'Z000', 9) +
     awPad(TIPI_DOC_AW[ospite.tipo_documento] || '01001', 5) +
     awPad(ospite.numero_documento || '', 20) +
-    awPad(ospite.luogo_rilascio_codice || '', 9);
+    awPad(ospite.luogo_rilascio_codice || '', 7);
 }
 
 function buildFile(pren, ospiti) {
   var header = '00' + CODICE_STRUTTURA + awDate(pren.arrivo) + String(ospiti.length).padStart(4,'0') + awPad('', 77);
   var lines = [header];
   ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); });
-  return lines.join('\r\n');
+  return lines.join('\n');
 }
 
 function loadAlloggiati() {
