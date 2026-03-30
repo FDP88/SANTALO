@@ -144,6 +144,10 @@
     .today-pill.none{color:var(--muted);background:var(--cream-d)}
     .prox-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
     .prox-date{font-size:13px;font-weight:700;color:var(--ink);min-width:110px}
+    .pulizie-msg{background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.75;white-space:pre-wrap;color:var(--ink);margin:10px 0;max-height:200px;overflow-y:auto}
+    .pulizie-day-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--cream-d);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--brown);transition:all .15s}
+    .pulizie-day-btn.active{background:var(--brown);color:#fff;border-color:var(--brown)}
+    .pulizie-day-btn:hover{background:var(--sand-l)}
     /* Calendario annuale */
     .cal-month-corner{background:#fff;position:sticky;left:0;z-index:11}
     .cal-month-hdr{text-align:center;font-size:11px;font-weight:700;color:var(--muted);padding:5px 2px;border-bottom:1px solid var(--line);border-right:2px solid var(--line);background:#fafaf8;letter-spacing:.03em;text-transform:uppercase}
@@ -310,6 +314,19 @@
         <div class="card-title">Link rapidi</div>
         <div id="linkRapidi" style="color:var(--muted);font-size:13px;padding:4px 0">Seleziona una prenotazione dalla lista.</div>
       </div>
+
+      <div class="card" id="pulizie-widget">
+        <div class="card-title">🧹 Messaggio pulizie</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <button class="pulizie-day-btn" id="pulBtn-oggi" onclick="setPulDay('oggi')">Oggi</button>
+          <button class="pulizie-day-btn active" id="pulBtn-domani" onclick="setPulDay('domani')">Domani</button>
+        </div>
+        <div id="puliziePreview" class="pulizie-msg">Caricamento...</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="copiaPulizie()">📋 Copia</button>
+          <button class="btn btn-green btn-sm" onclick="whatsappPulizie()">WhatsApp</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -443,6 +460,7 @@ function loadAll() {
     el.textContent = prenotazioni.length + ' prenotazioni'; el.className = 'pill ok';
     renderPrenotazioni(); generaMessaggio(); aggiornaLink();
     loadBadgeCheckin();
+    aggiornaPulizie();
   });
 }
 
@@ -1043,6 +1061,86 @@ function generaSchedina(prenId) {
   });
 }
 
+// ===== WIDGET PULIZIE =====
+var pulDay = 'domani';
+
+function setPulDay(day) {
+  pulDay = day;
+  document.getElementById('pulBtn-oggi').className = 'pulizie-day-btn' + (day==='oggi' ? ' active' : '');
+  document.getElementById('pulBtn-domani').className = 'pulizie-day-btn' + (day==='domani' ? ' active' : '');
+  aggiornaPulizie();
+}
+
+function aggiornaPulizie() {
+  var preview = document.getElementById('puliziePreview');
+  if (!preview) return;
+
+  var target = new Date();
+  target.setHours(0,0,0,0);
+  if (pulDay === 'domani') target.setDate(target.getDate() + 1);
+  var targetStr = target.toISOString().slice(0,10);
+  var targetFmt = target.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+
+  // Trova tutti i check-out del giorno target
+  var checkouts = prenotazioni.filter(function(p) { return p.partenza === targetStr; });
+
+  if (!checkouts.length) {
+    preview.textContent = 'Nessun check-out ' + (pulDay==='oggi'?'oggi':'domani') + ' — nessuna camera da pulire.';
+    return;
+  }
+
+  // Raggruppa per camera e costruisci messaggio
+  var righe = checkouts.map(function(p) {
+    var cam = (p.camera||'').replace('Camera ','');
+    var ospite = (p.nome||'').split(' ')[0];
+    // Verifica se c'è un check-in nella stessa camera lo stesso giorno
+    var nuovoArrivo = prenotazioni.find(function(p2) {
+      return p2.arrivo === targetStr && p2.camera === p.camera && p2.id !== p.id;
+    });
+    var riga = '• Camera ' + cam + ' — check-out ' + ospite;
+    if (nuovoArrivo) {
+      riga += '
+  ⚠️ Nuovo arrivo stesso giorno: ' + (nuovoArrivo.nome||'').split(' ')[0];
+    }
+    return riga;
+  });
+
+  var msg = 'Ciao Marianna! 👋
+
+';
+  msg += checkouts.length === 1
+    ? 'Per ' + (pulDay==='oggi'?'oggi':'domani') + ' (' + targetFmt + ') c'è 1 camera da rifare:
+
+'
+    : 'Per ' + (pulDay==='oggi'?'oggi':'domani') + ' (' + targetFmt + ') ci sono ' + checkouts.length + ' camere da rifare:
+
+';
+  msg += righe.join('
+');
+  msg += '
+
+Grazie! 🙏';
+
+  preview.textContent = msg;
+}
+
+function copiaPulizie() {
+  var txt = document.getElementById('puliziePreview').textContent;
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = event.target;
+    var orig = btn.textContent;
+    btn.textContent = '✅ Copiato!';
+    setTimeout(function(){ btn.textContent = orig; }, 2000);
+  });
+}
+
+function whatsappPulizie() {
+  var txt = document.getElementById('puliziePreview').textContent;
+  var phone = PULIZIE_PHONE || '';
+  var url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(txt);
+  window.open(url, '_blank');
+}
+
 window.addEventListener('DOMContentLoaded', function() { loadAll(); });
 
 // ===== CALENDARIO =====
@@ -1094,6 +1192,11 @@ function renderCalendario() {
   cosOggi.forEach(function(p){ stripHtml += '<span class="today-pill out">🏃 Check-out: '+(p.nome||'').split(' ')[0]+' · '+(p.camera||'').replace('Camera ','')+'</span>'; });
   cisOggi.forEach(function(p){ stripHtml += '<span class="today-pill in">🛎 Check-in: '+(p.nome||'').split(' ')[0]+' · '+(p.camera||'').replace('Camera ','')+'</span>'; });
   if (!cosOggi.length && !cisOggi.length) stripHtml += '<span class="today-pill none">Nessun arrivo o partenza oggi</span>';
+  // Pulsante rapido pulizie
+  stripHtml += '<div style="margin-left:auto;display:flex;gap:6px;align-items:center">' +
+    '<button class="pulizie-day-btn'+(pulDay==='oggi'?' active':'')+'" onclick="setPulDay('oggi');showTab('lista')" style="font-size:11px;padding:4px 10px">🧹 Oggi</button>' +
+    '<button class="pulizie-day-btn'+(pulDay==='domani'?' active':'')+'" onclick="setPulDay('domani');showTab('lista')" style="font-size:11px;padding:4px 10px">🧹 Domani</button>' +
+    '</div>';
   stripHtml += '</div>';
 
   // ---- LEGENDA + ANNO ----
