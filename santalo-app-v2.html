@@ -271,6 +271,17 @@
     </div>
   </div>
 
+  <!-- MODAL CHECK-IN -->
+  <div id="ciModal" style="display:none;position:fixed;inset:0;background:rgba(46,36,31,.55);z-index:1000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)this.style.display='none'">
+    <div style="background:#fff;border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(46,36,31,.18)">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px 0">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--brown)" id="ciModalTitle">Dettaglio Check-in</div>
+        <button onclick="document.getElementById('ciModal').style.display='none'" style="background:var(--cream-d);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1.1rem;color:var(--muted)">&#x2715;</button>
+      </div>
+      <div id="ciModalBody" style="padding:18px 22px 22px"></div>
+    </div>
+  </div>
+
   <div class="footer">
     Santalò Bed &amp; Breakfast · Vico Storto Sant&#39;Eligio 9 · 70032 Bitonto (BA)<br>
     CF: CQFGPP88E31A662T · P. IVA: 08212010725
@@ -654,14 +665,20 @@ function loadCheckin() {
   sb.from('checkin_ospiti').select('*').order('created_at', {ascending:false}).limit(50).then(function(result) {
     if (result.error) { root.innerHTML = '<div style="color:var(--err);padding:16px">Errore: ' + esc(result.error.message) + '</div>'; return; }
     if (!result.data || !result.data.length) { root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessun check-in ricevuto</div>'; return; }
-    root.innerHTML = result.data.map(function(c) {
-      return '<div class="checkin-item">' +
-        '<div class="checkin-name">' + esc(c.nome||'') + ' ' + esc(c.cognome||'') + '</div>' +
-        '<div class="checkin-meta">Pren. #' + (c.prenotazione_id||'--') + ' · ' + esc(c.tipo_documento||'--') + ' ' + esc(c.numero_documento||'') + ' · ' + esc(c.cittadinanza_nome||c.cittadinanza||'--') + '</div>' +
-        '<div class="checkin-meta" style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">' +
-        (c.documento_fronte_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.documento_fronte_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Fronte</a>' : '') +
-        (c.documento_retro_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.documento_retro_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Retro</a>' : '') +
-        (c.selfie_documento_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.selfie_documento_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Selfie</a>' : '') +
+    root.innerHTML = result.data.map(function(osp) {
+      var badge = osp.is_capofamiglia
+        ? '<span style="background:var(--brown);color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:6px">Capofamiglia</span>'
+        : '<span style="background:var(--cream-d);color:var(--muted);border-radius:999px;padding:2px 8px;font-size:10px;font-weight:600;margin-left:6px">Ospite</span>';
+      return '<div class="checkin-item" style="cursor:pointer" onclick="apriCheckinModal(' + osp.id + ')">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between">' +
+        '<div class="checkin-name">' + esc((osp.nome||'')+' '+(osp.cognome||'')).trim() + badge + '</div>' +
+        '<span style="font-size:11px;color:var(--muted)">Pren. #'+(osp.prenotazione_id||'--')+'</span>' +
+        '</div>' +
+        '<div class="checkin-meta">'+esc(osp.tipo_documento||'--')+' '+esc(osp.numero_documento||'')+' &middot; '+esc(osp.cittadinanza_nome||osp.cittadinanza||'--')+'</div>' +
+        '<div class="checkin-meta" style="margin-top:5px;display:flex;gap:8px;flex-wrap:wrap">' +
+        (osp.documento_fronte_path?'<a href="'+esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+osp.documento_fronte_path)+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--brown);font-weight:600;font-size:12px">Fronte</a>':'') +
+        (osp.documento_retro_path?'<a href="'+esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+osp.documento_retro_path)+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--brown);font-weight:600;font-size:12px">Retro</a>':'') +
+        (osp.selfie_documento_path?'<a href="'+esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+osp.selfie_documento_path)+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--brown);font-weight:600;font-size:12px">Selfie</a>':'') +
         '</div></div>';
     }).join('');
   });
@@ -705,16 +722,21 @@ function loadConversazioni() {
 var CODICE_STRUTTURA = 'BA008847 ';
 
 var TIPI_DOC_AW = {
-  'Carta di identità': '02013',
-  'Passaporto': '01001',
-  'Patente': '02003',
-  'Permesso di soggiorno': '02012',
+  'IDENT': 'IDENT', 'Carta di identità': 'IDENT',
+  'IDELE': 'IDELE',
+  'PASOR': 'PASOR', 'Passaporto': 'PASOR',
+  'PATEN': 'PATEN', 'Patente': 'PATEN',
+  'RIFUG': 'RIFUG', 'Permesso di soggiorno': 'RIFUG',
 };
 
-var UE_CODES = ['Z102','Z103','Z104','Z107','Z109','Z110','Z112','Z114','Z115',
-  'Z116','Z119','Z122','Z125','Z127','Z128','Z129','Z131','Z132','Z133',
-  'Z134','Z138','Z139','Z144','Z145','Z146','Z148','Z149','Z150','Z153',
-  'Z154','Z155','Z156'];
+var UE_CODES = [
+  '100000203','100000206','100000209','100000212','100000214','100000215',
+  '100000216','100000220','100000221','100000223','100000225','100000226',
+  '100000227','100000229','100000231','100000232','100000233','100000234',
+  '100000235','100000236','100000239','100000240','100000241','100000243',
+  '100000244','100000247','100000248','100000249','100000250','100000251',
+  '100000252','100000254','100000255','100000256','100000257'
+];
 
 function awPad(s, len) {
   s = String(s || '');
@@ -743,26 +765,40 @@ function buildRecord(ospite, arrivo, partenza) {
   var tipo;
   if (ospite.tipo_alloggiato) {
     tipo = String(ospite.tipo_alloggiato).padStart(2, '0');
-  } else if (!citt || citt === 'Z000') { tipo = '20'; }
+  } else if (!citt || citt === '100000100' || citt === 'Z000') { tipo = '20'; }
   else if (UE_CODES.indexOf(citt) >= 0) { tipo = '21'; }
   else { tipo = '22'; }
 
   // Giorni permanenza: 2 caratteri (formato file upload, non web service)
   var giorni = String(awDays(arrivo, partenza)).padStart(2, '0');
-  var natoItalia = ospite.nato_italia || ospite.stato_nascita_codice === 'Z000' || !ospite.stato_nascita_codice;
+  var natoItalia = ospite.nato_italia === true ||
+    ospite.nato_italia === 'true' ||
+    ospite.stato_nascita_codice === '100000100' ||
+    ospite.stato_nascita_codice === 'Z000' ||
+    (!ospite.stato_nascita_codice && ospite.comune_nascita_codice);
 
   var comuneNascita, provinciaNascita, statoNascita;
   if (natoItalia) {
     comuneNascita = awPad(ospite.comune_nascita_codice || '', 9);
     provinciaNascita = awPad(ospite.provincia_nascita || '', 2);
-    statoNascita = awPad('Z000', 9);
+    statoNascita = awPad('100000100', 9);
   } else {
     comuneNascita = awPad('', 9);
     provinciaNascita = awPad('EE', 2);
     statoNascita = awPad(ospite.stato_nascita_codice || '', 9);
   }
 
-  // Formato file upload: NO codice struttura, 168 caratteri totali
+  // Luogo rilascio: per stranieri usa cittadinanza_codice, per italiani usa comune
+  var luogoRilascio;
+  if (natoItalia) {
+    luogoRilascio = awPad(ospite.luogo_rilascio_codice || '', 9);
+  } else {
+    // Per stranieri: luogo_rilascio_codice dovrebbe essere il codice stato
+    // Se non disponibile usa cittadinanza come fallback
+    var lr = ospite.luogo_rilascio_codice || ospite.cittadinanza_codice || '';
+    luogoRilascio = awPad(lr, 9);
+  }
+
   return tipo +
     awDate(arrivo) +
     giorni +
@@ -773,10 +809,10 @@ function buildRecord(ospite, arrivo, partenza) {
     comuneNascita +
     provinciaNascita +
     statoNascita +
-    awPad(ospite.cittadinanza_codice || 'Z000', 9) +
-    awPad(TIPI_DOC_AW[ospite.tipo_documento] || '01001', 5) +
+    awPad(ospite.cittadinanza_codice || '100000100', 9) +
+    awPad(TIPI_DOC_AW[ospite.tipo_documento] || 'PASOR', 5) +
     awPad(ospite.numero_documento || '', 20) +
-    awPad(ospite.luogo_rilascio_codice || '', 9);
+    luogoRilascio;
 }
 
 function buildFile(pren, ospiti) {
@@ -1088,6 +1124,102 @@ function renderCalendario() {
 
   root.innerHTML = strip + nav + gotoRow + leg + tbl + proxS;
 }
+// ===== MODAL CHECK-IN =====
+var ciData = {};
+function apriCheckinModal(id) {
+  sb.from('checkin_ospiti').select('*').eq('id', id).maybeSingle().then(function(r) {
+    if (!r.data) return;
+    var o = r.data;
+    ciData[id] = o;
+    document.getElementById('ciModalTitle').textContent = (o.nome||'') + ' ' + (o.cognome||'');
+    var campi = [
+      ['Tipo alloggiato', o.tipo_alloggiato],
+      ['Sesso', o.sesso==='1'?'Maschio':'Femmina'],
+      ['Data nascita', fmt(o.data_nascita)],
+      ['Nato in Italia', o.nato_italia?'Si':'No'],
+      ['Comune nascita', o.comune_nascita_nome||o.comune_nascita_codice||'—'],
+      ['Provincia nascita', o.provincia_nascita||'—'],
+      ['Stato nascita', o.stato_nascita_nome||o.stato_nascita_codice||'—'],
+      ['Cittadinanza', o.cittadinanza_nome||o.cittadinanza_codice||'—'],
+      ['Tipo documento', o.tipo_documento||'—'],
+      ['Numero documento', o.numero_documento||'—'],
+      ['Data rilascio', fmt(o.data_rilascio_documento)],
+      ['Luogo rilascio', o.luogo_rilascio_nome||o.luogo_rilascio_codice||'—'],
+    ];
+    var grid = campi.map(function(f) {
+      return '<div style="background:var(--cream);border-radius:9px;padding:9px 12px">'
+        +'<div style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:2px">'+esc(f[0])+'</div>'
+        +'<div style="font-size:13px;font-weight:500">'+esc(String(f[1]||'—'))+'</div></div>';
+    }).join('');
+    var fotos = '';
+    if (o.documento_fronte_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_fronte_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Fronte</a> ';
+    if (o.documento_retro_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_retro_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Retro</a> ';
+    if (o.selfie_documento_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.selfie_documento_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Selfie</a>';
+    document.getElementById('ciModalBody').innerHTML =
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'
+      +(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')
+      +'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap">'
+      +'<button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">&#9998; Modifica</button>'
+      +'<button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')">&#128465; Elimina</button>'
+      +'</div>';
+    document.getElementById('ciModal').style.display = 'flex';
+  });
+}
+function apriModificaCI(id) {
+  var o = ciData[id]; if (!o) return;
+  var fields = [
+    {k:'nome',l:'Nome'},{k:'cognome',l:'Cognome'},
+    {k:'sesso',l:'Sesso',type:'select',opts:[{v:'1',t:'Maschio'},{v:'2',t:'Femmina'}]},
+    {k:'data_nascita',l:'Data nascita',type:'date'},
+    {k:'tipo_documento',l:'Tipo documento',type:'select',opts:[{v:'IDENT',t:'Carta identità'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]},
+    {k:'numero_documento',l:'Numero documento'},
+    {k:'data_rilascio_documento',l:'Data rilascio',type:'date'},
+    {k:'comune_nascita_codice',l:'Codice comune nascita'},
+    {k:'provincia_nascita',l:'Provincia nascita'},
+    {k:'stato_nascita_codice',l:'Codice stato nascita'},
+    {k:'cittadinanza_codice',l:'Codice cittadinanza'},
+    {k:'luogo_rilascio_codice',l:'Codice luogo rilascio'},
+  ];
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  fields.forEach(function(f) {
+    html += '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">'+f.l+'</label>';
+    if (f.type==='select') {
+      html += '<select id="ci_'+f.k+'" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px">';
+      f.opts.forEach(function(op){ html += '<option value="'+op.v+'"'+(String(o[f.k])===op.v?' selected':'')+'>'+op.t+'</option>'; });
+      html += '</select>';
+    } else {
+      html += '<input id="ci_'+f.k+'" type="'+(f.type||'text')+'" value="'+esc(String(o[f.k]||''))+'" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px">';
+    }
+    html += '</div>';
+  });
+  html += '</div><div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">';
+  html += '<button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">&#10003; Salva</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
+  document.getElementById('ciModalBody').innerHTML = html;
+}
+function salvaCI(id) {
+  var fields = ['nome','cognome','sesso','data_nascita','tipo_documento','numero_documento',
+    'data_rilascio_documento','comune_nascita_codice','provincia_nascita',
+    'stato_nascita_codice','cittadinanza_codice','luogo_rilascio_codice'];
+  var upd = {};
+  fields.forEach(function(k) {
+    var el = document.getElementById('ci_'+k); if (el) upd[k] = el.value;
+  });
+  sb.from('checkin_ospiti').update(upd).eq('id', id).then(function(r) {
+    if (r.error) { alert('Errore: '+r.error.message); return; }
+    document.getElementById('ciModal').style.display = 'none';
+    loadCheckin();
+  });
+}
+function eliminaCI(id) {
+  if (!confirm('Eliminare questo check-in?')) return;
+  sb.from('checkin_ospiti').delete().eq('id', id).then(function(r) {
+    if (r.error) { alert('Errore: '+r.error.message); return; }
+    document.getElementById('ciModal').style.display = 'none';
+    loadCheckin();
+  });
+}
+
 window.addEventListener('DOMContentLoaded', function() { loadAll(); });
 </script>
 </body>

@@ -54,6 +54,8 @@
     .footer{margin-top:18px;padding:18px;text-align:center;color:var(--brown);background:rgba(255,255,255,.55);border:1px solid var(--line);border-radius:22px;}
     .footer img{width:70px;height:70px;object-fit:contain;margin-bottom:8px;}
     @media(max-width:700px){.grid{grid-template-columns:1fr;}h1{font-size:38px;}}
+    .lang-flag{background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:.85rem;font-weight:600;color:#fff;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;letter-spacing:.02em;transition:background .15s;line-height:1.3;display:inline-flex;align-items:center;gap:3px}
+    .lang-flag:hover,.lang-flag.active-lang{background:rgba(255,255,255,.35)}
   </style>
 </head>
 <body>
@@ -68,11 +70,11 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:12px">
           <div class="pill" style="background:rgba(255,255,255,.14);color:#fff">Santalò B&B · Bitonto, Puglia</div>
           <div style="display:flex;gap:5px">
-            <button type="button" onclick="setLang('it')" data-lang="it" class="lang-flag" style="background:rgba(255,255,255,.2);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇮🇹</button>
-            <button type="button" onclick="setLang('en')" data-lang="en" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇬🇧</button>
-            <button type="button" onclick="setLang('fr')" data-lang="fr" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇫🇷</button>
-            <button type="button" onclick="setLang('de')" data-lang="de" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇩🇪</button>
-            <button type="button" onclick="setLang('es')" data-lang="es" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇪🇸</button>
+            <button type="button" onclick="setLang('it')" data-lang="it" class="lang-flag">🇮🇹 IT</button>
+            <button type="button" onclick="setLang('en')" data-lang="en" class="lang-flag">🇬🇧 EN</button>
+            <button type="button" onclick="setLang('fr')" data-lang="fr" class="lang-flag">🇫🇷 FR</button>
+            <button type="button" onclick="setLang('de')" data-lang="de" class="lang-flag">🇩🇪 DE</button>
+            <button type="button" onclick="setLang('es')" data-lang="es" class="lang-flag">🇪🇸 ES</button>
           </div>
         </div>
         <h1 id="hero_title">Check-in online</h1>
@@ -180,6 +182,7 @@ var T = {
     opt_sel:"Seleziona", opt_si:"Sì", opt_no:"No", opt_m:"Maschio", opt_f:"Femmina",
     opt_singolo:"Ospite Singolo", opt_capo_fam:"Capo Famiglia", opt_capo_grp:"Capo Gruppo", opt_familiare:"Familiare", opt_membro:"Membro Gruppo",
     ph_paese:"Cerca paese...", ph_comune:"Cerca comune...", ph_stato:"Cerca stato...",
+    opt_ci:"Carta di identità", opt_pass:"Passaporto", opt_pat:"Patente", opt_perm:"Permesso di soggiorno",
     sending:"Invio in corso, attendi qualche secondo..."
   },
   en:{
@@ -203,6 +206,7 @@ var T = {
     opt_sel:"Select", opt_si:"Yes", opt_no:"No", opt_m:"Male", opt_f:"Female",
     opt_singolo:"Single guest", opt_capo_fam:"Head of family", opt_capo_grp:"Group leader", opt_familiare:"Family member", opt_membro:"Group member",
     ph_paese:"Search country...", ph_comune:"Search city...", ph_stato:"Search country...",
+    opt_ci:"Identity card", opt_pass:"Passport", opt_pat:"Driving licence", opt_perm:"Residence permit",
     sending:"Sending, please wait..."
   },
   fr:{
@@ -226,6 +230,7 @@ var T = {
     opt_sel:"Sélectionner", opt_si:"Oui", opt_no:"Non", opt_m:"Homme", opt_f:"Femme",
     opt_singolo:"Hôte seul", opt_capo_fam:"Chef de famille", opt_capo_grp:"Chef de groupe", opt_familiare:"Membre famille", opt_membro:"Membre groupe",
     ph_paese:"Rechercher pays...", ph_comune:"Rechercher ville...", ph_stato:"Rechercher pays...",
+    opt_ci:"Carte d\'identité", opt_pass:"Passeport", opt_pat:"Permis de conduire", opt_perm:"Titre de séjour",
     sending:"Envoi en cours..."
   },
   de:{
@@ -249,6 +254,7 @@ var T = {
     opt_sel:"Auswählen", opt_si:"Ja", opt_no:"Nein", opt_m:"Männlich", opt_f:"Weiblich",
     opt_singolo:"Einzelgast", opt_capo_fam:"Familienoberhaupt", opt_capo_grp:"Gruppenleiter", opt_familiare:"Familienmitglied", opt_membro:"Gruppenmitglied",
     ph_paese:"Land suchen...", ph_comune:"Stadt suchen...", ph_stato:"Land suchen...",
+    opt_ci:"Personalausweis", opt_pass:"Reisepass", opt_pat:"Führerschein", opt_perm:"Aufenthaltserlaubnis",
     sending:"Wird gesendet..."
   },
   es:{
@@ -1704,33 +1710,33 @@ function guestTemplate(index, totalGuests) {
     '<div><label>'+L.lbl_nome+'</label><input data-field="nome" required></div>'+
     '<div><label>'+L.lbl_sesso+'</label><select data-field="sesso" required><option value="">'+L.opt_sel+'</option><option value="1">'+L.opt_m+'</option><option value="2">'+L.opt_f+'</option></select></div>'+
     '<div><label>'+L.lbl_ddn+'</label><input data-field="data_nascita" type="date" required></div>'+
-    '<div id="cittadinanza_wrap_'+index+'"><label>Cittadinanza *</label></div>'+
+    '<div id="cittadinanza_wrap_'+index+'">'+'<label>'+L.lbl_citt+'</label></div>'+
     '<div><label>'+L.lbl_nato+'</label><select id="nato_italia_'+index+'"><option value="si">'+L.opt_si+'</option><option value="no">'+L.opt_no+'</option></select></div>'+
-    '<div id="comune_nascita_wrap_'+index+'"><label>Comune di nascita *</label></div>'+
+    '<div id="comune_nascita_wrap_'+index+'">'+'<label>'+L.lbl_comune+'</label></div>'+
     '<div><label>'+L.lbl_prov+'</label><input data-field="provincia_nascita" maxlength="2" placeholder="BA"></div>'+
-    '<div id="stato_nascita_wrap_'+index+'" style="display:none"><label>Stato di nascita *</label></div>'+
-    '<div><label>Tipo documento *</label><select data-field="tipo_documento" required>'+
-    '<option value="">Seleziona</option>'+
-    '<option value="Carta di identità">Carta di identità</option>'+
-    '<option value="Passaporto">Passaporto</option>'+
-    '<option value="Patente">Patente</option>'+
-    '<option value="Permesso di soggiorno">Permesso di soggiorno</option>'+
+    '<div id="stato_nascita_wrap_'+index+'" style="display:none">'+'<label>'+L.lbl_stato+'</label></div>'+
+    '<div><label>'+L.lbl_tdoc+'</label><select data-field="tipo_documento" required>'+
+    '<option value="">'+L.opt_sel+'</option>'+
+    '<option value="IDENT">'+L.opt_ci+'</option>'+
+    '<option value="PASOR">'+L.opt_pass+'</option>'+
+    '<option value="PATEN">'+L.opt_pat+'</option>'+
+    '<option value="RIFUG">'+L.opt_perm+'</option>'+
     '</select></div>'+
     '<div><label>'+L.lbl_ndoc+'</label><input data-field="numero_documento" required></div>'+
     '<div><label>'+L.lbl_ddoc+'</label><input data-field="data_rilascio_documento" type="date" required></div>'+
-    '<div id="luogo_rilascio_wrap_'+index+'"><label>Comune/Ente rilascio *</label></div>'+
+    '<div id="luogo_rilascio_wrap_'+index+'">'+'<label>'+L.lbl_luogo+'</label></div>'+
     // Foto con pulsanti
     '<div><label>'+L.lbl_fronte+'</label>'+
     '<input type="file" accept="image/*" data-file="documento_fronte" id="file_fronte_'+index+'" style="display:none">'+
-    '<button type="button" class="upload-btn" id="btn_fronte_'+index+'" onclick="document.getElementById(\'file_fronte_'+index+'\').click()">📷 Scatta o carica foto fronte</button>'+
+    '<button type="button" class="upload-btn" id="btn_fronte_'+index+'" onclick="document.getElementById(\'file_fronte_'+index+'\').click()">'+ L.btn_fronte +'</button>'+
     '<div class="upload-preview" id="prev_fronte_'+index+'"></div></div>'+
     '<div><label>'+L.lbl_retro+'</label>'+
     '<input type="file" accept="image/*" data-file="documento_retro" id="file_retro_'+index+'" style="display:none">'+
-    '<button type="button" class="upload-btn" id="btn_retro_'+index+'" onclick="document.getElementById(\'file_retro_'+index+'\').click()">📷 Scatta o carica foto retro</button>'+
+    '<button type="button" class="upload-btn" id="btn_retro_'+index+'" onclick="document.getElementById(\'file_retro_'+index+'\').click()">'+ L.btn_retro +'</button>'+
     '<div class="upload-preview" id="prev_retro_'+index+'"></div></div>'+
     '<div class="full"><label>'+L.lbl_selfie+'</label>'+
     '<input type="file" accept="image/*" data-file="selfie_documento" id="file_selfie_'+index+'" style="display:none">'+
-    '<button type="button" class="upload-btn" id="btn_selfie_'+index+'" onclick="document.getElementById(\'file_selfie_'+index+'\').click()">🤳 Scatta selfie con documento</button>'+
+    '<button type="button" class="upload-btn" id="btn_selfie_'+index+'" onclick="document.getElementById(\'file_selfie_'+index+'\').click()">'+ L.btn_selfie +'</button>'+
     '<div class="upload-preview" id="prev_selfie_'+index+'"></div></div>'+
     '</div>';
 
@@ -2087,7 +2093,9 @@ function setLang(lang) {
     var lbl=el.closest('div').querySelector('label'); if(lbl) lbl.textContent=L[map[id]];
   });
   // Flag attivo
-  document.querySelectorAll('.lang-flag').forEach(function(b){ b.style.background=b.dataset.lang===lang?'rgba(255,255,255,.4)':'rgba(255,255,255,.1)'; });
+  document.querySelectorAll('.lang-flag').forEach(function(b){
+    b.classList.toggle('active-lang', b.dataset.lang===lang);
+  });
   // Ri-renderizza ospiti con nuova lingua
   var n=parseInt(document.getElementById('numOspiti').value)||1;
   renderGuests(n);
