@@ -386,12 +386,25 @@ function ext(name='file.jpg') {
   return p && p !== name ? p.toLowerCase() : 'jpg';
 }
 
-// Reset red border when file is selected
+// Reset red border and show preview when file selected
 document.addEventListener('change', function(e) {
   if (e.target && e.target.type === 'file') {
     e.target.style.border = '';
     if (e.target.files && e.target.files[0]) {
       statusBox.className = 'status';
+      // Show filename as confirmation
+      var id = e.target.id; // e.g. file_fronte_0
+      var parts = id.replace('file_','').split('_'); // ['fronte','0'] or ['selfie','0']
+      var label = parts.slice(0,-1).join('_'); // 'fronte', 'retro', 'selfie'
+      var idx = parts[parts.length-1];
+      var previewId = 'preview_' + label + '_' + idx;
+      var preview = document.getElementById(previewId);
+      if (preview) {
+        preview.textContent = '✅ ' + e.target.files[0].name;
+        // Also update button style
+        var btn = e.target.nextElementSibling && e.target.nextElementSibling.querySelector('button');
+        if (btn) btn.style.borderColor = 'var(--ok)';
+      }
     }
   }
 });
@@ -471,9 +484,9 @@ function guestTemplate(index) {
     '<div><label>Numero documento *</label><input data-field="numero_documento" required></div>' +
     '<div><label>Data rilascio documento *</label><input data-field="data_rilascio_documento" type="date" required></div>' +
     '<div id="luogo_rilascio_wrap_' + index + '"><label>Comune/Ente rilascio *</label></div>' +
-    '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" required></div>' +
-    '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" required></div>' +
-    '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" required></div>' +
+    '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" style="display:none" id="file_fronte_' + index + '"><div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="document.getElementById(\"file_fronte_' + index + '\").click()" style="flex:1;background:#fff;color:var(--brown);border:1.5px solid rgba(107,45,31,.25);border-radius:12px;padding:10px;font-size:13px;cursor:pointer">📷 Scatta / Carica foto</button></div><div id="preview_fronte_' + index + '" style="margin-top:6px;font-size:12px;color:var(--ok)"></div></div>' +
+    '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" style="display:none" id="file_retro_' + index + '"><div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="document.getElementById(\"file_retro_' + index + '\").click()" style="flex:1;background:#fff;color:var(--brown);border:1.5px solid rgba(107,45,31,.25);border-radius:12px;padding:10px;font-size:13px;cursor:pointer">📷 Scatta / Carica foto</button></div><div id="preview_retro_' + index + '" style="margin-top:6px;font-size:12px;color:var(--ok)"></div></div>' +
+    '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" style="display:none" id="file_selfie_' + index + '"><div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="document.getElementById(\"file_selfie_' + index + '\").click()" style="flex:1;background:#fff;color:var(--brown);border:1.5px solid rgba(107,45,31,.25);border-radius:12px;padding:10px;font-size:13px;cursor:pointer">🤳 Scatta selfie / Carica foto</button></div><div id="preview_selfie_' + index + '" style="margin-top:6px;font-size:12px;color:var(--ok)"></div></div>' +
     '</div>';
   
   // Add search fields
@@ -526,24 +539,56 @@ function renderGuests(count) {
 
 async function preloadBooking() {
   document.getElementById('nomePrenotante').value = qs.get('nome') || '';
-  document.getElementById('camera').value = qs.get('camera') || '';
   document.getElementById('arrivo').value = qs.get('arrivo') || '';
   document.getElementById('partenza').value = qs.get('partenza') || '';
   document.getElementById('numOspiti').value = qs.get('num_ospiti') || '1';
   renderGuests(Number(document.getElementById('numOspiti').value));
+  // Se la camera arriva dai parametri URL, blocca subito il campo
+  var camParam = qs.get('camera');
+  if (camParam) {
+    var camSel = document.getElementById('camera');
+    camSel.value = camParam;
+    camSel.disabled = true;
+    camSel.style.background = '#f5f0eb';
+    camSel.style.color = 'var(--brown)';
+    camSel.style.fontWeight = '600';
+  }
 
   if (!prenotazioneId) return;
   var result = await sb.from('prenotazioni').select('*').eq('id', prenotazioneId).maybeSingle();
   if (result.data) {
     var d = result.data;
     document.getElementById('nomePrenotante').value = d.nome || document.getElementById('nomePrenotante').value;
-    document.getElementById('camera').value = d.camera || document.getElementById('camera').value;
     document.getElementById('arrivo').value = d.arrivo || document.getElementById('arrivo').value;
     document.getElementById('partenza').value = d.partenza || document.getElementById('partenza').value;
     document.getElementById('telefono').value = d.telefono || '';
     document.getElementById('email').value = d.email || '';
     document.getElementById('numOspiti').value = String(Math.min(Number(d.num_ospiti || 1), 2));
     renderGuests(Number(document.getElementById('numOspiti').value));
+    // Blocca camera e nome prenotante se già assegnati dalla prenotazione
+    if (d.camera) {
+      var camSel = document.getElementById('camera');
+      camSel.value = d.camera;
+      camSel.disabled = true;
+      camSel.style.background = '#f5f0eb';
+      camSel.style.color = 'var(--brown)';
+      camSel.style.fontWeight = '600';
+    }
+    if (d.nome) {
+      var nomeInp = document.getElementById('nomePrenotante');
+      nomeInp.readOnly = true;
+      nomeInp.style.background = '#f5f0eb';
+      nomeInp.style.color = 'var(--brown)';
+      nomeInp.style.fontWeight = '600';
+    }
+    if (d.arrivo) {
+      document.getElementById('arrivo').readOnly = true;
+      document.getElementById('arrivo').style.background = '#f5f0eb';
+    }
+    if (d.partenza) {
+      document.getElementById('partenza').readOnly = true;
+      document.getElementById('partenza').style.background = '#f5f0eb';
+    }
   }
 }
 
@@ -624,6 +669,12 @@ async function submitCheckin(evt) {
   var cards = Array.from(guestsContainer.querySelectorAll('.guest-card'));
 
   // Campi prenotazione obbligatori
+  // Re-enable disabled fields temporarily to read values
+  ['camera','nomePrenotante','arrivo','partenza'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.disabled) el.disabled = false;
+  });
+
   var campiPren = [
     {id:'nomePrenotante', label:'Nome del prenotante'},
     {id:'camera', label:'Camera'},
@@ -1125,12 +1176,25 @@ function ext(name='file.jpg') {
   return p && p !== name ? p.toLowerCase() : 'jpg';
 }
 
-// Reset red border when file is selected
+// Reset red border and show preview when file selected
 document.addEventListener('change', function(e) {
   if (e.target && e.target.type === 'file') {
     e.target.style.border = '';
     if (e.target.files && e.target.files[0]) {
       statusBox.className = 'status';
+      // Show filename as confirmation
+      var id = e.target.id; // e.g. file_fronte_0
+      var parts = id.replace('file_','').split('_'); // ['fronte','0'] or ['selfie','0']
+      var label = parts.slice(0,-1).join('_'); // 'fronte', 'retro', 'selfie'
+      var idx = parts[parts.length-1];
+      var previewId = 'preview_' + label + '_' + idx;
+      var preview = document.getElementById(previewId);
+      if (preview) {
+        preview.textContent = '✅ ' + e.target.files[0].name;
+        // Also update button style
+        var btn = e.target.nextElementSibling && e.target.nextElementSibling.querySelector('button');
+        if (btn) btn.style.borderColor = 'var(--ok)';
+      }
     }
   }
 });
@@ -1210,9 +1274,9 @@ function guestTemplate(index) {
     '<div><label>Numero documento *</label><input data-field="numero_documento" required></div>' +
     '<div><label>Data rilascio documento *</label><input data-field="data_rilascio_documento" type="date" required></div>' +
     '<div id="luogo_rilascio_wrap_' + index + '"><label>Comune/Ente rilascio *</label></div>' +
-    '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" required></div>' +
-    '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" required></div>' +
-    '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" required></div>' +
+    '<div><label>Documento fronte *</label><input data-file="documento_fronte" type="file" accept="image/*" style="display:none" id="file_fronte_' + index + '"><div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="document.getElementById(\"file_fronte_' + index + '\").click()" style="flex:1;background:#fff;color:var(--brown);border:1.5px solid rgba(107,45,31,.25);border-radius:12px;padding:10px;font-size:13px;cursor:pointer">📷 Scatta / Carica foto</button></div><div id="preview_fronte_' + index + '" style="margin-top:6px;font-size:12px;color:var(--ok)"></div></div>' +
+    '<div><label>Documento retro *</label><input data-file="documento_retro" type="file" accept="image/*" style="display:none" id="file_retro_' + index + '"><div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="document.getElementById(\"file_retro_' + index + '\").click()" style="flex:1;background:#fff;color:var(--brown);border:1.5px solid rgba(107,45,31,.25);border-radius:12px;padding:10px;font-size:13px;cursor:pointer">📷 Scatta / Carica foto</button></div><div id="preview_retro_' + index + '" style="margin-top:6px;font-size:12px;color:var(--ok)"></div></div>' +
+    '<div class="full"><label>Selfie con documento *</label><input data-file="selfie_documento" type="file" accept="image/*" style="display:none" id="file_selfie_' + index + '"><div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="document.getElementById(\"file_selfie_' + index + '\").click()" style="flex:1;background:#fff;color:var(--brown);border:1.5px solid rgba(107,45,31,.25);border-radius:12px;padding:10px;font-size:13px;cursor:pointer">🤳 Scatta selfie / Carica foto</button></div><div id="preview_selfie_' + index + '" style="margin-top:6px;font-size:12px;color:var(--ok)"></div></div>' +
     '</div>';
   
   // Add search fields
@@ -1265,24 +1329,56 @@ function renderGuests(count) {
 
 async function preloadBooking() {
   document.getElementById('nomePrenotante').value = qs.get('nome') || '';
-  document.getElementById('camera').value = qs.get('camera') || '';
   document.getElementById('arrivo').value = qs.get('arrivo') || '';
   document.getElementById('partenza').value = qs.get('partenza') || '';
   document.getElementById('numOspiti').value = qs.get('num_ospiti') || '1';
   renderGuests(Number(document.getElementById('numOspiti').value));
+  // Se la camera arriva dai parametri URL, blocca subito il campo
+  var camParam = qs.get('camera');
+  if (camParam) {
+    var camSel = document.getElementById('camera');
+    camSel.value = camParam;
+    camSel.disabled = true;
+    camSel.style.background = '#f5f0eb';
+    camSel.style.color = 'var(--brown)';
+    camSel.style.fontWeight = '600';
+  }
 
   if (!prenotazioneId) return;
   var result = await sb.from('prenotazioni').select('*').eq('id', prenotazioneId).maybeSingle();
   if (result.data) {
     var d = result.data;
     document.getElementById('nomePrenotante').value = d.nome || document.getElementById('nomePrenotante').value;
-    document.getElementById('camera').value = d.camera || document.getElementById('camera').value;
     document.getElementById('arrivo').value = d.arrivo || document.getElementById('arrivo').value;
     document.getElementById('partenza').value = d.partenza || document.getElementById('partenza').value;
     document.getElementById('telefono').value = d.telefono || '';
     document.getElementById('email').value = d.email || '';
     document.getElementById('numOspiti').value = String(Math.min(Number(d.num_ospiti || 1), 2));
     renderGuests(Number(document.getElementById('numOspiti').value));
+    // Blocca camera e nome prenotante se già assegnati dalla prenotazione
+    if (d.camera) {
+      var camSel = document.getElementById('camera');
+      camSel.value = d.camera;
+      camSel.disabled = true;
+      camSel.style.background = '#f5f0eb';
+      camSel.style.color = 'var(--brown)';
+      camSel.style.fontWeight = '600';
+    }
+    if (d.nome) {
+      var nomeInp = document.getElementById('nomePrenotante');
+      nomeInp.readOnly = true;
+      nomeInp.style.background = '#f5f0eb';
+      nomeInp.style.color = 'var(--brown)';
+      nomeInp.style.fontWeight = '600';
+    }
+    if (d.arrivo) {
+      document.getElementById('arrivo').readOnly = true;
+      document.getElementById('arrivo').style.background = '#f5f0eb';
+    }
+    if (d.partenza) {
+      document.getElementById('partenza').readOnly = true;
+      document.getElementById('partenza').style.background = '#f5f0eb';
+    }
   }
 }
 
@@ -1435,3 +1531,14 @@ document.getElementById('checkinForm').addEventListener('submit', async function
     await submitCheckin(evt);
   } catch(err) {
     console.error(
+    showStatus('Errore: ' + (err.message || 'Problema durante l'invio. Riprova.'), true);
+  }
+});
+
+preloadBooking().catch(function(err) {
+  console.error(err);
+  showStatus('Impossibile caricare la prenotazione: ' + err.message, true);
+});
+</script>
+</body>
+</html>

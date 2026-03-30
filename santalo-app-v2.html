@@ -478,19 +478,20 @@ function generaMessaggio() {
   var fn = T[lang] || T['en'] || T['it'];
   var msg = '';
   var camNum = String(camera||'').replace('Camera ','');
+  var camName = camNum; // use just the number in message text to avoid "Camera Camera 1954"
   var istrUrl = (camNum==='1954' || camNum==='1956')
     ? 'https://fdp88.github.io/SANTALO/santalo-istruzioni-' + camNum + '.html'
     : MAPS_URL;
   var GOOGLE_REVIEW = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
   if (tpl === 'pulizie') {
     var pfn = (TEMPLATES.pulizie || {}).it;
-    msg = pfn ? pfn(camera, partenza, p.note||'') : '';
+    msg = pfn ? pfn(camName, partenza, p.note||'') : '';
     document.getElementById('messaggio').value = msg;
     document.getElementById('telefonoOut').value = PULIZIE_PHONE;
     return;
   }
   if (fn) {
-    if (tpl==='conferma') msg = fn(nome, arrivo, partenza, camera, cl);
+    if (tpl==='conferma') msg = fn(nome, arrivo, partenza, camName, cl);
     else if (tpl==='checkin') msg = fn(nome, cl);
     else if (tpl==='chatbot') msg = fn(nome, bot);
     else if (tpl==='reminder') msg = fn(nome, arrivo, cl);
