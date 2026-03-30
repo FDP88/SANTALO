@@ -639,12 +639,16 @@ function awDays(a, b) {
 
 function buildRecord(ospite, arrivo, partenza) {
   var citt = ospite.cittadinanza_codice || '';
+  // Usa tipo_alloggiato dal check-in se disponibile, altrimenti calcola da cittadinanza
   var tipo;
-  if (!citt || citt === 'Z000') { tipo = '20'; }
+  if (ospite.tipo_alloggiato) {
+    tipo = String(ospite.tipo_alloggiato).padStart(2, '0');
+  } else if (!citt || citt === 'Z000') { tipo = '20'; }
   else if (UE_CODES.indexOf(citt) >= 0) { tipo = '21'; }
   else { tipo = '22'; }
 
-  var giorni = String(awDays(arrivo, partenza)).padStart(4, '0');
+  // Giorni permanenza: 2 caratteri (formato file upload, non web service)
+  var giorni = String(awDays(arrivo, partenza)).padStart(2, '0');
   var natoItalia = ospite.nato_italia || ospite.stato_nascita_codice === 'Z000' || !ospite.stato_nascita_codice;
 
   var comuneNascita, provinciaNascita, statoNascita;
@@ -658,8 +662,8 @@ function buildRecord(ospite, arrivo, partenza) {
     statoNascita = awPad(ospite.stato_nascita_codice || '', 9);
   }
 
+  // Formato file upload: NO codice struttura, 168 caratteri totali
   return tipo +
-    CODICE_STRUTTURA +
     awDate(arrivo) +
     giorni +
     awPad(ospite.cognome || '', 50) +
@@ -676,10 +680,10 @@ function buildRecord(ospite, arrivo, partenza) {
 }
 
 function buildFile(pren, ospiti) {
-  var header = '00' + CODICE_STRUTTURA + awDate(pren.arrivo) + String(ospiti.length).padStart(4,'0') + awPad('', 77);
-  var lines = [header];
+  // Formato file upload: nessun header, CR+LF dopo ogni riga tranne l'ultima, UTF-8
+  var lines = [];
   ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); });
-  return lines.join('\n');
+  return lines.join('\r\n');
 }
 
 function loadAlloggiati() {
@@ -711,12 +715,7 @@ function generaSchedina(prenId) {
       if (result.error) { alert('Errore: ' + result.error.message); return; }
       if (!result.data || !result.data.length) { alert('Nessun dato check-in trovato. Assicurati che il check-in sia stato completato.'); return; }
       var content = buildFile(pr, result.data);
-      // Converti in Windows-1252 per Alloggiati Web
-  var bytes = new Uint8Array(content.length);
-  for (var i = 0; i < content.length; i++) {
-    bytes[i] = content.charCodeAt(i) & 0xff;
-  }
-  var blob = new Blob([bytes], { type: 'text/plain;charset=windows-1252' });
+      var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
