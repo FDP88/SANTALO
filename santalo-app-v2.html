@@ -131,6 +131,7 @@
           <button class="tab" id="tab-checkin" onclick="showTab('checkin')">Check-in ricevuti<span id="badgeCheckin" class="badge" style="display:none"></span></button>
           <button class="tab" id="tab-chat" onclick="showTab('chat')">💬 Conversazioni</button>
           <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">📋 Alloggiati</button>
+          <button class="tab" id="tab-calendario" onclick="showTab('calendario')">📅 Calendario</button>
         </div>
 
         <div id="panel-lista">
@@ -197,6 +198,11 @@
           <div id="listaAlloggiati" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
           </div>
+        </div>
+      </div>
+
+        <div id="panel-calendario" style="display:none">
+          <div id="calendarRoot"></div>
         </div>
       </div>
     </div>
@@ -304,7 +310,7 @@ function copy(text, ok) {
 
 // ===== TABS =====
 function showTab(t) {
-  ['lista','nuova','checkin','chat','alloggiati'].forEach(function(x) {
+  ['lista','nuova','checkin','chat','alloggiati','calendario'].forEach(function(x) {
     document.getElementById('panel-'+x).style.display = x===t ? '' : 'none';
     var tabEl = document.getElementById('tab-'+x);
     if (tabEl) tabEl.classList.toggle('active', x===t);
@@ -324,6 +330,7 @@ function showTab(t) {
   }
   if (t === 'chat') loadConversazioni();
   if (t === 'alloggiati') loadAlloggiati();
+  if (t === 'calendario') renderCalendario();
 }
 
 // ===== PRENOTAZIONI =====
@@ -969,6 +976,120 @@ function generaSchedina(prenId) {
 }
 
 window.addEventListener('DOMContentLoaded', function() { loadAll(); });
+
+// ===== CALENDARIO =====
+var calYear = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+var CAMERE = [
+  {key:'Camera 1920', label:'1920', css:'c1920', color:'#d97706'},
+  {key:'Camera 1954', label:'1954', css:'c1954', color:'#2563eb'},
+  {key:'Camera 1956', label:'1956', css:'c1956', color:'#16a34a'},
+];
+var MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+var GG = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+
+function renderCalendario() {
+  var root = document.getElementById('calendarRoot');
+  if (!root) return;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var firstDay = new Date(calYear, calMonth, 1);
+  var lastDay = new Date(calYear, calMonth + 1, 0);
+  var daysInMonth = lastDay.getDate();
+
+  // Check-out e check-in di oggi
+  var todayStr = today.toISOString().slice(0,10);
+  var checkoutsOggi = prenotazioni.filter(function(p){ return p.partenza === todayStr; });
+  var checkinsOggi = prenotazioni.filter(function(p){ return p.arrivo === todayStr; });
+
+  // Strip oggi
+  var stripHtml = '<div class="today-strip">';
+  stripHtml += '<span style="font-size:13px;font-weight:700;color:var(--ink)">Oggi ' + today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) + '</span>';
+  if (checkoutsOggi.length) {
+    checkoutsOggi.forEach(function(p){ stripHtml += '<span class="today-item checkout">🏃 Check-out: ' + esc(p.nome||'--') + ' · ' + esc(p.camera||'') + '</span>'; });
+  }
+  if (checkinsOggi.length) {
+    checkinsOggi.forEach(function(p){ stripHtml += '<span class="today-item checkin">🛎 Check-in: ' + esc(p.nome||'--') + ' · ' + esc(p.camera||'') + '</span>'; });
+  }
+  if (!checkoutsOggi.length && !checkinsOggi.length) stripHtml += '<span style="color:var(--muted);font-size:13px">Nessun arrivo o partenza oggi</span>';
+  stripHtml += '</div>';
+
+  // Riepilogo prossimi checkout (7 giorni)
+  var prossimi = '';
+  for (var d=1; d<=7; d++) {
+    var dd = new Date(today); dd.setDate(today.getDate()+d);
+    var ddStr = dd.toISOString().slice(0,10);
+    var co = prenotazioni.filter(function(p){ return p.partenza===ddStr; });
+    var ci = prenotazioni.filter(function(p){ return p.arrivo===ddStr; });
+    if (co.length || ci.length) {
+      prossimi += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">';
+      prossimi += '<span style="font-size:11px;font-weight:700;color:var(--muted);min-width:70px">' + dd.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'}) + '</span>';
+      co.forEach(function(p){ prossimi += '<span class="today-item checkout" style="font-size:11px">🏃 ' + esc(p.nome||'').split(' ')[0] + '</span>'; });
+      ci.forEach(function(p){ prossimi += '<span class="today-item checkin" style="font-size:11px">🛎 ' + esc(p.nome||'').split(' ')[0] + '</span>'; });
+      prossimi += '</div>';
+    }
+  }
+
+  // Legenda
+  var legendHtml = '<div class="legend">';
+  CAMERE.forEach(function(cam){ legendHtml += '<div class="legend-item"><div class="legend-dot" style="background:'+cam.color+'"></div>'+cam.label+'</div>'; });
+  legendHtml += '<div class="legend-item"><div style="font-size:10px">▶ Arrivo &nbsp; ◀ Partenza</div></div>';
+  legendHtml += '</div>';
+
+  // Navigazione mese
+  var navHtml = '<div class="cal-nav">' +
+    '<button class="cal-nav-btn" onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendario()">‹ Prec</button>' +
+    '<span class="cal-title">' + MESI[calMonth] + ' ' + calYear + '</span>' +
+    '<button class="cal-nav-btn" onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendario()">Succ ›</button>' +
+    '</div>';
+
+  // Calcola il giorno della settimana del primo del mese (lun=0)
+  var startDow = (firstDay.getDay() + 6) % 7; // 0=lun
+
+  // Header giorni
+  var tableHtml = '<div style="overflow-x:auto"><table class="cal-table"><thead><tr>';
+  tableHtml += '<th style="width:60px"></th>';
+  for (var d=1; d<=daysInMonth; d++) {
+    var wd = (new Date(calYear,calMonth,d).getDay()+6)%7;
+    var isToday = (calYear===today.getFullYear() && calMonth===today.getMonth() && d===today.getDate());
+    var isSunSat = wd>=5;
+    tableHtml += '<th style="' + (isToday?'color:var(--brown);font-weight:800;':'') + (isSunSat?'opacity:.5':'') + '">' +
+      '<div>' + GG[wd].slice(0,1) + '</div><div style="font-size:10px;font-weight:'+(isToday?'800':'500')+'">' + d + '</div></th>';
+  }
+  tableHtml += '</tr></thead><tbody>';
+
+  // Una riga per camera
+  CAMERE.forEach(function(cam) {
+    tableHtml += '<tr><td class="cal-room-label">' + cam.label + '</td>';
+    for (var d=1; d<=daysInMonth; d++) {
+      var dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      var isToday = (calYear===today.getFullYear() && calMonth===today.getMonth() && d===today.getDate());
+      // Trova prenotazione attiva per questa camera in questa data
+      var pren = prenotazioni.find(function(p){
+        if (!p.camera || !p.arrivo || !p.partenza) return false;
+        if (p.camera.indexOf(cam.label) < 0 && p.camera !== cam.key) return false;
+        return dateStr >= p.arrivo && dateStr < p.partenza;
+      });
+      if (pren) {
+        var isArrival = pren.arrivo === dateStr;
+        var isDeparture = (function(){ var d2=new Date(pren.partenza); d2.setDate(d2.getDate()-1); return d2.toISOString().slice(0,10)===dateStr; })();
+        var nome = (pren.nome||'').split(' ')[0];
+        tableHtml += '<td><div class="cal-cell '+cam.css+(isArrival?' arrival':'')+(isDeparture?' departure':'')+(isToday?' today':'')+'" style="position:relative">' +
+          (isArrival ? '<div class="cal-cell-name">'+esc(nome)+'</div>' : '') +
+          '<div class="cal-tooltip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>'+esc(pren.camera||'')+'</div>' +
+          '</div></td>';
+      } else {
+        tableHtml += '<td><div class="cal-cell empty'+(isToday?' today':'')+'"></div></td>';
+      }
+    }
+    tableHtml += '</tr>';
+  });
+  tableHtml += '</tbody></table></div>';
+
+  // Prossimi 7 giorni
+  var prossimiSection = prossimi ? '<div style="margin-top:16px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Prossimi 7 giorni</div>' + prossimi + '</div>' : '';
+
+  root.innerHTML = stripHtml + navHtml + legendHtml + tableHtml + prossimiSection;
+}
 </script>
 </body>
 </html>
