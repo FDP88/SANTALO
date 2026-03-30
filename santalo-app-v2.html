@@ -676,7 +676,7 @@ function buildRecord(ospite, arrivo, partenza) {
 }
 
 function buildFile(pren, ospiti) {
-  var header = '00' + CODICE_STRUTTURA + awDate(pren.arrivo) + String(ospiti.length).padStart(4,'0') + awPad('', 70);
+  var header = '00' + CODICE_STRUTTURA + awDate(pren.arrivo) + String(ospiti.length).padStart(4,'0') + awPad('', 77);
   var lines = [header];
   ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); });
   return lines.join('\r\n') + '\r\n';
