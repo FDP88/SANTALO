@@ -614,15 +614,14 @@ function salvaPrenotazione() {
 function loadCheckin() {
   var root = document.getElementById('listaCheckin');
   root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Caricamento...</div>';
-  sb.from('checkin_ospiti').select('*, prenotazioni(nome, camera, arrivo, partenza)').order('created_at', {ascending:false}).limit(100).then(function(result) {
+  sb.from('checkin_ospiti').select('*').order('created_at', {ascending:false}).limit(100).then(function(result) {
     if (result.error) { root.innerHTML = '<div style="color:var(--err);padding:16px">Errore: ' + esc(result.error.message) + '</div>'; return; }
     if (!result.data || !result.data.length) { root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessun check-in ricevuto</div>'; return; }
     root.innerHTML = result.data.map(function(c) {
-      var pren = c.prenotazioni || {};
       var badge = c.is_capofamiglia ? '<span style="background:var(--brown);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:2px 8px;margin-left:6px">Capofamiglia</span>' : '<span style="background:var(--cream-d);color:var(--muted);border-radius:999px;font-size:10px;font-weight:700;padding:2px 8px;margin-left:6px">Ospite</span>';
       return '<div class="checkin-item" onclick="apriCheckin(' + c.id + ')" data-id="' + c.id + '">' +
         '<div class="checkin-name">' + esc((c.cognome||'') + ' ' + (c.nome||'')) + badge + '</div>' +
-        '<div class="checkin-meta" style="margin-top:3px">Pren. #' + esc(c.prenotazione_id||'--') + (pren.camera ? ' · ' + esc(pren.camera) : '') + (pren.arrivo ? ' · ' + fmt(pren.arrivo) : '') + '</div>' +
+        '<div class="checkin-meta" style="margin-top:3px">Pren. #' + esc(c.prenotazione_id||'--') + '</div>' +
         '<div class="checkin-meta" style="margin-top:2px">' + esc(c.tipo_documento||'--') + ' ' + esc(c.numero_documento||'') + '</div>' +
         '</div>';
     }).join('');
@@ -635,7 +634,7 @@ function loadCheckin() {
 function apriCheckin(id) {
   var c = window._checkinData && window._checkinData[id];
   if (!c) return;
-  var pren = c.prenotazioni || {};
+  var pren = {}; // prenotazione caricata separatamente se necessario
   var imgBase = SB_URL + '/storage/v1/object/public/documenti-checkin/';
 
   var html = '';
@@ -644,8 +643,6 @@ function apriCheckin(id) {
   html += '<div class="detail-section">' +
     '<div class="detail-section-title">Prenotazione</div>' +
     '<div class="detail-grid">' +
-    cell('Camera', pren.camera || '--') +
-    cell('Arrivo → Partenza', (pren.arrivo ? fmt(pren.arrivo) : '--') + ' → ' + (pren.partenza ? fmt(pren.partenza) : '--')) +
     cell('Prenotazione #', c.prenotazione_id || '--') +
     cell('Ospite n°', c.numero_ospite || '1') +
     '</div></div>';
