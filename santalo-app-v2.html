@@ -672,7 +672,7 @@ function buildRecord(ospite, arrivo, partenza) {
     awPad(ospite.cittadinanza_codice || 'Z000', 9) +
     awPad(TIPI_DOC_AW[ospite.tipo_documento] || '01001', 5) +
     awPad(ospite.numero_documento || '', 20) +
-    awPad(ospite.luogo_rilascio_codice || '', 7);
+    awPad(ospite.luogo_rilascio_codice || '', 9);
 }
 
 function buildFile(pren, ospiti) {
