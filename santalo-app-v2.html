@@ -71,6 +71,28 @@
     .badge{display:inline-flex;align-items:center;justify-content:center;background:#b91c1c;color:#fff;border-radius:999px;font-size:11px;font-weight:700;min-width:18px;height:18px;padding:0 5px;margin-left:5px;vertical-align:middle}
     @media(max-width:1000px){.grid-main{grid-template-columns:1fr}}
     @media(max-width:600px){.meta-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.msg-row{grid-template-columns:1fr}}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(46,36,31,.55);z-index:1000;align-items:center;justify-content:center;padding:16px}
+    .modal-overlay.show{display:flex}
+    .modal{background:#fff;border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(46,36,31,.18)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 0}
+    .modal-title{font-size:1.1rem;font-weight:700;color:var(--brown)}
+    .modal-close{background:var(--cream-d);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+    .modal-body{padding:18px 22px 22px}
+    .detail-section{margin-bottom:16px}
+    .detail-section-title{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .detail-cell{background:var(--cream);border-radius:9px;padding:9px 12px}
+    .detail-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+    .detail-cell span{font-size:13px;font-weight:500}
+    .doc-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .doc-link{display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600}
+    .doc-link:hover{background:var(--brown-l)}
+    .checkin-item{cursor:pointer;transition:border-color .15s}
+    .checkin-item:hover{border-color:var(--brown)}
+    .modal-actions{display:flex;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap}
+    .btn-danger{background:#fee2e2;color:var(--err);border:1px solid #fca5a5}.btn-danger:hover{background:#fca5a5}
+    .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .edit-grid .full{grid-column:1/-1}
   </style>
 </head>
 <body>
@@ -204,6 +226,17 @@
         <div class="card-title">Link rapidi</div>
         <div id="linkRapidi" style="color:var(--muted);font-size:13px;padding:4px 0">Seleziona una prenotazione dalla lista.</div>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL DETTAGLIO CHECK-IN -->
+  <div id="checkinModal" class="modal-overlay" onclick="chiudiModal(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Dettaglio Check-in</div>
+        <button class="modal-close" onclick="document.getElementById('checkinModal').classList.remove('show')">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
@@ -581,19 +614,182 @@ function salvaPrenotazione() {
 function loadCheckin() {
   var root = document.getElementById('listaCheckin');
   root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Caricamento...</div>';
-  sb.from('checkin_ospiti').select('*').order('created_at', {ascending:false}).limit(50).then(function(result) {
+  sb.from('checkin_ospiti').select('*, prenotazioni(nome, camera, arrivo, partenza)').order('created_at', {ascending:false}).limit(100).then(function(result) {
     if (result.error) { root.innerHTML = '<div style="color:var(--err);padding:16px">Errore: ' + esc(result.error.message) + '</div>'; return; }
     if (!result.data || !result.data.length) { root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessun check-in ricevuto</div>'; return; }
     root.innerHTML = result.data.map(function(c) {
-      return '<div class="checkin-item">' +
-        '<div class="checkin-name">' + esc(c.nome||'') + ' ' + esc(c.cognome||'') + '</div>' +
-        '<div class="checkin-meta">Pren. #' + (c.prenotazione_id||'--') + ' · ' + esc(c.tipo_documento||'--') + ' ' + esc(c.numero_documento||'') + ' · ' + esc(c.cittadinanza_nome||c.cittadinanza||'--') + '</div>' +
-        '<div class="checkin-meta" style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">' +
-        (c.documento_fronte_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.documento_fronte_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Fronte</a>' : '') +
-        (c.documento_retro_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.documento_retro_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Retro</a>' : '') +
-        (c.selfie_documento_path ? '<a href="' + esc(SB_URL+'/storage/v1/object/public/documenti-checkin/'+c.selfie_documento_path) + '" target="_blank" style="color:var(--brown);font-weight:600;font-size:12px">Selfie</a>' : '') +
-        '</div></div>';
+      var pren = c.prenotazioni || {};
+      var badge = c.is_capofamiglia ? '<span style="background:var(--brown);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:2px 8px;margin-left:6px">Capofamiglia</span>' : '<span style="background:var(--cream-d);color:var(--muted);border-radius:999px;font-size:10px;font-weight:700;padding:2px 8px;margin-left:6px">Ospite</span>';
+      return '<div class="checkin-item" onclick="apriCheckin(' + c.id + ')" data-id="' + c.id + '">' +
+        '<div class="checkin-name">' + esc((c.cognome||'') + ' ' + (c.nome||'')) + badge + '</div>' +
+        '<div class="checkin-meta" style="margin-top:3px">Pren. #' + esc(c.prenotazione_id||'--') + (pren.camera ? ' · ' + esc(pren.camera) : '') + (pren.arrivo ? ' · ' + fmt(pren.arrivo) : '') + '</div>' +
+        '<div class="checkin-meta" style="margin-top:2px">' + esc(c.tipo_documento||'--') + ' ' + esc(c.numero_documento||'') + '</div>' +
+        '</div>';
     }).join('');
+    // Salva dati per il modal
+    window._checkinData = {};
+    result.data.forEach(function(c) { window._checkinData[c.id] = c; });
+  });
+}
+
+function apriCheckin(id) {
+  var c = window._checkinData && window._checkinData[id];
+  if (!c) return;
+  var pren = c.prenotazioni || {};
+  var imgBase = SB_URL + '/storage/v1/object/public/documenti-checkin/';
+
+  var html = '';
+
+  // Sezione prenotazione
+  html += '<div class="detail-section">' +
+    '<div class="detail-section-title">Prenotazione</div>' +
+    '<div class="detail-grid">' +
+    cell('Camera', pren.camera || '--') +
+    cell('Arrivo → Partenza', (pren.arrivo ? fmt(pren.arrivo) : '--') + ' → ' + (pren.partenza ? fmt(pren.partenza) : '--')) +
+    cell('Prenotazione #', c.prenotazione_id || '--') +
+    cell('Ospite n°', c.numero_ospite || '1') +
+    '</div></div>';
+
+  // Sezione dati anagrafici
+  html += '<div class="detail-section">' +
+    '<div class="detail-section-title">Dati anagrafici</div>' +
+    '<div class="detail-grid">' +
+    cell('Cognome', c.cognome || '--') +
+    cell('Nome', c.nome || '--') +
+    cell('Data di nascita', c.data_nascita ? fmt(c.data_nascita) : '--') +
+    cell('Sesso', c.sesso === '1' || c.sesso === 'M' || c.sesso === 'm' ? 'Maschio' : c.sesso === '2' || c.sesso === 'F' || c.sesso === 'f' ? 'Femmina' : (c.sesso || '--')) +
+    cell('Luogo di nascita', (c.comune_nascita || c.stato_nascita || '--') + (c.provincia_nascita ? ' (' + c.provincia_nascita + ')' : '')) +
+    cell('Cittadinanza', c.cittadinanza_nome || c.cittadinanza || '--') +
+    '</div></div>';
+
+  // Sezione documento
+  html += '<div class="detail-section">' +
+    '<div class="detail-section-title">Documento</div>' +
+    '<div class="detail-grid">' +
+    cell('Tipo documento', c.tipo_documento || '--') +
+    cell('Numero documento', c.numero_documento || '--') +
+    cell('Luogo di rilascio', c.luogo_rilascio || c.luogo_rilascio_codice || '--') +
+    cell('Privacy accettata', c.privacy_accettata ? '✅ Sì' : '—') +
+    '</div></div>';
+
+  // Sezione foto documenti
+  var docLinks = '';
+  if (c.documento_fronte_path) docLinks += '<a class="doc-link" href="' + esc(imgBase + c.documento_fronte_path) + '" target="_blank">📄 Fronte</a>';
+  if (c.documento_retro_path)  docLinks += '<a class="doc-link" href="' + esc(imgBase + c.documento_retro_path)  + '" target="_blank">📄 Retro</a>';
+  if (c.selfie_documento_path) docLinks += '<a class="doc-link" href="' + esc(imgBase + c.selfie_documento_path) + '" target="_blank">🤳 Selfie</a>';
+  if (docLinks) {
+    html += '<div class="detail-section">' +
+      '<div class="detail-section-title">Foto documenti</div>' +
+      '<div class="doc-links">' + docLinks + '</div>' +
+      '</div>';
+  }
+
+  // Azioni in fondo
+  html += '<div class="modal-actions">' +
+    '<button class="btn btn-primary btn-sm" onclick="apriModificaCheckin(' + c.id + ')">✏️ Modifica</button>' +
+    '<button class="btn btn-danger btn-sm" onclick="eliminaCheckin(' + c.id + ')">🗑️ Elimina check-in</button>' +
+    '</div>';
+
+  document.getElementById('modalTitle').textContent = (c.cognome||'') + ' ' + (c.nome||'') + ' — Check-in';
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('checkinModal').classList.add('show');
+}
+
+function cell(label, value) {
+  return '<div class="detail-cell"><b>' + esc(label) + '</b><span>' + esc(String(value||'--')) + '</span></div>';
+}
+
+function chiudiModal(e) {
+  if (e.target === document.getElementById('checkinModal')) {
+    document.getElementById('checkinModal').classList.remove('show');
+  }
+}
+
+function eliminaCheckin(id) {
+  var c = window._checkinData && window._checkinData[id];
+  var nome = c ? (c.cognome + ' ' + c.nome) : 'questo ospite';
+  if (!confirm('Eliminare il check-in di ' + nome + '?\nL\'operazione è irreversibile.')) return;
+  sb.from('checkin_ospiti').delete().eq('id', id).then(function(r) {
+    if (r.error) { alert('Errore: ' + r.error.message); return; }
+    document.getElementById('checkinModal').classList.remove('show');
+    // Se era l'unico ospite della prenotazione, resetta stato_checkin
+    if (c && c.prenotazione_id) {
+      sb.from('checkin_ospiti').select('id').eq('prenotazione_id', c.prenotazione_id).then(function(r2) {
+        if (!r2.data || !r2.data.length) {
+          sb.from('prenotazioni').update({stato_checkin:'da compilare'}).eq('id', c.prenotazione_id).then(function(){});
+        }
+      });
+    }
+    loadCheckin();
+    loadAll();
+  });
+}
+
+function apriModificaCheckin(id) {
+  var c = window._checkinData && window._checkinData[id];
+  if (!c) return;
+
+  var html = '<form id="editCheckinForm">';
+
+  html += '<div class="detail-section-title" style="margin-top:4px">Dati anagrafici</div>';
+  html += '<div class="edit-grid">';
+  html += editField('cognome', 'Cognome', c.cognome);
+  html += editField('nome', 'Nome', c.nome);
+  html += editField('data_nascita', 'Data di nascita', c.data_nascita, 'date');
+  html += '<div class="ff"><label>Sesso</label><select data-field="sesso" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit">' +
+    '<option value="1"' + (c.sesso==='1'||c.sesso==='M'?' selected':'') + '>Maschio</option>' +
+    '<option value="2"' + (c.sesso==='2'||c.sesso==='F'?' selected':'') + '>Femmina</option>' +
+    '</select></div>';
+  html += editField('comune_nascita', 'Comune di nascita', c.comune_nascita);
+  html += editField('provincia_nascita', 'Provincia nascita', c.provincia_nascita);
+  html += editField('stato_nascita', 'Stato nascita (se estero)', c.stato_nascita);
+  html += editField('cittadinanza_nome', 'Cittadinanza', c.cittadinanza_nome || c.cittadinanza);
+  html += editField('cittadinanza_codice', 'Codice cittadinanza', c.cittadinanza_codice);
+  html += '</div>';
+
+  html += '<div class="detail-section-title" style="margin-top:14px">Documento</div>';
+  html += '<div class="edit-grid">';
+  html += '<div class="ff"><label>Tipo documento</label><select data-field="tipo_documento" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit">' +
+    ['Carta di identità','Carta identità elettronica','Passaporto','Patente','Permesso di soggiorno'].map(function(t){
+      return '<option value="'+t+'"'+(c.tipo_documento===t?' selected':'')+'>'+t+'</option>';
+    }).join('') +
+    '</select></div>';
+  html += editField('numero_documento', 'Numero documento', c.numero_documento);
+  html += editField('luogo_rilascio', 'Luogo rilascio', c.luogo_rilascio || c.luogo_rilascio_codice);
+  html += editField('luogo_rilascio_codice', 'Codice luogo rilascio', c.luogo_rilascio_codice);
+  html += '</div>';
+
+  html += '<div class="modal-actions">' +
+    '<button type="button" class="btn btn-primary btn-sm" onclick="salvaModificaCheckin(' + id + ')">💾 Salva modifiche</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" onclick="apriCheckin(' + id + ')">← Annulla</button>' +
+    '</div>';
+
+  html += '</form>';
+
+  document.getElementById('modalTitle').textContent = 'Modifica — ' + (c.cognome||'') + ' ' + (c.nome||'');
+  document.getElementById('modalBody').innerHTML = html;
+}
+
+function editField(field, label, value, type) {
+  return '<div class="ff"><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">' + esc(label) + '</label>' +
+    '<input type="' + (type||'text') + '" data-field="' + field + '" value="' + esc(value||'') + '" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:14px"/></div>';
+}
+
+function salvaModificaCheckin(id) {
+  var form = document.getElementById('editCheckinForm');
+  if (!form) return;
+  var dati = {};
+  form.querySelectorAll('[data-field]').forEach(function(el) {
+    dati[el.dataset.field] = el.value.trim();
+  });
+  sb.from('checkin_ospiti').update(dati).eq('id', id).then(function(r) {
+    if (r.error) { alert('Errore: ' + r.error.message); return; }
+    // Aggiorna cache locale
+    if (window._checkinData && window._checkinData[id]) {
+      Object.assign(window._checkinData[id], dati);
+    }
+    loadCheckin();
+    apriCheckin(id);
   });
 }
 
@@ -636,7 +832,6 @@ var CODICE_STRUTTURA = 'BA008847 ';
 
 var TIPI_DOC_AW = {
   'Carta di identità': 'IDENT',
-  'Carta identità elettronica': 'IDELE',
   'Passaporto': 'PASOR',
   'Patente': 'PATEN',
   'Permesso di soggiorno': 'RIFUG',
@@ -686,7 +881,7 @@ function buildRecord(ospite, arrivo, partenza) {
   if (natoItalia) {
     comuneNascita = awPad(ospite.comune_nascita_codice || '', 9);
     provinciaNascita = awPad(ospite.provincia_nascita || '', 2);
-    statoNascita = awPad('100000100', 9); // Italia
+    statoNascita = awPad('100000100', 9);
   } else {
     comuneNascita = awPad('', 9);
     provinciaNascita = awPad('EE', 2);
