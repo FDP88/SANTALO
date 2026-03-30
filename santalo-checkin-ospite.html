@@ -4,6 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Santalò B&B — Check-in online</title>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -62,19 +64,19 @@
       <div class="hero-logo">
         <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalò"/>
       </div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
-          <div class="pill" style="background:rgba(255,255,255,.14);color:#fff;margin-bottom:12px;">Santalò B&B · Bitonto, Puglia</div>
-          <div style="display:flex;gap:6px">
-            <button type="button" class="lang-flag" data-lang="it" onclick="setLang('it')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:1.1rem;color:#fff">🇮🇹</button>
-            <button type="button" class="lang-flag" data-lang="en" onclick="setLang('en')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:1.1rem;color:#fff">🇬🇧</button>
-            <button type="button" class="lang-flag" data-lang="fr" onclick="setLang('fr')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:1.1rem;color:#fff">🇫🇷</button>
-            <button type="button" class="lang-flag" data-lang="de" onclick="setLang('de')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:1.1rem;color:#fff">🇩🇪</button>
-            <button type="button" class="lang-flag" data-lang="es" onclick="setLang('es')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:1.1rem;color:#fff">🇪🇸</button>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <div class="pill" style="background:rgba(255,255,255,.14);color:#fff">Santalò B&B · Bitonto, Puglia</div>
+          <div style="display:flex;gap:5px">
+            <button type="button" onclick="setLang('it')" data-lang="it" class="lang-flag" style="background:rgba(255,255,255,.2);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇮🇹</button>
+            <button type="button" onclick="setLang('en')" data-lang="en" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇬🇧</button>
+            <button type="button" onclick="setLang('fr')" data-lang="fr" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇫🇷</button>
+            <button type="button" onclick="setLang('de')" data-lang="de" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇩🇪</button>
+            <button type="button" onclick="setLang('es')" data-lang="es" class="lang-flag" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:1rem">🇪🇸</button>
           </div>
         </div>
-        <h1 data-i18n="title">Check-in online</h1>
-        <div class="subtitle" data-i18n="subtitle">Compila i dati di tutti gli ospiti prima dell'arrivo. Il check-in è dalle 15:00, il check-out entro le 10:00. Servono anche le foto del documento fronte/retro e un selfie con il documento accanto al viso.</div>
+        <h1 id="hero_title">Check-in online</h1>
+        <div class="subtitle" id="hero_sub">Compila i dati di tutti gli ospiti prima dell'arrivo. Il check-in è dalle 15:00, il check-out entro le 10:00. Servono anche le foto del documento fronte/retro e un selfie con il documento accanto al viso.</div>
       </div>
     </div>
   </section>
@@ -82,12 +84,12 @@
   <form id="checkinForm">
 
     <section class="card">
-      <h2 data-i18n="sec_booking">La tua prenotazione</h2>
+      <h2 id="sec_booking">La tua prenotazione</h2>
       <div class="grid">
         <div><label>Nome del prenotante *</label><input id="nomePrenotante" required></div>
         <div><label>Camera *</label>
           <select id="camera" required>
-            <option value="" data-i18n-opt="opt_select">Seleziona</option>
+            <option value="">Seleziona</option>
             <option value="Camera 1954">Camera 1954 (1° piano)</option>
             <option value="Camera 1956">Camera 1956 (2° piano)</option>
             <option value="Camera 1920">Camera 1920 (piano terra)</option>
@@ -108,31 +110,31 @@
     </section>
 
     <section class="card">
-      <h2 data-i18n="sec_guests">Dati degli ospiti</h2>
-      <div class="note" data-i18n="guests_note">Inserisci i dati esattamente come compaiono sul documento.</div>
-      <div class="required-note" data-i18n-html="req_note">Per ogni ospite sono obbligatorie tre immagini: <strong>documento fronte</strong>, <strong>documento retro</strong> e <strong>selfie con documento accanto al viso</strong>.</div>
+      <h2 id="sec_guests">Dati degli ospiti</h2>
+      <div class="note" id="guests_note">Inserisci i dati esattamente come compaiono sul documento.</div>
+      <div class="required-note" id="req_note">Per ogni ospite sono obbligatorie tre immagini: <strong>documento fronte</strong>, <strong>documento retro</strong> e <strong>selfie con documento accanto al viso</strong>.</div>
       <div id="guestsContainer"></div>
     </section>
 
     <section class="card">
-      <h2 data-i18n="sec_privacy">Privacy</h2>
+      <h2 id="sec_privacy">Privacy</h2>
       <div class="privacy">I dati personali raccolti attraverso questo modulo sono trattati da Santalò Bed and Breakfast esclusivamente per gli obblighi di legge connessi al soggiorno e alla comunicazione alle Autorità di Pubblica Sicurezza, ai sensi dell'art. 109 T.U.L.P.S.</div>
       <label style="display:flex;gap:10px;align-items:flex-start;margin-top:14px;color:var(--ink);">
         <input type="checkbox" id="privacyOk" style="width:auto;margin-top:2px;">
-        <span data-i18n="privacy_accept">Ho letto e accetto il trattamento dei miei dati personali. *</span>
+        <span id="privacy_accept_lbl">Ho letto e accetto il trattamento dei miei dati personali. *</span>
       </label>
     </section>
 
     <section class="card">
-      <button type="submit" data-i18n="submit_btn">Completa il mio check-in</button>
+      <button type="submit" id="submit_btn">Completa il mio check-in</button>
     </section>
 
   </form>
 
   <section id="successBox" class="card success">
-    <h2 data-i18n="success_title">✅ Check-in completato!</h2>
-    <p data-i18n="success_body1">Grazie, abbiamo ricevuto correttamente i dati e i documenti.</p>
-    <p data-i18n="success_body2">Riceverai a breve le istruzioni per l'arrivo.</p>
+    <h2 id="success_title">✅ Check-in completato!</h2>
+    <p id="success_p1">Grazie, abbiamo ricevuto correttamente i dati e i documenti.</p>
+    <p id="success_p2">Riceverai a breve le istruzioni per l'arrivo.</p>
   </section>
 
   <div id="status" class="status"></div>
@@ -1571,39 +1573,40 @@ function guestTemplate(index, totalGuests) {
   div.className = 'guest-card';
   div.dataset.guestIndex = index;
 
-  var T = TRANSLATIONS[currentLang] || TRANSLATIONS.it;
+  var L = T[currentLang] || T.it;
   div.innerHTML =
-    '<div class="guest-title"><strong>'+(T.lbl_guest||'Ospite')+' '+(index+1)+'</strong></div>'+
+    '<div class="guest-title"><strong>'+L.lbl_guest+' '+(index+1)+'</strong></div>'+
     '<div class="grid">'+
-    '<div class="full"><label>'+(T.lbl_type||'Tipo alloggiato *')+'</label><select data-field="tipo_alloggiato" id="tipo_alloggiato_'+index+'" required><option value="">Seleziona</option></select></div>'+
-    '<div><label>'+(T.lbl_surname||'Cognome *')+'</label><input data-field="cognome" required></div>'+
-    '<div><label>'+(T.lbl_name||'Nome *')+'</label><input data-field="nome" required></div>'+
-    '<div><label>'+(T.lbl_sex||'Sesso *')+'</label><select data-field="sesso" required><option value="">'+T.opt_select+'</option><option value="1">'+T.opt_male+'</option><option value="2">'+T.opt_female+'</option></select></div>'+
-    '<div><label>'+(T.lbl_dob||'Data di nascita *')+'</label><input data-field="data_nascita" type="date" required></div>'+
+    '<div class="full"><label>'+L.lbl_tipo+'</label><select data-field="tipo_alloggiato" id="tipo_alloggiato_'+index+'" required><option value="">Seleziona</option></select></div>'+
+    '<div><label>'+L.lbl_cognome+'</label><input data-field="cognome" required></div>'+
+    '<div><label>'+L.lbl_nome+'</label><input data-field="nome" required></div>'+
+    '<div><label>'+L.lbl_sesso+'</label><select data-field="sesso" required><option value="">'+L.opt_sel+'</option><option value="1">'+L.opt_m+'</option><option value="2">'+L.opt_f+'</option></select></div>'+
+    '<div><label>'+L.lbl_ddn+'</label><input data-field="data_nascita" type="date" required></div>'+
     '<div id="cittadinanza_wrap_'+index+'"><label>Cittadinanza *</label></div>'+
-    '<div><label>'+(T.lbl_born_italy||'Nato in Italia?')+'</label><select id="nato_italia_'+index+'"><option value="si">'+(T.opt_yes||'Sì')+'</option><option value="no">'+(T.opt_no||'No')+'</option></select></div>'+
+    '<div><label>'+L.lbl_nato+'</label><select id="nato_italia_'+index+'"><option value="si">'+L.opt_si+'</option><option value="no">'+L.opt_no+'</option></select></div>'+
     '<div id="comune_nascita_wrap_'+index+'"><label>Comune di nascita *</label></div>'+
-    '<div><label>'+(T.lbl_born_prov||'Provincia nascita *')+'</label><input data-field="provincia_nascita" maxlength="2" placeholder="'+(T.ph_prov||'BA')+'">'</div>'+
+    '<div><label>'+L.lbl_prov+'</label><input data-field="provincia_nascita" maxlength="2" placeholder="BA"></div>'+
     '<div id="stato_nascita_wrap_'+index+'" style="display:none"><label>Stato di nascita *</label></div>'+
-    '<div><label>'+(T.lbl_doc_type||'Tipo documento *')+'</label><select data-field="tipo_documento" required>'+'<option value="">'+(T.opt_select||'Seleziona')+'</option>'+
+    '<div><label>Tipo documento *</label><select data-field="tipo_documento" required>'+
+    '<option value="">Seleziona</option>'+
     '<option value="Carta di identità">Carta di identità</option>'+
     '<option value="Passaporto">Passaporto</option>'+
     '<option value="Patente">Patente</option>'+
     '<option value="Permesso di soggiorno">Permesso di soggiorno</option>'+
     '</select></div>'+
-    '<div><label>'+(T.lbl_doc_num||'Numero documento *')+'</label><input data-field="numero_documento" required></div>'+
-    '<div><label>'+(T.lbl_doc_date||'Data rilascio documento *')+'</label><input data-field="data_rilascio_documento" type="date" required></div>'+
+    '<div><label>'+L.lbl_ndoc+'</label><input data-field="numero_documento" required></div>'+
+    '<div><label>'+L.lbl_ddoc+'</label><input data-field="data_rilascio_documento" type="date" required></div>'+
     '<div id="luogo_rilascio_wrap_'+index+'"><label>Comune/Ente rilascio *</label></div>'+
     // Foto con pulsanti
-    '<div><label>'+(T.lbl_doc_front||'Documento fronte *')+'</label>'+
+    '<div><label>'+L.lbl_fronte+'</label>'+
     '<input type="file" accept="image/*" data-file="documento_fronte" id="file_fronte_'+index+'" style="display:none">'+
     '<button type="button" class="upload-btn" id="btn_fronte_'+index+'" onclick="document.getElementById(\'file_fronte_'+index+'\').click()">📷 Scatta o carica foto fronte</button>'+
     '<div class="upload-preview" id="prev_fronte_'+index+'"></div></div>'+
-    '<div><label>'+(T.lbl_doc_back||'Documento retro *')+'</label>'+
+    '<div><label>'+L.lbl_retro+'</label>'+
     '<input type="file" accept="image/*" data-file="documento_retro" id="file_retro_'+index+'" style="display:none">'+
     '<button type="button" class="upload-btn" id="btn_retro_'+index+'" onclick="document.getElementById(\'file_retro_'+index+'\').click()">📷 Scatta o carica foto retro</button>'+
     '<div class="upload-preview" id="prev_retro_'+index+'"></div></div>'+
-    '<div class="full"><label>'+(T.lbl_selfie||'Selfie con documento *')+'</label>'+
+    '<div class="full"><label>'+L.lbl_selfie+'</label>'+
     '<input type="file" accept="image/*" data-file="selfie_documento" id="file_selfie_'+index+'" style="display:none">'+
     '<button type="button" class="upload-btn" id="btn_selfie_'+index+'" onclick="document.getElementById(\'file_selfie_'+index+'\').click()">🤳 Scatta selfie con documento</button>'+
     '<div class="upload-preview" id="prev_selfie_'+index+'"></div></div>'+
@@ -1614,16 +1617,16 @@ function guestTemplate(index, totalGuests) {
   if (tipoSel) {
     if (totalGuests === 1) {
       // Solo ospite singolo
-      tipoSel.innerHTML = '<option value="16">'+(T.opt_single||'Ospite Singolo')+'</option>';
+      tipoSel.innerHTML = '<option value="16">'+L.opt_singolo+'</option>';
       tipoSel.value = '16';
       tipoSel.disabled = true;
       tipoSel.style.background = '#f5f0eb';
     } else if (index === 0) {
       // Primo di 2: capo famiglia o capo gruppo
-      tipoSel.innerHTML = '<option value="">'+(T.opt_select||'Seleziona')+'</option><option value="17">'+(T.opt_capo_fam||'Capo Famiglia')+'</option><option value="20">'+(T.opt_capo_grp||'Capo Gruppo')+'</option>';
+      tipoSel.innerHTML = '<option value="">'+L.opt_sel+'</option><option value="17">'+L.opt_capo_fam+'</option><option value="20">'+L.opt_capo_grp+'</option>';
     } else {
       // Secondo di 2: familiare o membro gruppo
-      tipoSel.innerHTML = '<option value="">'+(T.opt_select||'Seleziona')+'</option><option value="19">'+(T.opt_familiare||'Familiare')+'</option><option value="21">'+(T.opt_membro||'Membro Gruppo')+'</option>';
+      tipoSel.innerHTML = '<option value="">'+L.opt_sel+'</option><option value="19">'+L.opt_familiare+'</option><option value="21">'+L.opt_membro+'</option>';
     }
   }
 
@@ -1640,12 +1643,12 @@ function guestTemplate(index, totalGuests) {
 
   // Autocomplete fields
   var cittWrap = div.querySelector('#cittadinanza_wrap_'+index);
-  var cittSearch = makeSearchField('citt_'+index, T.ph_country||'Cerca paese...', [{n:'Italia',c:'100000100'}].concat(STATI_ESTERI), null);
+  var cittSearch = makeSearchField('citt_'+index, L.ph_paese, [{n:'Italia',c:'100000100'}].concat(STATI_ESTERI), null);
   cittSearch.querySelector('input').dataset.field = 'cittadinanza_nome';
   cittWrap.appendChild(cittSearch);
 
   var comuneWrap = div.querySelector('#comune_nascita_wrap_'+index);
-  var comuneSearch = makeSearchField('comune_'+index, T.ph_city||'Cerca comune...', COMUNI_ITALIANI, function(codice) {
+  var comuneSearch = makeSearchField('comune_'+index, L.ph_comune, COMUNI_ITALIANI, function(codice) {
     var found = COMUNI_ITALIANI.find(function(c){ return c.c === codice; });
     if (found) { var p = div.querySelector('[data-field="provincia_nascita"]'); if (p && !p.value) p.value = found.p; }
   });
@@ -1653,12 +1656,12 @@ function guestTemplate(index, totalGuests) {
   comuneWrap.appendChild(comuneSearch);
 
   var statoWrap = div.querySelector('#stato_nascita_wrap_'+index);
-  var statoSearch = makeSearchField('stato_'+index, T.ph_state||'Cerca stato...', STATI_ESTERI, null);
+  var statoSearch = makeSearchField('stato_'+index, L.ph_stato, STATI_ESTERI, null);
   statoSearch.querySelector('input').dataset.field = 'stato_nascita_nome';
   statoWrap.appendChild(statoSearch);
 
   var luogoWrap = div.querySelector('#luogo_rilascio_wrap_'+index);
-  var luogoSearch = makeSearchField('luogo_'+index, T.ph_city||'Cerca comune...', COMUNI_ITALIANI, null);
+  var luogoSearch = makeSearchField('luogo_'+index, L.ph_comune, COMUNI_ITALIANI, null);
   luogoSearch.querySelector('input').dataset.field = 'luogo_rilascio_nome';
   luogoWrap.appendChild(luogoSearch);
 
@@ -1759,7 +1762,7 @@ function getCodiceStato(wrap) {
   var inp = wrap.querySelector('input');
   if (inp && inp.dataset.codice) return inp.dataset.codice;
   var val = inp ? inp.value.trim() : '';
-  if (val.toLowerCase() === 'italia') return 'Z000';
+  if (val.toLowerCase() === 'italia') return '100000100';
   var found = STATI_ESTERI.find(function(s){ return s.n.toLowerCase() === val.toLowerCase(); });
   return found ? found.c : val;
 }
@@ -1865,7 +1868,7 @@ document.getElementById('checkinForm').addEventListener('submit', async function
     return;
   }
 
-  showStatus((TRANSLATIONS[currentLang]||TRANSLATIONS.it).sending||'Invio in corso...');
+  showStatus((T[currentLang]||T.it).sending);
 
   try {
     // Raccogli dati ospiti e carica foto
@@ -1888,7 +1891,7 @@ document.getElementById('checkinForm').addEventListener('submit', async function
       obj.nato_italia = natoItalia;
       if (natoItalia) {
         obj.comune_nascita_codice = getCodiceComune(card.querySelector('#comune_nascita_wrap_'+idx).querySelector('.search-wrap'));
-        obj.stato_nascita_codice = 'Z000';
+        obj.stato_nascita_codice = '100000100';
       } else {
         obj.comune_nascita_codice = '';
         obj.stato_nascita_codice = getCodiceStato(card.querySelector('#stato_nascita_wrap_'+idx).querySelector('.search-wrap'));
@@ -1945,202 +1948,162 @@ document.getElementById('checkinForm').addEventListener('submit', async function
 });
 
 // ===== I18N =====
-var TRANSLATIONS = {
-  it: {
-    title: 'Check-in online',
-    subtitle: 'Compila i dati di tutti gli ospiti prima dell'arrivo. Il check-in è dalle 15:00, il check-out entro le 10:00. Servono anche le foto del documento fronte/retro e un selfie con il documento accanto al viso.',
-    sec_booking: 'La tua prenotazione', sec_guests: 'Dati degli ospiti', sec_privacy: 'Privacy',
-    guests_note: 'Inserisci i dati esattamente come compaiono sul documento.',
-    req_note: 'Per ogni ospite sono obbligatorie tre immagini: <strong>documento fronte</strong>, <strong>documento retro</strong> e <strong>selfie con documento accanto al viso</strong>.',
-    submit_btn: 'Completa il mio check-in',
-    privacy_text: 'I dati personali raccolti attraverso questo modulo sono trattati da Santalò Bed and Breakfast esclusivamente per gli obblighi di legge connessi al soggiorno e alla comunicazione alle Autorità di Pubblica Sicurezza, ai sensi dell'art. 109 T.U.L.P.S.',
-    privacy_accept: 'Ho letto e accetto il trattamento dei miei dati personali. *',
-    success_title: '✅ Check-in completato!',
-    success_body1: 'Grazie, abbiamo ricevuto correttamente i dati e i documenti.',
-    success_body2: 'Riceverai a breve le istruzioni per l'arrivo.',
-    lbl_booker: 'Nome del prenotante *', lbl_room: 'Camera *', lbl_arrival: 'Data arrivo *', lbl_departure: 'Data partenza *',
-    lbl_guests_n: 'Numero ospiti totali *', lbl_time: 'Orario di arrivo previsto', lbl_phone: 'Telefono referente', lbl_email: 'Email referente',
-    lbl_guest: 'Ospite', lbl_type: 'Tipo alloggiato *', lbl_surname: 'Cognome *', lbl_name: 'Nome *',
-    lbl_sex: 'Sesso *', lbl_dob: 'Data di nascita *', lbl_citizenship: 'Cittadinanza *', lbl_born_italy: 'Nato in Italia?',
-    lbl_born_city: 'Comune di nascita *', lbl_born_prov: 'Provincia nascita *', lbl_born_state: 'Stato di nascita *',
-    lbl_doc_type: 'Tipo documento *', lbl_doc_num: 'Numero documento *', lbl_doc_date: 'Data rilascio documento *', lbl_doc_place: 'Comune/Ente rilascio *',
-    lbl_doc_front: 'Documento fronte *', lbl_doc_back: 'Documento retro *', lbl_selfie: 'Selfie con documento *',
-    btn_front: T.btn_front||'📷 Scatta o carica foto fronte', btn_back: T.btn_back||'📷 Scatta o carica foto retro', btn_selfie: T.btn_selfie||'🤳 Scatta selfie con documento',
-    opt_select: 'Seleziona', opt_yes: 'Sì', opt_no: 'No', opt_male: 'Maschio', opt_female: 'Femmina',
-    opt_single: 'Ospite Singolo', opt_capo_fam: 'Capo Famiglia', opt_capo_grp: 'Capo Gruppo', opt_familiare: 'Familiare', opt_membro: 'Membro Gruppo',
-    ph_country: 'Cerca paese...', ph_city: 'Cerca comune...', ph_state: 'Cerca stato...',
-    ph_arrival_time: 'Es. 18:30', ph_phone: 'Es. 393331234567', ph_prov: 'BA',
-    sending: 'Invio in corso, attendi qualche secondo...',
+var T = {
+  it:{
+    hero_title:'Check-in online',
+    hero_sub:'Compila i dati di tutti gli ospiti prima dell'arrivo. Il check-in è dalle 15:00, il check-out entro le 10:00. Servono anche le foto del documento fronte/retro e un selfie con il documento accanto al viso.',
+    sec_booking:'La tua prenotazione', sec_guests:'Dati degli ospiti', sec_privacy:'Privacy',
+    guests_note:'Inserisci i dati esattamente come compaiono sul documento.',
+    req_note:'Per ogni ospite sono obbligatorie tre immagini: <strong>documento fronte</strong>, <strong>documento retro</strong> e <strong>selfie con documento accanto al viso</strong>.',
+    submit_btn:'Completa il mio check-in',
+    privacy_text:'I dati personali raccolti attraverso questo modulo sono trattati da Santalò Bed and Breakfast esclusivamente per gli obblighi di legge connessi al soggiorno e alla comunicazione alle Autorità di Pubblica Sicurezza, ai sensi dell'art. 109 T.U.L.P.S.',
+    privacy_accept_lbl:'Ho letto e accetto il trattamento dei miei dati personali. *',
+    success_title:'✅ Check-in completato!', success_p1:'Grazie, abbiamo ricevuto correttamente i dati e i documenti.', success_p2:'Riceverai a breve le istruzioni per l'arrivo.',
+    lbl_booker:'Nome del prenotante *', lbl_room:'Camera *', lbl_checkin:'Data arrivo *', lbl_checkout:'Data partenza *',
+    lbl_nospiti:'Numero ospiti totali *', lbl_orario:'Orario di arrivo previsto', lbl_tel:'Telefono referente', lbl_email:'Email referente',
+    lbl_guest:'Ospite', lbl_tipo:'Tipo alloggiato *', lbl_cognome:'Cognome *', lbl_nome:'Nome *',
+    lbl_sesso:'Sesso *', lbl_ddn:'Data di nascita *', lbl_citt:'Cittadinanza *', lbl_nato:'Nato in Italia?',
+    lbl_comune:'Comune di nascita *', lbl_prov:'Provincia nascita *', lbl_stato:'Stato di nascita *',
+    lbl_tdoc:'Tipo documento *', lbl_ndoc:'Numero documento *', lbl_ddoc:'Data rilascio documento *', lbl_luogo:'Comune/Ente rilascio *',
+    lbl_fronte:'Documento fronte *', lbl_retro:'Documento retro *', lbl_selfie:'Selfie con documento *',
+    btn_fronte:L.btn_fronte, btn_retro:L.btn_retro, btn_selfie:L.btn_selfie,
+    opt_sel:'Seleziona', opt_si:'Sì', opt_no:'No', opt_m:'Maschio', opt_f:'Femmina',
+    opt_singolo:'Ospite Singolo', opt_capo_fam:'Capo Famiglia', opt_capo_grp:'Capo Gruppo', opt_familiare:'Familiare', opt_membro:'Membro Gruppo',
+    ph_paese:'Cerca paese...', ph_comune:'Cerca comune...', ph_stato:'Cerca stato...',
+    sending:'Invio in corso, attendi qualche secondo...'
   },
-  en: {
-    title: 'Online Check-in',
-    subtitle: 'Fill in the details of all guests before arrival. Check-in is from 3:00 PM, check-out by 10:00 AM. You will also need front/back photos of the ID and a selfie holding the document.',
-    sec_booking: 'Your booking', sec_guests: 'Guest details', sec_privacy: 'Privacy',
-    guests_note: 'Enter the data exactly as they appear on the document.',
-    req_note: 'For each guest, three images are required: <strong>document front</strong>, <strong>document back</strong> and <strong>selfie with document next to face</strong>.',
-    submit_btn: 'Complete my check-in',
-    privacy_text: 'The personal data collected through this form is processed by Santalò Bed and Breakfast exclusively for legal obligations related to the stay and communication to the Public Security Authorities, pursuant to art. 109 T.U.L.P.S.',
-    privacy_accept: 'I have read and accept the processing of my personal data. *',
-    success_title: '✅ Check-in completed!',
-    success_body1: 'Thank you, we have correctly received your data and documents.',
-    success_body2: 'You will shortly receive arrival instructions.',
-    lbl_booker: 'Booking name *', lbl_room: 'Room *', lbl_arrival: 'Arrival date *', lbl_departure: 'Departure date *',
-    lbl_guests_n: 'Total number of guests *', lbl_time: 'Estimated arrival time', lbl_phone: 'Contact phone', lbl_email: 'Contact email',
-    lbl_guest: 'Guest', lbl_type: 'Guest type *', lbl_surname: 'Surname *', lbl_name: 'First name *',
-    lbl_sex: 'Gender *', lbl_dob: 'Date of birth *', lbl_citizenship: 'Citizenship *', lbl_born_italy: 'Born in Italy?',
-    lbl_born_city: 'City of birth *', lbl_born_prov: 'Province *', lbl_born_state: 'Country of birth *',
-    lbl_doc_type: 'Document type *', lbl_doc_num: 'Document number *', lbl_doc_date: 'Document issue date *', lbl_doc_place: 'Issuing authority *',
-    lbl_doc_front: 'Document front *', lbl_doc_back: 'Document back *', lbl_selfie: 'Selfie with document *',
-    btn_front: '📷 Take or upload front photo', btn_back: '📷 Take or upload back photo', btn_selfie: '🤳 Take selfie with document',
-    opt_select: 'Select', opt_yes: 'Yes', opt_no: 'No', opt_male: 'Male', opt_female: 'Female',
-    opt_single: 'Single guest', opt_capo_fam: 'Head of family', opt_capo_grp: 'Group leader', opt_familiare: 'Family member', opt_membro: 'Group member',
-    ph_country: 'Search country...', ph_city: 'Search city...', ph_state: 'Search country...',
-    ph_arrival_time: 'e.g. 18:30', ph_phone: 'e.g. 393331234567', ph_prov: 'BA',
-    sending: 'Sending, please wait...',
+  en:{
+    hero_title:'Online Check-in',
+    hero_sub:'Fill in all guests' details before arrival. Check-in from 3:00 PM, check-out by 10:00 AM. You also need front/back ID photos and a selfie holding the document.',
+    sec_booking:'Your booking', sec_guests:'Guest details', sec_privacy:'Privacy',
+    guests_note:'Enter data exactly as it appears on the document.',
+    req_note:'Three images are required for each guest: <strong>document front</strong>, <strong>document back</strong> and <strong>selfie with document next to face</strong>.',
+    submit_btn:'Complete my check-in',
+    privacy_text:'Personal data collected through this form is processed by Santalò Bed and Breakfast exclusively for legal obligations related to the stay and communication to Public Security Authorities, pursuant to art. 109 T.U.L.P.S.',
+    privacy_accept_lbl:'I have read and accept the processing of my personal data. *',
+    success_title:'✅ Check-in completed!', success_p1:'Thank you, we have correctly received your data and documents.', success_p2:'You will shortly receive arrival instructions.',
+    lbl_booker:'Booking name *', lbl_room:'Room *', lbl_checkin:'Arrival date *', lbl_checkout:'Departure date *',
+    lbl_nospiti:'Total guests *', lbl_orario:'Estimated arrival time', lbl_tel:'Contact phone', lbl_email:'Contact email',
+    lbl_guest:'Guest', lbl_tipo:'Guest type *', lbl_cognome:'Surname *', lbl_nome:'First name *',
+    lbl_sesso:'Gender *', lbl_ddn:'Date of birth *', lbl_citt:'Citizenship *', lbl_nato:'Born in Italy?',
+    lbl_comune:'City of birth *', lbl_prov:'Province *', lbl_stato:'Country of birth *',
+    lbl_tdoc:'Document type *', lbl_ndoc:'Document number *', lbl_ddoc:'Issue date *', lbl_luogo:'Issuing authority *',
+    lbl_fronte:'Document front *', lbl_retro:'Document back *', lbl_selfie:'Selfie with document *',
+    btn_fronte:'📷 Take or upload front photo', btn_retro:'📷 Take or upload back photo', btn_selfie:'🤳 Take selfie with document',
+    opt_sel:'Select', opt_si:'Yes', opt_no:'No', opt_m:'Male', opt_f:'Female',
+    opt_singolo:'Single guest', opt_capo_fam:'Head of family', opt_capo_grp:'Group leader', opt_familiare:'Family member', opt_membro:'Group member',
+    ph_paese:'Search country...', ph_comune:'Search city...', ph_stato:'Search country...',
+    sending:'Sending, please wait...'
   },
-  fr: {
-    title: 'Check-in en ligne',
-    subtitle: 'Remplissez les données de tous les hôtes avant l'arrivée. Le check-in est à partir de 15h00, le check-out avant 10h00. Vous aurez besoin des photos recto/verso du document et un selfie avec le document.',
-    sec_booking: 'Votre réservation', sec_guests: 'Données des hôtes', sec_privacy: 'Confidentialité',
-    guests_note: 'Saisissez les données exactement comme elles apparaissent sur le document.',
-    req_note: 'Pour chaque hôte, trois images sont obligatoires : <strong>recto du document</strong>, <strong>verso du document</strong> et <strong>selfie avec le document à côté du visage</strong>.',
-    submit_btn: 'Terminer mon check-in',
-    privacy_text: 'Les données personnelles collectées via ce formulaire sont traitées par Santalò Bed and Breakfast exclusivement pour les obligations légales liées au séjour et à la communication aux Autorités de Sécurité Publique, conformément à l'art. 109 T.U.L.P.S.',
-    privacy_accept: 'J'ai lu et j'accepte le traitement de mes données personnelles. *',
-    success_title: '✅ Check-in complété !',
-    success_body1: 'Merci, nous avons bien reçu vos données et documents.',
-    success_body2: 'Vous recevrez sous peu les instructions d'arrivée.',
-    lbl_booker: 'Nom du réservant *', lbl_room: 'Chambre *', lbl_arrival: 'Date d'arrivée *', lbl_departure: 'Date de départ *',
-    lbl_guests_n: 'Nombre total d'hôtes *', lbl_time: 'Heure d'arrivée estimée', lbl_phone: 'Téléphone de contact', lbl_email: 'Email de contact',
-    lbl_guest: 'Hôte', lbl_type: 'Type d'hôte *', lbl_surname: 'Nom *', lbl_name: 'Prénom *',
-    lbl_sex: 'Sexe *', lbl_dob: 'Date de naissance *', lbl_citizenship: 'Nationalité *', lbl_born_italy: 'Né(e) en Italie ?',
-    lbl_born_city: 'Ville de naissance *', lbl_born_prov: 'Province *', lbl_born_state: 'Pays de naissance *',
-    lbl_doc_type: 'Type de document *', lbl_doc_num: 'Numéro de document *', lbl_doc_date: 'Date d'émission *', lbl_doc_place: 'Autorité émettrice *',
-    lbl_doc_front: 'Document recto *', lbl_doc_back: 'Document verso *', lbl_selfie: 'Selfie avec document *',
-    btn_front: '📷 Prendre ou charger photo recto', btn_back: '📷 Prendre ou charger photo verso', btn_selfie: '🤳 Prendre selfie avec document',
-    opt_select: 'Sélectionner', opt_yes: 'Oui', opt_no: 'Non', opt_male: 'Homme', opt_female: 'Femme',
-    opt_single: 'Hôte seul', opt_capo_fam: 'Chef de famille', opt_capo_grp: 'Chef de groupe', opt_familiare: 'Membre de famille', opt_membro: 'Membre de groupe',
-    ph_country: 'Rechercher pays...', ph_city: 'Rechercher ville...', ph_state: 'Rechercher pays...',
-    ph_arrival_time: 'Ex. 18:30', ph_phone: 'Ex. 393331234567', ph_prov: 'BA',
-    sending: 'Envoi en cours, veuillez patienter...',
+  fr:{
+    hero_title:'Check-in en ligne',
+    hero_sub:'Remplissez les données de tous les hôtes avant l'arrivée. Le check-in est à partir de 15h00, le check-out avant 10h00. Des photos recto/verso du document et un selfie avec le document sont nécessaires.',
+    sec_booking:'Votre réservation', sec_guests:'Données des hôtes', sec_privacy:'Confidentialité',
+    guests_note:'Saisissez les données exactement comme elles apparaissent sur le document.',
+    req_note:'Trois images sont obligatoires par hôte : <strong>recto du document</strong>, <strong>verso du document</strong> et <strong>selfie avec le document à côté du visage</strong>.',
+    submit_btn:'Terminer mon check-in',
+    privacy_text:'Les données personnelles collectées via ce formulaire sont traitées par Santalò Bed and Breakfast exclusivement pour les obligations légales liées au séjour et à la communication aux Autorités de Sécurité Publique, conformément à l'art. 109 T.U.L.P.S.',
+    privacy_accept_lbl:'J'ai lu et j'accepte le traitement de mes données personnelles. *',
+    success_title:'✅ Check-in complété !', success_p1:'Merci, nous avons bien reçu vos données et documents.', success_p2:'Vous recevrez sous peu les instructions d'arrivée.',
+    lbl_booker:'Nom du réservant *', lbl_room:'Chambre *', lbl_checkin:'Date d'arrivée *', lbl_checkout:'Date de départ *',
+    lbl_nospiti:'Nombre d'hôtes *', lbl_orario:'Heure d'arrivée estimée', lbl_tel:'Téléphone', lbl_email:'Email',
+    lbl_guest:'Hôte', lbl_tipo:'Type d'hôte *', lbl_cognome:'Nom *', lbl_nome:'Prénom *',
+    lbl_sesso:'Sexe *', lbl_ddn:'Date de naissance *', lbl_citt:'Nationalité *', lbl_nato:'Né(e) en Italie ?',
+    lbl_comune:'Ville de naissance *', lbl_prov:'Province *', lbl_stato:'Pays de naissance *',
+    lbl_tdoc:'Type de document *', lbl_ndoc:'Numéro de document *', lbl_ddoc:'Date d'émission *', lbl_luogo:'Autorité émettrice *',
+    lbl_fronte:'Document recto *', lbl_retro:'Document verso *', lbl_selfie:'Selfie avec document *',
+    btn_fronte:'📷 Photo recto', btn_retro:'📷 Photo verso', btn_selfie:'🤳 Selfie avec document',
+    opt_sel:'Sélectionner', opt_si:'Oui', opt_no:'Non', opt_m:'Homme', opt_f:'Femme',
+    opt_singolo:'Hôte seul', opt_capo_fam:'Chef de famille', opt_capo_grp:'Chef de groupe', opt_familiare:'Membre de famille', opt_membro:'Membre de groupe',
+    ph_paese:'Rechercher pays...', ph_comune:'Rechercher ville...', ph_stato:'Rechercher pays...',
+    sending:'Envoi en cours, veuillez patienter...'
   },
-  de: {
-    title: 'Online Check-in',
-    subtitle: 'Füllen Sie die Daten aller Gäste vor der Ankunft aus. Check-in ab 15:00 Uhr, Check-out bis 10:00 Uhr. Benötigt werden Vorder-/Rückseite des Ausweises und ein Selfie mit dem Dokument.',
-    sec_booking: 'Ihre Buchung', sec_guests: 'Gastdaten', sec_privacy: 'Datenschutz',
-    guests_note: 'Geben Sie die Daten genau so ein, wie sie im Dokument erscheinen.',
-    req_note: 'Für jeden Gast sind drei Bilder erforderlich: <strong>Dokumentvorderseite</strong>, <strong>Dokumentrückseite</strong> und <strong>Selfie mit Dokument neben dem Gesicht</strong>.',
-    submit_btn: 'Check-in abschließen',
-    privacy_text: 'Die über dieses Formular erhobenen personenbezogenen Daten werden von Santalò Bed and Breakfast ausschließlich zur Erfüllung gesetzlicher Verpflichtungen im Zusammenhang mit dem Aufenthalt verarbeitet.',
-    privacy_accept: 'Ich habe die Verarbeitung meiner personenbezogenen Daten gelesen und akzeptiert. *',
-    success_title: '✅ Check-in abgeschlossen!',
-    success_body1: 'Vielen Dank, wir haben Ihre Daten und Dokumente korrekt erhalten.',
-    success_body2: 'Sie erhalten in Kürze die Ankunftsinformationen.',
-    lbl_booker: 'Name des Buchenden *', lbl_room: 'Zimmer *', lbl_arrival: 'Ankunftsdatum *', lbl_departure: 'Abreisedatum *',
-    lbl_guests_n: 'Gesamtzahl der Gäste *', lbl_time: 'Voraussichtliche Ankunftszeit', lbl_phone: 'Kontakttelefon', lbl_email: 'Kontakt-E-Mail',
-    lbl_guest: 'Gast', lbl_type: 'Gasttyp *', lbl_surname: 'Nachname *', lbl_name: 'Vorname *',
-    lbl_sex: 'Geschlecht *', lbl_dob: 'Geburtsdatum *', lbl_citizenship: 'Staatsangehörigkeit *', lbl_born_italy: 'In Italien geboren?',
-    lbl_born_city: 'Geburtsort *', lbl_born_prov: 'Provinz *', lbl_born_state: 'Geburtsland *',
-    lbl_doc_type: 'Dokumenttyp *', lbl_doc_num: 'Dokumentnummer *', lbl_doc_date: 'Ausstellungsdatum *', lbl_doc_place: 'Ausstellungsbehörde *',
-    lbl_doc_front: 'Dokument Vorderseite *', lbl_doc_back: 'Dokument Rückseite *', lbl_selfie: 'Selfie mit Dokument *',
-    btn_front: '📷 Foto Vorderseite aufnehmen', btn_back: '📷 Foto Rückseite aufnehmen', btn_selfie: '🤳 Selfie mit Dokument aufnehmen',
-    opt_select: 'Auswählen', opt_yes: 'Ja', opt_no: 'Nein', opt_male: 'Männlich', opt_female: 'Weiblich',
-    opt_single: 'Einzelgast', opt_capo_fam: 'Familienoberhaupt', opt_capo_grp: 'Gruppenleiter', opt_familiare: 'Familienmitglied', opt_membro: 'Gruppenmitglied',
-    ph_country: 'Land suchen...', ph_city: 'Stadt suchen...', ph_state: 'Land suchen...',
-    ph_arrival_time: 'z.B. 18:30', ph_phone: 'z.B. 393331234567', ph_prov: 'BA',
-    sending: 'Wird gesendet, bitte warten...',
+  de:{
+    hero_title:'Online Check-in',
+    hero_sub:'Füllen Sie die Daten aller Gäste vor der Ankunft aus. Check-in ab 15:00 Uhr, Check-out bis 10:00 Uhr. Vorder-/Rückseite des Ausweises und ein Selfie mit dem Dokument sind erforderlich.',
+    sec_booking:'Ihre Buchung', sec_guests:'Gastdaten', sec_privacy:'Datenschutz',
+    guests_note:'Geben Sie die Daten genau wie im Dokument ein.',
+    req_note:'Pro Gast sind drei Bilder erforderlich: <strong>Dokumentvorderseite</strong>, <strong>Dokumentrückseite</strong> und <strong>Selfie mit Dokument</strong>.',
+    submit_btn:'Check-in abschließen',
+    privacy_text:'Die erhobenen Daten werden von Santalò Bed and Breakfast ausschließlich zur Erfüllung gesetzlicher Verpflichtungen im Zusammenhang mit dem Aufenthalt verarbeitet.',
+    privacy_accept_lbl:'Ich habe die Datenschutzerklärung gelesen und akzeptiert. *',
+    success_title:'✅ Check-in abgeschlossen!', success_p1:'Vielen Dank, wir haben Ihre Daten erhalten.', success_p2:'Sie erhalten in Kürze die Ankunftsinformationen.',
+    lbl_booker:'Name des Buchenden *', lbl_room:'Zimmer *', lbl_checkin:'Ankunftsdatum *', lbl_checkout:'Abreisedatum *',
+    lbl_nospiti:'Anzahl Gäste *', lbl_orario:'Voraussichtliche Ankunftszeit', lbl_tel:'Telefon', lbl_email:'E-Mail',
+    lbl_guest:'Gast', lbl_tipo:'Gasttyp *', lbl_cognome:'Nachname *', lbl_nome:'Vorname *',
+    lbl_sesso:'Geschlecht *', lbl_ddn:'Geburtsdatum *', lbl_citt:'Staatsangehörigkeit *', lbl_nato:'In Italien geboren?',
+    lbl_comune:'Geburtsort *', lbl_prov:'Provinz *', lbl_stato:'Geburtsland *',
+    lbl_tdoc:'Dokumenttyp *', lbl_ndoc:'Dokumentnummer *', lbl_ddoc:'Ausstellungsdatum *', lbl_luogo:'Ausstellungsbehörde *',
+    lbl_fronte:'Dokument Vorderseite *', lbl_retro:'Dokument Rückseite *', lbl_selfie:'Selfie mit Dokument *',
+    btn_fronte:'📷 Foto Vorderseite', btn_retro:'📷 Foto Rückseite', btn_selfie:'🤳 Selfie mit Dokument',
+    opt_sel:'Auswählen', opt_si:'Ja', opt_no:'Nein', opt_m:'Männlich', opt_f:'Weiblich',
+    opt_singolo:'Einzelgast', opt_capo_fam:'Familienoberhaupt', opt_capo_grp:'Gruppenleiter', opt_familiare:'Familienmitglied', opt_membro:'Gruppenmitglied',
+    ph_paese:'Land suchen...', ph_comune:'Stadt suchen...', ph_stato:'Land suchen...',
+    sending:'Wird gesendet...'
   },
-  es: {
-    title: 'Check-in online',
-    subtitle: 'Rellene los datos de todos los huéspedes antes de la llegada. El check-in es a partir de las 15:00, el check-out antes de las 10:00. Se necesitan fotos del anverso/reverso del documento y un selfie con el documento.',
-    sec_booking: 'Tu reserva', sec_guests: 'Datos de los huéspedes', sec_privacy: 'Privacidad',
-    guests_note: 'Introduce los datos exactamente como aparecen en el documento.',
-    req_note: 'Para cada huésped son obligatorias tres imágenes: <strong>anverso del documento</strong>, <strong>reverso del documento</strong> y <strong>selfie con el documento junto al rostro</strong>.',
-    submit_btn: 'Completar mi check-in',
-    privacy_text: 'Los datos personales recogidos a través de este formulario son tratados por Santalò Bed and Breakfast exclusivamente para las obligaciones legales relacionadas con la estancia y la comunicación a las Autoridades de Seguridad Pública.',
-    privacy_accept: 'He leído y acepto el tratamiento de mis datos personales. *',
-    success_title: '✅ ¡Check-in completado!',
-    success_body1: 'Gracias, hemos recibido correctamente sus datos y documentos.',
-    success_body2: 'En breve recibirá las instrucciones de llegada.',
-    lbl_booker: 'Nombre del titular *', lbl_room: 'Habitación *', lbl_arrival: 'Fecha de llegada *', lbl_departure: 'Fecha de salida *',
-    lbl_guests_n: 'Número total de huéspedes *', lbl_time: 'Hora de llegada estimada', lbl_phone: 'Teléfono de contacto', lbl_email: 'Email de contacto',
-    lbl_guest: 'Huésped', lbl_type: 'Tipo de huésped *', lbl_surname: 'Apellido *', lbl_name: 'Nombre *',
-    lbl_sex: 'Sexo *', lbl_dob: 'Fecha de nacimiento *', lbl_citizenship: 'Ciudadanía *', lbl_born_italy: '¿Nacido en Italia?',
-    lbl_born_city: 'Ciudad de nacimiento *', lbl_born_prov: 'Provincia *', lbl_born_state: 'País de nacimiento *',
-    lbl_doc_type: 'Tipo de documento *', lbl_doc_num: 'Número de documento *', lbl_doc_date: 'Fecha de emisión *', lbl_doc_place: 'Organismo emisor *',
-    lbl_doc_front: 'Documento anverso *', lbl_doc_back: 'Documento reverso *', lbl_selfie: 'Selfie con documento *',
-    btn_front: '📷 Tomar o cargar foto anverso', btn_back: '📷 Tomar o cargar foto reverso', btn_selfie: '🤳 Tomar selfie con documento',
-    opt_select: 'Seleccionar', opt_yes: 'Sí', opt_no: 'No', opt_male: 'Masculino', opt_female: 'Femenino',
-    opt_single: 'Huésped único', opt_capo_fam: 'Cabeza de familia', opt_capo_grp: 'Jefe de grupo', opt_familiare: 'Familiar', opt_membro: 'Miembro de grupo',
-    ph_country: 'Buscar país...', ph_city: 'Buscar ciudad...', ph_state: 'Buscar país...',
-    ph_arrival_time: 'Ej. 18:30', ph_phone: 'Ej. 393331234567', ph_prov: 'BA',
-    sending: 'Enviando, por favor espere...',
+  es:{
+    hero_title:'Check-in online',
+    hero_sub:'Rellene los datos de todos los huéspedes antes de la llegada. Check-in a partir de las 15:00, check-out antes de las 10:00. Se necesitan fotos del anverso/reverso del documento y un selfie.',
+    sec_booking:'Tu reserva', sec_guests:'Datos de huéspedes', sec_privacy:'Privacidad',
+    guests_note:'Introduce los datos exactamente como aparecen en el documento.',
+    req_note:'Son obligatorias tres imágenes por huésped: <strong>anverso del documento</strong>, <strong>reverso</strong> y <strong>selfie con el documento</strong>.',
+    submit_btn:'Completar mi check-in',
+    privacy_text:'Los datos personales recogidos se tratan por Santalò Bed and Breakfast exclusivamente para las obligaciones legales relacionadas con la estancia.',
+    privacy_accept_lbl:'He leído y acepto el tratamiento de mis datos personales. *',
+    success_title:'✅ ¡Check-in completado!', success_p1:'Gracias, hemos recibido sus datos y documentos.', success_p2:'En breve recibirá las instrucciones de llegada.',
+    lbl_booker:'Nombre del titular *', lbl_room:'Habitación *', lbl_checkin:'Fecha de llegada *', lbl_checkout:'Fecha de salida *',
+    lbl_nospiti:'Número de huéspedes *', lbl_orario:'Hora de llegada estimada', lbl_tel:'Teléfono', lbl_email:'Email',
+    lbl_guest:'Huésped', lbl_tipo:'Tipo de huésped *', lbl_cognome:'Apellido *', lbl_nome:'Nombre *',
+    lbl_sesso:'Sexo *', lbl_ddn:'Fecha de nacimiento *', lbl_citt:'Ciudadanía *', lbl_nato:'¿Nacido en Italia?',
+    lbl_comune:'Ciudad de nacimiento *', lbl_prov:'Provincia *', lbl_stato:'País de nacimiento *',
+    lbl_tdoc:'Tipo de documento *', lbl_ndoc:'Número de documento *', lbl_ddoc:'Fecha de emisión *', lbl_luogo:'Organismo emisor *',
+    lbl_fronte:'Documento anverso *', lbl_retro:'Documento reverso *', lbl_selfie:'Selfie con documento *',
+    btn_fronte:'📷 Foto anverso', btn_retro:'📷 Foto reverso', btn_selfie:'🤳 Selfie con documento',
+    opt_sel:'Seleccionar', opt_si:'Sí', opt_no:'No', opt_m:'Masculino', opt_f:'Femenino',
+    opt_singolo:'Huésped único', opt_capo_fam:'Cabeza de familia', opt_capo_grp:'Jefe de grupo', opt_familiare:'Familiar', opt_membro:'Miembro de grupo',
+    ph_paese:'Buscar país...', ph_comune:'Buscar ciudad...', ph_stato:'Buscar país...',
+    sending:'Enviando...'
   }
 };
 
 var currentLang = 'it';
 
 function setLang(lang) {
-  if (!TRANSLATIONS[lang]) return;
+  if (!T[lang]) return;
   currentLang = lang;
-  var T = TRANSLATIONS[lang];
-
-  // Aggiorna testi statici
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
-    if (T[el.dataset.i18n]) el.textContent = T[el.dataset.i18n];
+  var L = T[lang];
+  // Testi statici
+  var ids = ['hero_title','hero_sub','sec_booking','sec_guests','sec_privacy','guests_note','submit_btn','privacy_accept_lbl','success_title','success_p1','success_p2'];
+  ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=L[id]; });
+  // req_note ha HTML
+  var rn=document.getElementById('req_note'); if(rn) rn.innerHTML=L.req_note;
+  // privacy text (primo figlio di .privacy)
+  var pv=document.querySelector('.privacy'); if(pv) { var tn=pv.childNodes[0]; if(tn && tn.nodeType===3) tn.textContent=L.privacy_text; else pv.childNodes[0].textContent=L.privacy_text; }
+  // Label form prenotazione
+  var map={nomePrenotante:'lbl_booker',camera:'lbl_room',arrivo:'lbl_checkin',partenza:'lbl_checkout',numOspiti:'lbl_nospiti',orario:'lbl_orario',telefono:'lbl_tel',email:'lbl_email'};
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    var lbl=el.closest('div').querySelector('label'); if(lbl) lbl.textContent=L[map[id]];
   });
-  document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
-    if (T[el.dataset.i18nHtml]) el.innerHTML = T[el.dataset.i18nHtml];
-  });
-
-  // Aggiorna testo privacy
-  var privacyDiv = document.querySelector('.privacy');
-  if (privacyDiv) privacyDiv.childNodes[0].textContent = T.privacy_text;
-
-  // Aggiorna flag attivo
-  document.querySelectorAll('.lang-flag').forEach(function(b) {
-    b.style.background = b.dataset.lang === lang ? 'rgba(255,255,255,.45)' : 'rgba(255,255,255,.15)';
-  });
-
-  // Aggiorna label del form prenotazione
-  var labels = {
-    'nomePrenotante': 'lbl_booker', 'camera': 'lbl_room',
-    'arrivo': 'lbl_arrival', 'partenza': 'lbl_departure',
-    'numOspiti': 'lbl_guests_n', 'orario': 'lbl_time',
-    'telefono': 'lbl_phone', 'email': 'lbl_email'
-  };
-  Object.keys(labels).forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) { var lbl = el.previousElementSibling || el.closest('div').querySelector('label'); if (lbl && lbl.tagName==='LABEL') lbl.textContent = T[labels[id]]; }
-  });
-
-  // Aggiorna placeholder orario
-  var orEl = document.getElementById('orario'); if (orEl) orEl.placeholder = T.ph_arrival_time;
-  var phEl = document.getElementById('telefono'); if (phEl) phEl.placeholder = T.ph_phone;
-
-  // Ri-renderizza le guest card con nuova lingua
-  var numOsp = parseInt(document.getElementById('numOspiti').value) || 1;
-  renderGuests(numOsp);
-
-  try { localStorage.setItem('santalo_checkin_lang', lang); } catch(e) {}
+  // Flag attivo
+  document.querySelectorAll('.lang-flag').forEach(function(b){ b.style.background=b.dataset.lang===lang?'rgba(255,255,255,.4)':'rgba(255,255,255,.1)'; });
+  // Ri-renderizza ospiti con nuova lingua
+  var n=parseInt(document.getElementById('numOspiti').value)||1;
+  renderGuests(n);
+  try{localStorage.setItem('santalo_checkin_lang',lang);}catch(e){}
 }
 
 // ===== INIT =====
-preloadBooking().catch(function(err) {
+preloadBooking().then(function() {
+  // Applica lingua: prima URL param, poi localStorage, poi 'it'
+  var langParam = qs.get('lingua') || qs.get('lang') || '';
+  var saved = ''; try{saved=localStorage.getItem('santalo_checkin_lang')||'';}catch(e){}
+  var lang = (T[langParam] ? langParam : '') || (T[saved] ? saved : '') || 'it';
+  setLang(lang);
+}).catch(function(err) {
   console.error(err);
   showStatus('Errore caricamento prenotazione: ' + err.message, true);
 });
-
-// Applica lingua da URL o localStorage
-(function() {
-  var langParam = qs.get('lingua') || qs.get('lang');
-  var saved = '';
-  try { saved = localStorage.getItem('santalo_checkin_lang') || ''; } catch(e) {}
-  var lang = langParam || saved || 'it';
-  if (!TRANSLATIONS[lang]) lang = 'it';
-  // Breve delay per assicurarsi che il DOM sia pronto
-  setTimeout(function() { setLang(lang); }, 100);
-})();
 </script>
 </body>
 </html>
