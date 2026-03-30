@@ -635,10 +635,11 @@ function loadConversazioni() {
 var CODICE_STRUTTURA = 'BA008847 ';
 
 var TIPI_DOC_AW = {
-  'Carta di identità': '02013',
-  'Passaporto': '01001',
-  'Patente': '02003',
-  'Permesso di soggiorno': '02012',
+  'Carta di identità': 'IDENT',
+  'Carta identità elettronica': 'IDELE',
+  'Passaporto': 'PASOR',
+  'Patente': 'PATEN',
+  'Permesso di soggiorno': 'RIFUG',
 };
 
 var UE_CODES = ['Z102','Z103','Z104','Z107','Z109','Z110','Z112','Z114','Z115',
@@ -685,7 +686,7 @@ function buildRecord(ospite, arrivo, partenza) {
   if (natoItalia) {
     comuneNascita = awPad(ospite.comune_nascita_codice || '', 9);
     provinciaNascita = awPad(ospite.provincia_nascita || '', 2);
-    statoNascita = awPad('', 9); // Nati in Italia: 9 spazi (Z000 viene rifiutato dal portale)
+    statoNascita = awPad('100000100', 9); // Italia
   } else {
     comuneNascita = awPad('', 9);
     provinciaNascita = awPad('EE', 2);
@@ -703,8 +704,8 @@ function buildRecord(ospite, arrivo, partenza) {
     comuneNascita +
     provinciaNascita +
     statoNascita +
-    awPad(ospite.cittadinanza_codice || 'Z000', 9) +
-    awPad(TIPI_DOC_AW[ospite.tipo_documento] || '01001', 5) +
+    awPad(ospite.cittadinanza_codice || '100000100', 9) +
+    awPad(TIPI_DOC_AW[ospite.tipo_documento] || 'IDENT', 5) +
     awPad(ospite.numero_documento || '', 20) +
     awPad(ospite.luogo_rilascio_codice || '', 9);
 }
