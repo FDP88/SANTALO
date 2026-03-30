@@ -292,9 +292,9 @@ function guestTemplate(index, totalGuests) {
   div.dataset.guestIndex = index;
 
   div.innerHTML =
-    '<div class="guest-title"><strong>Ospite '+(index+1)+'</strong>'+
-    '<span class="pill">'+(index===0?'Capofamiglia':'Accompagnatore')+'</span></div>'+
+    '<div class="guest-title"><strong>Ospite '+(index+1)+'</strong></div>'+
     '<div class="grid">'+
+    '<div class="full"><label>Tipo alloggiato *</label><select data-field="tipo_alloggiato" id="tipo_alloggiato_'+index+'" required><option value="">Seleziona</option></select></div>'+
     '<div><label>Cognome *</label><input data-field="cognome" required></div>'+
     '<div><label>Nome *</label><input data-field="nome" required></div>'+
     '<div><label>Sesso *</label><select data-field="sesso" required><option value="">Seleziona</option><option value="1">Maschio</option><option value="2">Femmina</option></select></div>'+
