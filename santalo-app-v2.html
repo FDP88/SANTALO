@@ -2,8 +2,17 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Santalo -- Gestionale</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Santalò Gestionale</title>
+
+  <!-- PWA / Add to Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Santalò"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#3d1a10"/>
+  <link rel="apple-touch-icon" href="https://fdp88.github.io/SANTALO/santalo-logo.png"/>
+  <link rel="manifest" href="https://fdp88.github.io/SANTALO/manifest.json"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -11,7 +20,7 @@
     :root{--brown:#6B2D1F;--brown-d:#3d1a10;--brown-l:#8C4F35;--sand:#C4A882;--sand-l:#E8D9C0;--cream:#FAF7F2;--cream-d:#F3EBE2;--ink:#2E241F;--muted:#7A6B61;--line:#e7d9cc;--ok:#2f7d4a;--ok-bg:#e7f5ec;--warn:#b45309;--warn-bg:#fef3c7;--err:#b91c1c;--err-bg:#fee2e2;}
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',Arial,sans-serif;background:var(--cream);color:var(--ink);font-size:15px}
-    .wrap{max-width:1440px;margin:0 auto;padding:18px}
+    .wrap{max-width:1440px;margin:0 auto;padding:env(safe-area-inset-top,18px) 18px 18px}
     .hero{background:linear-gradient(135deg,var(--brown-d),var(--brown-l));color:#fff;border-radius:20px;padding:22px 26px;margin-bottom:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
     .hero-logo{width:56px;height:56px;flex-shrink:0;background:rgba(255,255,255,.92);border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
     .hero-logo img{width:130%;height:130%;object-fit:cover;margin:-15%}
