@@ -685,7 +685,7 @@ function buildRecord(ospite, arrivo, partenza) {
   if (natoItalia) {
     comuneNascita = awPad(ospite.comune_nascita_codice || '', 9);
     provinciaNascita = awPad(ospite.provincia_nascita || '', 2);
-    statoNascita = awPad('Z000', 9);
+    statoNascita = awPad('', 9); // Nati in Italia: 9 spazi (Z000 viene rifiutato dal portale)
   } else {
     comuneNascita = awPad('', 9);
     provinciaNascita = awPad('EE', 2);
