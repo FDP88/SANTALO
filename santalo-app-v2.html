@@ -350,7 +350,7 @@ function loadBadgeCheckin() {
 function loadAll() {
   var el = document.getElementById('connStatus');
   el.textContent = 'caricamento...'; el.className = 'pill';
-  sb.from('prenotazioni').select('*').order('arrivo', {ascending:true}).then(function(result) {
+  sb.from('prenotazioni').select('*').order('id', {ascending:false}).then(function(result) {
     if (result.error) {
       el.textContent = 'errore'; el.className = 'pill err';
       document.getElementById('listaPrenotazioni').innerHTML = '<div style="color:var(--err);padding:16px">' + esc(result.error.message) + '</div>';
