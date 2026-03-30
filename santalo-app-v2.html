@@ -1167,46 +1167,79 @@ function apriCheckinModal(id) {
 }
 function apriModificaCI(id) {
   var o = ciData[id]; if (!o) return;
-  var fields = [
-    {k:'nome',l:'Nome'},{k:'cognome',l:'Cognome'},
-    {k:'sesso',l:'Sesso',type:'select',opts:[{v:'1',t:'Maschio'},{v:'2',t:'Femmina'}]},
-    {k:'data_nascita',l:'Data nascita',type:'date'},
-    {k:'tipo_documento',l:'Tipo documento',type:'select',opts:[{v:'IDENT',t:'Carta identità'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]},
-    {k:'numero_documento',l:'Numero documento'},
-    {k:'data_rilascio_documento',l:'Data rilascio',type:'date'},
-    {k:'comune_nascita_codice',l:'Codice comune nascita'},
-    {k:'provincia_nascita',l:'Provincia nascita'},
-    {k:'stato_nascita_codice',l:'Codice stato nascita'},
-    {k:'cittadinanza_codice',l:'Codice cittadinanza'},
-    {k:'luogo_rilascio_codice',l:'Codice luogo rilascio'},
+  var TIPI_ALL = [
+    {v:'16',t:'16 - Italiano'},{v:'17',t:'17 - Capo Famiglia IT'},
+    {v:'18',t:'18 - Familiare IT'},{v:'19',t:'19 - UE'},
+    {v:'20',t:'20 - Capo Gruppo UE'},{v:'21',t:'21 - Membro UE'},
+    {v:'22',t:'22 - Extra UE'},{v:'23',t:'23 - Capo Gruppo Extra UE'},
+    {v:'24',t:'24 - Membro Extra UE'}
   ];
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-  fields.forEach(function(f) {
-    html += '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">'+f.l+'</label>';
-    if (f.type==='select') {
-      html += '<select id="ci_'+f.k+'" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px">';
-      f.opts.forEach(function(op){ html += '<option value="'+op.v+'"'+(String(o[f.k])===op.v?' selected':'')+'>'+op.t+'</option>'; });
-      html += '</select>';
-    } else {
-      html += '<input id="ci_'+f.k+'" type="'+(f.type||'text')+'" value="'+esc(String(o[f.k]||''))+'" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px">';
-    }
-    html += '</div>';
-  });
-  html += '</div><div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">';
+  function inp(k,l,tp) {
+    return '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:3px">'+l+'</label>'
+      +'<input id="ci_'+k+'" type="'+(tp||'text')+'" value="'+esc(String(o[k]||''))+'" '
+      +'style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px"></div>';
+  }
+  function sel(k,l,opts) {
+    var s = '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:3px">'+l+'</label>'
+      +'<select id="ci_'+k+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px">';
+    opts.forEach(function(op){ s += '<option value="'+op.v+'"'+(String(o[k])===op.v?' selected':'')+'>'+op.t+'</option>'; });
+    return s + '</select></div>';
+  }
+  function sez(t) {
+    return '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;letter-spacing:.05em;border-top:1px solid var(--line);padding-top:12px">'+t+'</div>';
+  }
+  var g2 = 'display:grid;grid-template-columns:1fr 1fr;gap:10px';
+  var html = '';
+
+  html += sez('Anagrafica');
+  html += '<div style="'+g2+'">';
+  html += inp('nome','Nome') + inp('cognome','Cognome');
+  html += sel('sesso','Sesso',[{v:'1',t:'Maschio'},{v:'2',t:'Femmina'}]);
+  html += inp('data_nascita','Data nascita','date');
+  html += sel('tipo_alloggiato','Tipo alloggiato',TIPI_ALL);
+  html += '</div>';
+
+  html += sez('Nascita');
+  html += '<div style="'+g2+'">';
+  html += sel('nato_italia','Nato in Italia',[{v:'true',t:'Si'},{v:'false',t:'No'}]);
+  html += inp('provincia_nascita','Provincia (EE se estero)');
+  html += inp('comune_nascita_codice','Codice comune nascita (IT)');
+  html += inp('stato_nascita_codice','Codice stato nascita (estero)');
+  html += inp('cittadinanza_codice','Codice cittadinanza');
+  html += '</div>';
+
+  html += sez('Documento');
+  html += '<div style="'+g2+'">';
+  html += sel('tipo_documento','Tipo doc',[{v:'IDENT',t:'Carta identità'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]);
+  html += inp('numero_documento','Numero documento');
+  html += inp('data_rilascio_documento','Data rilascio','date');
+  html += inp('luogo_rilascio_codice','Codice luogo rilascio');
+  html += '</div>';
+
+  html += '<div style="background:var(--warn-bg);border:1px solid #fcd34d;border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px">';
+  html += '&#9432; Per stranieri: Codice luogo rilascio = codice stato (es. 100000215 per Francia)';
+  html += '</div>';
+
+  html += '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">';
   html += '<button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">&#10003; Salva</button>';
   html += '<button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
   document.getElementById('ciModalBody').innerHTML = html;
 }
 function salvaCI(id) {
-  var fields = ['nome','cognome','sesso','data_nascita','tipo_documento','numero_documento',
-    'data_rilascio_documento','comune_nascita_codice','provincia_nascita',
-    'stato_nascita_codice','cittadinanza_codice','luogo_rilascio_codice'];
+  var keys = ['nome','cognome','sesso','data_nascita','tipo_alloggiato',
+    'nato_italia','tipo_documento','numero_documento','data_rilascio_documento',
+    'comune_nascita_codice','provincia_nascita','stato_nascita_codice',
+    'cittadinanza_codice','luogo_rilascio_codice'];
   var upd = {};
-  fields.forEach(function(k) {
-    var el = document.getElementById('ci_'+k); if (el) upd[k] = el.value;
+  keys.forEach(function(k) {
+    var el = document.getElementById('ci_'+k);
+    if (!el) return;
+    if (k === 'nato_italia') upd[k] = el.value === 'true';
+    else upd[k] = el.value;
   });
   sb.from('checkin_ospiti').update(upd).eq('id', id).then(function(r) {
-    if (r.error) { alert('Errore: '+r.error.message); return; }
+    if (r.error) { alert('Errore salvataggio: '+r.error.message); return; }
+    ciData[id] = Object.assign(ciData[id], upd);
     document.getElementById('ciModal').style.display = 'none';
     loadCheckin();
   });
