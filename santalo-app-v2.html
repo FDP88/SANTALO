@@ -367,6 +367,7 @@ function renderPrenotazioni() {
       '</div>' +
       '<div class="booking-actions">' +
       '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">✏️ Modifica</button>' +
       '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
@@ -522,6 +523,28 @@ function waDiretto(id) {
 }
 
 // ===== NUOVA PRENOTAZIONE =====
+function modificaPrenotazione(id) {
+  var p = prenotazioni.find(function(x) { return x.id === id; });
+  if (!p) return;
+  // Popola il form con i dati esistenti
+  document.getElementById('f-nome').value = p.nome || '';
+  document.getElementById('f-telefono').value = p.telefono || '';
+  document.getElementById('f-camera').value = p.camera || '';
+  document.getElementById('f-ospiti').value = String(p.num_ospiti || 1);
+  document.getElementById('f-arrivo').value = p.arrivo || '';
+  document.getElementById('f-partenza').value = p.partenza || '';
+  document.getElementById('f-canale').value = p.canale || 'Airbnb';
+  document.getElementById('f-lingua').value = p.lingua || 'it';
+  document.getElementById('f-orario').value = p.orario || '';
+  document.getElementById('f-note').value = p.note || '';
+  // Salva id in modifica
+  document.getElementById('f-nome').dataset.editId = id;
+  document.getElementById('salvataEsito').textContent = '';
+  showTab('nuova');
+  // Cambia testo pulsante
+  document.querySelector('[onclick="salvaPrenotazione()"]').textContent = '💾 Salva modifiche';
+}
+
 function salvaPrenotazione() {
   var nome = document.getElementById('f-nome').value.trim();
   var camera = document.getElementById('f-camera').value;
@@ -529,20 +552,27 @@ function salvaPrenotazione() {
   var partenza = document.getElementById('f-partenza').value;
   if (!nome || !camera || !arrivo || !partenza) { esito('salvataEsito', 'Compila i campi obbligatori', 'var(--err)'); return; }
   esito('salvataEsito', 'Salvataggio...', 'var(--muted)');
-  sb.from('prenotazioni').insert([{
+  var editId = document.getElementById('f-nome').dataset.editId;
+  var dati = {
     nome:nome, camera:camera, arrivo:arrivo, partenza:partenza,
     num_ospiti: parseInt(document.getElementById('f-ospiti').value)||1,
     telefono: document.getElementById('f-telefono').value.trim(),
     canale: document.getElementById('f-canale').value,
     lingua: document.getElementById('f-lingua').value,
     orario: document.getElementById('f-orario').value.trim(),
-    note: document.getElementById('f-note').value.trim(),
-    stato_checkin: 'da compilare'
-  }]).then(function(result) {
+    note: document.getElementById('f-note').value.trim()
+  };
+  var promise = editId
+    ? sb.from('prenotazioni').update(dati).eq('id', editId)
+    : sb.from('prenotazioni').insert([Object.assign(dati, {stato_checkin:'da compilare'})]);
+  promise.then(function(result) {
     if (result.error) { esito('salvataEsito', 'Errore: ' + result.error.message, 'var(--err)'); return; }
-    esito('salvataEsito', 'Prenotazione salvata!');
-    ['f-nome','f-telefono','f-arrivo','f-partenza','f-orario','f-note'].forEach(function(id) { document.getElementById(id).value = ''; });
+    esito('salvataEsito', editId ? 'Modifiche salvate!' : 'Prenotazione salvata!');
+    ['f-nome','f-telefono','f-arrivo','f-partenza','f-orario','f-note'].forEach(function(id) {
+      var el = document.getElementById(id); el.value = ''; delete el.dataset.editId;
+    });
     document.getElementById('f-camera').value = '';
+    document.querySelector('[onclick="salvaPrenotazione()"]').textContent = 'Salva prenotazione';
     loadAll(); showTab('lista');
   });
 }
