@@ -285,7 +285,8 @@ function makeSearchField(id, placeholder, dataset, onSelect) {
 }
 
 // ===== GUEST TEMPLATE =====
-function guestTemplate(index) {
+function guestTemplate(index, totalGuests) {
+  totalGuests = totalGuests || 1;
   var div = document.createElement('div');
   div.className = 'guest-card';
   div.dataset.guestIndex = index;
@@ -327,6 +328,24 @@ function guestTemplate(index) {
     '<button type="button" class="upload-btn" id="btn_selfie_'+index+'" onclick="document.getElementById(\'file_selfie_'+index+'\').click()">🤳 Scatta selfie con documento</button>'+
     '<div class="upload-preview" id="prev_selfie_'+index+'"></div></div>'+
     '</div>';
+
+  // Popola e pre-seleziona tipo alloggiato in base al numero ospiti
+  var tipoSel = div.querySelector('[data-field="tipo_alloggiato"]');
+  if (tipoSel) {
+    if (totalGuests === 1) {
+      // Solo ospite singolo
+      tipoSel.innerHTML = '<option value="16">Ospite Singolo</option>';
+      tipoSel.value = '16';
+      tipoSel.disabled = true;
+      tipoSel.style.background = '#f5f0eb';
+    } else if (index === 0) {
+      // Primo di 2: capo famiglia o capo gruppo
+      tipoSel.innerHTML = '<option value="">Seleziona</option><option value="17">Capo Famiglia</option><option value="20">Capo Gruppo</option>';
+    } else {
+      // Secondo di 2: familiare o membro gruppo
+      tipoSel.innerHTML = '<option value="">Seleziona</option><option value="19">Familiare</option><option value="21">Membro Gruppo</option>';
+    }
+  }
 
   // File change listeners per preview
   ['fronte','retro','selfie'].forEach(function(label) {
@@ -376,7 +395,7 @@ function guestTemplate(index) {
 
 function renderGuests(count) {
   guestsContainer.innerHTML = '';
-  for (var i = 0; i < count; i++) guestsContainer.appendChild(guestTemplate(i));
+  for (var i = 0; i < count; i++) guestsContainer.appendChild(guestTemplate(i, count));
 }
 
 // ===== PRELOAD =====
