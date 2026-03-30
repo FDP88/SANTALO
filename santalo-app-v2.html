@@ -83,18 +83,18 @@
     .cal-scroll-outer::-webkit-scrollbar{height:5px}
     .cal-scroll-outer::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
     .cal-tbl{border-collapse:collapse;table-layout:fixed;min-width:100%}
-    .cal-room-th{position:sticky;left:0;z-index:10;background:#fff;border-right:2px solid var(--line);min-width:60px;max-width:60px;width:60px}
+    .cal-room-th{position:sticky;left:0;z-index:10;background:#fff;border-right:2px solid var(--line);min-width:70px;max-width:70px;width:70px;text-align:center;padding:6px 4px;font-size:11px;font-weight:700;color:var(--muted)}
     .cal-room-name{font-size:12px;font-weight:700;white-space:nowrap;padding:0 10px}
     .cal-month-hdr{text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:5px 2px;border-bottom:1px solid var(--line);border-right:2px solid var(--line);background:#fafaf8;text-transform:uppercase;letter-spacing:.03em}
     .cal-month-hdr.cur{color:var(--brown);background:#fff7ed}
-    .cal-day-th{width:22px;min-width:22px;max-width:22px;text-align:center;padding:3px 0;border-bottom:2px solid var(--line);border-right:1px solid var(--cream-d);vertical-align:bottom}
+    .cal-day-th{min-width:52px;text-align:center;padding:5px 2px;border-bottom:2px solid var(--line);border-right:1px solid var(--cream-d);vertical-align:bottom}
     .cal-day-th.is-today{background:#fff7ed}
     .cal-day-th.mstart{border-left:2px solid var(--line)}
     .cal-day-th.is-we .cal-day-num{opacity:.4}
     .cal-day-num{font-size:9px;font-weight:600;display:block;line-height:1.2;color:var(--ink)}
     .cal-day-wd{font-size:8px;color:var(--muted);display:block;line-height:1.2}
     .cal-day-th.is-today .cal-day-num{color:var(--brown);font-weight:800}
-    .cal-data-td{height:40px;border-bottom:1px solid var(--cream-d);border-right:1px solid rgba(231,217,204,.3);padding:2px 1px;vertical-align:middle}
+    .cal-data-td{height:48px;border-bottom:1px solid var(--cream-d);border-right:1px solid rgba(231,217,204,.3);padding:3px 2px;vertical-align:middle}
     .cal-data-td.is-today{background:#fff7ed}
     .cal-data-td.is-we{background:#fafaf8}
     .cal-data-td.mstart{border-left:2px solid var(--line)}
@@ -102,7 +102,7 @@
     .cal-bar{height:32px;border-radius:6px;display:flex;align-items:center;cursor:pointer;position:relative;overflow:visible;transition:filter .15s}
     .cal-bar:hover{filter:brightness(1.08)}
     .cal-bar-inner{display:flex;align-items:center;height:32px;border-radius:6px;overflow:hidden;flex:1;padding:0 5px;gap:3px}
-    .cal-bar-name{font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+    .cal-bar-name{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
     .cal-bar-x{font-size:9px;color:rgba(255,255,255,.8);flex-shrink:0}
     .cal-tip{display:none;position:absolute;z-index:500;background:var(--brown-d);color:#fff;border-radius:10px;padding:8px 12px;font-size:12px;white-space:nowrap;top:calc(100% + 5px);left:0;box-shadow:0 4px 20px rgba(0,0,0,.3);line-height:1.7;pointer-events:none}
     .cal-bar:hover .cal-tip{display:block}
@@ -377,7 +377,7 @@ function loadBadgeCheckin() {
 function loadAll() {
   var el = document.getElementById('connStatus');
   el.textContent = 'caricamento...'; el.className = 'pill';
-  sb.from('prenotazioni').select('*').order('arrivo', {ascending:true}).then(function(result) {
+  sb.from('prenotazioni').select('*').order('id', {ascending:false}).then(function(result) {
     if (result.error) {
       el.textContent = 'errore'; el.className = 'pill err';
       document.getElementById('listaPrenotazioni').innerHTML = '<div style="color:var(--err);padding:16px">' + esc(result.error.message) + '</div>';
@@ -881,17 +881,21 @@ function waPulizie() {
   window.open('https://wa.me/' + PULIZIE_PHONE + '?text=' + encodeURIComponent(txt), '_blank');
 }
 
-// ===== CALENDARIO ANNUALE =====
+// ===== CALENDARIO 15 GIORNI =====
 var CAL_YEAR = new Date().getFullYear();
+var CAL_START = (function(){
+  var d = new Date(); d.setHours(0,0,0,0); return d;
+})();
 var CAMERE_CAL = [
   {key:'Camera 1920', label:'1920', col:'#b45309'},
   {key:'Camera 1954', label:'1954', col:'#6b21a8'},
   {key:'Camera 1956', label:'1956', col:'#0f766e'},
 ];
 var MESI_FULL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-var GGS = ['D','L','M','M','G','V','S'];
+var GGS = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 function p2(n){ return n<10?'0'+n:''+n; }
 function dsFn(y,m,d){ return y+'-'+p2(m)+'-'+p2(d); }
+function dateToDs(dt){ return dt.getFullYear()+'-'+p2(dt.getMonth()+1)+'-'+p2(dt.getDate()); }
 function barCol(pren) {
   var today = new Date(); today.setHours(0,0,0,0);
   var par = pren.partenza ? new Date(pren.partenza+'T12:00:00') : null;
@@ -904,13 +908,42 @@ function camOk(pCam, camKey) {
   var num = camKey.replace('Camera ','').trim();
   return pCam === camKey || pCam.indexOf(num) >= 0;
 }
+function calShift(days) {
+  CAL_START = new Date(CAL_START);
+  CAL_START.setDate(CAL_START.getDate() + days);
+  renderCalendario();
+}
+function calGoTo() {
+  var inp = document.getElementById('calGotoInput');
+  if (!inp || !inp.value) return;
+  var d = new Date(inp.value + 'T12:00:00');
+  if (isNaN(d)) return;
+  d.setHours(0,0,0,0);
+  CAL_START = d;
+  renderCalendario();
+}
+function calGoToday() {
+  CAL_START = new Date(); CAL_START.setHours(0,0,0,0);
+  renderCalendario();
+}
 function renderCalendario() {
   var root = document.getElementById('calRoot');
   if (!root) return;
   var today = new Date(); today.setHours(0,0,0,0);
-  var todayStr = today.toISOString().slice(0,10);
-  var isLeap = (CAL_YEAR%4===0&&CAL_YEAR%100!==0)||(CAL_YEAR%400===0);
-  var dpm = [31,isLeap?29:28,31,30,31,30,31,31,30,31,30,31];
+  var todayStr = dateToDs(today);
+  var WIN = 15;
+
+  // Build dayList: CAL_START + 14 giorni
+  var dayList = [];
+  for (var i=0; i<WIN; i++) {
+    var d = new Date(CAL_START);
+    d.setDate(CAL_START.getDate() + i);
+    dayList.push({ds: dateToDs(d), d: d.getDate(), m: d.getMonth(), y: d.getFullYear(), wd: d.getDay(), dateObj: d});
+  }
+  var startDs = dayList[0].ds;
+  var endDs = dayList[WIN-1].ds;
+
+  // Strip oggi
   var cosOggi = prenotazioni.filter(function(p){ return p.partenza===todayStr; });
   var cisOggi = prenotazioni.filter(function(p){ return p.arrivo===todayStr; });
   var strip = '<div class="today-strip"><span class="today-strip-title">Oggi ' +
@@ -919,23 +952,37 @@ function renderCalendario() {
   cisOggi.forEach(function(p){ strip += '<span class="today-pill in">&#128718; '+(p.nome||'').split(' ')[0]+' &ndash; '+(p.camera||'').replace('Camera ','')+'</span>'; });
   if (!cosOggi.length&&!cisOggi.length) strip += '<span class="today-pill none">Nessun arrivo o partenza oggi</span>';
   strip += '</div>';
+
+  // Titolo periodo
+  var d0 = dayList[0], d1 = dayList[WIN-1];
+  var rangeLabel = d0.d + ' ' + MESI_FULL[d0.m].slice(0,3) + (d0.y!==d1.y?' '+d0.y:'') +
+    ' &rarr; ' + d1.d + ' ' + MESI_FULL[d1.m].slice(0,3) + ' ' + d1.y;
+
+  // Nav
   var nav = '<div class="cal-nav">' +
-    '<button class="cal-nav-btn" onclick="CAL_YEAR--;renderCalendario()">&lsaquo; '+(CAL_YEAR-1)+'</button>' +
-    '<span class="cal-title">'+CAL_YEAR+'</span>' +
-    '<button class="cal-nav-btn" onclick="CAL_YEAR++;renderCalendario()">'+(CAL_YEAR+1)+' &rsaquo;</button>' +
+    '<button class="cal-nav-btn" onclick="calShift(-15)">&lsaquo;&lsaquo; -15</button>' +
+    '<button class="cal-nav-btn" onclick="calShift(-7)">&lsaquo; -7</button>' +
+    '<button class="cal-nav-btn" onclick="calGoToday()" style="background:var(--brown);color:#fff">Oggi</button>' +
+    '<span class="cal-title" style="flex:1;text-align:center">' + rangeLabel + '</span>' +
+    '<button class="cal-nav-btn" onclick="calShift(7)">+7 &rsaquo;</button>' +
+    '<button class="cal-nav-btn" onclick="calShift(15)">+15 &rsaquo;&rsaquo;</button>' +
     '</div>';
+
+  // Vai alla data
+  var gotoRow = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">' +
+    '<span style="font-size:12px;font-weight:600;color:var(--muted)">Vai alla data:</span>' +
+    '<input type="date" id="calGotoInput" style="padding:5px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px;color:var(--ink)">' +
+    '<button class="cal-nav-btn" onclick="calGoTo()">&#10148; Vai</button>' +
+    '</div>';
+
+  // Legenda
   var leg = '<div class="cal-legend">' +
     '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#2563eb"></div>Prenotato</div>' +
     '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#16a34a"></div>Check-in OK</div>' +
     '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#9ca3af"></div>Passato</div>' +
     '</div>';
-  var dayList = [];
-  for (var m=0; m<12; m++) {
-    for (var d=1; d<=dpm[m]; d++) {
-      var dateO = new Date(CAL_YEAR,m,d);
-      dayList.push({ds:dsFn(CAL_YEAR,m+1,d), d:d, m:m, wd:dateO.getDay()});
-    }
-  }
+
+  // Mappa prenotazioni per camera
   var maps = CAMERE_CAL.map(function(cam) {
     var map = {};
     prenotazioni.forEach(function(p) {
@@ -943,27 +990,28 @@ function renderCalendario() {
       var cur = new Date(p.arrivo+'T12:00:00');
       var end = new Date(p.partenza+'T12:00:00');
       while (cur < end) {
-        if (cur.getFullYear()===CAL_YEAR) map[cur.toISOString().slice(0,10)] = p;
+        var ds2 = cur.toISOString().slice(0,10);
+        if (ds2 >= startDs && ds2 <= endDs) map[ds2] = p;
         cur.setDate(cur.getDate()+1);
       }
     });
     return map;
   });
-  var mHdr = '<th class="cal-room-th"></th>';
-  for (var mi=0; mi<12; mi++) {
-    var cur2 = (mi===today.getMonth()&&CAL_YEAR===today.getFullYear());
-    mHdr += '<th colspan="'+dpm[mi]+'" class="cal-month-hdr'+(cur2?' cur':'')+'">'+MESI_FULL[mi]+'</th>';
-  }
-  var dHdr = '<th class="cal-room-th"></th>';
+
+  // Header colonne (giorni)
+  var dHdr = '<th class="cal-room-th">Camera</th>';
   dayList.forEach(function(day) {
     var isT = day.ds===todayStr;
     var isW = (day.wd===0||day.wd===6);
-    var isF = day.d===1;
-    dHdr += '<th class="cal-day-th'+(isT?' is-today':'')+(isW?' is-we':'')+(isF?' mstart':'')+'">'+
-      '<span class="cal-day-num">'+(isF||day.d%5===0||isT?day.d:'')+'</span>'+
-      '<span class="cal-day-wd">'+(isF||isT?GGS[day.wd]:'')+'</span>'+
+    var isM = day.d===1; // primo del mese
+    dHdr += '<th class="cal-day-th'+(isT?' is-today':'')+(isW?' is-we':'')+(isM?' mstart':'')+'">'+
+      '<span class="cal-day-wd">'+GGS[day.wd].slice(0,2)+'</span>'+
+      '<span class="cal-day-num">'+day.d+'</span>'+
+      (isM?'<span style="font-size:8px;color:var(--muted);display:block">'+MESI_FULL[day.m].slice(0,3)+'</span>':'')+
       '</th>';
   });
+
+  // Righe camere
   var tbody = '';
   CAMERE_CAL.forEach(function(cam, ci) {
     var bmap = maps[ci];
@@ -975,56 +1023,71 @@ function renderCalendario() {
       var pren = bmap[day.ds];
       var isT2 = day.ds===todayStr;
       var isW2 = (day.wd===0||day.wd===6);
-      var isF2 = day.d===1;
-      var cls = 'cal-data-td'+(isT2?' is-today':'')+(isW2?' is-we':'')+(isF2?' mstart':'');
-      if (pren && pren.arrivo === day.ds) {
-        var span = 0;
-        while (i+span < dayList.length && bmap[dayList[i+span].ds] && bmap[dayList[i+span].ds].id===pren.id) span++;
-        var nights = Math.round((new Date(pren.partenza+'T12:00:00')-new Date(pren.arrivo+'T12:00:00'))/86400000);
-        var nome = (pren.nome||'').split(' ').slice(0,2).join(' ');
-        var col = barCol(pren);
-        var stato = pren.stato_checkin||'da compilare';
-        var lastDay = dayList[i+span-1];
-        var depD = new Date(pren.partenza+'T12:00:00'); depD.setDate(depD.getDate()-1);
-        var isDep = lastDay && depD.toISOString().slice(0,10)===lastDay.ds;
-        var bar = '<div class="cal-bar" style="background:'+col+'">'+'<div class="cal-bar-inner">'+'<span class="cal-bar-x">&#9658;</span>'+'<span class="cal-bar-name">'+esc(nome)+'</span>'+(span>3?'<span class="cal-bar-x">'+nights+'n</span>':'')+(isDep?'<span class="cal-bar-x">&#9668;</span>':'')+'</div>'+'<div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' &rarr; '+fmt(pren.partenza)+'<br>'+nights+' notti &middot; '+esc(stato)+'</div>'+'</div>';
-        tbody += '<td class="'+cls+'" colspan="'+span+'" style="padding:2px 1px">'+bar+'</td>';
-        i += span;
+      var isM2 = day.d===1;
+      var cls = 'cal-data-td'+(isT2?' is-today':'')+(isW2?' is-we':'')+(isM2?' mstart':'');
+
+      if (pren) {
+        // Trova inizio span: primo giorno visibile di questa prenotazione
+        if (pren.arrivo === day.ds || (i===0 && pren.arrivo < day.ds)) {
+          // Calcola quante celle occupa nel range visibile
+          var span = 0;
+          while (i+span < dayList.length && bmap[dayList[i+span].ds] && bmap[dayList[i+span].ds].id===pren.id) span++;
+          var nights = Math.round((new Date(pren.partenza+'T12:00:00')-new Date(pren.arrivo+'T12:00:00'))/86400000);
+          var nome = (pren.nome||'').split(' ').slice(0,2).join(' ');
+          var col = barCol(pren);
+          var stato = pren.stato_checkin||'da compilare';
+          // Freccia arrivo solo se arrivo è visibile nel range
+          var showArr = (pren.arrivo >= startDs);
+          // Freccia partenza: l'ultimo giorno occupato è il giorno prima della partenza
+          var lastVisDs = dayList[i+span-1].ds;
+          var depD = new Date(pren.partenza+'T12:00:00'); depD.setDate(depD.getDate()-1);
+          var isDep = depD.toISOString().slice(0,10) === lastVisDs;
+          var bar = '<div class="cal-bar" style="background:'+col+'">';
+          bar += '<div class="cal-bar-inner">';
+          if (showArr) bar += '<span class="cal-bar-x">&#9658;</span>';
+          bar += '<span class="cal-bar-name">'+esc(nome)+'</span>';
+          if (span > 2) bar += '<span class="cal-bar-x">'+nights+'n</span>';
+          if (isDep) bar += '<span class="cal-bar-x">&#9668;</span>';
+          bar += '</div>';
+          bar += '<div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' &rarr; '+fmt(pren.partenza)+'<br>'+nights+' notti &middot; '+esc(stato)+'</div>';
+          bar += '</div>';
+          tbody += '<td class="'+cls+'" colspan="'+span+'" style="padding:3px 2px">'+bar+'</td>';
+          i += span;
+        } else {
+          // Non dovrebbe accadere
+          tbody += '<td class="'+cls+'"></td>'; i++;
+        }
       } else {
-        tbody += '<td class="'+cls+'"></td>';
-        i++;
+        tbody += '<td class="'+cls+'"></td>'; i++;
       }
     }
     tbody += '</tr>';
   });
-  var tbl = '<div class="cal-scroll-outer" id="calOuter"><table class="cal-tbl"><thead><tr>'+mHdr+'</tr><tr>'+dHdr+'</tr></thead><tbody>'+tbody+'</tbody></table></div>';
+
+  var tbl = '<div class="cal-scroll-outer"><table class="cal-tbl" style="width:100%;table-layout:fixed"><thead><tr>'+dHdr+'</tr></thead><tbody>'+tbody+'</tbody></table></div>';
+
+  // Prossimi check-in/out nei 15 giorni
   var prox = '';
-  for (var pi=1; pi<=7; pi++) {
-    var dd2 = new Date(today); dd2.setDate(today.getDate()+pi);
-    var dds = dd2.toISOString().slice(0,10);
-    var co2 = prenotazioni.filter(function(p){ return p.partenza===dds; });
-    var ci2 = prenotazioni.filter(function(p){ return p.arrivo===dds; });
+  dayList.forEach(function(day) {
+    var co2 = prenotazioni.filter(function(p){ return p.partenza===day.ds; });
+    var ci2 = prenotazioni.filter(function(p){ return p.arrivo===day.ds; });
     if (co2.length||ci2.length) {
-      prox += '<div class="prox-row"><span class="prox-date">'+dd2.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+'</span>';
+      var isT3 = day.ds===todayStr;
+      prox += '<div class="prox-row">';
+      prox += '<span class="prox-date"'+(isT3?' style="color:var(--brown);font-weight:800"':'')+'>';
+      prox += day.dateObj.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+      prox += (isT3?' (oggi)':'') + '</span>';
       co2.forEach(function(p){ prox += '<span class="today-pill out" style="font-size:11px">&#127939; '+(p.nome||'').split(' ')[0]+'</span>'; });
       ci2.forEach(function(p){ prox += '<span class="today-pill in" style="font-size:11px">&#128718; '+(p.nome||'').split(' ')[0]+'</span>'; });
       prox += '</div>';
     }
-  }
-  var proxS = prox ? '<div style="margin-top:18px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Prossimi 7 giorni</div>'+prox+'</div>' : '';
-  root.innerHTML = strip + nav + leg + tbl + proxS;
-  setTimeout(function(){
-    var outer = document.getElementById('calOuter');
-    if (!outer) return;
-    var dpm2 = [31,isLeap?29:28,31,30,31,30,31,31,30,31,30,31];
-    var dbf = 0;
-    for (var mi2=0; mi2<today.getMonth(); mi2++) dbf += dpm2[mi2];
-    dbf += today.getDate()-1;
-    var cw = (outer.scrollWidth-60)/dayList.length;
-    outer.scrollLeft = Math.max(0, dbf*cw - outer.clientWidth/2);
-  }, 80);
-}
+  });
+  var proxS = prox
+    ? '<div style="margin-top:18px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Movimenti nel periodo</div>'+prox+'</div>'
+    : '<div style="margin-top:14px;color:var(--muted);font-size:13px">Nessun movimento nel periodo selezionato.</div>';
 
+  root.innerHTML = strip + nav + gotoRow + leg + tbl + proxS;
+}
 window.addEventListener('DOMContentLoaded', function() { loadAll(); });
 </script>
 </body>
