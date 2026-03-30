@@ -1022,12 +1022,25 @@ window.addEventListener('DOMContentLoaded', function() { loadAll(); });
 var calYear = new Date().getFullYear();
 var calMonth = new Date().getMonth();
 var CAMERE_CAL = [
-  {key:'Camera 1920', label:'1920', color:'#b45309', text:'#fff'},
-  {key:'Camera 1954', label:'1954', color:'#1d4ed8', text:'#fff'},
-  {key:'Camera 1956', label:'1956', color:'#15803d', text:'#fff'},
+  {key:'Camera 1920', label:'1920'},
+  {key:'Camera 1954', label:'1954'},
+  {key:'Camera 1956', label:'1956'},
 ];
 var MESI_CAL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 var GG_CAL_S = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+
+// Colore barra in base allo stato della prenotazione
+function calBarColor(pren) {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var partenza = pren.partenza ? new Date(pren.partenza) : null;
+  if (partenza) partenza.setHours(0,0,0,0);
+  // Passata = partenza già avvenuta
+  if (partenza && partenza <= today) return '#9ca3af'; // grigio
+  // Check-in completato
+  if (pren.stato_checkin === 'completato') return '#16a34a'; // verde
+  // Prenotazione attiva o futura senza check-in
+  return '#2563eb'; // blu
+}
 
 function renderCalendario() {
   var root = document.getElementById('calendarRoot');
@@ -1053,46 +1066,45 @@ function renderCalendario() {
     '<button class="cal-nav-btn" onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendario()">Successivo ›</button>' +
     '</div>';
 
-  // ---- LEGENDA ----
-  var legHtml = '<div class="cal-legend">';
-  CAMERE_CAL.forEach(function(cam){ legHtml += '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:'+cam.color+'"></div>Camera '+cam.label+'</div>'; });
-  legHtml += '<div class="cal-legend-item" style="margin-left:6px;color:var(--muted);font-weight:400">▶ giorno di arrivo &nbsp;◀ giorno prima della partenza</div>';
-  legHtml += '</div>';
+  // ---- LEGENDA STATI ----
+  var legHtml = '<div class="cal-legend">' +
+    '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#2563eb"></div>Prenotazione (senza check-in)</div>' +
+    '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#16a34a"></div>Check-in completato</div>' +
+    '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#9ca3af"></div>Soggiorno passato</div>' +
+    '<div class="cal-legend-item" style="color:var(--muted);font-weight:400;font-size:11px">▶ arrivo &nbsp;◀ partenza</div>' +
+    '</div>';
 
-  // ---- TABELLA ----
-  // Pre-calcola prenotazioni per camera e per giorno (multi-day span)
-  // Per ogni camera, costruiamo un array di "slot" per i giorni del mese
-  // Ogni slot può essere: null, {pren, type:'start'/'mid'/'end'/'only', colSpan}
-  // Ma in HTML table usiamo colspan per disegnare la barra su più celle
+  // ---- BUILD DAY MAP ----
+  function matchCamera(pCamera, camKey) {
+    if (!pCamera) return false;
+    var norm = pCamera.toLowerCase().replace(/\s+/g,'');
+    var key = camKey.toLowerCase().replace(/\s+/g,'');
+    return norm === key || norm.indexOf(camKey.replace('Camera ','')) >= 0 || pCamera.indexOf(camKey.replace('Camera ','')) >= 0;
+  }
 
-  // Build booking map: per ogni camera, array[31] con info sul giorno
   function buildRoomDayMap(camKey) {
     var map = {};
-    for (var d=1; d<=daysInMonth; d++) {
-      var ds = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-      map[ds] = null;
-    }
     prenotazioni.forEach(function(p) {
-      if (!p.camera || !p.arrivo || !p.partenza) return;
-      if (p.camera !== camKey && p.camera.indexOf(camKey.replace('Camera ','')) < 0) return;
-      // Marca ogni giorno della prenotazione (arrivo incluso, partenza esclusa)
+      if (!matchCamera(p.camera, camKey) || !p.arrivo || !p.partenza) return;
       var cur = new Date(p.arrivo); cur.setHours(0,0,0,0);
       var end = new Date(p.partenza); end.setHours(0,0,0,0);
       while (cur < end) {
         var ds = cur.toISOString().slice(0,10);
-        if (map.hasOwnProperty(ds)) map[ds] = p;
+        // Solo se nel mese corrente
+        var y = cur.getFullYear(), m = cur.getMonth();
+        if (y === calYear && m === calMonth) map[ds] = p;
         cur.setDate(cur.getDate()+1);
       }
     });
     return map;
   }
 
-  // Header row
+  // ---- HEADER ----
   var thead = '<thead><tr>';
-  thead += '<th class="cal-room-th"><span class="cal-room-name" style="opacity:0">—</span></th>';
+  thead += '<th class="cal-room-th"></th>';
   for (var d=1; d<=daysInMonth; d++) {
     var dateObj = new Date(calYear, calMonth, d);
-    var wd = dateObj.getDay(); // 0=Sun
+    var wd = dateObj.getDay();
     var ds = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     var isToday = ds === todayStr;
     var isWe = (wd===0||wd===6);
@@ -1103,107 +1115,91 @@ function renderCalendario() {
   }
   thead += '</tr></thead>';
 
-  // Body rows - one per camera, using colspan for booking bars
+  // ---- BODY ----
   var tbody = '<tbody>';
   CAMERE_CAL.forEach(function(cam) {
     var dayMap = buildRoomDayMap(cam.key);
     tbody += '<tr class="cal-data-row">';
-    // Sticky label cell
-    tbody += '<td class="cal-data-td room-th-td"><span class="cal-room-name" style="color:'+cam.color+'">'+cam.label+'</span></td>';
+    // Label colonna sticky — colore fisso per camera
+    var camColors = {'1920':'#b45309','1954':'#6b21a8','1956':'#0f766e'};
+    var camColor = camColors[cam.label] || '#6b7280';
+    tbody += '<td class="cal-data-td room-th-td"><span class="cal-room-name" style="color:'+camColor+'">'+cam.label+'</span></td>';
 
     var d = 1;
     while (d <= daysInMonth) {
       var ds = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
       var pren = dayMap[ds];
-      var dateObj = new Date(calYear, calMonth, d);
-      var wd = dateObj.getDay();
-      var isToday = ds === todayStr;
-      var isWe = (wd===0||wd===6);
+      var dateObj2 = new Date(calYear, calMonth, d);
+      var wd2 = dateObj2.getDay();
+      var isToday2 = ds === todayStr;
+      var isWe2 = (wd2===0||wd2===6);
+      var tdClass = 'cal-data-td'+(isToday2?' is-today':'')+(isWe2?' is-we':'');
 
       if (pren && pren.arrivo === ds) {
-        // Booking starts here — calculate colspan
+        // Prenotazione che inizia oggi — calcola colspan
         var span = 0;
         var cur2 = d;
         while (cur2 <= daysInMonth) {
           var ds2 = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(cur2).padStart(2,'0');
-          if (dayMap[ds2] && dayMap[ds2].id === pren.id) { span++; cur2++; }
-          else break;
+          if (dayMap[ds2] && dayMap[ds2].id === pren.id) { span++; cur2++; } else break;
         }
-        // Also check if booking continues past end of month
-        var prenEnd = new Date(pren.partenza); prenEnd.setHours(0,0,0,0);
-        var lastDayDs = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(daysInMonth).padStart(2,'0');
-        var continuesPast = prenEnd > new Date(lastDayDs);
-
-        // Calculate nights total
         var nights = Math.round((new Date(pren.partenza)-new Date(pren.arrivo))/86400000);
-
-        // Build bar
         var nome = (pren.nome||'').split(' ').slice(0,2).join(' ');
-        var isArr = true; // always true since pren.arrivo === ds
-        var isDep = !continuesPast; // last visible day has dep arrow if booking ends in this month
+        var barColor = calBarColor(pren);
+        // Ultima cella visibile = giorno prima della partenza
+        var lastVisibleDs = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d+span-1).padStart(2,'0');
+        var prenEndDs = new Date(pren.partenza); prenEndDs.setDate(prenEndDs.getDate()-1);
+        var isDep = prenEndDs.toISOString().slice(0,10) === lastVisibleDs;
+        var stato = pren.stato_checkin || 'da compilare';
 
-        var barHtml = '<div class="cal-bar" style="background:'+cam.color+'" title="">' +
+        var barHtml = '<div class="cal-bar" style="background:'+barColor+'">' +
           '<div class="cal-bar-inner">' +
           '<span class="cal-bar-arr">▶</span>' +
           '<span class="cal-bar-name">'+esc(nome)+'</span>' +
-          (span>2 ? '<span class="cal-bar-nights">'+nights+'n</span>' : '') +
+          (span > 2 ? '<span class="cal-bar-nights">'+nights+'n</span>' : '') +
           (isDep ? '<span class="cal-bar-dep">◀</span>' : '') +
           '</div>' +
-          '<div class="cal-tooltip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>Camera '+cam.label+' · '+nights+' notti</div>' +
+          '<div class="cal-tooltip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>'+nights+' notti · '+esc(stato)+'</div>' +
           '</div>';
 
-        tbody += '<td class="cal-data-td'+(isToday?' is-today':'')+(isWe?' is-we':'')+'" colspan="'+span+'" style="padding:3px 2px">'+barHtml+'</td>';
+        tbody += '<td class="'+tdClass+'" colspan="'+span+'" style="padding:3px 2px">'+barHtml+'</td>';
         d += span;
 
-      } else if (pren && pren.arrivo !== ds) {
-        // Middle or end of booking that started before this month — skip (handled by colspan logic)
-        // This shouldn't happen since we track from d=1 and use colspan
-        // But safety: empty cell
-        tbody += '<td class="cal-data-td'+(isToday?' is-today':'')+(isWe?' is-we':'')+'"></td>';
-        d++;
-
-      } else {
-        // Check if a booking started before this month and continues here
-        var prenFromBefore = prenotazioni.find(function(p2) {
-          if (!p2.camera || !p2.arrivo || !p2.partenza) return false;
-          if (p2.camera !== cam.key && p2.camera.indexOf(cam.label) < 0) return false;
-          return p2.arrivo < ds && p2.partenza > ds;
-        });
-
-        if (prenFromBefore && prenFromBefore.arrivo < (calYear+'-'+String(calMonth+1).padStart(2,'0')+'-01')) {
-          // Booking continues from previous month - draw bar from day 1 to end
-          if (d === 1) {
-            // Calculate how many days it spans in this month
-            var span2 = 0;
-            var cur3 = 1;
-            while (cur3 <= daysInMonth) {
-              var ds3 = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(cur3).padStart(2,'0');
-              if (dayMap[ds3] && dayMap[ds3].id === prenFromBefore.id) { span2++; cur3++; }
-              else break;
-            }
-            var nights2 = Math.round((new Date(prenFromBefore.partenza)-new Date(prenFromBefore.arrivo))/86400000);
-            var nome2 = (prenFromBefore.nome||'').split(' ').slice(0,2).join(' ');
-            var prenEnd2 = new Date(prenFromBefore.partenza); prenEnd2.setHours(0,0,0,0);
-            var lastDs2 = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(daysInMonth).padStart(2,'0');
-            var isDep2 = prenEnd2 <= new Date(lastDs2+'T23:59:59');
-            var barHtml2 = '<div class="cal-bar" style="background:'+cam.color+'" title="">' +
-              '<div class="cal-bar-inner">' +
-              '<span class="cal-bar-name">'+esc(nome2)+'</span>' +
-              (isDep2 ? '<span class="cal-bar-dep">◀</span>' : '') +
-              '</div>' +
-              '<div class="cal-tooltip">'+esc(prenFromBefore.nome||'')+'<br>'+fmt(prenFromBefore.arrivo)+' → '+fmt(prenFromBefore.partenza)+'<br>Camera '+cam.label+' · '+nights2+' notti</div>' +
-              '</div>';
-            tbody += '<td class="cal-data-td'+(isToday?' is-today':'')+(isWe?' is-we':'')+'" colspan="'+span2+'" style="padding:3px 2px">'+barHtml2+'</td>';
-            d += span2;
-          } else {
-            tbody += '<td class="cal-data-td'+(isToday?' is-today':'')+(isWe?' is-we':'')+'"></td>';
-            d++;
+      } else if (pren && pren.arrivo < (calYear+'-'+String(calMonth+1).padStart(2,'0')+'-01')) {
+        // Prenotazione iniziata il mese precedente — la gestiamo solo quando d=1
+        if (d === 1) {
+          var span3 = 0; var c3 = 1;
+          while (c3 <= daysInMonth) {
+            var ds3 = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(c3).padStart(2,'0');
+            if (dayMap[ds3] && dayMap[ds3].id === pren.id) { span3++; c3++; } else break;
           }
+          var nights3 = Math.round((new Date(pren.partenza)-new Date(pren.arrivo))/86400000);
+          var nome3 = (pren.nome||'').split(' ').slice(0,2).join(' ');
+          var barColor3 = calBarColor(pren);
+          var lastDs3 = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(span3).padStart(2,'0');
+          var prenEndDs3 = new Date(pren.partenza); prenEndDs3.setDate(prenEndDs3.getDate()-1);
+          var isDep3 = prenEndDs3.toISOString().slice(0,10) === lastDs3;
+          var stato3 = pren.stato_checkin || 'da compilare';
+
+          var barHtml3 = '<div class="cal-bar" style="background:'+barColor3+'">' +
+            '<div class="cal-bar-inner">' +
+            '<span class="cal-bar-name">'+esc(nome3)+'</span>' +
+            (isDep3 ? '<span class="cal-bar-dep">◀</span>' : '') +
+            '</div>' +
+            '<div class="cal-tooltip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>'+nights3+' notti · '+esc(stato3)+'</div>' +
+            '</div>';
+
+          tbody += '<td class="'+tdClass+'" colspan="'+span3+'" style="padding:3px 2px">'+barHtml3+'</td>';
+          d += span3;
         } else {
-          // Empty cell
-          tbody += '<td class="cal-data-td'+(isToday?' is-today':'')+(isWe?' is-we':'')+'"></td>';
+          // Non dovrebbe accadere — cella vuota di sicurezza
+          tbody += '<td class="'+tdClass+'"></td>';
           d++;
         }
+      } else {
+        // Cella vuota
+        tbody += '<td class="'+tdClass+'"></td>';
+        d++;
       }
     }
     tbody += '</tr>';
