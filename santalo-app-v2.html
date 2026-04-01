@@ -265,7 +265,7 @@
               <option value="checkin">Link check-in</option>
               <option value="chatbot">Link assistente AI</option>
               <option value="reminder">Reminder check-in</option>
-              <option value="istruzioni">Istruzioni accesso</option>
+              <option value="benvenuto">🏠 Benvenuto · Accesso</option>
               <option value="checkout">Richiesta recensione</option>
               <option value="pulizie">🧹 Pulizie (Marianna)</option>
             </select>
@@ -324,6 +324,7 @@ var sb = window.supabase.createClient(SB_URL, SB_KEY);
 var BASE = 'https://fdp88.github.io/SANTALO';
 var CHECKIN_URL = BASE + '/santalo-checkin-ospite.html';
 var CHATBOT_URL = BASE + '/santalo-chat.html';
+var GUEST_URL   = BASE + '/santalo-guest.html';
 var MAPS_URL = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
 var PULIZIE_PHONE = '393802473821';
 var prenotazioni = [];
@@ -355,6 +356,10 @@ function clLink(p) {
 function botLink(p) {
   var q = new URLSearchParams({prenotazione_id:p.id, nome:p.nome||'', camera:p.camera||'', arrivo:p.arrivo||'', partenza:p.partenza||''});
   return CHATBOT_URL + '?' + q;
+}
+function guestLink(p) {
+  var q = new URLSearchParams({nome:p.nome||'', camera:p.camera||'', arrivo:p.arrivo||'', partenza:p.partenza||''});
+  return GUEST_URL + '?' + q;
 }
 function esito(id, msg, c) {
   var e = document.getElementById(id);
@@ -607,14 +612,6 @@ function aggiornaLink() {
 }
 
 // ===== MESSAGGI WHATSAPP =====
-function istr(cam) {
-  var c = String(cam||'').replace('Camera ','');
-  if (c==='1920') return 'Accesso Camera 1920 - Piano terra\nAll\'esterno trovi una key box sul muro.\nCodice: 4660\nAbbassa la leva, estrai la chiave e apri il portone.';
-  if (c==='1954') return 'Accesso Camera 1954 - Primo piano\n\nIn questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\n\nLo vedi il portone grande con su scritto 1920! NON è QUELLO!\nC\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\n\nUna volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1954.\n\nSali al 1 piano e trovi la tua camera.';
-  if (c==='1956') return 'Accesso Camera 1956 - Secondo piano\n\nIn questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\n\nLo vedi il portone grande con su scritto 1920! NON è QUELLO!\nC\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\n\nUna volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1956.\n\nSali al 2 piano e trovi la tua camera.';
-  return 'Ti invieremo le istruzioni specifiche per la tua camera.';
-}
-
 var TEMPLATES = {
   conferma: {
     it: function(n,arr,par,cam,cl) { return 'Buongiorno ' + n + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\n\nEcco il riepilogo della tua prenotazione:\n\nDal ' + arr + ' al ' + par + '\nCamera ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl; },
@@ -644,12 +641,12 @@ var TEMPLATES = {
     de: function(n,arr,cl) { return 'Hallo ' + n + '!\n\nErinnerung: Ihre Ankunft ist für den ' + arr + ' geplant. Falls Sie den Online-Check-in noch nicht abgeschlossen haben:\n\n' + cl + '\n\nDanke!'; },
     es: function(n,arr,cl) { return '¡Hola ' + n + '!\n\nRecordatorio: su llegada está prevista para el ' + arr + '. Si aún no ha completado el check-in online:\n\n' + cl + '\n\n¡Gracias!'; }
   },
-  istruzioni: {
-    it: function(n,istrUrl,bot) { return 'Ciao ' + n + ', siamo pronti ad accoglierti!\n\nClicca qui per scoprire come entrare e tutte le info utili per il tuo soggiorno:\n\n' + istrUrl + '\n\nPer qualsiasi domanda il tuo assistente H24 Alò è sempre disponibile:\n\n' + bot + '\n\nBuon soggiorno!'; },
-    en: function(n,istrUrl,bot) { return 'Hi ' + n + ', we are ready to welcome you!\n\nClick here to find out how to access your room and all useful information for your stay:\n\n' + istrUrl + '\n\nFor any questions, your 24/7 assistant Alò is always available:\n\n' + bot + '\n\nEnjoy your stay!'; },
-    fr: function(n,istrUrl,bot) { return 'Bonjour ' + n + ', nous sommes prêts à vous accueillir !\n\nCliquez ici pour savoir comment accéder à votre chambre et toutes les infos utiles :\n\n' + istrUrl + '\n\nPour toute question, votre assistant H24 Alò est toujours disponible :\n\n' + bot + '\n\nBon séjour !'; },
-    de: function(n,istrUrl,bot) { return 'Hallo ' + n + ', wir sind bereit, Sie zu empfangen!\n\nKlicken Sie hier für alle Informationen zu Ihrem Aufenthalt:\n\n' + istrUrl + '\n\nFür Fragen steht Ihnen Ihr 24/7-Assistent Alò zur Verfügung:\n\n' + bot + '\n\nGuten Aufenthalt!'; },
-    es: function(n,istrUrl,bot) { return '¡Hola ' + n + ', estamos listos para recibirle!\n\nHaga clic aquí para saber cómo acceder a su habitación y toda la información útil:\n\n' + istrUrl + '\n\nPara cualquier pregunta, su asistente H24 Alò siempre está disponible:\n\n' + bot + '\n\n¡Que disfrute su estancia!'; }
+  benvenuto: {
+    it: function(n,gl) { return 'Ciao ' + n + '! 🏠\n\nSiamo pronti ad accoglierti. Qui trovi tutto quello che ti serve per il tuo soggiorno: come entrare in camera, WiFi, parcheggio, dove mangiare, cosa vedere a Bitonto e molto altro.\n\n' + gl + '\n\nPer qualsiasi domanda, Alò è sempre disponibile H24 direttamente dalla pagina.\n\nBuon soggiorno! 🌿'; },
+    en: function(n,gl) { return 'Hi ' + n + '! 🏠\n\nWe\'re ready to welcome you. Here you\'ll find everything you need for your stay: how to access your room, WiFi, parking, where to eat, what to see in Bitonto and much more.\n\n' + gl + '\n\nFor any questions, Alò is always available 24/7 directly from the page.\n\nEnjoy your stay! 🌿'; },
+    fr: function(n,gl) { return 'Bonjour ' + n + ' ! 🏠\n\nNous sommes prêts à vous accueillir. Vous trouverez ici tout ce dont vous avez besoin : comment entrer dans votre chambre, WiFi, parking, où manger, quoi voir à Bitonto et bien plus.\n\n' + gl + '\n\nPour toute question, Alò est toujours disponible H24 directement depuis la page.\n\nBon séjour ! 🌿'; },
+    de: function(n,gl) { return 'Hallo ' + n + '! 🏠\n\nWir sind bereit, Sie zu empfangen. Hier finden Sie alles für Ihren Aufenthalt: Zugang zum Zimmer, WLAN, Parken, wo man essen kann, was man in Bitonto sehen kann und vieles mehr.\n\n' + gl + '\n\nFür Fragen steht Ihnen Alò 24/7 direkt auf der Seite zur Verfügung.\n\nGuten Aufenthalt! 🌿'; },
+    es: function(n,gl) { return '¡Hola ' + n + '! 🏠\n\nEstamos listos para recibirle. Aquí encontrará todo lo que necesita para su estancia: cómo acceder a su habitación, WiFi, aparcamiento, dónde comer, qué ver en Bitonto y mucho más.\n\n' + gl + '\n\nPara cualquier pregunta, Alò está siempre disponible 24/7 directamente desde la página.\n\n¡Que disfrute su estancia! 🌿'; }
   },
   checkout: {
     it: function(n,canale,rev) { return 'Ciao ' + n + '!\n\nSperiamo che il soggiorno sia stato piacevole.\nSe hai 2 minuti, una recensione' + (canale ? ' su ' + canale : '') + ' ci aiuterebbe moltissimo:\n\n' + rev + '\n\nGrazie di cuore, alla prossima!'; },
@@ -677,9 +674,6 @@ function generaMessaggio() {
   var fn = T[lang] || T['en'] || T['it'];
   var msg = '';
   var camNum = String(camera||'').replace('Camera ','');
-  var istrUrl = (camNum==='1954' || camNum==='1956')
-    ? 'https://fdp88.github.io/SANTALO/santalo-istruzioni-' + camNum + '.html'
-    : MAPS_URL;
   var GOOGLE_REVIEW = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
   if (tpl === 'pulizie') {
     var pfn = (TEMPLATES.pulizie || {}).it;
@@ -693,7 +687,7 @@ function generaMessaggio() {
     else if (tpl==='checkin') msg = fn(nome, cl);
     else if (tpl==='chatbot') msg = fn(nome, bot);
     else if (tpl==='reminder') msg = fn(nome, arrivo, cl);
-    else if (tpl==='istruzioni') msg = fn(nome, istrUrl, bot);
+    else if (tpl==='benvenuto') msg = fn(nome, guestLink(p));
     else if (tpl==='checkout') msg = fn(nome, p.canale||'', GOOGLE_REVIEW);
   }
   document.getElementById('messaggio').value = msg;

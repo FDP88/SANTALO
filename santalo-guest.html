@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Santalò — Benvenuto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brown: #6B2D1F;
+      --brown-d: #3d1a10;
+      --brown-l: #8C4F35;
+      --sand: #C4A882;
+      --sand-l: #E8D9C0;
+      --sand-ll: #F5EDE0;
+      --cream: #FAF7F2;
+      --cream-d: #F0E6D8;
+      --ink: #2E241F;
+      --muted: #7A6B61;
+      --line: rgba(107,45,31,.13);
+      /* Camera colors — overridden by JS */
+      --cam-primary: #6B2D1F;
+      --cam-dark: #3d1a10;
+      --cam-light: #E8D9C0;
+      --cam-mid: #C4A882;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: var(--cam-primary);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .hero-bg-year {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -55%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 160px;
+      font-weight: 700;
+      color: rgba(255,255,255,.07);
+      letter-spacing: -4px;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      line-height: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 28px 24px 26px;
+    }
+    .hero-logo-wrap {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .hero-logo {
+      width: 42px; height: 42px;
+      background: rgba(255,255,255,.15);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .hero-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-bb {
+      font-size: 11px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.7);
+    }
+    .hero-year {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 72px; font-weight: 700; line-height: .9;
+      color: #fff; letter-spacing: -2px;
+      margin-bottom: 6px;
+    }
+    .hero-floor {
+      font-size: 12px; font-weight: 500; letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.65);
+      margin-bottom: 14px;
+    }
+    .hero-guest-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 999px; padding: 6px 14px;
+      font-size: 12px; font-weight: 500; color: #fff;
+    }
+    .hero-guest-pill svg { width: 13px; height: 13px; opacity: .7; }
+    .hero-dates {
+      display: flex; gap: 6px; margin-top: 8px;
+    }
+    .hero-date-chip {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 8px; padding: 5px 10px;
+      font-size: 11px; font-weight: 600; color: rgba(255,255,255,.9);
+    }
+    .hero-date-chip span { opacity: .6; font-weight: 400; margin-right: 4px; }
+
+    /* ===== ORARI VELOCI ===== */
+    .quick-times {
+      display: flex; gap: 0;
+      background: var(--cam-dark);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .qt-item {
+      flex: 1; text-align: center; padding: 10px 8px;
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+    .qt-item:last-child { border-right: none; }
+    .qt-label { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 2px; }
+    .qt-value { font-size: 14px; font-weight: 700; color: #fff; }
+
+    /* ===== LANG BAR ===== */
+    .lang-bar {
+      display: flex; gap: 5px; justify-content: center;
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 2px 8px rgba(107,45,31,.06);
+    }
+    .lang-btn {
+      border: 1.5px solid var(--line);
+      background: var(--cream); color: var(--muted);
+      border-radius: 999px; padding: 5px 11px;
+      font: inherit; font-size: 11px; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .lang-btn.active { background: var(--cam-primary); color: #fff; border-color: var(--cam-primary); }
+    .lang-btn:hover:not(.active) { border-color: var(--cam-primary); color: var(--cam-primary); }
+
+    /* ===== GRID ICONE ===== */
+    .section-hint {
+      text-align: center; font-size: 9px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted); padding: 16px 20px 10px; opacity: .6;
+    }
+    .icons-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px; padding: 0 14px 8px;
+    }
+    .icon-card {
+      background: #fff; border: 1.5px solid var(--line);
+      border-radius: 16px; padding: 16px 8px 12px;
+      text-align: center; cursor: pointer;
+      transition: all .18s; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-card:active { transform: scale(.95); }
+    .icon-card.active {
+      border-color: var(--cam-primary);
+      background: var(--cam-light);
+      box-shadow: 0 0 0 3px rgba(var(--cam-rgb, 107,45,31),.1);
+    }
+    .icon-card svg {
+      width: 26px; height: 26px;
+      color: var(--cam-primary);
+      display: block; margin: 0 auto 7px;
+      transition: transform .18s;
+    }
+    .icon-card.active svg { transform: scale(1.12); }
+    .icon-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--ink); line-height: 1.3;
+    }
+    .icon-card.active .icon-label { color: var(--cam-primary); }
+
+    /* ===== PANNELLO ===== */
+    .content-panel {
+      margin: 10px 14px 0;
+      background: #fff;
+      border: 1.5px solid var(--cam-primary);
+      border-radius: 18px;
+      overflow: hidden;
+      animation: slideDown .2s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--cam-light);
+      border-bottom: 1px solid var(--line);
+    }
+    .panel-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px; font-weight: 600;
+      color: var(--cam-dark);
+      display: flex; align-items: center; gap: 9px;
+    }
+    .panel-title svg { width: 18px; height: 18px; color: var(--cam-primary); flex-shrink: 0; }
+    .panel-close {
+      background: rgba(255,255,255,.6); border: none; cursor: pointer;
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 16px; line-height: 1;
+      transition: background .15s;
+    }
+    .panel-close:hover { background: #fff; }
+    .panel-body { padding: 16px; }
+
+    /* Tipografia corpo pannello */
+    .panel-body p { font-size: 13.5px; line-height: 1.75; color: var(--ink); margin-bottom: 10px; }
+    .panel-body p:last-child { margin-bottom: 0; }
+    .panel-body strong { font-weight: 600; color: var(--brown-d); }
+    .panel-body a { color: var(--cam-primary); font-weight: 600; text-decoration: none; }
+
+    /* Info boxes */
+    .info-box {
+      background: var(--sand-ll); border-radius: 12px;
+      padding: 12px 14px; margin: 10px 0;
+      border-left: 3px solid var(--cam-primary);
+    }
+    .info-box .lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--cam-primary); margin-bottom: 3px; }
+    .info-box .val { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .info-row { display: flex; gap: 8px; margin: 10px 0; }
+    .info-row .info-box { flex: 1; margin: 0; }
+
+    /* WiFi copiabile */
+    .wifi-block {
+      background: var(--cam-dark); border-radius: 14px;
+      padding: 16px; margin: 10px 0;
+    }
+    .wifi-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .wifi-row:last-child { margin-bottom: 0; }
+    .wifi-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 3px; }
+    .wifi-value { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: .02em; }
+    .copy-btn {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
+      border-radius: 8px; padding: 6px 12px;
+      font: inherit; font-size: 11px; font-weight: 700;
+      color: #fff; cursor: pointer; transition: background .15s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.25); }
+    .copy-btn.copied { background: #16a34a; border-color: #16a34a; }
+
+    /* Code accesso */
+    .code-block {
+      background: var(--cam-dark); color: #fff;
+      border-radius: 14px; padding: 18px 20px; margin: 12px 0;
+      text-align: center;
+    }
+    .code-block .code-label { font-size: 9px; opacity: .55; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+    .code-block .code-value { font-size: 42px; font-weight: 700; letter-spacing: 8px; font-family: 'Cormorant Garamond', serif; }
+
+    /* Alert */
+    .alert-box {
+      background: #fff8ef; border: 1px solid #fcd34d;
+      border-radius: 12px; padding: 11px 13px; margin: 10px 0;
+      font-size: 13px; color: var(--ink); line-height: 1.6;
+    }
+
+    /* Steps */
+    .step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+    .step-num {
+      width: 26px; height: 26px; background: var(--cam-primary);
+      color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .step-text { font-size: 13.5px; line-height: 1.7; color: var(--ink); }
+
+    /* List items */
+    .list-item {
+      padding: 11px 0; border-bottom: 1px solid var(--line);
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .list-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .li-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .li-type { font-size: 11px; color: var(--cam-primary); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .li-note { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+    .li-dist { font-size: 10px; font-weight: 700; color: var(--cam-primary); background: var(--cam-light); padding: 2px 8px; border-radius: 999px; }
+
+    /* Buttons */
+    .wa-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: #25D366; color: #fff; text-decoration: none;
+      padding: 13px 18px; border-radius: 999px; font-weight: 600; font-size: 13.5px;
+      margin-top: 12px; transition: background .15s;
+    }
+    .wa-btn:hover { background: #128C7E; }
+    .map-link {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--cream-d); color: var(--cam-primary);
+      text-decoration: none; padding: 10px 14px;
+      border-radius: 10px; font-weight: 600; font-size: 12.5px;
+      border: 1px solid var(--line); margin-top: 10px; transition: background .15s;
+    }
+    .map-link:hover { background: var(--sand-l); }
+    .alo-btn {
+      display: flex; align-items: center; gap: 12px;
+      background: linear-gradient(135deg, var(--cam-dark), var(--cam-primary));
+      color: #fff; text-decoration: none;
+      padding: 14px 18px; border-radius: 16px;
+      margin-top: 12px; transition: opacity .18s;
+    }
+    .alo-btn:hover { opacity: .9; }
+    .alo-icon {
+      width: 42px; height: 42px; background: rgba(255,255,255,.15);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .alo-text strong { display: block; font-size: 14px; font-weight: 600; }
+    .alo-text span { font-size: 11.5px; opacity: .75; }
+
+    /* Orari grid */
+    .times-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+
+    /* Separatore sezione */
+    .section-sep { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--cam-primary); opacity: .7; margin: 14px 0 8px; }
+
+    /* ===== FASCIA PAVIMENTO ===== */
+    .floor-band {
+      width: 100%;
+      height: 56px;
+      overflow: hidden;
+      display: block;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .floor-band svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .floor-band::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,.28) 0%, rgba(0,0,0,.05) 100%);
+      pointer-events: none;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center; padding: 24px 20px 36px;
+      color: var(--muted); font-size: 12px; line-height: 1.7;
+      border-top: 1px solid var(--line); margin-top: 18px;
+    }
+    .footer strong { color: var(--brown); }
+
+    /* Guest banner quando non c'è camera */
+    .no-cam-banner {
+      background: var(--brown-d); color: rgba(255,255,255,.8);
+      padding: 12px 20px; font-size: 12px; text-align: center; line-height: 1.5;
+    }
+
+    /* ===== FASCIA PAVIMENTO ===== */
+    .floor-band {
+      width: 100%;
+      height: 60px;
+      overflow: hidden;
+      position: relative;
+      display: block;
+      flex-shrink: 0;
+    }
+    .floor-band svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .floor-band::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,.18) 0%, transparent 100%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ===== CONFIGURAZIONE CAMERE =====
+var CAM_CONFIG = {
+  '1954': {
+    primary: '#5C7A5C',   // verde salvia
+    dark:    '#3A5C3A',
+    light:   '#E8F0E8',
+    mid:     '#A8C4A8',
+    rgb:     '92,122,92',
+    floor:   { it:'1° Piano', en:'1st Floor', fr:'1er Étage', de:'1. Stock', es:'1ª Planta' },
+  },
+  '1956': {
+    primary: '#3A5F7A',   // blu acciaio
+    dark:    '#1E3D52',
+    light:   '#E0EBF2',
+    mid:     '#8EB4CB',
+    rgb:     '58,95,122',
+    floor:   { it:'2° Piano', en:'2nd Floor', fr:'2ème Étage', de:'2. Stock', es:'2ª Planta' },
+  },
+  '1920': {
+    primary: '#8C6D2F',   // ocra dorata
+    dark:    '#5C4510',
+    light:   '#F5ECD4',
+    mid:     '#D4B06A',
+    rgb:     '140,109,47',
+    floor:   { it:'Piano Terra', en:'Ground Floor', fr:'Rez-de-chaussée', de:'Erdgeschoss', es:'Planta Baja' },
+  },
+};
+
+// ===== PARAMS URL =====
+var qs = new URLSearchParams(location.search);
+var guestNome    = qs.get('nome') || '';
+var guestCamera  = qs.get('camera') || '';
+var guestArrivo  = qs.get('arrivo') || '';
+var guestPartenza = qs.get('partenza') || '';
+var camNum = guestCamera.replace('Camera ','').trim();
+var camCfg = CAM_CONFIG[camNum] || CAM_CONFIG['1954'];
+
+// Applica colori camera ai CSS vars
+var root = document.documentElement;
+root.style.setProperty('--cam-primary', camCfg.primary);
+root.style.setProperty('--cam-dark',    camCfg.dark);
+root.style.setProperty('--cam-light',   camCfg.light);
+root.style.setProperty('--cam-mid',     camCfg.mid);
+root.style.setProperty('--cam-rgb',     camCfg.rgb);
+
+// ===== LINGUA =====
+var currentLang = 'it';
+try { currentLang = localStorage.getItem('santalo_guest_lang') || 'it'; } catch(e) {}
+
+function t(obj) {
+  if (typeof obj === 'string') return obj;
+  return obj[currentLang] || obj['it'] || obj['en'] || '';
+}
+
+function fmtDate(iso, lang) {
+  if (!iso) return '';
+  var l = lang || currentLang;
+  var d = new Date(iso + 'T12:00:00');
+  var locales = { it:'it-IT', en:'en-GB', fr:'fr-FR', de:'de-DE', es:'es-ES' };
+  return d.toLocaleDateString(locales[l]||'it-IT', {day:'numeric', month:'short'});
+}
+
+// ===== RENDER PRINCIPALE =====
+function render() {
+  var L = currentLang;
+  var cfg = camCfg;
+  var floorLabel = t(cfg.floor);
+
+  var guestFirstName = guestNome ? guestNome.split(' ')[0] : '';
+
+  var heroContent = '';
+  if (camNum) {
+    heroContent = '<div class="hero" id="hero-el">' +
+      '<div class="hero-bg-year">' + camNum + '</div>' +
+      '<div class="hero-content">' +
+      '<div class="hero-logo-wrap">' +
+      '<div class="hero-logo"><img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalò"/></div>' +
+      '<div class="hero-bb">Santalò B&amp;B · Bitonto</div>' +
+      '</div>' +
+      '<div class="hero-year">' + camNum + '</div>' +
+      '<div class="hero-floor">' + floorLabel + '</div>' +
+      (guestFirstName ? '<div class="hero-guest-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + t({it:'Ciao', en:'Hi', fr:'Bonjour', de:'Hallo', es:'Hola'}) + ' ' + guestFirstName + '</div>' : '') +
+      (guestArrivo || guestPartenza ? '<div class="hero-dates">' +
+        (guestArrivo ? '<div class="hero-date-chip"><span>' + t({it:'arrivo',en:'check-in',fr:'arrivée',de:'Ankunft',es:'llegada'}) + '</span>' + fmtDate(guestArrivo) + '</div>' : '') +
+        (guestPartenza ? '<div class="hero-date-chip"><span>' + t({it:'partenza',en:'check-out',fr:'départ',de:'Abreise',es:'salida'}) + '</span>' + fmtDate(guestPartenza) + '</div>' : '') +
+        '</div>' : '') +
+      '</div>' +
+      '</div>' +
+      '<div class="quick-times">' +
+      '<div class="qt-item"><div class="qt-label">Check-in</div><div class="qt-value">15:00</div></div>' +
+      '<div class="qt-item"><div class="qt-label">Check-out</div><div class="qt-value">10:00</div></div>' +
+      '<div class="qt-item"><div class="qt-label">' + t({it:'Silenzio',en:'Quiet',fr:'Silence',de:'Ruhe',es:'Silencio'}) + '</div><div class="qt-value">22–8</div></div>' +
+      '</div>';
+  } else {
+    heroContent = '<div class="no-cam-banner">' + t({it:'Apri questo link dal messaggio di benvenuto per vedere le istruzioni della tua camera.',en:'Open this link from your welcome message to see your room instructions.',fr:'Ouvrez ce lien depuis votre message de bienvenue.',de:'Öffnen Sie diesen Link aus Ihrer Willkommensnachricht.',es:'Abre este enlace desde tu mensaje de bienvenida.'}) + '</div>';
+  }
+
+  // Fascia pavimento cotto — mostrata solo se c'è camera
+  var floorBand = camNum ? '<div class="floor-band">' +
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 56" preserveAspectRatio="xMidYMid slice">' +
+    '<defs><pattern id="fp" x="0" y="0" width="80" height="56" patternUnits="userSpaceOnUse">' +
+    // Tile: quadrato 80x56 diviso in 8 triangoli (4 coppie)
+    '<polygon points="0,0 40,0 20,28" fill="#5C3820"/>' +
+    '<polygon points="40,0 80,0 60,28" fill="#C9896A"/>' +
+    '<polygon points="80,0 80,56 60,28" fill="#8B6040"/>' +
+    '<polygon points="80,56 40,56 60,28" fill="#A85A35"/>' +
+    '<polygon points="40,56 0,56 20,28" fill="#D4B490"/>' +
+    '<polygon points="0,56 0,0 20,28" fill="#A85A35"/>' +
+    '<polygon points="40,0 80,56 40,56" fill="#5C3820"/>' +
+    '<polygon points="0,56 40,0 40,56" fill="#C9896A"/>' +
+    '</pattern></defs>' +
+    '<rect width="800" height="56" fill="url(#fp)"/>' +
+    '<rect width="800" height="56" fill="linear-gradient(to bottom, rgba(0,0,0,.22) 0%, transparent 70%)" opacity="0.4"/>' +
+    '</svg>' +
+    '</div>' : '';
+
+  var langBar = '<div class="lang-bar">' +
+    ['it','en','fr','de','es'].map(function(l) {
+      var flags = {it:'🇮🇹 IT', en:'🇬🇧 EN', fr:'🇫🇷 FR', de:'🇩🇪 DE', es:'🇪🇸 ES'};
+      return '<button class="lang-btn' + (l===L?' active':'') + '" onclick="setLang(\'' + l + '\')">' + flags[l] + '</button>';
+    }).join('') +
+    '</div>';
+
+  var hint = '<div class="section-hint">' + t({it:'TOCCA UN\'ICONA',en:'TAP AN ICON',fr:'TOUCHEZ UNE ICÔNE',de:'TIPPEN SIE',es:'TOCA UN ICONO'}) + '</div>';
+
+  var icons = [
+    { id:'accesso',    svg:'<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
+      label:{it:'COME ENTRARE',en:'HOW TO ENTER',fr:'COMMENT ENTRER',de:'ZUGANG',es:'CÓMO ENTRAR'} },
+    { id:'wifi',       svg:'<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/>',
+      label:{it:'WIFI',en:'WIFI',fr:'WIFI',de:'WLAN',es:'WIFI'} },
+    { id:'parcheggio', svg:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>',
+      label:{it:'PARCHEGGIO',en:'PARKING',fr:'PARKING',de:'PARKEN',es:'APARCAMIENTO'} },
+    { id:'colazione',  svg:'<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+      label:{it:'COLAZIONE',en:'BREAKFAST',fr:'PETIT-DÉJ',de:'FRÜHSTÜCK',es:'DESAYUNO'} },
+    { id:'mangiare',   svg:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+      label:{it:'DOVE MANGIARE',en:'WHERE TO EAT',fr:'OÙ MANGER',de:'WO ESSEN',es:'DÓNDE COMER'} },
+    { id:'bitonto',    svg:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+      label:{it:'BITONTO',en:'BITONTO',fr:'BITONTO',de:'BITONTO',es:'BITONTO'} },
+    { id:'dintorni',   svg:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+      label:{it:'DINTORNI',en:'SURROUNDINGS',fr:'ENVIRONS',de:'UMGEBUNG',es:'ALREDEDORES'} },
+    { id:'regole',     svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+      label:{it:'REGOLE',en:'HOUSE RULES',fr:'RÈGLES',de:'REGELN',es:'NORMAS'} },
+    { id:'alo',        svg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+      label:{it:'ALÒ H24',en:'ALÒ 24/7',fr:'ALÒ H24',de:'ALÒ 24/7',es:'ALÒ 24/7'} },
+  ];
+
+  var grid = '<div class="icons-grid">' +
+    icons.map(function(ic) {
+      return '<div class="icon-card" id="card-' + ic.id + '" onclick="togglePanel(\'' + ic.id + '\')">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ic.svg + '</svg>' +
+        '<div class="icon-label" data-i18n="icon.' + ic.id + '">' + t(ic.label) + '</div>' +
+        '</div>';
+    }).join('') +
+    '</div>';
+
+  var footer = '<div class="footer"><strong>Santalò Bed &amp; Breakfast</strong><br>Vico Storto Sant\'Eligio 9 · 70032 Bitonto (BA)<br>info@bebsantalo.it</div>';
+
+  document.getElementById('app').innerHTML =
+    heroContent + floorBand + langBar + hint + grid +
+    '<div id="contentPanel" style="display:none"></div>' +
+    footer;
+}
+
+// ===== PANNELLI =====
+var activePanel = null;
+
+function togglePanel(id) {
+  document.querySelectorAll('.icon-card').forEach(function(c){ c.classList.remove('active'); });
+  var panel = document.getElementById('contentPanel');
+  if (activePanel === id) { panel.style.display='none'; activePanel=null; return; }
+  activePanel = id;
+  document.getElementById('card-'+id).classList.add('active');
+  panel.style.display = 'block';
+  panel.innerHTML = buildPanel(id);
+  setTimeout(function(){ panel.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 60);
+}
+
+function closePanel() {
+  document.getElementById('contentPanel').style.display='none';
+  document.querySelectorAll('.icon-card').forEach(function(c){ c.classList.remove('active'); });
+  activePanel = null;
+}
+
+var PANEL_TITLES = {
+  accesso:    {it:'Come entrare',en:'How to enter',fr:'Comment entrer',de:'Zugang',es:'Cómo entrar'},
+  wifi:       {it:'WiFi',en:'WiFi',fr:'WiFi',de:'WLAN',es:'WiFi'},
+  parcheggio: {it:'Parcheggio',en:'Parking',fr:'Stationnement',de:'Parken',es:'Aparcamiento'},
+  colazione:  {it:'Colazione',en:'Breakfast',fr:'Petit-déjeuner',de:'Frühstück',es:'Desayuno'},
+  mangiare:   {it:'Dove mangiare',en:'Where to eat',fr:'Où manger',de:'Wo essen',es:'Dónde comer'},
+  bitonto:    {it:'Bitonto',en:'Bitonto',fr:'Bitonto',de:'Bitonto',es:'Bitonto'},
+  dintorni:   {it:'Dintorni & città vicine',en:'Surroundings & nearby towns',fr:'Environs & villes proches',de:'Umgebung & nahe Städte',es:'Alrededores & ciudades cercanas'},
+  regole:     {it:'Regole della casa',en:'House rules',fr:'Règles de la maison',de:'Hausregeln',es:'Normas de la casa'},
+  alo:        {it:'Assistente Alò',en:'Alò Assistant',fr:'Assistant Alò',de:'Assistent Alò',es:'Asistente Alò'},
+};
+
+var ICONS_SVG = {
+  accesso:    '<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
+  wifi:       '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/>',
+  parcheggio: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>',
+  colazione:  '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+  mangiare:   '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+  bitonto:    '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  dintorni:   '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  regole:     '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+  alo:        '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+};
+
+function svgIcon(id) {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (ICONS_SVG[id]||'') + '</svg>';
+}
+
+function panelWrap(id, body) {
+  return '<div class="content-panel">' +
+    '<div class="panel-header">' +
+    '<div class="panel-title">' + svgIcon(id) + t(PANEL_TITLES[id]) + '</div>' +
+    '<button class="panel-close" onclick="closePanel()">×</button>' +
+    '</div>' +
+    '<div class="panel-body">' + body + '</div>' +
+    '</div>';
+}
+
+function infoBox(label, value) {
+  return '<div class="info-box"><div class="lbl">' + label + '</div><div class="val">' + value + '</div></div>';
+}
+function step(n, text) {
+  return '<div class="step"><div class="step-num">' + n + '</div><div class="step-text">' + text + '</div></div>';
+}
+function mapLink(url, label) {
+  return '<a href="' + url + '" target="_blank" class="map-link">🗺️ ' + label + '</a>';
+}
+
+function copyText(txt, btnId) {
+  navigator.clipboard.writeText(txt).then(function() {
+    var b = document.getElementById(btnId);
+    if (b) { var old = b.textContent; b.textContent = '✓ OK'; b.classList.add('copied');
+      setTimeout(function(){ b.textContent = old; b.classList.remove('copied'); }, 2000); }
+  }).catch(function(){});
+}
+
+// ===== CONTENUTI =====
+function buildPanel(id) {
+  var L = currentLang;
+
+  // ---- ACCESSO ----
+  if (id === 'accesso') {
+    var cam = camNum || '?';
+    var videoBtn = '<a href="https://youtu.be/9kUTB6ZsaPc" target="_blank" style="display:inline-flex;align-items:center;gap:7px;background:var(--cam-primary);color:#fff;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:12.5px;font-weight:600;margin-bottom:14px">▶ ' +
+      t({it:'Video: come arrivare',en:'Video: how to get here',fr:'Vidéo: comment arriver',de:'Video: Anreise',es:'Vídeo: cómo llegar'}) + '</a>';
+
+    if (cam === '1920') {
+      return panelWrap(id,
+        infoBox(t({it:'CAMERA',en:'ROOM',fr:'CHAMBRE',de:'ZIMMER',es:'HABITACIÓN'}), '1920 — ' + t(CAM_CONFIG['1920'].floor)) +
+        videoBtn +
+        step(1, t({it:'Sul <strong>portone principale</strong> trovi una key box sul muro.',en:'On the <strong>main door</strong> you\'ll find a key box on the wall.',fr:'Sur la <strong>porte principale</strong> vous trouverez une boîte à clé.',de:'An der <strong>Haupttür</strong> findest du eine Schlüsselbox.',es:'En la <strong>puerta principal</strong> encontrarás una caja de llaves.'})) +
+        '<div class="code-block"><div class="code-label">' + t({it:'CODICE KEY BOX',en:'KEY BOX CODE',fr:'CODE BOÎTE À CLÉ',de:'SCHLÜSSELBOX-CODE',es:'CÓDIGO CAJA DE LLAVES'}) + '</div><div class="code-value">4660</div></div>' +
+        step(2, t({it:'Abbassa la leva, estrai la chiave.',en:'Pull down the lever and take the key.',fr:'Abaissez le levier, prenez la clé.',de:'Hebel drücken, Schlüssel nehmen.',es:'Baja la palanca y saca la llave.'})) +
+        step(3, t({it:'<strong>Spingi la porta e ruota a destra</strong> per aprire (serratura a molla).',en:'<strong>Push the door and turn right</strong> to open (spring lock).',fr:'<strong>Poussez et tournez à droite</strong> pour ouvrir.',de:'<strong>Drücken und nach rechts drehen</strong> zum Öffnen.',es:'<strong>Empuja y gira a la derecha</strong> para abrir.'})) +
+        '<p style="font-size:12.5px;color:var(--muted);margin-top:6px">🍳 ' + t({it:'La cucina è ad uso esclusivo degli ospiti della Camera 1920.',en:'The kitchen is for exclusive use of Room 1920 guests.',fr:'La cuisine est réservée aux hôtes de la Chambre 1920.',de:'Die Küche ist ausschließlich für Zimmer 1920 Gäste.',es:'La cocina es de uso exclusivo de los huéspedes de la Habitación 1920.'}) + '</p>' +
+        '<div class="section-sep">' + t({it:'AL CHECK-OUT',en:'AT CHECK-OUT',fr:'AU CHECK-OUT',de:'BEIM CHECK-OUT',es:'AL CHECK-OUT'}) + '</div>' +
+        '<p>' + t({it:'Inserisci la chiave, spingi e ruota a <strong>sinistra</strong> per chiudere. Rimetti la chiave nella key box e cambia il codice ruotando i numeri a caso.',en:'Insert the key, push and turn <strong>left</strong> to lock. Put the key back in the key box and scramble the code.',fr:'Insérez la clé, poussez et tournez à <strong>gauche</strong> pour fermer. Replacez la clé et changez le code.',de:'Schlüssel einführen, drücken und nach <strong>links</strong> drehen zum Schließen. Schlüssel zurücklegen und Code ändern.',es:'Inserta la llave, empuja y gira a la <strong>izquierda</strong> para cerrar. Devuelve la llave y cambia el código.'}) + '</p>' +
+        mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', 'Vico Storto Sant\'Eligio 9')
+      );
+    }
+
+    // 1954 o 1956
+    var floorLabel = t(CAM_CONFIG[cam] ? CAM_CONFIG[cam].floor : {it:'--'});
+    var alertMsg = t({
+      it:'⚠️ Vedi il portone grande con scritto <strong>1920</strong>? NON è QUELLO! Costeggia la struttura — trovi un portoncino piccolo con tastierino elettrico.',
+      en:'⚠️ Do you see the large door with <strong>1920</strong>? That\'s NOT the entrance! Walk along the building — there\'s a small door with a digital keypad.',
+      fr:'⚠️ Vous voyez la grande porte <strong>1920</strong>? Ce n\'est PAS l\'entrée! Longez le bâtiment — il y a une petite porte avec clavier numérique.',
+      de:'⚠️ Siehst du die große Tür mit <strong>1920</strong>? Das ist NICHT der Eingang! Gehe am Gebäude entlang — es gibt eine kleine Tür mit digitalem Tastenfeld.',
+      es:'⚠️ ¿Ves la puerta grande con <strong>1920</strong>? ¡Esa NO es la entrada! Camina por el edificio — hay una puerta pequeña con teclado digital.',
+    });
+    var s2 = t({
+      it:'Sulla <strong>destra</strong>, trovi un contenitore in legno con le chiavi. Prendi quelle con portachiavi <strong>' + cam + '</strong>.',
+      en:'On your <strong>right</strong>, a wooden box with keys. Take the <strong>' + cam + '</strong> keychain.',
+      fr:'Sur votre <strong>droite</strong>, une boîte en bois avec les clés. Prenez le porte-clés <strong>' + cam + '</strong>.',
+      de:'Auf deiner <strong>rechten Seite</strong> eine Holzbox mit Schlüsseln. Nimm den Schlüsselanhänger <strong>' + cam + '</strong>.',
+      es:'A tu <strong>derecha</strong>, una caja de madera con llaves. Toma el llavero <strong>' + cam + '</strong>.',
+    });
+    var s3 = t({
+      it:'Sali al <strong>' + floorLabel + '</strong> — la tua camera è lì.',
+      en:'Go up to the <strong>' + floorLabel + '</strong> — your room is there.',
+      fr:'Montez au <strong>' + floorLabel + '</strong> — votre chambre est là.',
+      de:'Gehe in den <strong>' + floorLabel + '</strong> — dein Zimmer ist dort.',
+      es:'Sube a la <strong>' + floorLabel + '</strong> — tu habitación está allí.',
+    });
+    var kitchenNote = t({
+      it:'🍳 La cucina sulla terrazza è condivisa con l\'altra camera al piano.',
+      en:'🍳 The rooftop kitchen is shared with the other room on the floor.',
+      fr:'🍳 La cuisine en terrasse est partagée avec l\'autre chambre.',
+      de:'🍳 Die Dachterrassen-Küche wird mit dem anderen Zimmer geteilt.',
+      es:'🍳 La cocina de la terraza se comparte con la otra habitación.',
+    });
+    var coOut = t({
+      it:'Chiudi a chiave la camera e riponi la chiave nel contenitore in legno al piano terra.',
+      en:'Lock your room and return the key to the wooden box on the ground floor.',
+      fr:'Verrouillez votre chambre et replacez la clé dans la boîte en bois au rez-de-chaussée.',
+      de:'Zimmer abschließen und Schlüssel in die Holzbox im Erdgeschoss legen.',
+      es:'Cierra tu habitación con llave y devuelve la llave al cajón de madera en la planta baja.',
+    });
+    return panelWrap(id,
+      infoBox(t({it:'CAMERA',en:'ROOM',fr:'CHAMBRE',de:'ZIMMER',es:'HABITACIÓN'}), cam + ' — ' + floorLabel) +
+      videoBtn +
+      '<div class="alert-box">' + alertMsg + '</div>' +
+      '<div class="code-block"><div class="code-label">' + t({it:'CODICE PORTONE',en:'DOOR CODE',fr:'CODE PORTE',de:'TÜR-CODE',es:'CÓDIGO PUERTA'}) + '</div><div class="code-value">43757</div></div>' +
+      step(1, t({it:'Digita il codice, attendi il <strong>click</strong> di apertura, entra.',en:'Enter the code, wait for the <strong>click</strong>, then enter.',fr:'Entrez le code, attendez le <strong>clic</strong>, entrez.',de:'Code eingeben, auf das <strong>Klicken</strong> warten, eintreten.',es:'Introduce el código, espera el <strong>clic</strong>, entra.'})) +
+      step(2, s2) +
+      step(3, s3) +
+      '<p style="font-size:12.5px;color:var(--muted);margin-top:4px">' + kitchenNote + '</p>' +
+      '<div class="section-sep">' + t({it:'AL CHECK-OUT',en:'AT CHECK-OUT',fr:'AU CHECK-OUT',de:'BEIM CHECK-OUT',es:'AL CHECK-OUT'}) + '</div>' +
+      '<p>' + coOut + '</p>' +
+      mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', 'Vico Storto Sant\'Eligio 9')
+    );
+  }
+
+  // ---- WIFI ----
+  if (id === 'wifi') {
+    return panelWrap(id,
+      '<div class="wifi-block">' +
+      '<div class="wifi-row"><div><div class="wifi-label">' + t({it:'RETE',en:'NETWORK',fr:'RÉSEAU',de:'NETZWERK',es:'RED'}) + '</div><div class="wifi-value">B&amp;B_santalo</div></div>' +
+      '<button class="copy-btn" id="copy-ssid" onclick="copyText(\'B&B_santalo\',\'copy-ssid\')">' + t({it:'Copia',en:'Copy',fr:'Copier',de:'Kopieren',es:'Copiar'}) + '</button>' +
+      '</div>' +
+      '<div class="wifi-row"><div><div class="wifi-label">PASSWORD</div><div class="wifi-value">acq2024!</div></div>' +
+      '<button class="copy-btn" id="copy-pw" onclick="copyText(\'acq2024!\',\'copy-pw\')">' + t({it:'Copia',en:'Copy',fr:'Copier',de:'Kopieren',es:'Copiar'}) + '</button>' +
+      '</div></div>' +
+      '<p style="font-size:12.5px;color:var(--muted)">' + t({it:'Disponibile in tutta la struttura, senza limitazioni di velocità.',en:'Available throughout the property, no speed limits.',fr:'Disponible dans toute la structure, sans limitation de vitesse.',de:'Im gesamten Gebäude verfügbar, ohne Geschwindigkeitsbeschränkung.',es:'Disponible en toda la propiedad, sin límites de velocidad.'}) + '</p>'
+    );
+  }
+
+  // ---- PARCHEGGIO ----
+  if (id === 'parcheggio') {
+    return panelWrap(id,
+      '<div class="alert-box">⚠️ ' + t({it:'<strong>ZTL</strong> — Il centro storico è zona a traffico limitato. Non è possibile arrivare in auto fino alla struttura.',en:'<strong>ZTL</strong> — The historic centre is a restricted traffic zone. You cannot drive to the property.',fr:'<strong>ZTL</strong> — Le centre historique est une zone à circulation limitée.',de:'<strong>ZTL</strong> — Die Altstadt ist eine Verkehrsberuhigungszone.',es:'<strong>ZTL</strong> — El centro histórico es zona de tráfico limitado.'}) + '</div>' +
+      infoBox('🚶 ' + t({it:'A PIEDI',en:'ON FOOT',fr:'À PIED',de:'ZU FUß',es:'A PIE'}), t({it:'~2 minuti dalla struttura',en:'~2 minutes from the property',fr:'~2 minutes de la structure',de:'~2 Minuten vom Gebäude',es:'~2 minutos de la propiedad'})) +
+      '<div class="section-sep">' + t({it:'OPZIONI PARCHEGGIO',en:'PARKING OPTIONS',fr:'OPTIONS DE STATIONNEMENT',de:'PARKOPTIONEN',es:'OPCIONES DE APARCAMIENTO'}) + '</div>' +
+      infoBox('⬜ ' + t({it:'STRISCE BIANCHE — GRATIS',en:'WHITE LINES — FREE',fr:'LIGNES BLANCHES — GRATUIT',de:'WEISSE LINIEN — KOSTENLOS',es:'LÍNEAS BLANCAS — GRATIS'}), t({it:'Lato sinistro della strada, sempre disponibili',en:'Left side of the road, always available',fr:'Côté gauche, toujours disponibles',de:'Linke Straßenseite, immer verfügbar',es:'Lado izquierdo, siempre disponibles'})) +
+      infoBox('🔵 ' + t({it:'STRISCE BLU — A PAGAMENTO',en:'BLUE LINES — PAID',fr:'LIGNES BLEUES — PAYANT',de:'BLAUE LINIEN — KOSTENPFLICHTIG',es:'LÍNEAS AZULES — DE PAGO'}), '9:00–13:00 ' + t({it:'e',en:'and',fr:'et',de:'und',es:'y'}) + ' 17:00–21:00 · ' + t({it:'Parchimetri nelle vicinanze',en:'Meters nearby',fr:'Horodateurs à proximité',de:'Parkautomaten in der Nähe',es:'Parquímetros cercanos'})) +
+      infoBox('🏠 ' + t({it:'GARAGE CUSTODITO',en:'GUARDED GARAGE',fr:'GARAGE GARDÉ',de:'BEWACHTE GARAGE',es:'GARAJE VIGILADO'}), '€15/' + t({it:'giorno · su richiesta e disponibilità',en:'day · on request and availability',fr:'jour · sur demande et disponibilité',de:'Tag · auf Anfrage und Verfügbarkeit',es:'día · bajo petición y disponibilidad'})) +
+      mapLink('https://maps.app.goo.gl/MpDZGwZXi5QtMATk6', t({it:'Parcheggio più vicino — Maps',en:'Nearest parking — Maps',fr:'Parking le plus proche — Maps',de:'Nächster Parkplatz — Maps',es:'Aparcamiento más cercano — Maps'}))
+    );
+  }
+
+  // ---- COLAZIONE ----
+  if (id === 'colazione') {
+    return panelWrap(id,
+      infoBox('☕ ' + t({it:'DOVE',en:'WHERE',fr:'OÙ',de:'WO',es:'DÓNDE'}), 'Mazzini Place · Via G. Mazzini 11') +
+      infoBox('💶 ' + t({it:'COSTO',en:'PRICE',fr:'PRIX',de:'PREIS',es:'PRECIO'}), '5€ / ' + t({it:'persona',en:'person',fr:'personne',de:'Person',es:'persona'})) +
+      '<div class="alert-box">📅 ' + t({it:'<strong>Come prenotare:</strong> comunicaci la sera prima quante colazioni desiderate. Puoi scrivere ad Alò oppure mandare un WhatsApp.',en:'<strong>How to book:</strong> let us know the evening before how many breakfasts you want. Write to Alò or send a WhatsApp.',fr:'<strong>Comment réserver:</strong> prévenez-nous la veille. Écrivez à Alò ou envoyez un WhatsApp.',de:'<strong>Wie buchen:</strong> sagen Sie uns am Abend zuvor Bescheid. Schreiben Sie an Alò oder per WhatsApp.',es:'<strong>Cómo reservar:</strong> avísenos la noche anterior. Escríbale a Alò o mande un WhatsApp.'}) + '</div>' +
+      '<p style="font-size:12.5px;color:var(--muted)">' + t({it:'La colazione viene servita al Mazzini Place, a pochi minuti a piedi dalla struttura.',en:'Breakfast is served at Mazzini Place, a few minutes\' walk from the property.',fr:'Le petit-déjeuner est servi au Mazzini Place, à quelques minutes à pied.',de:'Frühstück wird im Mazzini Place serviert, wenige Gehminuten entfernt.',es:'El desayuno se sirve en Mazzini Place, a pocos minutos a pie.'}) + '</p>' +
+      mapLink('https://maps.app.goo.gl/89qrzqKMwbvxjdeP7', 'Mazzini Place · Via G. Mazzini 11')
+    );
+  }
+
+  // ---- DOVE MANGIARE ----
+  if (id === 'mangiare') {
+    var ristoranti = [
+      { nome:'Il Patriarca', tipo:'Cucina pugliese · Pizzeria', note:{it:'Nel centro storico. Ottimi antipasti misti, cucina ricercata e pizza.',en:'In the old town. Great antipasti, refined cuisine and pizza.',fr:'Dans le centre historique. Excellents antipastis et pizza.',de:'In der Altstadt. Tolle Antipasti, raffinierte Küche und Pizza.',es:'En el centro histórico. Excelentes antipastis y pizza.'} },
+      { nome:'Il Quarto Storto', tipo:'Trattoria tipica bitontina', note:{it:'Ai piedi della Cattedrale. Sapori autentici della cucina contadina locale.',en:'At the foot of the Cathedral. Authentic local farmhouse flavours.',fr:'Au pied de la Cathédrale. Saveurs authentiques locales.',de:'Am Fuß der Kathedrale. Authentische lokale Küche.',es:'Al pie de la Catedral. Sabores locales auténticos.'} },
+      { nome:'Caveau', tipo:'Ristorante · Pizzeria', note:{it:'Da provare: spaghetti all\'assassina. Ottima selezione di vini pugliesi.',en:'Must try: spaghetti all\'assassina. Great Puglian wine selection.',fr:'À essayer: spaghetti all\'assassina. Excellents vins des Pouilles.',de:'Unbedingt probieren: Spaghetti all\'assassina. Tolle apulische Weine.',es:'Prueba los espaguetis all\'assassina. Excelente selección de vinos.'} },
+      { nome:'Il Manicaretto', tipo:'Gastronomia · Panzerotto', note:{it:'Tappa obbligata: panzerotto fritto, specialità tipica della Terra di Bari.',en:'A must-stop: fried panzerotto, the typical speciality of Bari.',fr:'Incontournable: panzerotto frit, spécialité typique de Bari.',de:'Pflichthaltemachte: gebratener Panzerotto, typische Spezialität.',es:'Imprescindible: panzerotto frito, especialidad típica de Bari.'} },
+      { nome:'Vinicio', tipo:'Ristorante cucina pugliese', note:{it:'Su Piazza Cavour. Cucina eccellente, prezzi nella media alta.',en:'On Piazza Cavour. Excellent cuisine, slightly above average prices.',fr:'Sur la Piazza Cavour. Excellente cuisine.',de:'Am Piazza Cavour. Ausgezeichnete Küche.',es:'En la Piazza Cavour. Excelente cocina.'} },
+      { nome:'Braceria Garofalo', tipo:'Braceria', note:{it:'Nel centro. Diverse varietà di carne e pietanze tipiche locali.',en:'In the centre. Various meats and typical local dishes.',fr:'Au centre. Différentes viandes et plats typiques.',de:'Im Zentrum. Verschiedene Fleischsorten und lokale Gerichte.',es:'En el centro. Variedad de carnes y platos típicos.'} },
+    ];
+    var html = '';
+    ristoranti.forEach(function(r) {
+      html += '<div class="list-item"><div class="li-name">' + r.nome + '</div><div class="li-type">' + r.tipo + '</div><div class="li-note">' + t(r.note) + '</div></div>';
+    });
+    html += infoBox('🥖 ' + t({it:'PANIFICIO',en:'BAKERY',fr:'BOULANGERIE',de:'BÄCKEREI',es:'PANADERÍA'}),
+      t({it:'Panificio Bove — focaccia eccellente · Via G.A. de Ildaris 8',en:'Panificio Bove — excellent focaccia · Via G.A. de Ildaris 8',fr:'Panificio Bove — excellente focaccia',de:'Panificio Bove — ausgezeichnete Focaccia',es:'Panificio Bove — excelente focaccia'}));
+    return panelWrap(id, html);
+  }
+
+  // ---- BITONTO ----
+  if (id === 'bitonto') {
+    var attrazioni = [
+      { nome:'Cattedrale di Bitonto', tipo:{it:'Chiesa · XII secolo',en:'Church · 12th century',fr:'Église · XIIe siècle',de:'Kirche · 12. Jahrhundert',es:'Iglesia · Siglo XII'},
+        note:{it:'Romanico pugliese. Non perdere la cripta e il mosaico paleocristiano sotto il pavimento.',en:'Apulian Romanesque. Don\'t miss the crypt and the paleo-Christian mosaic.',fr:'Romane des Pouilles. Ne manquez pas la crypte.',de:'Apulische Romanik. Krypta und frühchristliches Mosaik nicht verpassen.',es:'Románico apulio. No pierdas la cripta y el mosaico paleocristiano.'} },
+      { nome:'Torrione Angioino · Piazza Cavour', tipo:{it:'Torre medievale · Galleria d\'arte',en:'Medieval tower · Art gallery',fr:'Tour médiévale · Galerie d\'art',de:'Mittelalterlicher Turm · Kunstgalerie',es:'Torre medieval · Galería de arte'},
+        note:{it:'Unico bastione medievale sopravvissuto. Oggi galleria d\'arte. Piazza Cavour è il "salotto" della città.',en:'The only surviving medieval bastion, now an art gallery. Piazza Cavour is the city\'s living room.',fr:'Seul bastion médiéval survivant. Aujourd\'hui galerie d\'art.',de:'Das einzige erhaltene mittelalterliche Bollwerk, heute Kunstgalerie.',es:'Único bastión medieval superviviente, hoy galería de arte.'} },
+      { nome:'Galleria Nazionale della Puglia', tipo:{it:'Museo · Arte',en:'Museum · Art',fr:'Musée · Art',de:'Museum · Kunst',es:'Museo · Arte'},
+        note:{it:'In Palazzo Sylos Calò. Opere di Tiziano, Veronese, Giaquinto, De Nittis.',en:'In Palazzo Sylos Calò. Works by Titian, Veronese, De Nittis.',fr:'Dans le Palazzo Sylos Calò. Œuvres de Titien, Véronèse, De Nittis.',de:'Im Palazzo Sylos Calò. Werke von Tizian, Veronese, De Nittis.',es:'En el Palazzo Sylos Calò. Obras de Tiziano, Veronese, De Nittis.'} },
+      { nome:'Museo Civico Rogadeo', tipo:{it:'Museo · Archeologia',en:'Museum · Archaeology',fr:'Musée · Archéologie',de:'Museum · Archäologie',es:'Museo · Arqueología'},
+        note:{it:'Reperti preistorici, greci e romani. Palazzo settecentesco con biblioteca.',en:'Prehistoric, Greek and Roman finds. 18th-century building with library.',fr:'Vestiges préhistoriques, grecs et romains.',de:'Prähistorische, griechische und römische Funde.',es:'Restos prehistóricos, griegos y romanos.'} },
+      { nome:'Frantoio Ipogeo', tipo:{it:'Sito archeologico',en:'Archaeological site',fr:'Site archéologique',de:'Archäologische Stätte',es:'Sitio arqueológico'},
+        note:{it:'Oleificio sotterraneo medievale — esempio unico di archeologia industriale pugliese.',en:'Medieval underground olive mill — unique example of Apulian industrial archaeology.',fr:'Moulin à huile médiéval souterrain — exemple unique.',de:'Mittelalterliche unterirdische Ölmühle.',es:'Molino de aceite medieval subterráneo — ejemplo único.'} },
+      { nome:'Chiesa del Purgatorio', tipo:{it:'Chiesa · Barocco',en:'Church · Baroque',fr:'Église · Baroque',de:'Kirche · Barock',es:'Iglesia · Barroco'},
+        note:{it:'Portale con bassorilievi di scheletri. Partenza della processione del Venerdì Santo.',en:'Portal with skeleton bas-reliefs. Starting point of the Good Friday procession.',fr:'Portail avec bas-reliefs de squelettes.',de:'Portal mit Skelett-Reliefs. Startpunkt der Karfreitagsprozession.',es:'Portal con bajorrelieves de esqueletos.'} },
+    ];
+    var html = '';
+    attrazioni.forEach(function(a) {
+      html += '<div class="list-item"><div class="li-name">' + a.nome + '</div><div class="li-type">' + t(a.tipo) + '</div><div class="li-note">' + t(a.note) + '</div></div>';
+    });
+    html += mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', t({it:'Centro storico — Google Maps',en:'Historic centre — Google Maps',fr:'Centre historique — Google Maps',de:'Altstadt — Google Maps',es:'Centro histórico — Google Maps'}));
+    return panelWrap(id, html);
+  }
+
+  // ---- DINTORNI ----
+  if (id === 'dintorni') {
+    var dest = [
+      { nome:'Bari', dist:'20 min', note:{it:'Lungomare, centro storico, Basilica di San Nicola.',en:'Seafront, historic centre, Basilica of San Nicola.',fr:'Front de mer, centre historique, Basilique de San Nicola.',de:'Promenade, Altstadt, Basilika San Nicola.',es:'Paseo marítimo, centro histórico, Basílica de San Nicola.'} },
+      { nome:'Castel del Monte', dist:'40 min', note:{it:'Castello ottagonale UNESCO di Federico II — vista spettacolare.',en:'Octagonal UNESCO castle of Frederick II — spectacular views.',fr:'Château octogonal UNESCO de Frédéric II.',de:'Oktagonales UNESCO-Schloss Friedrichs II.',es:'Castillo octagonal UNESCO de Federico II.'} },
+      { nome:'Polignano a Mare', dist:'35 min', note:{it:'Borgo sul mare con grotte e calette spettacolari. Da non perdere.',en:'Seaside village with spectacular caves and coves.',fr:'Village côtier avec grottes et criques spectaculaires.',de:'Küstenort mit spektakulären Grotten und Buchten.',es:'Pueblo costero con cuevas y calas espectaculares.'} },
+      { nome:'Alberobello', dist:'1 ora', note:{it:'I trulli — patrimonio UNESCO. Caratteristici costruzioni in pietra.',en:'The trulli — UNESCO heritage. Unique stone constructions.',fr:'Les trulli — patrimoine UNESCO.',de:'Die Trulli — UNESCO-Welterbe.',es:'Los trulli — patrimonio UNESCO.'} },
+      { nome:'Matera', dist:'1 ora', note:{it:'Città dei Sassi, patrimonio UNESCO. Una delle città più antiche al mondo.',en:'City of the Sassi, UNESCO heritage. One of the world\'s oldest cities.',fr:'Ville des Sassi, patrimoine UNESCO.',de:'Stadt der Sassi, UNESCO-Welterbe.',es:'Ciudad de los Sassi, patrimonio UNESCO.'} },
+      { nome:'Trani', dist:'30 min', note:{it:'Porto antico e splendida cattedrale romanica sul mare.',en:'Ancient port and splendid Romanesque cathedral on the sea.',fr:'Port antique et magnifique cathédrale romane sur la mer.',de:'Alter Hafen und herrliche romanische Kathedrale am Meer.',es:'Puerto antiguo y espléndida catedral románica sobre el mar.'} },
+      { nome:'Ostuni', dist:'1 ora', note:{it:'La città bianca — panorama mozzafiato sulla Valle d\'Itria.',en:'The white city — breathtaking view over the Itria Valley.',fr:'La ville blanche — panorama époustouflant.',de:'Die weiße Stadt — atemberaubender Ausblick.',es:'La ciudad blanca — vistas impresionantes.'} },
+      { nome:'Grotte di Castellana', dist:'30 min', note:{it:'Il sistema di grotte carsiche più famoso d\'Italia.',en:'Italy\'s most famous karst cave system.',fr:'Le système de grottes karstiques le plus célèbre d\'Italie.',de:'Das berühmteste Karsthöhlensystem Italiens.',es:'El sistema de cuevas kársticas más famoso de Italia.'} },
+    ];
+    var spiagge = [
+      { nome:'Giovinazzo', dist:'10 min', note:{it:'Borgo marinaro, spiaggia libera e stabilimenti.',en:'Fishing village, free beach and beach clubs.',fr:'Village de pêcheurs, plage libre.',de:'Fischerdorf, Freistrand.',es:'Pueblo marinero, playa libre.'} },
+      { nome:'Santo Spirito', dist:'10 min', note:{it:'Spiaggia libera e stabilimenti balneari.',en:'Free beach and beach clubs.',fr:'Plage libre et établissements.',de:'Freistrand und Strandclubs.',es:'Playa libre y chiringuitos.'} },
+      { nome:'Bisceglie', dist:'25 min', note:{it:'Spiagge attrezzate e centro storico medievale.',en:'Equipped beaches and medieval old town.',fr:'Plages équipées et centre historique.',de:'Ausgestattete Strände und mittelalterliche Altstadt.',es:'Playas equipadas y centro histórico medieval.'} },
+    ];
+    var html = '<div class="section-sep">' + t({it:'CITTÀ VICINE',en:'NEARBY TOWNS',fr:'VILLES PROCHES',de:'NAHE STÄDTE',es:'CIUDADES CERCANAS'}) + '</div>';
+    dest.forEach(function(d) {
+      html += '<div class="list-item"><div style="display:flex;justify-content:space-between;align-items:center"><div class="li-name">' + d.nome + '</div><span class="li-dist">' + d.dist + '</span></div><div class="li-note">' + t(d.note) + '</div></div>';
+    });
+    html += '<div class="section-sep" style="margin-top:18px">' + t({it:'SPIAGGE VICINE',en:'NEARBY BEACHES',fr:'PLAGES PROCHES',de:'NAHE STRÄNDE',es:'PLAYAS CERCANAS'}) + '</div>';
+    spiagge.forEach(function(s) {
+      html += '<div class="list-item"><div style="display:flex;justify-content:space-between;align-items:center"><div class="li-name">🏖️ ' + s.nome + '</div><span class="li-dist">' + s.dist + '</span></div><div class="li-note">' + t(s.note) + '</div></div>';
+    });
+    return panelWrap(id, html);
+  }
+
+  // ---- REGOLE ----
+  if (id === 'regole') {
+    var timesGrid = '<div class="times-grid">' +
+      '<div class="info-box"><div class="lbl">Check-in</div><div class="val">dalle 15:00</div></div>' +
+      '<div class="info-box"><div class="lbl">Check-out</div><div class="val">' + t({it:'entro le 10:00',en:'by 10:00 AM',fr:'avant 10h00',de:'bis 10:00 Uhr',es:'antes de las 10:00'}) + '</div></div>' +
+      '<div class="info-box"><div class="lbl">' + t({it:'Silenzio notturno',en:'Night quiet',fr:'Silence nocturne',de:'Nachtruhe',es:'Silencio nocturno'}) + '</div><div class="val">22:00 – 8:00</div></div>' +
+      '<div class="info-box"><div class="lbl">' + t({it:'Silenzio pomeridiano',en:'Afternoon quiet',fr:'Silence d\'après-midi',de:'Mittagsruhe',es:'Silencio de tarde'}) + '</div><div class="val">14:00 – 16:30</div></div>' +
+      '</div>';
+    var rules = {
+      it:['🚭 Vietato fumare in tutta la struttura','🐾 Animali non ammessi','👥 Non è consentito ospitare persone non registrate','🔊 Rispettare il silenzio negli orari indicati'],
+      en:['🚭 No smoking throughout the property','🐾 No pets allowed','👥 Unregistered guests not permitted','🔊 Please respect quiet hours'],
+      fr:['🚭 Interdit de fumer dans toute la structure','🐾 Animaux non admis','👥 Hôtes non enregistrés non autorisés','🔊 Respecter les heures de silence'],
+      de:['🚭 Rauchen im gesamten Gebäude verboten','🐾 Keine Haustiere erlaubt','👥 Nicht angemeldete Gäste nicht erlaubt','🔊 Ruhezeiten bitte einhalten'],
+      es:['🚭 Prohibido fumar en toda la propiedad','🐾 No se admiten animales','👥 No se permiten huéspedes no registrados','🔊 Respetar las horas de silencio'],
+    };
+    var rulesHtml = (rules[L]||rules.it).map(function(r){ return '<p style="padding:9px 0;border-bottom:1px solid var(--line);font-size:13px">' + r + '</p>'; }).join('');
+    var raccDiff = t({
+      it:'<div class="section-sep">RACCOLTA DIFFERENZIATA</div><p style="font-size:12.5px">Esporre i rifiuti dalle 13:30 alle 15:30.</p>' +
+         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0">' +
+         '<div class="info-box" style="border-left-color:#8B4513"><div class="lbl">Lun · Mer · Sab</div><div class="val" style="font-size:12px">🟤 Umido</div></div>' +
+         '<div class="info-box" style="border-left-color:#f59e0b"><div class="lbl">Martedì</div><div class="val" style="font-size:12px">🟡 Plastica</div></div>' +
+         '<div class="info-box" style="border-left-color:#374151"><div class="lbl">Giovedì</div><div class="val" style="font-size:12px">⚫ Secco</div></div>' +
+         '<div class="info-box" style="border-left-color:#16a34a"><div class="lbl">1° Venerdì</div><div class="val" style="font-size:12px">🟢 Vetro</div></div>' +
+         '<div class="info-box" style="border-left-color:#2563eb;grid-column:1/-1"><div class="lbl">2° · 3° · 4° Venerdì</div><div class="val" style="font-size:12px">🔵 Carta e cartone</div></div>' +
+         '</div>',
+      en:'<div class="section-sep">WASTE SORTING</div><p style="font-size:12.5px">Put out waste between 1:30 PM and 3:30 PM.</p>' +
+         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0">' +
+         '<div class="info-box"><div class="lbl">Mon · Wed · Sat</div><div class="val" style="font-size:12px">🟤 Organic</div></div>' +
+         '<div class="info-box"><div class="lbl">Tuesday</div><div class="val" style="font-size:12px">🟡 Plastic</div></div>' +
+         '<div class="info-box"><div class="lbl">Thursday</div><div class="val" style="font-size:12px">⚫ General waste</div></div>' +
+         '<div class="info-box"><div class="lbl">1st Friday</div><div class="val" style="font-size:12px">🟢 Glass</div></div>' +
+         '<div class="info-box" style="grid-column:1/-1"><div class="lbl">2nd · 3rd · 4th Friday</div><div class="val" style="font-size:12px">🔵 Paper & cardboard</div></div>' +
+         '</div>',
+      fr:'<div class="section-sep">TRI SÉLECTIF</div><p style="font-size:12.5px">Déposez les déchets de 13h30 à 15h30.</p>',
+      de:'<div class="section-sep">MÜLLTRENNUNG</div><p style="font-size:12.5px">Müll zwischen 13:30 und 15:30 Uhr rausstellen.</p>',
+      es:'<div class="section-sep">RECICLAJE</div><p style="font-size:12.5px">Sacar los residuos de 13:30 a 15:30.</p>',
+    });
+    return panelWrap(id, timesGrid + rulesHtml + t(raccDiff));
+  }
+
+  // ---- ALÒ ----
+  if (id === 'alo') {
+    var botUrl = 'https://fdp88.github.io/SANTALO/santalo-chat.html?' +
+      new URLSearchParams({nome:guestNome, camera:guestCamera, arrivo:guestArrivo, partenza:guestPartenza});
+    var desc = t({
+      it:'Alò è il tuo assistente virtuale H24 per tutto il soggiorno. Risponde in italiano, inglese, francese, tedesco, spagnolo — e in qualsiasi altra lingua.',
+      en:'Alò is your 24/7 virtual assistant for your entire stay. He answers in Italian, English, French, German, Spanish — and any other language.',
+      fr:'Alò est votre assistant virtuel H24 pour tout votre séjour. Il répond en italien, anglais, français, allemand, espagnol — et dans toute autre langue.',
+      de:'Alò ist Ihr 24/7-virtueller Assistent für Ihren gesamten Aufenthalt. Er antwortet auf Italienisch, Englisch, Französisch, Deutsch, Spanisch — und jeder anderen Sprache.',
+      es:'Alò es tu asistente virtual 24/7 para toda tu estancia. Responde en italiano, inglés, francés, alemán, español — y en cualquier otro idioma.',
+    });
+    var topics = {
+      it:['Come funziona qualcosa in camera','Problemi con luce o riscaldamento','Consigli su ristoranti e luoghi da visitare','Informazioni su trasporti e taxi','Richiesta colazione o servizi extra'],
+      en:['How something in the room works','Problems with electricity or heating','Restaurant and places recommendations','Transport and taxi info','Breakfast or extra services request'],
+      fr:['Comment fonctionne quelque chose','Problèmes d\'électricité ou de chauffage','Conseils restaurants et lieux à visiter','Infos transport et taxi','Demande de petit-déjeuner'],
+      de:['Wie etwas im Zimmer funktioniert','Probleme mit Licht oder Heizung','Restaurant- und Ausflugstipps','Transport- und Taxiinfos','Frühstück oder Zusatzleistungen'],
+      es:['Cómo funciona algo en la habitación','Problemas con luz o calefacción','Recomendaciones de restaurantes','Info de transportes y taxi','Solicitar desayuno o servicios extra'],
+    };
+    var topicsHtml = (topics[L]||topics.it).map(function(t){ return '<p style="font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--line)">💬 ' + t + '</p>'; }).join('');
+    return panelWrap(id,
+      '<p>' + desc + '</p>' +
+      '<div class="section-sep">' + t({it:'PUOI CHIEDERE AD ALÒ',en:'YOU CAN ASK ALÒ',fr:'VOUS POUVEZ DEMANDER À ALÒ',de:'DU KANNST ALÒ FRAGEN',es:'PUEDES PREGUNTARLE A ALÒ'}) + '</div>' +
+      topicsHtml +
+      '<a href="' + botUrl + '" target="_blank" class="alo-btn">' +
+      '<div class="alo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>' +
+      '<div class="alo-text"><strong>' + t({it:'Apri Alò — Assistente H24',en:'Open Alò — 24/7 Assistant',fr:'Ouvrir Alò — Assistant H24',de:'Alò öffnen — 24/7-Assistent',es:'Abrir Alò — Asistente 24/7'}) + '</strong><span>' + t({it:'Risponde sempre, in qualsiasi lingua',en:'Always available, any language',fr:'Toujours disponible, toutes langues',de:'Immer erreichbar, jede Sprache',es:'Siempre disponible, cualquier idioma'}) + '</span></div>' +
+      '</a>' +
+      '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">' +
+      '<p style="font-size:12px;color:var(--muted);margin-bottom:8px">' + t({it:'Preferisci parlare con noi direttamente?',en:'Prefer to contact us directly?',fr:'Préférez-vous nous contacter directement?',de:'Lieber direkt kontaktieren?',es:'¿Prefieres contactarnos directamente?'}) + '</p>' +
+      '<a href="https://wa.me/393336410329" target="_blank" class="wa-btn">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' +
+      ' WhatsApp Giuseppe' +
+      '</a></div>'
+    );
+  }
+
+  return panelWrap(id, '<p>Contenuto in arrivo.</p>');
+}
+
+// ===== LINGUA =====
+function setLang(lang) {
+  currentLang = lang;
+  try { localStorage.setItem('santalo_guest_lang', lang); } catch(e) {}
+  render();
+  if (activePanel) {
+    document.getElementById('card-'+activePanel).classList.add('active');
+    document.getElementById('contentPanel').style.display = 'block';
+    document.getElementById('contentPanel').innerHTML = buildPanel(activePanel);
+  }
+}
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>
