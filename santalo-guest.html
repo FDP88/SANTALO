@@ -487,7 +487,7 @@ function render() {
       '</div>' +
       '<div class="quick-times">' +
       '<div class="qt-item"><div class="qt-label">Check-in</div><div class="qt-value">15:00</div></div>' +
-      '<div class="qt-item qt-center"><div class="qt-welcome">' + t({it:'Benvenuto',en:'Welcome',fr:'Bienvenue',de:'Willkommen',es:'Bienvenido'}) + (guestFirstName ? ', ' + guestFirstName.split(' ')[0] : '') + '</div></div>' +
+      '<div class="qt-item qt-center"><div class="qt-welcome">' + t({it:'Benvenuto',en:'Welcome',fr:'Bienvenue',de:'Willkommen',es:'Bienvenido'}) + '</div></div>' +
       '<div class="qt-item"><div class="qt-label">Check-out</div><div class="qt-value">10:00</div></div>' +
       '</div>';
   } else {
@@ -541,6 +541,12 @@ function render() {
       label:{it:'REGOLE',en:'HOUSE RULES',fr:'RÈGLES',de:'REGELN',es:'NORMAS'} },
     { id:'servizi',    svg:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
       label:{it:'SERVIZI EXTRA',en:'EXTRA SERVICES',fr:'SERVICES EXTRA',de:'EXTRAS',es:'SERVICIOS EXTRA'} },
+    { id:'negozi',     svg:'<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+      label:{it:'NEGOZI',en:'SHOPS',fr:'MAGASINS',de:'GESCHÄFTE',es:'TIENDAS'} },
+    { id:'trasporti2', svg:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+      label:{it:'TRASPORTI',en:'TRANSPORT',fr:'TRANSPORTS',de:'TRANSPORT',es:'TRANSPORTE'} },
+    { id:'recensione', svg:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+      label:{it:'RECENSIONE',en:'REVIEW',fr:'AVIS',de:'BEWERTUNG',es:'RESEÑA'} },
   ];
 
   var grid = '<div class="icons-grid">' +
@@ -602,6 +608,9 @@ var PANEL_TITLES = {
   regole:     {it:'Regole della casa',en:'House rules',fr:'Règles de la maison',de:'Hausregeln',es:'Normas de la casa'},
   alo:        {it:'Assistente Alò',en:'Alò Assistant',fr:'Assistant Alò',de:'Assistent Alò',es:'Asistente Alò'},
   servizi:    {it:'Servizi extra',en:'Extra services',fr:'Services supplémentaires',de:'Zusatzleistungen',es:'Servicios adicionales'},
+  negozi:     {it:'Negozi & Supermercati',en:'Shops & Supermarkets',fr:'Magasins & Supermarchés',de:'Geschäfte & Supermärkte',es:'Tiendas & Supermercados'},
+  trasporti2: {it:'Trasporti',en:'Transport',fr:'Transports',de:'Transport',es:'Transporte'},
+  recensione: {it:'Lascia una recensione',en:'Leave a review',fr:'Laisser un avis',de:'Bewertung hinterlassen',es:'Deja una reseña'},
 };
 
 var ICONS_SVG = {
@@ -615,6 +624,9 @@ var ICONS_SVG = {
   regole:     '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
   alo:        '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   servizi:    '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
+  negozi:     '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  trasporti2: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  recensione: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
 };
 
 function svgIcon(id) {
@@ -951,6 +963,76 @@ function buildPanel(id) {
       '<button onclick="navigator.clipboard.writeText(\'' + iban + '\')" style="background:var(--cam-primary);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;margin-top:7px">' +
       t({it:'Copia IBAN',en:'Copy IBAN',fr:'Copier IBAN',de:'IBAN kopieren',es:'Copiar IBAN'}) + '</button></div>';
     html += '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><a href="https://wa.me/393336410329" target="_blank" class="wa-btn" style="flex:1;min-width:140px"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z\"/></svg> Giuseppe</a><a href="https://wa.me/393272243207" target="_blank" class="wa-btn" style="flex:1;min-width:140px;background:#128C7E"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z\"/></svg> Dario</a></div>';
+    return panelWrap(id, html);
+  }
+
+  // ---- NEGOZI & SUPERMERCATI ----
+  if (id === 'negozi') {
+    var supermercati = [
+      { icon:'🛒', nome:'Despar', addr:'Via Mazzini, 180/182', note:{it:'Supermercato nel centro — a pochi minuti a piedi.',en:'Supermarket in the centre — a few minutes\'\' walk.',fr:'Supermarché au centre — à quelques minutes à pied.',de:'Supermarkt im Zentrum — wenige Gehminuten.',es:'Supermercado en el centro — a pocos minutos a pie.'} },
+      { icon:'🛒', nome:'A&O', addr:'Via Durazzo, 32', note:{it:'Lun–Sab 8:30–13:30 / 17:00–20:30. Domenica chiuso.',en:'Mon–Sat 8:30–13:30 / 17:00–20:30. Sunday closed.',fr:'Lun–Sam 8h30–13h30 / 17h–20h30. Dimanche fermé.',de:'Mo–Sa 8:30–13:30 / 17:00–20:30. Sonntag geschlossen.',es:'Lun–Sáb 8:30–13:30 / 17:00–20:30. Domingo cerrado.'} },
+      { icon:'🛒', nome:'A&O', addr:'Via Castellucci, 85', note:{it:'Lun–Sab 8:30–13:30 / 17:00–20:30. Domenica chiuso.',en:'Mon–Sat 8:30–13:30 / 17:00–20:30. Sunday closed.',fr:'Lun–Sam 8h30–13h30 / 17h–20h30. Dimanche fermé.',de:'Mo–Sa 8:30–13:30 / 17:00–20:30. Sonntag geschlossen.',es:'Lun–Sáb 8:30–13:30 / 17:00–20:30. Domingo cerrado.'} },
+      { icon:'🛒', nome:'Coop', addr:'Via Repubblica Italiana, 59', note:{it:'Grande supermercato con ampia scelta.',en:'Large supermarket with wide selection.',fr:'Grand supermarché avec large choix.',de:'Großer Supermarkt mit großer Auswahl.',es:'Gran supermercado con amplia selección.'} },
+    ];
+    var negozi_list = [
+      { icon:'🥖', nome:'Panificio Bove', addr:'Via G.A. de Ildaris, 8', note:{it:'Focaccia eccellente — tappa obbligata la mattina.',en:'Excellent focaccia — a must in the morning.',fr:'Excellente focaccia — incontournable le matin.',de:'Ausgezeichnete Focaccia — morgens ein Muss.',es:'Excelente focaccia — imprescindible por la mañana.'} },
+      { icon:'🧀', nome:'Caseificio locale', addr:t({it:'Centro storico',en:'Old town',fr:'Centre historique',de:'Altstadt',es:'Centro histórico'}), note:{it:'Mozzarella e burrata fresche ogni mattina.',en:'Fresh mozzarella and burrata every morning.',fr:'Mozzarella et burrata fraîches chaque matin.',de:'Frische Mozzarella und Burrata jeden Morgen.',es:'Mozzarella y burrata frescos cada mañana.'} },
+      { icon:'🥩', nome:t({it:'Macelleria / Pescheria',en:'Butcher / Fishmonger',fr:'Boucherie / Poissonnerie',de:'Metzgerei / Fischhandel',es:'Carnicería / Pescadería'}), addr:t({it:'Via Mazzini e dintorni',en:'Via Mazzini and surroundings',fr:'Via Mazzini et environs',de:'Via Mazzini und Umgebung',es:'Via Mazzini y alrededores'}), note:{it:'Diversi negozi di prossimità nel centro.',en:'Several local shops in the town centre.',fr:'Plusieurs petits commerces en centre-ville.',de:'Mehrere Nahversorgungsgeschäfte im Zentrum.',es:'Varios comercios locales en el centro.'} },
+      { icon:'💊', nome:t({it:'Farmacia',en:'Pharmacy',fr:'Pharmacie',de:'Apotheke',es:'Farmacia'}), addr:t({it:'Piazza Cavour / Via Mazzini',en:'Piazza Cavour / Via Mazzini',fr:'Piazza Cavour / Via Mazzini',de:'Piazza Cavour / Via Mazzini',es:'Piazza Cavour / Via Mazzini'}), note:{it:'Più farmacie nel centro storico.',en:'Several pharmacies in the old town.',fr:'Plusieurs pharmacies en centre historique.',de:'Mehrere Apotheken in der Altstadt.',es:'Varias farmacias en el centro histórico.'} },
+    ];
+    var html = '<div class="section-sep">' + t({it:'SUPERMERCATI',en:'SUPERMARKETS',fr:'SUPERMARCHÉS',de:'SUPERMÄRKTE',es:'SUPERMERCADOS'}) + '</div>';
+    supermercati.forEach(function(s) {
+      html += '<div class="list-item"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:16px">' + s.icon + '</span><div><div class="li-name">' + s.nome + '</div><div style="font-size:11px;color:var(--cam-primary);font-weight:600">' + s.addr + '</div></div></div><div class="li-note" style="margin-top:4px;padding-left:23px">' + t(s.note) + '</div></div>';
+    });
+    html += '<div class="section-sep" style="margin-top:16px">' + t({it:'NEGOZI & ALTRO',en:'SHOPS & OTHER',fr:'MAGASINS & AUTRE',de:'GESCHÄFTE & MEHR',es:'TIENDAS & MÁS'}) + '</div>';
+    negozi_list.forEach(function(s) {
+      html += '<div class="list-item"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:16px">' + s.icon + '</span><div><div class="li-name">' + t(s.nome) + '</div><div style="font-size:11px;color:var(--cam-primary);font-weight:600">' + t(s.addr) + '</div></div></div><div class="li-note" style="margin-top:4px;padding-left:23px">' + t(s.note) + '</div></div>';
+    });
+    return panelWrap(id, html);
+  }
+
+  // ---- TRASPORTI ----
+  if (id === 'trasporti2') {
+    var html =
+      '<div class="section-sep">🚂 ' + t({it:'TRENO — Ferrotramviaria (FNB)',en:'TRAIN — Ferrotramviaria (FNB)',fr:'TRAIN — Ferrotramviaria (FNB)',de:'ZUG — Ferrotramviaria (FNB)',es:'TREN — Ferrotramviaria (FNB)'}) + '</div>' +
+      '<div class="info-box"><div class="lbl">' + t({it:'STAZIONE',en:'STATION',fr:'GARE',de:'BAHNHOF',es:'ESTACIÓN'}) + '</div><div class="val">Bitonto FNB <span style="font-size:12px;font-weight:400;color:var(--muted)">· ~10 min ' + t({it:'a piedi',en:'walk',fr:'à pied',de:'zu Fuß',es:'a pie'}) + '</span></div></div>' +
+      '<div class="info-box"><div class="lbl">' + t({it:'LINEA FM2 → BARI',en:'FM2 LINE → BARI',fr:'LIGNE FM2 → BARI',de:'LINIE FM2 → BARI',es:'LÍNEA FM2 → BARI'}) + '</div><div class="val" style="font-size:13px;font-weight:500">' + t({it:'~15 minuti · Prima corsa 05:32 · Ultima 23:16',en:'~15 min · First 05:32 · Last 23:16',fr:'~15 min · Premier 05h32 · Dernier 23h16',de:'~15 Min · Erste 05:32 · Letzte 23:16',es:'~15 min · Primera 05:32 · Última 23:16'}) + '</div></div>' +
+      '<p style="font-size:12px;color:var(--muted);margin:8px 0 14px">' + t({it:'Corse frequenti tutto il giorno. Biglietto ~€1,30. Acquisto in stazione o app Moovit.',en:'Frequent trains all day. Ticket ~€1.30. Buy at station or Moovit app.',fr:'Trains fréquents toute la journée. Billet ~1,30€. En gare ou app Moovit.',de:'Häufige Züge ganztags. Ticket ~€1,30. Am Bahnhof oder Moovit-App.',es:'Trenes frecuentes todo el día. Billete ~€1,30. En estación o app Moovit.'}) + '</p>' +
+
+      '<div class="section-sep">🚌 ' + t({it:'BUS URBANO — Miccolis / ASV',en:'URBAN BUS — Miccolis / ASV',fr:'BUS URBAIN — Miccolis / ASV',de:'STADTBUS — Miccolis / ASV',es:'BUS URBANO — Miccolis / ASV'}) + '</div>' +
+      '<p style="font-size:13px;color:var(--ink);line-height:1.7;margin-bottom:10px">' + t({it:'Bus urbani Miccolis gestiscono le linee cittadine. Fermata principale: Piazza Mons. Marena (Cap).',en:'Miccolis urban buses serve the city routes. Main stop: Piazza Mons. Marena (Cap).',fr:'Les bus Miccolis desservent les lignes urbaines. Arrêt principal: Piazza Mons. Marena.',de:'Miccolis Stadtbusse bedienen die Stadtlinien. Haupthaltestelle: Piazza Mons. Marena.',es:'Los autobuses Miccolis sirven las líneas urbanas. Parada principal: Piazza Mons. Marena.'}) + '</p>' +
+
+      '<div class="section-sep">✈️ ' + t({it:'AEROPORTO DI BARI',en:'BARI AIRPORT',fr:'AÉROPORT DE BARI',de:'FLUGHAFEN BARI',es:'AEROPUERTO DE BARI'}) + '</div>' +
+      '<div class="info-box"><div class="lbl">' + t({it:'IN AUTO',en:'BY CAR',fr:'EN VOITURE',de:'MIT DEM AUTO',es:'EN COCHE'}) + '</div><div class="val" style="font-size:13px;font-weight:500">~20 ' + t({it:'minuti',en:'minutes',fr:'minutes',de:'Minuten',es:'minutos'}) + '</div></div>' +
+      '<div class="info-box"><div class="lbl">' + t({it:'PUGLIA AIRBUS',en:'PUGLIA AIRBUS',fr:'PUGLIA AIRBUS',de:'PUGLIA AIRBUS',es:'PUGLIA AIRBUS'}) + '</div><div class="val" style="font-size:13px;font-weight:500">' + t({it:'Bus diretto Bari Centrale ↔ Aeroporto',en:'Direct bus Bari Central ↔ Airport',fr:'Bus direct Bari Centrale ↔ Aéroport',de:'Direktbus Bari Mitte ↔ Flughafen',es:'Bus directo Bari Central ↔ Aeropuerto'}) + '</div></div>' +
+
+      '<div class="section-sep">🚕 TAXI</div>' +
+      '<div class="info-box"><div class="lbl">H24</div><div class="val" style="font-size:13px">346 6153134 &nbsp;·&nbsp; 371 1914565</div></div>' +
+      '<p style="font-size:12px;color:var(--muted);margin-top:8px">' + t({it:'Aeroporto Bari ~€25-30 · Sempre disponibili',en:'Bari Airport ~€25-30 · Always available',fr:'Aéroport Bari ~25-30€ · Toujours disponibles',de:'Flughafen Bari ~€25-30 · Immer verfügbar',es:'Aeropuerto Bari ~€25-30 · Siempre disponibles'}) + '</p>' +
+
+      mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', t({it:'Stazione FNB Bitonto — Maps',en:'FNB Bitonto Station — Maps',fr:'Gare FNB Bitonto — Maps',de:'FNB Bahnhof Bitonto — Maps',es:'Estación FNB Bitonto — Maps'}));
+    return panelWrap(id, html);
+  }
+
+  // ---- RECENSIONE ----
+  if (id === 'recensione') {
+    var REVIEW_URL = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
+    var msg = t({
+      it:'Il tuo soggiorno è stato bello? Raccontalo agli altri! Una recensione su Google ci aiuta tantissimo e ci vuole solo 1 minuto.',
+      en:'Did you enjoy your stay? Tell others about it! A Google review helps us enormously and takes just 1 minute.',
+      fr:'Votre séjour a été agréable ? Partagez-le ! Un avis Google nous aide énormément et ne prend qu\'une minute.',
+      de:'Hat Ihnen der Aufenthalt gefallen? Erzählen Sie es anderen! Eine Google-Bewertung hilft uns sehr und dauert nur 1 Minute.',
+      es:'¿Disfrutó su estancia? ¡Cuénteselo a otros! Una reseña en Google nos ayuda enormemente y solo toma 1 minuto.',
+    });
+    var html = '<p style="font-size:14px;line-height:1.75;margin-bottom:16px">' + msg + '</p>' +
+      '<a href="' + REVIEW_URL + '" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--cam-primary);color:#fff;text-decoration:none;padding:16px 20px;border-radius:16px;font-weight:700;font-size:15px;margin-bottom:14px">' +
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' +
+      t({it:'Scrivi una recensione su Google',en:'Write a review on Google',fr:'Écrire un avis sur Google',de:'Bewertung auf Google schreiben',es:'Escribir una reseña en Google'}) +
+      '</a>' +
+      '<div style="background:var(--sand-ll);border-radius:12px;padding:13px 14px;border-left:3px solid var(--cam-primary)">' +
+      '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--cam-primary);margin-bottom:5px">' + t({it:'PERCHÉ È IMPORTANTE',en:'WHY IT MATTERS',fr:'POURQUOI C\'EST IMPORTANT',de:'WARUM ES WICHTIG IST',es:'POR QUÉ ES IMPORTANTE'}) + '</div>' +
+      '<p style="font-size:12.5px;color:var(--ink);line-height:1.6">' + t({it:'Le recensioni aiutano altri viaggiatori a scegliere Santalò e ci permettono di migliorare continuamente il servizio. Grazie di cuore!',en:'Reviews help other travelers choose Santalò and allow us to continuously improve our service. Thank you so much!',fr:'Les avis aident d\'autres voyageurs à choisir Santalò et nous permettent d\'améliorer continuellement notre service. Merci !',de:'Bewertungen helfen anderen Reisenden, Santalò zu wählen und ermöglichen es uns, unseren Service ständig zu verbessern. Herzlichen Dank!',es:'Las reseñas ayudan a otros viajeros a elegir Santalò y nos permiten mejorar continuamente nuestro servicio. ¡Muchas gracias!'}) + '</p>' +
+      '</div>';
     return panelWrap(id, html);
   }
 
