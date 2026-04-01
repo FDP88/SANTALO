@@ -258,10 +258,7 @@
       </div>
       <div class="card">
         <div class="card-title">&#129529; Messaggio pulizie</div>
-        <div style="display:flex;gap:6px;margin-bottom:8px">
-          <button class="pul-btn" id="pulBtn-oggi" onclick="setPulDay('oggi')">Oggi</button>
-          <button class="pul-btn active" id="pulBtn-domani" onclick="setPulDay('domani')">Domani</button>
-        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Check-out di domani</div>
         <div id="pulMsg" class="pul-msg">-</div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-primary btn-sm" onclick="copiaPulizie()">&#128203; Copia</button>
@@ -868,24 +865,17 @@ function generaSchedina(prenId) {
 
 // ===== PULIZIE =====
 var PULIZIE_PHONE = '393802473821';
-var pulDay = 'domani';
-function setPulDay(day) {
-  pulDay = day;
-  document.getElementById('pulBtn-oggi').className = 'pul-btn' + (day==='oggi' ? ' active' : '');
-  document.getElementById('pulBtn-domani').className = 'pul-btn' + (day==='domani' ? ' active' : '');
-  aggiornaPulizie();
-}
 function aggiornaPulizie() {
   var el = document.getElementById('pulMsg');
   if (!el) return;
   var target = new Date();
   target.setHours(0,0,0,0);
-  if (pulDay === 'domani') target.setDate(target.getDate() + 1);
+  target.setDate(target.getDate() + 1);
   var tStr = target.toISOString().slice(0,10);
   var tFmt = target.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   var cos = prenotazioni.filter(function(p) { return p.partenza === tStr; });
   if (!cos.length) {
-    el.textContent = 'Nessun check-out ' + (pulDay==='oggi'?'oggi':'domani') + '.';
+    el.textContent = 'Nessun check-out domani.';
     return;
   }
   var nl = String.fromCharCode(10);
@@ -899,9 +889,10 @@ function aggiornaPulizie() {
     if (stesso) r += nl + '  NB: nuovo arrivo: ' + (stesso.nome||'').split(' ')[0];
     return r;
   });
-  var msg = 'Ciao Marianna!' + nl + nl;
-  msg += 'Per ' + (pulDay==='oggi'?'oggi':'domani') + ' (' + tFmt + ') camere da rifare:' + nl + nl;
-  msg += righe.join(nl) + nl + nl + 'Grazie!';
+  var nl2 = String.fromCharCode(10);
+  var msg = 'Ciao Marianna!' + nl2 + nl2;
+  msg += 'Domani (' + tFmt + ') camere da rifare:' + nl2 + nl2;
+  msg += righe.join(nl2) + nl2 + nl2 + 'Grazie!';
   el.textContent = msg;
 }
 function copiaPulizie() {
