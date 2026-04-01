@@ -117,6 +117,24 @@
     .pul-msg{background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:11px;font-size:12px;line-height:1.75;white-space:pre-wrap;color:var(--ink);margin:10px 0;max-height:190px;overflow-y:auto}
     .pul-btn{padding:5px 11px;border-radius:8px;border:1px solid var(--line);background:var(--cream-d);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--brown);transition:all .15s}
     .pul-btn.active,.pul-btn:hover{background:var(--brown);color:#fff;border-color:var(--brown)}
+
+    /* ===== FILTRI E RICERCA ===== */
+    .search-filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+    .search-input-wrap{position:relative;flex:1;min-width:160px}
+    .search-input-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
+    .search-input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13px;color:var(--ink);background:#fff;transition:border-color .15s}
+    .search-input:focus{outline:none;border-color:var(--brown)}
+    .filter-pills{display:flex;gap:5px;flex-wrap:wrap}
+    .filter-pill{border:none;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;background:var(--cream-d);color:var(--muted)}
+    .filter-pill:hover{background:var(--sand-l);color:var(--brown)}
+    .filter-pill.active{background:var(--brown);color:#fff}
+    .filter-pill .pill-count{border-radius:999px;padding:1px 6px;font-size:10px;font-weight:700;background:rgba(107,45,31,.1);color:var(--brown)}
+    .filter-pill.active .pill-count{background:rgba(255,255,255,.25);color:#fff}
+    .no-results{text-align:center;padding:30px;color:var(--muted);font-size:14px}
+
+    /* Highlight card oggi */
+    .booking.oggi-highlight{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.12)}
+    .oggi-badge{background:#dcfce7;color:#166534;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle}
   </style>
 </head>
 <body>
@@ -150,6 +168,20 @@
         </div>
 
         <div id="panel-lista">
+          <!-- BARRA RICERCA + FILTRI -->
+          <div class="search-filter-bar">
+            <div class="search-input-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input class="search-input" id="searchInput" placeholder="Cerca per nome, camera, canale…" oninput="onSearch(this.value)"/>
+            </div>
+          </div>
+          <div class="filter-pills" style="margin-bottom:12px">
+            <button class="filter-pill active" data-filter="tutti" id="pill-tutti" onclick="setFilter('tutti')">Tutte <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="oggi" id="pill-oggi" onclick="setFilter('oggi')">🟢 Oggi <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="struttura" id="pill-struttura" onclick="setFilter('struttura')">🏠 In struttura <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="arrivo" id="pill-arrivo" onclick="setFilter('arrivo')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">✓ Passati <span class="pill-count">0</span></button>
+          </div>
           <div id="listaPrenotazioni" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
           </div>
@@ -355,6 +387,78 @@ function showTab(t) {
   if (t === 'calendario') renderCalendario();
 }
 
+// ===== FILTRI E RICERCA =====
+var currentFilter = 'tutti';
+var searchQuery = '';
+
+function getTodayStr() {
+  var d = new Date(); d.setHours(0,0,0,0);
+  return d.toISOString().slice(0,10);
+}
+
+function categorize(p) {
+  if (!p.arrivo || !p.partenza) return 'altri';
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayStr = today.toISOString().slice(0,10);
+  var arr = new Date(p.arrivo+'T12:00:00'); arr.setHours(0,0,0,0);
+  var par = new Date(p.partenza+'T12:00:00'); par.setHours(0,0,0,0);
+  if (par < today) return 'passati';
+  if (arr.getTime() === today.getTime()) return 'oggi';
+  if (arr < today && par > today) return 'struttura';
+  var in7 = new Date(today); in7.setDate(in7.getDate()+7);
+  if (arr > today && arr <= in7) return 'arrivo';
+  return 'altri';
+}
+
+function matchesFilter(p, filter) {
+  var cat = categorize(p);
+  if (filter === 'tutti') return true;
+  if (filter === 'oggi') return cat === 'oggi';
+  if (filter === 'struttura') return cat === 'struttura';
+  if (filter === 'arrivo') return cat === 'arrivo';
+  if (filter === 'passati') return cat === 'passati';
+  return true;
+}
+
+function filterPrenotazioni() {
+  return prenotazioni.filter(function(p) {
+    if (!matchesFilter(p, currentFilter)) return false;
+    if (!searchQuery) return true;
+    var q = searchQuery.toLowerCase();
+    return (p.nome||'').toLowerCase().includes(q) ||
+      (p.camera||'').toLowerCase().includes(q) ||
+      (p.canale||'').toLowerCase().includes(q) ||
+      (p.telefono||'').toLowerCase().includes(q);
+  });
+}
+
+function countFor(filter) {
+  return prenotazioni.filter(function(p) { return matchesFilter(p, filter); }).length;
+}
+
+function updateFilterCounts() {
+  ['tutti','oggi','struttura','arrivo','passati'].forEach(function(f) {
+    var el = document.getElementById('pill-'+f);
+    if (el) {
+      var c = el.querySelector('.pill-count');
+      if (c) c.textContent = countFor(f);
+    }
+  });
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(function(p) {
+    p.classList.toggle('active', p.dataset.filter === f);
+  });
+  renderPrenotazioni();
+}
+
+function onSearch(val) {
+  searchQuery = val.trim();
+  renderPrenotazioni();
+}
+
 // ===== PRENOTAZIONI =====
 function eliminaPrenotazione(id, evt) {
   evt.stopPropagation();
@@ -385,13 +489,23 @@ function loadBadgeCheckin() {
 function loadAll() {
   var el = document.getElementById('connStatus');
   el.textContent = 'caricamento...'; el.className = 'pill';
-  sb.from('prenotazioni').select('*').order('id', {ascending:false}).then(function(result) {
+  sb.from('prenotazioni').select('*').order('arrivo', {ascending:true}).then(function(result) {
     if (result.error) {
       el.textContent = 'errore'; el.className = 'pill err';
       document.getElementById('listaPrenotazioni').innerHTML = '<div style="color:var(--err);padding:16px">' + esc(result.error.message) + '</div>';
       return;
     }
     prenotazioni = result.data || [];
+
+    // Riordina: oggi prima, poi struttura, poi arrivo, poi altri, poi passati
+    var order = {oggi:0, struttura:1, arrivo:2, altri:3, passati:4};
+    prenotazioni.sort(function(a,b) {
+      var ca = order[categorize(a)] ?? 3;
+      var cb = order[categorize(b)] ?? 3;
+      if (ca !== cb) return ca - cb;
+      return (a.arrivo||'') < (b.arrivo||'') ? -1 : 1;
+    });
+
     if (!selected && prenotazioni.length) selected = prenotazioni[0];
     else if (selected) selected = prenotazioni.find(function(p) { return p.id === selected.id; }) || prenotazioni[0] || null;
     el.textContent = prenotazioni.length + ' prenotazioni'; el.className = 'pill ok';
@@ -415,21 +529,38 @@ function presenceInfo(p) {
   var diffArr = Math.round((arr - today) / 86400000);
   var diffPar = Math.round((par - today) / 86400000);
   if (diffPar === 0) return {dot:'#f59e0b', label:'Check-out oggi'};
-  if (diffArr <= 0 && diffPar > 0) return {dot:'#22c55e', label:'In struttura'};
+  if (diffArr === 0) return {dot:'#16a34a', label:'Arriva oggi'};
+  if (diffArr < 0 && diffPar > 0) return {dot:'#22c55e', label:'In struttura'};
   if (diffArr > 0 && diffArr <= 7) return {dot:'#3b82f6', label:'Arrivo tra ' + diffArr + ' gg'};
-  if (diffArr === 1) return {dot:'#3b82f6', label:'Arrivo domani'};
   if (diffPar < 0) return {dot:'#9ca3af', label:'Concluso'};
   return null;
 }
 
 function renderPrenotazioni() {
   var root = document.getElementById('listaPrenotazioni');
-  if (!prenotazioni.length) { root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessuna prenotazione</div>'; return; }
-  root.innerHTML = prenotazioni.map(function(p) {
-    return '<div class="booking ' + (selected && selected.id === p.id ? 'active' : '') + '">' +
+  var filtered = filterPrenotazioni();
+  updateFilterCounts();
+
+  if (!filtered.length) {
+    root.innerHTML = '<div class="no-results">Nessuna prenotazione trovata per i filtri selezionati</div>';
+    return;
+  }
+
+  var todayStr = getTodayStr();
+
+  root.innerHTML = filtered.map(function(p) {
+    var cat = categorize(p);
+    var isToday = (cat === 'oggi');
+    var isInStruttura = (cat === 'struttura');
+    var cardClass = 'booking' + (selected && selected.id === p.id ? ' active' : '') + (isToday ? ' oggi-highlight' : '');
+
+    var oggiTag = isToday ? '<span class="oggi-badge">OGGI</span>' : '';
+    var strutTag = isInStruttura ? '<span class="oggi-badge" style="background:#dbeafe;color:#1e3a8a">IN STRUTTURA</span>' : '';
+
+    return '<div class="' + cardClass + '">' +
       '<div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
       '<div style="flex:1">' +
-      '<div class="booking-name">' + esc(p.nome||'--') + '</div>' +
+      '<div class="booking-name">' + esc(p.nome||'--') + oggiTag + strutTag + '</div>' +
       '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
       '</div></div>' +
       '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
@@ -484,24 +615,13 @@ function istr(cam) {
   return 'Ti invieremo le istruzioni specifiche per la tua camera.';
 }
 
-// ===== TRADUZIONI TEMPLATE =====
 var TEMPLATES = {
   conferma: {
-    it: function(n,arr,par,cam,cl) {
-      return 'Buongiorno ' + n + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\n\nEcco il riepilogo della tua prenotazione:\n\nDal ' + arr + ' al ' + par + '\nCamera ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl;
-    },
-    en: function(n,arr,par,cam,cl) {
-      return 'Good morning ' + n + ', thank you for choosing our B&B! We look forward to welcoming you.\n\nHere is your booking summary:\n\nFrom ' + arr + ' to ' + par + '\nRoom ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nTo ensure a quick and easy check-in, please complete the online check-in before your arrival:\n\n' + cl;
-    },
-    fr: function(n,arr,par,cam,cl) {
-      return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons hâte de vous accueillir.\n\nVoici le récapitulatif de votre réservation :\n\nDu ' + arr + ' au ' + par + '\nChambre ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPour garantir un accès rapide et autonome, merci de compléter le check-in en ligne avant votre arrivée :\n\n' + cl;
-    },
-    de: function(n,arr,par,cam,cl) {
-      return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gewählt haben! Wir freuen uns, Sie begrüßen zu dürfen.\n\nHier ist Ihre Buchungsübersicht:\n\nVom ' + arr + ' bis ' + par + '\nZimmer ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nBitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\n\n' + cl;
-    },
-    es: function(n,arr,par,cam,cl) {
-      return 'Buenos días ' + n + ', ¡gracias por elegir nuestro B&B! Estamos deseando recibirle.\n\nAquí está el resumen de su reserva:\n\nDel ' + arr + ' al ' + par + '\nHabitación ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPara garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\n\n' + cl;
-    }
+    it: function(n,arr,par,cam,cl) { return 'Buongiorno ' + n + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\n\nEcco il riepilogo della tua prenotazione:\n\nDal ' + arr + ' al ' + par + '\nCamera ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl; },
+    en: function(n,arr,par,cam,cl) { return 'Good morning ' + n + ', thank you for choosing our B&B! We look forward to welcoming you.\n\nHere is your booking summary:\n\nFrom ' + arr + ' to ' + par + '\nRoom ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nTo ensure a quick and easy check-in, please complete the online check-in before your arrival:\n\n' + cl; },
+    fr: function(n,arr,par,cam,cl) { return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons hâte de vous accueillir.\n\nVoici le récapitulatif de votre réservation :\n\nDu ' + arr + ' au ' + par + '\nChambre ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPour garantir un accès rapide et autonome, merci de compléter le check-in en ligne avant votre arrivée :\n\n' + cl; },
+    de: function(n,arr,par,cam,cl) { return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gewählt haben! Wir freuen uns, Sie begrüßen zu dürfen.\n\nHier ist Ihre Buchungsübersicht:\n\nVom ' + arr + ' bis ' + par + '\nZimmer ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nBitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\n\n' + cl; },
+    es: function(n,arr,par,cam,cl) { return 'Buenos días ' + n + ', ¡gracias por elegir nuestro B&B! Estamos deseando recibirle.\n\nAquí está el resumen de su reserva:\n\nDel ' + arr + ' al ' + par + '\nHabitación ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPara garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\n\n' + cl; }
   },
   checkin: {
     it: function(n,cl) { return 'Ciao ' + n + '!\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl + '\n\nGrazie!'; },
@@ -557,20 +677,19 @@ function generaMessaggio() {
   var fn = T[lang] || T['en'] || T['it'];
   var msg = '';
   var camNum = String(camera||'').replace('Camera ','');
-  var camName = camNum; // use just the number in message text to avoid "Camera Camera 1954"
   var istrUrl = (camNum==='1954' || camNum==='1956')
     ? 'https://fdp88.github.io/SANTALO/santalo-istruzioni-' + camNum + '.html'
     : MAPS_URL;
   var GOOGLE_REVIEW = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
   if (tpl === 'pulizie') {
     var pfn = (TEMPLATES.pulizie || {}).it;
-    msg = pfn ? pfn(camName, partenza, p.note||'') : '';
+    msg = pfn ? pfn(camNum, partenza, p.note||'') : '';
     document.getElementById('messaggio').value = msg;
     document.getElementById('telefonoOut').value = PULIZIE_PHONE;
     return;
   }
   if (fn) {
-    if (tpl==='conferma') msg = fn(nome, arrivo, partenza, camName, cl);
+    if (tpl==='conferma') msg = fn(nome, arrivo, partenza, camNum, cl);
     else if (tpl==='checkin') msg = fn(nome, cl);
     else if (tpl==='chatbot') msg = fn(nome, bot);
     else if (tpl==='reminder') msg = fn(nome, arrivo, cl);
@@ -604,7 +723,6 @@ function waDiretto(id) {
 function modificaPrenotazione(id) {
   var p = prenotazioni.find(function(x) { return x.id === id; });
   if (!p) return;
-  // Popola il form con i dati esistenti
   document.getElementById('f-nome').value = p.nome || '';
   document.getElementById('f-telefono').value = p.telefono || '';
   document.getElementById('f-camera').value = p.camera || '';
@@ -615,11 +733,9 @@ function modificaPrenotazione(id) {
   document.getElementById('f-lingua').value = p.lingua || 'it';
   document.getElementById('f-orario').value = p.orario || '';
   document.getElementById('f-note').value = p.note || '';
-  // Salva id in modifica
   document.getElementById('f-nome').dataset.editId = id;
   document.getElementById('salvataEsito').textContent = '';
   showTab('nuova');
-  // Cambia testo pulsante
   document.querySelector('[onclick="salvaPrenotazione()"]').textContent = '💾 Salva modifiche';
 }
 
@@ -717,107 +833,36 @@ function loadConversazioni() {
 
 // ===== ALLOGGIATI WEB =====
 var CODICE_STRUTTURA = 'BA008847 ';
-
 var TIPI_DOC_AW = {
   'IDENT': 'IDENT', 'Carta di identità': 'IDENT',
-  'IDELE': 'IDELE',
-  'PASOR': 'PASOR', 'Passaporto': 'PASOR',
-  'PATEN': 'PATEN', 'Patente': 'PATEN',
-  'RIFUG': 'RIFUG', 'Permesso di soggiorno': 'RIFUG',
+  'IDELE': 'IDELE', 'PASOR': 'PASOR', 'Passaporto': 'PASOR',
+  'PATEN': 'PATEN', 'Patente': 'PATEN', 'RIFUG': 'RIFUG', 'Permesso di soggiorno': 'RIFUG',
 };
+var UE_CODES = ['100000203','100000206','100000209','100000212','100000214','100000215','100000216','100000220','100000221','100000223','100000225','100000226','100000227','100000229','100000231','100000232','100000233','100000234','100000235','100000236','100000239','100000240','100000241','100000243','100000244','100000247','100000248','100000249','100000250','100000251','100000252','100000254','100000255','100000256','100000257'];
 
-var UE_CODES = [
-  '100000203','100000206','100000209','100000212','100000214','100000215',
-  '100000216','100000220','100000221','100000223','100000225','100000226',
-  '100000227','100000229','100000231','100000232','100000233','100000234',
-  '100000235','100000236','100000239','100000240','100000241','100000243',
-  '100000244','100000247','100000248','100000249','100000250','100000251',
-  '100000252','100000254','100000255','100000256','100000257'
-];
-
-function awPad(s, len) {
-  s = String(s || '');
-  s = s.substring(0, len);
-  while (s.length < len) s = s + ' ';
-  return s;
-}
-
-function awDate(iso) {
-  if (!iso || iso.length < 10) return '          ';
-  var p = iso.split('-');
-  if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-  return '          ';
-}
-
-function awDays(a, b) {
-  try {
-    var diff = Math.round((new Date(b) - new Date(a)) / 86400000);
-    return Math.max(1, diff);
-  } catch(e) { return 1; }
-}
+function awPad(s, len) { s = String(s || ''); s = s.substring(0, len); while (s.length < len) s = s + ' '; return s; }
+function awDate(iso) { if (!iso || iso.length < 10) return '          '; var p = iso.split('-'); if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0]; return '          '; }
+function awDays(a, b) { try { var diff = Math.round((new Date(b) - new Date(a)) / 86400000); return Math.max(1, diff); } catch(e) { return 1; } }
 
 function buildRecord(ospite, arrivo, partenza) {
   var citt = ospite.cittadinanza_codice || '';
-  // Usa tipo_alloggiato dal check-in se disponibile, altrimenti calcola da cittadinanza
   var tipo;
-  if (ospite.tipo_alloggiato) {
-    tipo = String(ospite.tipo_alloggiato).padStart(2, '0');
-  } else if (!citt || citt === '100000100' || citt === 'Z000') { tipo = '20'; }
+  if (ospite.tipo_alloggiato) { tipo = String(ospite.tipo_alloggiato).padStart(2, '0'); }
+  else if (!citt || citt === '100000100' || citt === 'Z000') { tipo = '20'; }
   else if (UE_CODES.indexOf(citt) >= 0) { tipo = '21'; }
   else { tipo = '22'; }
-
-  // Giorni permanenza: 2 caratteri (formato file upload, non web service)
   var giorni = String(awDays(arrivo, partenza)).padStart(2, '0');
-  var natoItalia = ospite.nato_italia === true ||
-    ospite.nato_italia === 'true' ||
-    ospite.stato_nascita_codice === '100000100' ||
-    ospite.stato_nascita_codice === 'Z000' ||
-    (!ospite.stato_nascita_codice && ospite.comune_nascita_codice);
-
+  var natoItalia = ospite.nato_italia === true || ospite.nato_italia === 'true' || ospite.stato_nascita_codice === '100000100' || ospite.stato_nascita_codice === 'Z000' || (!ospite.stato_nascita_codice && ospite.comune_nascita_codice);
   var comuneNascita, provinciaNascita, statoNascita;
-  if (natoItalia) {
-    comuneNascita = awPad(ospite.comune_nascita_codice || '', 9);
-    provinciaNascita = awPad(ospite.provincia_nascita || '', 2);
-    statoNascita = awPad('100000100', 9);
-  } else {
-    comuneNascita = awPad('', 9);
-    provinciaNascita = awPad('EE', 2);
-    statoNascita = awPad(ospite.stato_nascita_codice || '', 9);
-  }
-
-  // Luogo rilascio: per stranieri usa cittadinanza_codice, per italiani usa comune
+  if (natoItalia) { comuneNascita = awPad(ospite.comune_nascita_codice || '', 9); provinciaNascita = awPad(ospite.provincia_nascita || '', 2); statoNascita = awPad('100000100', 9); }
+  else { comuneNascita = awPad('', 9); provinciaNascita = awPad('EE', 2); statoNascita = awPad(ospite.stato_nascita_codice || '', 9); }
   var luogoRilascio;
-  if (natoItalia) {
-    luogoRilascio = awPad(ospite.luogo_rilascio_codice || '', 9);
-  } else {
-    // Per stranieri: luogo_rilascio_codice dovrebbe essere il codice stato
-    // Se non disponibile usa cittadinanza come fallback
-    var lr = ospite.luogo_rilascio_codice || ospite.cittadinanza_codice || '';
-    luogoRilascio = awPad(lr, 9);
-  }
-
-  return tipo +
-    awDate(arrivo) +
-    giorni +
-    awPad(ospite.cognome || '', 50) +
-    awPad(ospite.nome || '', 30) +
-    awPad(ospite.sesso || '1', 1) +
-    awDate(ospite.data_nascita) +
-    comuneNascita +
-    provinciaNascita +
-    statoNascita +
-    awPad(ospite.cittadinanza_codice || '100000100', 9) +
-    awPad(TIPI_DOC_AW[ospite.tipo_documento] || 'PASOR', 5) +
-    awPad(ospite.numero_documento || '', 20) +
-    luogoRilascio;
+  if (natoItalia) { luogoRilascio = awPad(ospite.luogo_rilascio_codice || '', 9); }
+  else { var lr = ospite.luogo_rilascio_codice || ospite.cittadinanza_codice || ''; luogoRilascio = awPad(lr, 9); }
+  return tipo + awDate(arrivo) + giorni + awPad(ospite.cognome || '', 50) + awPad(ospite.nome || '', 30) + awPad(ospite.sesso || '1', 1) + awDate(ospite.data_nascita) + comuneNascita + provinciaNascita + statoNascita + awPad(ospite.cittadinanza_codice || '100000100', 9) + awPad(TIPI_DOC_AW[ospite.tipo_documento] || 'PASOR', 5) + awPad(ospite.numero_documento || '', 20) + luogoRilascio;
 }
 
-function buildFile(pren, ospiti) {
-  // Formato file upload: nessun header, CR+LF dopo ogni riga tranne l'ultima, UTF-8
-  var lines = [];
-  ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); });
-  return lines.join('\r\n');
-}
+function buildFile(pren, ospiti) { var lines = []; ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); }); return lines.join('\r\n'); }
 
 function loadAlloggiati() {
   var root = document.getElementById('listaAlloggiati');
@@ -825,16 +870,11 @@ function loadAlloggiati() {
   sb.from('prenotazioni').select('*').order('arrivo', {ascending:false}).then(function(result) {
     if (result.error) { root.innerHTML = '<div style="color:var(--err);padding:16px">Errore: ' + esc(result.error.message) + '</div>'; return; }
     var completate = (result.data || []).filter(function(p) { return p.stato_checkin === 'completato'; });
-    if (!completate.length) {
-      root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessuna prenotazione con check-in completato</div>';
-      return;
-    }
+    if (!completate.length) { root.innerHTML = '<div style="color:var(--muted);text-align:center;padding:30px">Nessuna prenotazione con check-in completato</div>'; return; }
     root.innerHTML = completate.map(function(p) {
       return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
-        '<div>' +
-        '<div style="font-weight:600;font-size:.95rem">' + esc(p.nome||'--') + '</div>' +
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' · ' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + ' · ' + (p.num_ospiti||1) + ' ospiti</div>' +
-        '</div>' +
+        '<div><div style="font-weight:600;font-size:.95rem">' + esc(p.nome||'--') + '</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' · ' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + ' · ' + (p.num_ospiti||1) + ' ospiti</div></div>' +
         '<button class="btn btn-primary btn-sm" onclick="generaSchedina(' + p.id + ')">📋 Genera schedina</button>' +
         '</div>';
     }).join('');
@@ -846,388 +886,180 @@ function generaSchedina(prenId) {
   var doDownload = function(pr) {
     sb.from('checkin_ospiti').select('*').eq('prenotazione_id', pr.id).order('numero_ospite').then(function(result) {
       if (result.error) { alert('Errore: ' + result.error.message); return; }
-      if (!result.data || !result.data.length) { alert('Nessun dato check-in trovato. Assicurati che il check-in sia stato completato.'); return; }
+      if (!result.data || !result.data.length) { alert('Nessun dato check-in trovato.'); return; }
       var content = buildFile(pr, result.data);
       var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
+      var a = document.createElement('a'); a.href = url;
       a.download = 'alloggiati_' + (pr.arrivo||'data') + '_' + (pr.nome||'ospite').replace(/\s+/g,'_') + '.txt';
-      a.click();
-      URL.revokeObjectURL(url);
+      a.click(); URL.revokeObjectURL(url);
     });
   };
   if (pren) { doDownload(pren); return; }
-  sb.from('prenotazioni').select('*').eq('id', prenId).maybeSingle().then(function(r) {
-    if (r.data) doDownload(r.data);
-  });
+  sb.from('prenotazioni').select('*').eq('id', prenId).maybeSingle().then(function(r) { if (r.data) doDownload(r.data); });
 }
 
 // ===== PULIZIE =====
-var PULIZIE_PHONE = '393802473821';
 function aggiornaPulizie() {
   var el = document.getElementById('pulMsg');
   if (!el) return;
-  var target = new Date();
-  target.setHours(0,0,0,0);
-  target.setDate(target.getDate() + 1);
+  var target = new Date(); target.setHours(0,0,0,0); target.setDate(target.getDate() + 1);
   var tStr = target.toISOString().slice(0,10);
   var tFmt = target.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   var cos = prenotazioni.filter(function(p) { return p.partenza === tStr; });
-  if (!cos.length) {
-    el.textContent = 'Nessun check-out domani.';
-    return;
-  }
-  var nl = String.fromCharCode(10);
+  if (!cos.length) { el.textContent = 'Nessun check-out domani.'; return; }
+  var nl = '\n';
   var righe = cos.map(function(p) {
     var cam = (p.camera||'').replace('Camera ','');
     var ospite = (p.nome||'').split(' ')[0];
-    var stesso = prenotazioni.find(function(q) {
-      return q.arrivo === tStr && q.camera === p.camera && q.id !== p.id;
-    });
-    var r = String.fromCharCode(8226) + ' Camera ' + cam + ' (check-out: ' + ospite + ')';
+    var stesso = prenotazioni.find(function(q) { return q.arrivo === tStr && q.camera === p.camera && q.id !== p.id; });
+    var r = '• Camera ' + cam + ' (check-out: ' + ospite + ')';
     if (stesso) r += nl + '  NB: nuovo arrivo: ' + (stesso.nome||'').split(' ')[0];
     return r;
   });
-  var nl2 = String.fromCharCode(10);
-  var msg = 'Ciao Marianna!' + nl2 + nl2;
-  msg += 'Domani (' + tFmt + ') camere da rifare:' + nl2 + nl2;
-  msg += righe.join(nl2) + nl2 + nl2 + 'Grazie!';
-  el.textContent = msg;
+  el.textContent = 'Ciao Marianna!\n\nDomani (' + tFmt + ') camere da rifare:\n\n' + righe.join(nl) + '\n\nGrazie!';
 }
 function copiaPulizie() {
   var txt = document.getElementById('pulMsg').textContent;
   navigator.clipboard.writeText(txt).then(function() {
-    var b = event.target; var o = b.textContent;
-    b.textContent = 'Copiato!';
+    var b = event.target; var o = b.textContent; b.textContent = 'Copiato!';
     setTimeout(function(){ b.textContent = o; }, 2000);
   });
 }
-function waPulizie() {
-  var txt = document.getElementById('pulMsg').textContent;
-  window.open('https://wa.me/' + PULIZIE_PHONE + '?text=' + encodeURIComponent(txt), '_blank');
-}
+function waPulizie() { var txt = document.getElementById('pulMsg').textContent; window.open('https://wa.me/' + PULIZIE_PHONE + '?text=' + encodeURIComponent(txt), '_blank'); }
 
 // ===== CALENDARIO 15 GIORNI =====
-var CAL_YEAR = new Date().getFullYear();
-var CAL_START = (function(){
-  var d = new Date(); d.setHours(0,0,0,0); return d;
-})();
-var CAMERE_CAL = [
-  {key:'Camera 1920', label:'1920', col:'#b45309'},
-  {key:'Camera 1954', label:'1954', col:'#6b21a8'},
-  {key:'Camera 1956', label:'1956', col:'#0f766e'},
-];
+var CAL_START = (function(){ var d = new Date(); d.setHours(0,0,0,0); return d; })();
+var CAMERE_CAL = [{key:'Camera 1920', label:'1920', col:'#b45309'},{key:'Camera 1954', label:'1954', col:'#6b21a8'},{key:'Camera 1956', label:'1956', col:'#0f766e'}];
 var MESI_FULL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 var GGS = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 function p2(n){ return n<10?'0'+n:''+n; }
-function dsFn(y,m,d){ return y+'-'+p2(m)+'-'+p2(d); }
 function dateToDs(dt){ return dt.getFullYear()+'-'+p2(dt.getMonth()+1)+'-'+p2(dt.getDate()); }
-function barCol(pren) {
-  var today = new Date(); today.setHours(0,0,0,0);
-  var par = pren.partenza ? new Date(pren.partenza+'T12:00:00') : null;
-  if (par && par <= today) return '#9ca3af';
-  if (pren.stato_checkin === 'completato') return '#16a34a';
-  return '#2563eb';
-}
-function camOk(pCam, camKey) {
-  if (!pCam) return false;
-  var num = camKey.replace('Camera ','').trim();
-  return pCam === camKey || pCam.indexOf(num) >= 0;
-}
-function calShift(days) {
-  CAL_START = new Date(CAL_START);
-  CAL_START.setDate(CAL_START.getDate() + days);
-  renderCalendario();
-}
-function calGoTo() {
-  var inp = document.getElementById('calGotoInput');
-  if (!inp || !inp.value) return;
-  var d = new Date(inp.value + 'T12:00:00');
-  if (isNaN(d)) return;
-  d.setHours(0,0,0,0);
-  CAL_START = d;
-  renderCalendario();
-}
-function calGoToday() {
-  CAL_START = new Date(); CAL_START.setHours(0,0,0,0);
-  renderCalendario();
-}
+function barCol(pren) { var today = new Date(); today.setHours(0,0,0,0); var par = pren.partenza ? new Date(pren.partenza+'T12:00:00') : null; if (par && par <= today) return '#9ca3af'; if (pren.stato_checkin === 'completato') return '#16a34a'; return '#2563eb'; }
+function camOk(pCam, camKey) { if (!pCam) return false; var num = camKey.replace('Camera ','').trim(); return pCam === camKey || pCam.indexOf(num) >= 0; }
+function calShift(days) { CAL_START = new Date(CAL_START); CAL_START.setDate(CAL_START.getDate() + days); renderCalendario(); }
+function calGoTo() { var inp = document.getElementById('calGotoInput'); if (!inp || !inp.value) return; var d = new Date(inp.value + 'T12:00:00'); if (isNaN(d)) return; d.setHours(0,0,0,0); CAL_START = d; renderCalendario(); }
+function calGoToday() { CAL_START = new Date(); CAL_START.setHours(0,0,0,0); renderCalendario(); }
+
 function renderCalendario() {
   var root = document.getElementById('calRoot');
   if (!root) return;
   var today = new Date(); today.setHours(0,0,0,0);
   var todayStr = dateToDs(today);
   var WIN = 15;
-
-  // Build dayList: CAL_START + 14 giorni
   var dayList = [];
-  for (var i=0; i<WIN; i++) {
-    var d = new Date(CAL_START);
-    d.setDate(CAL_START.getDate() + i);
-    dayList.push({ds: dateToDs(d), d: d.getDate(), m: d.getMonth(), y: d.getFullYear(), wd: d.getDay(), dateObj: d});
-  }
-  var startDs = dayList[0].ds;
-  var endDs = dayList[WIN-1].ds;
-
-  // Strip oggi
+  for (var i=0; i<WIN; i++) { var d = new Date(CAL_START); d.setDate(CAL_START.getDate() + i); dayList.push({ds: dateToDs(d), d: d.getDate(), m: d.getMonth(), y: d.getFullYear(), wd: d.getDay(), dateObj: d}); }
+  var startDs = dayList[0].ds; var endDs = dayList[WIN-1].ds;
   var cosOggi = prenotazioni.filter(function(p){ return p.partenza===todayStr; });
   var cisOggi = prenotazioni.filter(function(p){ return p.arrivo===todayStr; });
-  var strip = '<div class="today-strip"><span class="today-strip-title">Oggi ' +
-    today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) + '</span>';
-  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">&#127939; '+(p.nome||'').split(' ')[0]+' &ndash; '+(p.camera||'').replace('Camera ','')+'</span>'; });
-  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">&#128718; '+(p.nome||'').split(' ')[0]+' &ndash; '+(p.camera||'').replace('Camera ','')+'</span>'; });
+  var strip = '<div class="today-strip"><span class="today-strip-title">Oggi ' + today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) + '</span>';
+  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">🚶 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
+  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">🛬 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
   if (!cosOggi.length&&!cisOggi.length) strip += '<span class="today-pill none">Nessun arrivo o partenza oggi</span>';
   strip += '</div>';
-
-  // Titolo periodo
   var d0 = dayList[0], d1 = dayList[WIN-1];
-  var rangeLabel = d0.d + ' ' + MESI_FULL[d0.m].slice(0,3) + (d0.y!==d1.y?' '+d0.y:'') +
-    ' &rarr; ' + d1.d + ' ' + MESI_FULL[d1.m].slice(0,3) + ' ' + d1.y;
-
-  // Nav
-  var nav = '<div class="cal-nav">' +
-    '<button class="cal-nav-btn" onclick="calShift(-15)">&lsaquo;&lsaquo; -15</button>' +
-    '<button class="cal-nav-btn" onclick="calShift(-7)">&lsaquo; -7</button>' +
-    '<button class="cal-nav-btn" onclick="calGoToday()" style="background:var(--brown);color:#fff">Oggi</button>' +
-    '<span class="cal-title" style="flex:1;text-align:center">' + rangeLabel + '</span>' +
-    '<button class="cal-nav-btn" onclick="calShift(7)">+7 &rsaquo;</button>' +
-    '<button class="cal-nav-btn" onclick="calShift(15)">+15 &rsaquo;&rsaquo;</button>' +
-    '</div>';
-
-  // Vai alla data
-  var gotoRow = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">' +
-    '<span style="font-size:12px;font-weight:600;color:var(--muted)">Vai alla data:</span>' +
-    '<input type="date" id="calGotoInput" style="padding:5px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px;color:var(--ink)">' +
-    '<button class="cal-nav-btn" onclick="calGoTo()">&#10148; Vai</button>' +
-    '</div>';
-
-  // Legenda
-  var leg = '<div class="cal-legend">' +
-    '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#2563eb"></div>Prenotato</div>' +
-    '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#16a34a"></div>Check-in OK</div>' +
-    '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#9ca3af"></div>Passato</div>' +
-    '</div>';
-
-  // Mappa prenotazioni per camera
+  var rangeLabel = d0.d + ' ' + MESI_FULL[d0.m].slice(0,3) + (d0.y!==d1.y?' '+d0.y:'') + ' → ' + d1.d + ' ' + MESI_FULL[d1.m].slice(0,3) + ' ' + d1.y;
+  var nav = '<div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-15)">« -15</button><button class="cal-nav-btn" onclick="calShift(-7)">‹ -7</button><button class="cal-nav-btn" onclick="calGoToday()" style="background:var(--brown);color:#fff">Oggi</button><span class="cal-title" style="flex:1;text-align:center">' + rangeLabel + '</span><button class="cal-nav-btn" onclick="calShift(7)">+7 ›</button><button class="cal-nav-btn" onclick="calShift(15)">+15 »</button></div>';
+  var gotoRow = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;color:var(--muted)">Vai alla data:</span><input type="date" id="calGotoInput" style="padding:5px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px;color:var(--ink)"><button class="cal-nav-btn" onclick="calGoTo()">→ Vai</button></div>';
+  var leg = '<div class="cal-legend"><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#2563eb"></div>Prenotato</div><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#16a34a"></div>Check-in OK</div><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#9ca3af"></div>Passato</div></div>';
   var maps = CAMERE_CAL.map(function(cam) {
     var map = {};
     prenotazioni.forEach(function(p) {
       if (!camOk(p.camera,cam.key)||!p.arrivo||!p.partenza) return;
-      var cur = new Date(p.arrivo+'T12:00:00');
-      var end = new Date(p.partenza+'T12:00:00');
-      while (cur < end) {
-        var ds2 = cur.toISOString().slice(0,10);
-        if (ds2 >= startDs && ds2 <= endDs) map[ds2] = p;
-        cur.setDate(cur.getDate()+1);
-      }
+      var cur = new Date(p.arrivo+'T12:00:00'); var end = new Date(p.partenza+'T12:00:00');
+      while (cur < end) { var ds2 = cur.toISOString().slice(0,10); if (ds2 >= startDs && ds2 <= endDs) map[ds2] = p; cur.setDate(cur.getDate()+1); }
     });
     return map;
   });
-
-  // Header colonne (giorni)
   var dHdr = '<th class="cal-room-th">Camera</th>';
   dayList.forEach(function(day) {
-    var isT = day.ds===todayStr;
-    var isW = (day.wd===0||day.wd===6);
-    var isM = day.d===1; // primo del mese
-    dHdr += '<th class="cal-day-th'+(isT?' is-today':'')+(isW?' is-we':'')+(isM?' mstart':'')+'">'+
-      '<span class="cal-day-wd">'+GGS[day.wd].slice(0,2)+'</span>'+
-      '<span class="cal-day-num">'+day.d+'</span>'+
-      (isM?'<span style="font-size:8px;color:var(--muted);display:block">'+MESI_FULL[day.m].slice(0,3)+'</span>':'')+
-      '</th>';
+    var isT = day.ds===todayStr; var isW = (day.wd===0||day.wd===6); var isM = day.d===1;
+    dHdr += '<th class="cal-day-th'+(isT?' is-today':'')+(isW?' is-we':'')+(isM?' mstart':'')+'"><span class="cal-day-wd">'+GGS[day.wd].slice(0,2)+'</span><span class="cal-day-num">'+day.d+'</span>'+(isM?'<span style="font-size:8px;color:var(--muted);display:block">'+MESI_FULL[day.m].slice(0,3)+'</span>':'')+'</th>';
   });
-
-  // Righe camere
   var tbody = '';
   CAMERE_CAL.forEach(function(cam, ci) {
-    var bmap = maps[ci];
-    tbody += '<tr>';
+    var bmap = maps[ci]; tbody += '<tr>';
     tbody += '<td class="cal-data-td room-td"><span class="cal-room-name" style="color:'+cam.col+'">'+cam.label+'</span></td>';
     var i = 0;
     while (i < dayList.length) {
-      var day = dayList[i];
-      var pren = bmap[day.ds];
-      var isT2 = day.ds===todayStr;
-      var isW2 = (day.wd===0||day.wd===6);
-      var isM2 = day.d===1;
+      var day = dayList[i]; var pren = bmap[day.ds];
+      var isT2 = day.ds===todayStr; var isW2 = (day.wd===0||day.wd===6); var isM2 = day.d===1;
       var cls = 'cal-data-td'+(isT2?' is-today':'')+(isW2?' is-we':'')+(isM2?' mstart':'');
-
       if (pren) {
-        // Trova inizio span: primo giorno visibile di questa prenotazione
         if (pren.arrivo === day.ds || (i===0 && pren.arrivo < day.ds)) {
-          // Calcola quante celle occupa nel range visibile
           var span = 0;
           while (i+span < dayList.length && bmap[dayList[i+span].ds] && bmap[dayList[i+span].ds].id===pren.id) span++;
           var nights = Math.round((new Date(pren.partenza+'T12:00:00')-new Date(pren.arrivo+'T12:00:00'))/86400000);
           var nome = (pren.nome||'').split(' ').slice(0,2).join(' ');
-          var col = barCol(pren);
-          var stato = pren.stato_checkin||'da compilare';
-          // Freccia arrivo solo se arrivo è visibile nel range
+          var col = barCol(pren); var stato = pren.stato_checkin||'da compilare';
           var showArr = (pren.arrivo >= startDs);
-          // Freccia partenza: l'ultimo giorno occupato è il giorno prima della partenza
           var lastVisDs = dayList[i+span-1].ds;
           var depD = new Date(pren.partenza+'T12:00:00'); depD.setDate(depD.getDate()-1);
           var isDep = depD.toISOString().slice(0,10) === lastVisDs;
-          var bar = '<div class="cal-bar" style="background:'+col+'">';
-          bar += '<div class="cal-bar-inner">';
-          if (showArr) bar += '<span class="cal-bar-x">&#9658;</span>';
-          bar += '<span class="cal-bar-name">'+esc(nome)+'</span>';
-          if (span > 2) bar += '<span class="cal-bar-x">'+nights+'n</span>';
-          if (isDep) bar += '<span class="cal-bar-x">&#9668;</span>';
-          bar += '</div>';
-          bar += '<div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' &rarr; '+fmt(pren.partenza)+'<br>'+nights+' notti &middot; '+esc(stato)+'</div>';
-          bar += '</div>';
+          var bar = '<div class="cal-bar" style="background:'+col+'"><div class="cal-bar-inner">'+(showArr?'<span class="cal-bar-x">▶</span>':'')+'<span class="cal-bar-name">'+esc(nome)+'</span>'+(span > 2?'<span class="cal-bar-x">'+nights+'n</span>':'')+(isDep?'<span class="cal-bar-x">◀</span>':'')+'</div><div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>'+nights+' notti · '+esc(stato)+'</div></div>';
           tbody += '<td class="'+cls+'" colspan="'+span+'" style="padding:3px 2px">'+bar+'</td>';
           i += span;
-        } else {
-          // Non dovrebbe accadere
-          tbody += '<td class="'+cls+'"></td>'; i++;
-        }
-      } else {
-        tbody += '<td class="'+cls+'"></td>'; i++;
-      }
+        } else { tbody += '<td class="'+cls+'"></td>'; i++; }
+      } else { tbody += '<td class="'+cls+'"></td>'; i++; }
     }
     tbody += '</tr>';
   });
-
   var tbl = '<div class="cal-scroll-outer"><table class="cal-tbl" style="width:100%;table-layout:fixed"><thead><tr>'+dHdr+'</tr></thead><tbody>'+tbody+'</tbody></table></div>';
-
-  // Prossimi check-in/out nei 15 giorni
   var prox = '';
   dayList.forEach(function(day) {
     var co2 = prenotazioni.filter(function(p){ return p.partenza===day.ds; });
     var ci2 = prenotazioni.filter(function(p){ return p.arrivo===day.ds; });
     if (co2.length||ci2.length) {
       var isT3 = day.ds===todayStr;
-      prox += '<div class="prox-row">';
-      prox += '<span class="prox-date"'+(isT3?' style="color:var(--brown);font-weight:800"':'')+'>';
+      prox += '<div class="prox-row"><span class="prox-date"'+(isT3?' style="color:var(--brown);font-weight:800"':'')+'>';
       prox += day.dateObj.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
       prox += (isT3?' (oggi)':'') + '</span>';
-      co2.forEach(function(p){ prox += '<span class="today-pill out" style="font-size:11px">&#127939; '+(p.nome||'').split(' ')[0]+'</span>'; });
-      ci2.forEach(function(p){ prox += '<span class="today-pill in" style="font-size:11px">&#128718; '+(p.nome||'').split(' ')[0]+'</span>'; });
+      co2.forEach(function(p){ prox += '<span class="today-pill out" style="font-size:11px">🚶 '+(p.nome||'').split(' ')[0]+'</span>'; });
+      ci2.forEach(function(p){ prox += '<span class="today-pill in" style="font-size:11px">🛬 '+(p.nome||'').split(' ')[0]+'</span>'; });
       prox += '</div>';
     }
   });
-  var proxS = prox
-    ? '<div style="margin-top:18px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Movimenti nel periodo</div>'+prox+'</div>'
-    : '<div style="margin-top:14px;color:var(--muted);font-size:13px">Nessun movimento nel periodo selezionato.</div>';
-
+  var proxS = prox ? '<div style="margin-top:18px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Movimenti nel periodo</div>'+prox+'</div>' : '<div style="margin-top:14px;color:var(--muted);font-size:13px">Nessun movimento nel periodo selezionato.</div>';
   root.innerHTML = strip + nav + gotoRow + leg + tbl + proxS;
 }
+
 // ===== MODAL CHECK-IN =====
 var ciData = {};
 function apriCheckinModal(id) {
   sb.from('checkin_ospiti').select('*').eq('id', id).maybeSingle().then(function(r) {
     if (!r.data) return;
-    var o = r.data;
-    ciData[id] = o;
+    var o = r.data; ciData[id] = o;
     document.getElementById('ciModalTitle').textContent = (o.nome||'') + ' ' + (o.cognome||'');
-    var campi = [
-      ['Tipo alloggiato', o.tipo_alloggiato],
-      ['Sesso', o.sesso==='1'?'Maschio':'Femmina'],
-      ['Data nascita', fmt(o.data_nascita)],
-      ['Nato in Italia', o.nato_italia?'Si':'No'],
-      ['Comune nascita', o.comune_nascita_nome||o.comune_nascita_codice||'—'],
-      ['Provincia nascita', o.provincia_nascita||'—'],
-      ['Stato nascita', o.stato_nascita_nome||o.stato_nascita_codice||'—'],
-      ['Cittadinanza', o.cittadinanza_nome||o.cittadinanza_codice||'—'],
-      ['Tipo documento', o.tipo_documento||'—'],
-      ['Numero documento', o.numero_documento||'—'],
-      ['Data rilascio', fmt(o.data_rilascio_documento)],
-      ['Luogo rilascio', o.luogo_rilascio_nome||o.luogo_rilascio_codice||'—'],
-    ];
-    var grid = campi.map(function(f) {
-      return '<div style="background:var(--cream);border-radius:9px;padding:9px 12px">'
-        +'<div style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:2px">'+esc(f[0])+'</div>'
-        +'<div style="font-size:13px;font-weight:500">'+esc(String(f[1]||'—'))+'</div></div>';
-    }).join('');
+    var campi = [['Tipo alloggiato', o.tipo_alloggiato],['Sesso', o.sesso==='1'?'Maschio':'Femmina'],['Data nascita', fmt(o.data_nascita)],['Nato in Italia', o.nato_italia?'Si':'No'],['Comune nascita', o.comune_nascita_nome||o.comune_nascita_codice||'—'],['Provincia nascita', o.provincia_nascita||'—'],['Stato nascita', o.stato_nascita_nome||o.stato_nascita_codice||'—'],['Cittadinanza', o.cittadinanza_nome||o.cittadinanza_codice||'—'],['Tipo documento', o.tipo_documento||'—'],['Numero documento', o.numero_documento||'—'],['Data rilascio', fmt(o.data_rilascio_documento)],['Luogo rilascio', o.luogo_rilascio_nome||o.luogo_rilascio_codice||'—']];
+    var grid = campi.map(function(f) { return '<div style="background:var(--cream);border-radius:9px;padding:9px 12px"><div style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:2px">'+esc(f[0])+'</div><div style="font-size:13px;font-weight:500">'+esc(String(f[1]||'—'))+'</div></div>'; }).join('');
     var fotos = '';
     if (o.documento_fronte_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_fronte_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Fronte</a> ';
     if (o.documento_retro_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_retro_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Retro</a> ';
     if (o.selfie_documento_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.selfie_documento_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Selfie</a>';
-    document.getElementById('ciModalBody').innerHTML =
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'
-      +(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')
-      +'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap">'
-      +'<button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">&#9998; Modifica</button>'
-      +'<button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')">&#128465; Elimina</button>'
-      +'</div>';
+    document.getElementById('ciModalBody').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'+(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')+'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">✎ Modifica</button><button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca">🗑 Elimina</button></div>';
     document.getElementById('ciModal').style.display = 'flex';
   });
 }
+
 function apriModificaCI(id) {
   var o = ciData[id]; if (!o) return;
-  var TIPI_ALL = [
-    {v:'16',t:'16 - Italiano'},{v:'17',t:'17 - Capo Famiglia IT'},
-    {v:'18',t:'18 - Familiare IT'},{v:'19',t:'19 - UE'},
-    {v:'20',t:'20 - Capo Gruppo UE'},{v:'21',t:'21 - Membro UE'},
-    {v:'22',t:'22 - Extra UE'},{v:'23',t:'23 - Capo Gruppo Extra UE'},
-    {v:'24',t:'24 - Membro Extra UE'}
-  ];
-  function inp(k,l,tp) {
-    return '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:3px">'+l+'</label>'
-      +'<input id="ci_'+k+'" type="'+(tp||'text')+'" value="'+esc(String(o[k]||''))+'" '
-      +'style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px"></div>';
-  }
-  function sel(k,l,opts) {
-    var s = '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:3px">'+l+'</label>'
-      +'<select id="ci_'+k+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px">';
-    opts.forEach(function(op){ s += '<option value="'+op.v+'"'+(String(o[k])===op.v?' selected':'')+'>'+op.t+'</option>'; });
-    return s + '</select></div>';
-  }
-  function sez(t) {
-    return '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;letter-spacing:.05em;border-top:1px solid var(--line);padding-top:12px">'+t+'</div>';
-  }
+  var TIPI_ALL = [{v:'16',t:'16 - Italiano'},{v:'17',t:'17 - Capo Famiglia IT'},{v:'18',t:'18 - Familiare IT'},{v:'19',t:'19 - UE'},{v:'20',t:'20 - Capo Gruppo UE'},{v:'21',t:'21 - Membro UE'},{v:'22',t:'22 - Extra UE'},{v:'23',t:'23 - Capo Gruppo Extra UE'},{v:'24',t:'24 - Membro Extra UE'}];
+  function inp(k,l,tp) { return '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:3px">'+l+'</label><input id="ci_'+k+'" type="'+(tp||'text')+'" value="'+esc(String(o[k]||''))+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px"></div>'; }
+  function sel(k,l,opts) { var s = '<div><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:3px">'+l+'</label><select id="ci_'+k+'" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px">'; opts.forEach(function(op){ s += '<option value="'+op.v+'"'+(String(o[k])===op.v?' selected':'')+'>'+op.t+'</option>'; }); return s + '</select></div>'; }
+  function sez(t) { return '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;letter-spacing:.05em;border-top:1px solid var(--line);padding-top:12px">'+t+'</div>'; }
   var g2 = 'display:grid;grid-template-columns:1fr 1fr;gap:10px';
-  var html = '';
-
-  html += sez('Anagrafica');
-  html += '<div style="'+g2+'">';
-  html += inp('nome','Nome') + inp('cognome','Cognome');
-  html += sel('sesso','Sesso',[{v:'1',t:'Maschio'},{v:'2',t:'Femmina'}]);
-  html += inp('data_nascita','Data nascita','date');
-  html += sel('tipo_alloggiato','Tipo alloggiato',TIPI_ALL);
-  html += '</div>';
-
-  html += sez('Nascita');
-  html += '<div style="'+g2+'">';
-  html += sel('nato_italia','Nato in Italia',[{v:'true',t:'Si'},{v:'false',t:'No'}]);
-  html += inp('provincia_nascita','Provincia (EE se estero)');
-  html += inp('comune_nascita_codice','Codice comune nascita (IT)');
-  html += inp('stato_nascita_codice','Codice stato nascita (estero)');
-  html += inp('cittadinanza_codice','Codice cittadinanza');
-  html += '</div>';
-
-  html += sez('Documento');
-  html += '<div style="'+g2+'">';
-  html += sel('tipo_documento','Tipo doc',[{v:'IDENT',t:'Carta identità'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]);
-  html += inp('numero_documento','Numero documento');
-  html += inp('data_rilascio_documento','Data rilascio','date');
-  html += inp('luogo_rilascio_codice','Codice luogo rilascio');
-  html += '</div>';
-
-  html += '<div style="background:var(--warn-bg);border:1px solid #fcd34d;border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px">';
-  html += '&#9432; Per stranieri: Codice luogo rilascio = codice stato (es. 100000215 per Francia)';
-  html += '</div>';
-
-  html += '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">';
-  html += '<button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">&#10003; Salva</button>';
-  html += '<button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
+  var html = sez('Anagrafica') + '<div style="'+g2+'">' + inp('nome','Nome') + inp('cognome','Cognome') + sel('sesso','Sesso',[{v:'1',t:'Maschio'},{v:'2',t:'Femmina'}]) + inp('data_nascita','Data nascita','date') + sel('tipo_alloggiato','Tipo alloggiato',TIPI_ALL) + '</div>' +
+    sez('Nascita') + '<div style="'+g2+'">' + sel('nato_italia','Nato in Italia',[{v:'true',t:'Si'},{v:'false',t:'No'}]) + inp('provincia_nascita','Provincia (EE se estero)') + inp('comune_nascita_codice','Codice comune nascita (IT)') + inp('stato_nascita_codice','Codice stato nascita (estero)') + inp('cittadinanza_codice','Codice cittadinanza') + '</div>' +
+    sez('Documento') + '<div style="'+g2+'">' + sel('tipo_documento','Tipo doc',[{v:'IDENT',t:'Carta identità'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]) + inp('numero_documento','Numero documento') + inp('data_rilascio_documento','Data rilascio','date') + inp('luogo_rilascio_codice','Codice luogo rilascio') + '</div>' +
+    '<div style="background:var(--warn-bg);border:1px solid #fcd34d;border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px">ℹ Per stranieri: Codice luogo rilascio = codice stato (es. 100000215 per Francia)</div>' +
+    '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">✓ Salva</button><button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
   document.getElementById('ciModalBody').innerHTML = html;
 }
+
 function salvaCI(id) {
-  var keys = ['nome','cognome','sesso','data_nascita','tipo_alloggiato',
-    'nato_italia','tipo_documento','numero_documento','data_rilascio_documento',
-    'comune_nascita_codice','provincia_nascita','stato_nascita_codice',
-    'cittadinanza_codice','luogo_rilascio_codice'];
+  var keys = ['nome','cognome','sesso','data_nascita','tipo_alloggiato','nato_italia','tipo_documento','numero_documento','data_rilascio_documento','comune_nascita_codice','provincia_nascita','stato_nascita_codice','cittadinanza_codice','luogo_rilascio_codice'];
   var upd = {};
-  keys.forEach(function(k) {
-    var el = document.getElementById('ci_'+k);
-    if (!el) return;
-    if (k === 'nato_italia') upd[k] = el.value === 'true';
-    else upd[k] = el.value;
-  });
+  keys.forEach(function(k) { var el = document.getElementById('ci_'+k); if (!el) return; if (k === 'nato_italia') upd[k] = el.value === 'true'; else upd[k] = el.value; });
   sb.from('checkin_ospiti').update(upd).eq('id', id).then(function(r) {
     if (r.error) { alert('Errore salvataggio: '+r.error.message); return; }
     ciData[id] = Object.assign(ciData[id], upd);
@@ -1235,6 +1067,7 @@ function salvaCI(id) {
     loadCheckin();
   });
 }
+
 function eliminaCI(id) {
   if (!confirm('Eliminare questo check-in?')) return;
   sb.from('checkin_ospiti').delete().eq('id', id).then(function(r) {
