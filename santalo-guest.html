@@ -307,19 +307,22 @@
     }
     .map-link:hover { background: var(--sand-l); }
     .alo-btn {
-      display: flex; align-items: center; gap: 12px;
-      background: linear-gradient(135deg, var(--cam-dark), var(--cam-primary));
-      color: #fff; text-decoration: none;
+      display: flex; align-items: center; gap: 14px;
+      background: #fff;
+      border: 2px solid var(--cam-primary);
+      color: var(--cam-dark); text-decoration: none;
       padding: 14px 18px; border-radius: 16px;
-      margin-top: 12px; transition: opacity .18s;
+      margin-top: 12px; transition: all .18s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
     }
-    .alo-btn:hover { opacity: .9; }
+    .alo-btn:hover { background: var(--cam-light); }
     .alo-icon {
-      width: 42px; height: 42px; background: rgba(255,255,255,.15);
-      border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      width: 44px; height: 44px; background: var(--cam-primary);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .alo-text strong { display: block; font-size: 14px; font-weight: 600; }
-    .alo-text span { font-size: 11.5px; opacity: .75; }
+    .alo-icon svg { color: #fff !important; stroke: #fff !important; }
+    .alo-text strong { display: block; font-size: 14px; font-weight: 700; color: var(--cam-dark); }
+    .alo-text span { font-size: 11.5px; color: var(--muted); }
 
     /* Orari grid */
     .times-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
@@ -327,27 +330,28 @@
     /* Separatore sezione */
     .section-sep { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--cam-primary); opacity: .7; margin: 14px 0 8px; }
 
-    /* ===== FASCIA PAVIMENTO ===== */
-    .floor-band {
-      width: 100%;
-      height: 56px;
-      overflow: hidden;
-      display: block;
+    /* ===== BARRA ALÒ ORIZZONTALE ===== */
+    .alo-bar {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--cam-dark);
+      color: #fff; text-decoration: none;
+      padding: 14px 18px; margin: 8px 14px 0;
+      border-radius: 16px;
+      transition: opacity .18s;
+      box-shadow: 0 3px 14px rgba(0,0,0,.15);
+    }
+    .alo-bar:hover { opacity: .9; }
+    .alo-bar-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.15);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      position: relative;
     }
-    .floor-band svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .floor-band::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,.28) 0%, rgba(0,0,0,.05) 100%);
-      pointer-events: none;
-    }
+    .alo-bar-text { flex: 1; }
+    .alo-bar-text strong { display: block; font-size: 13.5px; font-weight: 700; }
+    .alo-bar-text span { font-size: 11px; opacity: .7; }
+    .alo-bar-arrow { font-size: 18px; opacity: .6; flex-shrink: 0; }
 
     /* Footer */
     .footer {
@@ -366,7 +370,7 @@
     /* ===== FASCIA PAVIMENTO ===== */
     .floor-band {
       width: 100%;
-      height: 60px;
+      height: 72px;
       overflow: hidden;
       position: relative;
       display: block;
@@ -381,7 +385,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,.18) 0%, transparent 100%);
+      background: linear-gradient(to bottom, rgba(0,0,0,.3) 0%, rgba(0,0,0,.08) 60%, transparent 100%);
       pointer-events: none;
     }
   </style>
@@ -468,7 +472,7 @@ function render() {
       '<div class="hero-content">' +
       '<div class="hero-logo-wrap">' +
       '<div class="hero-logo"><img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalò"/></div>' +
-      '<div class="hero-bb">Santalò B&amp;B · Bitonto</div>' +
+      '<div class="hero-bb">Santalò B&amp;B · Bitonto <span style="opacity:.45;margin:0 4px">·</span> <span style="font-weight:300;opacity:.7;letter-spacing:.06em">Digital Guidebook</span></div>' +
       '</div>' +
       '<div class="hero-year">' + camNum + '</div>' +
       '<div class="hero-floor">' + floorLabel + '</div>' +
@@ -488,22 +492,22 @@ function render() {
     heroContent = '<div class="no-cam-banner">' + t({it:'Apri questo link dal messaggio di benvenuto per vedere le istruzioni della tua camera.',en:'Open this link from your welcome message to see your room instructions.',fr:'Ouvrez ce lien depuis votre message de bienvenue.',de:'Öffnen Sie diesen Link aus Ihrer Willkommensnachricht.',es:'Abre este enlace desde tu mensaje de bienvenida.'}) + '</div>';
   }
 
-  // Fascia pavimento cotto — mostrata solo se c'è camera
+  // Fascia pavimento cotto — pattern rombi fedele alla foto
   var floorBand = camNum ? '<div class="floor-band">' +
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 56" preserveAspectRatio="xMidYMid slice">' +
-    '<defs><pattern id="fp" x="0" y="0" width="80" height="56" patternUnits="userSpaceOnUse">' +
-    // Tile: quadrato 80x56 diviso in 8 triangoli (4 coppie)
-    '<polygon points="0,0 40,0 20,28" fill="#5C3820"/>' +
-    '<polygon points="40,0 80,0 60,28" fill="#C9896A"/>' +
-    '<polygon points="80,0 80,56 60,28" fill="#8B6040"/>' +
-    '<polygon points="80,56 40,56 60,28" fill="#A85A35"/>' +
-    '<polygon points="40,56 0,56 20,28" fill="#D4B490"/>' +
-    '<polygon points="0,56 0,0 20,28" fill="#A85A35"/>' +
-    '<polygon points="40,0 80,56 40,56" fill="#5C3820"/>' +
-    '<polygon points="0,56 40,0 40,56" fill="#C9896A"/>' +
-    '</pattern></defs>' +
-    '<rect width="800" height="56" fill="url(#fp)"/>' +
-    '<rect width="800" height="56" fill="linear-gradient(to bottom, rgba(0,0,0,.22) 0%, transparent 70%)" opacity="0.4"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 864 72" preserveAspectRatio="xMidYMid slice">' +
+    '<defs>' +
+    '<pattern id="fp" x="0" y="0" width="108" height="72" patternUnits="userSpaceOnUse">' +
+    // Pattern: 3 rombi per tile orizzontale, 2 righe verticali
+    // Rombo = quadrato ruotato 45°, larghezza 54, altezza 36
+    // Riga 1: terracotta | nero | terracotta
+    '<polygon points="0,36 27,0 54,36 27,72" fill="#2A1A12"/>' +
+    '<polygon points="27,0 54,36 81,0" fill="#C4622A"/>' +
+    '<polygon points="27,72 54,36 81,72" fill="#C4622A"/>' +
+    '<polygon points="54,36 81,0 108,36 81,72" fill="#D9B98A"/>' +
+    '</pattern>' +
+    '</defs>' +
+    '<rect width="864" height="72" fill="#C4622A"/>' +
+    '<rect width="864" height="72" fill="url(#fp)"/>' +
     '</svg>' +
     '</div>' : '';
 
@@ -533,8 +537,8 @@ function render() {
       label:{it:'DINTORNI',en:'SURROUNDINGS',fr:'ENVIRONS',de:'UMGEBUNG',es:'ALREDEDORES'} },
     { id:'regole',     svg:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
       label:{it:'REGOLE',en:'HOUSE RULES',fr:'RÈGLES',de:'REGELN',es:'NORMAS'} },
-    { id:'alo',        svg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
-      label:{it:'ALÒ H24',en:'ALÒ 24/7',fr:'ALÒ H24',de:'ALÒ 24/7',es:'ALÒ 24/7'} },
+    { id:'servizi',    svg:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
+      label:{it:'SERVIZI EXTRA',en:'EXTRA SERVICES',fr:'SERVICES EXTRA',de:'EXTRAS',es:'SERVICIOS EXTRA'} },
   ];
 
   var grid = '<div class="icons-grid">' +
@@ -548,8 +552,19 @@ function render() {
 
   var footer = '<div class="footer"><strong>Santalò Bed &amp; Breakfast</strong><br>Vico Storto Sant\'Eligio 9 · 70032 Bitonto (BA)<br>info@bebsantalo.it</div>';
 
+  var botUrl = 'https://fdp88.github.io/SANTALO/santalo-chat.html?' +
+    new URLSearchParams({nome:guestNome, camera:guestCamera, arrivo:guestArrivo, partenza:guestPartenza});
+  var aloBar = '<a href="' + botUrl + '" target="_blank" class="alo-bar">' +
+    '<div class="alo-bar-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>' +
+    '<div class="alo-bar-text">' +
+    '<strong>Alò — ' + t({it:'Assistente H24',en:'24/7 Assistant',fr:'Assistant H24',de:'24/7-Assistent',es:'Asistente 24/7'}) + '</strong>' +
+    '<span>' + t({it:'Scrivi in qualsiasi lingua · Risponde sempre',en:'Write in any language · Always available',fr:'Écrivez en toutes langues · Toujours disponible',de:'In jeder Sprache · Immer erreichbar',es:'En cualquier idioma · Siempre disponible'}) + '</span>' +
+    '</div>' +
+    '<div class="alo-bar-arrow">→</div>' +
+    '</a>';
+
   document.getElementById('app').innerHTML =
-    heroContent + floorBand + langBar + hint + grid +
+    heroContent + floorBand + langBar + hint + grid + aloBar +
     '<div id="contentPanel" style="display:none"></div>' +
     footer;
 }
@@ -584,6 +599,7 @@ var PANEL_TITLES = {
   dintorni:   {it:'Dintorni & città vicine',en:'Surroundings & nearby towns',fr:'Environs & villes proches',de:'Umgebung & nahe Städte',es:'Alrededores & ciudades cercanas'},
   regole:     {it:'Regole della casa',en:'House rules',fr:'Règles de la maison',de:'Hausregeln',es:'Normas de la casa'},
   alo:        {it:'Assistente Alò',en:'Alò Assistant',fr:'Assistant Alò',de:'Assistent Alò',es:'Asistente Alò'},
+  servizi:    {it:'Servizi extra',en:'Extra services',fr:'Services supplémentaires',de:'Zusatzleistungen',es:'Servicios adicionales'},
 };
 
 var ICONS_SVG = {
@@ -596,6 +612,7 @@ var ICONS_SVG = {
   dintorni:   '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
   regole:     '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
   alo:        '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  servizi:    '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
 };
 
 function svgIcon(id) {
@@ -651,18 +668,18 @@ function buildPanel(id) {
         '<p style="font-size:12.5px;color:var(--muted);margin-top:6px">🍳 ' + t({it:'La cucina è ad uso esclusivo degli ospiti della Camera 1920.',en:'The kitchen is for exclusive use of Room 1920 guests.',fr:'La cuisine est réservée aux hôtes de la Chambre 1920.',de:'Die Küche ist ausschließlich für Zimmer 1920 Gäste.',es:'La cocina es de uso exclusivo de los huéspedes de la Habitación 1920.'}) + '</p>' +
         '<div class="section-sep">' + t({it:'AL CHECK-OUT',en:'AT CHECK-OUT',fr:'AU CHECK-OUT',de:'BEIM CHECK-OUT',es:'AL CHECK-OUT'}) + '</div>' +
         '<p>' + t({it:'Inserisci la chiave, spingi e ruota a <strong>sinistra</strong> per chiudere. Rimetti la chiave nella key box e cambia il codice ruotando i numeri a caso.',en:'Insert the key, push and turn <strong>left</strong> to lock. Put the key back in the key box and scramble the code.',fr:'Insérez la clé, poussez et tournez à <strong>gauche</strong> pour fermer. Replacez la clé et changez le code.',de:'Schlüssel einführen, drücken und nach <strong>links</strong> drehen zum Schließen. Schlüssel zurücklegen und Code ändern.',es:'Inserta la llave, empuja y gira a la <strong>izquierda</strong> para cerrar. Devuelve la llave y cambia el código.'}) + '</p>' +
-        mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', 'Vico Storto Sant\'Eligio 9')
+        mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', 'Santalò B&B — Posizione')
       );
     }
 
     // 1954 o 1956
     var floorLabel = t(CAM_CONFIG[cam] ? CAM_CONFIG[cam].floor : {it:'--'});
     var alertMsg = t({
-      it:'⚠️ Vedi il portone grande con scritto <strong>1920</strong>? NON è QUELLO! Costeggia la struttura — trovi un portoncino piccolo con tastierino elettrico.',
-      en:'⚠️ Do you see the large door with <strong>1920</strong>? That\'s NOT the entrance! Walk along the building — there\'s a small door with a digital keypad.',
-      fr:'⚠️ Vous voyez la grande porte <strong>1920</strong>? Ce n\'est PAS l\'entrée! Longez le bâtiment — il y a une petite porte avec clavier numérique.',
-      de:'⚠️ Siehst du die große Tür mit <strong>1920</strong>? Das ist NICHT der Eingang! Gehe am Gebäude entlang — es gibt eine kleine Tür mit digitalem Tastenfeld.',
-      es:'⚠️ ¿Ves la puerta grande con <strong>1920</strong>? ¡Esa NO es la entrada! Camina por el edificio — hay una puerta pequeña con teclado digital.',
+      it:'⚠️ Vedi il portone grande con scritto <strong>1920</strong>? NON è QUELLO! Costeggia la struttura — trovi un portoncino piccolo con tastierino elettrico. Inserisci il codice di seguito:',
+      en:'⚠️ Do you see the large door with <strong>1920</strong>? That\'s NOT the entrance! Walk along the building — there\'s a small door with a digital keypad. Enter the code below:',
+      fr:'⚠️ Vous voyez la grande porte <strong>1920</strong>? Ce n\'est PAS l\'entrée! Longez le bâtiment — il y a une petite porte avec clavier numérique. Entrez le code ci-dessous:',
+      de:'⚠️ Siehst du die große Tür mit <strong>1920</strong>? Das ist NICHT der Eingang! Gehe am Gebäude entlang — es gibt eine kleine Tür mit digitalem Tastenfeld. Code unten eingeben:',
+      es:'⚠️ ¿Ves la puerta grande con <strong>1920</strong>? ¡Esa NO es la entrada! Camina por el edificio — hay una puerta pequeña con teclado digital. Introduce el código abajo:',
     });
     var s2 = t({
       it:'Sulla <strong>destra</strong>, trovi un contenitore in legno con le chiavi. Prendi quelle con portachiavi <strong>' + cam + '</strong>.',
@@ -686,11 +703,11 @@ function buildPanel(id) {
       es:'🍳 La cocina de la terraza se comparte con la otra habitación.',
     });
     var coOut = t({
-      it:'Chiudi a chiave la camera e riponi la chiave nel contenitore in legno al piano terra.',
-      en:'Lock your room and return the key to the wooden box on the ground floor.',
-      fr:'Verrouillez votre chambre et replacez la clé dans la boîte en bois au rez-de-chaussée.',
-      de:'Zimmer abschließen und Schlüssel in die Holzbox im Erdgeschoss legen.',
-      es:'Cierra tu habitación con llave y devuelve la llave al cajón de madera en la planta baja.',
+      it:'Chiudi a chiave la camera e riponi la chiave nel contenitore in legno al piano terra, esattamente dove l'avevi trovata.',
+      en:'Lock your room and return the key to the wooden box on the ground floor, exactly where you found it.',
+      fr:'Verrouillez votre chambre et replacez la clé dans la boîte en bois au rez-de-chaussée, exactement où vous l'avez trouvée.',
+      de:'Zimmer abschließen und Schlüssel in die Holzbox im Erdgeschoss legen, genau dort wo Sie ihn gefunden haben.',
+      es:'Cierra tu habitación y devuelve la llave al cajón de madera en la planta baja, exactamente donde la encontraste.',
     });
     return panelWrap(id,
       infoBox(t({it:'CAMERA',en:'ROOM',fr:'CHAMBRE',de:'ZIMMER',es:'HABITACIÓN'}), cam + ' — ' + floorLabel) +
@@ -703,7 +720,7 @@ function buildPanel(id) {
       '<p style="font-size:12.5px;color:var(--muted);margin-top:4px">' + kitchenNote + '</p>' +
       '<div class="section-sep">' + t({it:'AL CHECK-OUT',en:'AT CHECK-OUT',fr:'AU CHECK-OUT',de:'BEIM CHECK-OUT',es:'AL CHECK-OUT'}) + '</div>' +
       '<p>' + coOut + '</p>' +
-      mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', 'Vico Storto Sant\'Eligio 9')
+      mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', 'Santalò B&B — Posizione')
     );
   }
 
@@ -725,12 +742,11 @@ function buildPanel(id) {
   if (id === 'parcheggio') {
     return panelWrap(id,
       '<div class="alert-box">⚠️ ' + t({it:'<strong>ZTL</strong> — Il centro storico è zona a traffico limitato. Non è possibile arrivare in auto fino alla struttura.',en:'<strong>ZTL</strong> — The historic centre is a restricted traffic zone. You cannot drive to the property.',fr:'<strong>ZTL</strong> — Le centre historique est une zone à circulation limitée.',de:'<strong>ZTL</strong> — Die Altstadt ist eine Verkehrsberuhigungszone.',es:'<strong>ZTL</strong> — El centro histórico es zona de tráfico limitado.'}) + '</div>' +
-      infoBox('🚶 ' + t({it:'A PIEDI',en:'ON FOOT',fr:'À PIED',de:'ZU FUß',es:'A PIE'}), t({it:'~2 minuti dalla struttura',en:'~2 minutes from the property',fr:'~2 minutes de la structure',de:'~2 Minuten vom Gebäude',es:'~2 minutos de la propiedad'})) +
+      mapLink('https://maps.app.goo.gl/MpDZGwZXi5QtMATk6', t({it:'📍 Parcheggio più vicino — apri Maps',en:'📍 Nearest parking — open Maps',fr:'📍 Parking le plus proche — Maps',de:'📍 Nächster Parkplatz — Maps',es:'📍 Aparcamiento más cercano — Maps'})) +
       '<div class="section-sep">' + t({it:'OPZIONI PARCHEGGIO',en:'PARKING OPTIONS',fr:'OPTIONS DE STATIONNEMENT',de:'PARKOPTIONEN',es:'OPCIONES DE APARCAMIENTO'}) + '</div>' +
-      infoBox('⬜ ' + t({it:'STRISCE BIANCHE — GRATIS',en:'WHITE LINES — FREE',fr:'LIGNES BLANCHES — GRATUIT',de:'WEISSE LINIEN — KOSTENLOS',es:'LÍNEAS BLANCAS — GRATIS'}), t({it:'Lato sinistro della strada, sempre disponibili',en:'Left side of the road, always available',fr:'Côté gauche, toujours disponibles',de:'Linke Straßenseite, immer verfügbar',es:'Lado izquierdo, siempre disponibles'})) +
-      infoBox('🔵 ' + t({it:'STRISCE BLU — A PAGAMENTO',en:'BLUE LINES — PAID',fr:'LIGNES BLEUES — PAYANT',de:'BLAUE LINIEN — KOSTENPFLICHTIG',es:'LÍNEAS AZULES — DE PAGO'}), '9:00–13:00 ' + t({it:'e',en:'and',fr:'et',de:'und',es:'y'}) + ' 17:00–21:00 · ' + t({it:'Parchimetri nelle vicinanze',en:'Meters nearby',fr:'Horodateurs à proximité',de:'Parkautomaten in der Nähe',es:'Parquímetros cercanos'})) +
-      infoBox('🏠 ' + t({it:'GARAGE CUSTODITO',en:'GUARDED GARAGE',fr:'GARAGE GARDÉ',de:'BEWACHTE GARAGE',es:'GARAJE VIGILADO'}), '€15/' + t({it:'giorno · su richiesta e disponibilità',en:'day · on request and availability',fr:'jour · sur demande et disponibilité',de:'Tag · auf Anfrage und Verfügbarkeit',es:'día · bajo petición y disponibilidad'})) +
-      mapLink('https://maps.app.goo.gl/MpDZGwZXi5QtMATk6', t({it:'Parcheggio più vicino — Maps',en:'Nearest parking — Maps',fr:'Parking le plus proche — Maps',de:'Nächster Parkplatz — Maps',es:'Aparcamiento más cercano — Maps'}))
+      infoBox('⬜ ' + t({it:'STRISCE BIANCHE — GRATIS',en:'WHITE LINES — FREE',fr:'LIGNES BLANCHES — GRATUIT',de:'WEISSE LINIEN — KOSTENLOS',es:'LÍNEAS BLANCAS — GRATIS'}), t({it:'Lato sinistro della strada',en:'Left side of the road',fr:'Côté gauche de la rue',de:'Linke Straßenseite',es:'Lado izquierdo de la calle'})) +
+      infoBox('🔵 ' + t({it:'STRISCE BLU — A PAGAMENTO',en:'BLUE LINES — PAID',fr:'LIGNES BLEUES — PAYANT',de:'BLAUE LINIEN — KOSTENPFLICHTIG',es:'LÍNEAS AZULES — DE PAGO'}), '9:00–13:00 ' + t({it:'e',en:'and',fr:'et',de:'und',es:'y'}) + ' 17:00–21:00<br>' + t({it:'Lato destro della strada · Parchimetri nelle vicinanze',en:'Right side of the road · Meters nearby',fr:'Côté droit · Horodateurs à proximité',de:'Rechte Straßenseite · Parkautomaten',es:'Lado derecho · Parquímetros cercanos'})) +
+      infoBox('🏠 ' + t({it:'GARAGE CUSTODITO',en:'GUARDED GARAGE',fr:'GARAGE GARDÉ',de:'BEWACHTE GARAGE',es:'GARAJE VIGILADO'}), '€15/' + t({it:'giorno · su richiesta e disponibilità',en:'day · on request and availability',fr:'jour · sur demande et disponibilité',de:'Tag · auf Anfrage und Verfügbarkeit',es:'día · bajo petición y disponibilidad'}))
     );
   }
 
@@ -739,7 +755,12 @@ function buildPanel(id) {
     return panelWrap(id,
       infoBox('☕ ' + t({it:'DOVE',en:'WHERE',fr:'OÙ',de:'WO',es:'DÓNDE'}), 'Mazzini Place · Via G. Mazzini 11') +
       infoBox('💶 ' + t({it:'COSTO',en:'PRICE',fr:'PRIX',de:'PREIS',es:'PRECIO'}), '5€ / ' + t({it:'persona',en:'person',fr:'personne',de:'Person',es:'persona'})) +
-      '<div class="alert-box">📅 ' + t({it:'<strong>Come prenotare:</strong> comunicaci la sera prima quante colazioni desiderate. Puoi scrivere ad Alò oppure mandare un WhatsApp.',en:'<strong>How to book:</strong> let us know the evening before how many breakfasts you want. Write to Alò or send a WhatsApp.',fr:'<strong>Comment réserver:</strong> prévenez-nous la veille. Écrivez à Alò ou envoyez un WhatsApp.',de:'<strong>Wie buchen:</strong> sagen Sie uns am Abend zuvor Bescheid. Schreiben Sie an Alò oder per WhatsApp.',es:'<strong>Cómo reservar:</strong> avísenos la noche anterior. Escríbale a Alò o mande un WhatsApp.'}) + '</div>' +
+      '<div class="alert-box">📅 ' + t({it:'<strong>Come prenotare:</strong> comunicaci la sera prima quante colazioni desiderate. Manda un WhatsApp a Giuseppe per prenotare.',en:'<strong>How to book:</strong> let us know the evening before how many breakfasts you want. Send a WhatsApp to Giuseppe.',fr:'<strong>Comment réserver:</strong> prévenez-nous la veille par WhatsApp à Giuseppe.',de:'<strong>Wie buchen:</strong> sagen Sie uns am Abend zuvor per WhatsApp an Giuseppe Bescheid.',es:'<strong>Cómo reservar:</strong> avísenos la noche anterior por WhatsApp a Giuseppe.'}) + '</div>' +
+      '<div style="background:var(--sand-ll);border-radius:12px;padding:13px 14px;margin:10px 0;border-left:3px solid var(--cam-primary)">' +
+      '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--cam-primary);margin-bottom:6px">' + t({it:'PAGAMENTO — GIUSEPPE ACQUAFREDDA',en:'PAYMENT — GIUSEPPE ACQUAFREDDA',fr:'PAIEMENT — GIUSEPPE ACQUAFREDDA',de:'ZAHLUNG — GIUSEPPE ACQUAFREDDA',es:'PAGO — GIUSEPPE ACQUAFREDDA'}) + '</div>' +
+      '<div style="font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.03em">IBAN: IT34U0301503200000005863002</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:3px">' + t({it:'Bonifico o copia IBAN',en:'Bank transfer or copy IBAN',fr:'Virement ou copier IBAN',de:'Überweisung oder IBAN kopieren',es:'Transferencia o copiar IBAN'}) + ' <button onclick="navigator.clipboard.writeText(\'IT34U0301503200000005863002\')" style="background:var(--cam-primary);color:#fff;border:none;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;margin-left:4px">' + t({it:'Copia',en:'Copy',fr:'Copier',de:'Kopieren',es:'Copiar'}) + '</button></div>' +
+      '</div>' +
       '<p style="font-size:12.5px;color:var(--muted)">' + t({it:'La colazione viene servita al Mazzini Place, a pochi minuti a piedi dalla struttura.',en:'Breakfast is served at Mazzini Place, a few minutes\' walk from the property.',fr:'Le petit-déjeuner est servi au Mazzini Place, à quelques minutes à pied.',de:'Frühstück wird im Mazzini Place serviert, wenige Gehminuten entfernt.',es:'El desayuno se sirve en Mazzini Place, a pocos minutos a pie.'}) + '</p>' +
       mapLink('https://maps.app.goo.gl/89qrzqKMwbvxjdeP7', 'Mazzini Place · Via G. Mazzini 11')
     );
@@ -767,7 +788,7 @@ function buildPanel(id) {
   // ---- BITONTO ----
   if (id === 'bitonto') {
     var attrazioni = [
-      { nome:'Cattedrale di Bitonto', tipo:{it:'Chiesa · XII secolo',en:'Church · 12th century',fr:'Église · XIIe siècle',de:'Kirche · 12. Jahrhundert',es:'Iglesia · Siglo XII'},
+      { nome:'Cattedrale di Bitonto', maps:'https://maps.app.goo.gl/NkQjvvkEDTHiDCuv6', tipo:{it:'Chiesa · XII secolo',en:'Church · 12th century',fr:'Église · XIIe siècle',de:'Kirche · 12. Jahrhundert',es:'Iglesia · Siglo XII'},
         note:{it:'Romanico pugliese. Non perdere la cripta e il mosaico paleocristiano sotto il pavimento.',en:'Apulian Romanesque. Don\'t miss the crypt and the paleo-Christian mosaic.',fr:'Romane des Pouilles. Ne manquez pas la crypte.',de:'Apulische Romanik. Krypta und frühchristliches Mosaik nicht verpassen.',es:'Románico apulio. No pierdas la cripta y el mosaico paleocristiano.'} },
       { nome:'Torrione Angioino · Piazza Cavour', tipo:{it:'Torre medievale · Galleria d\'arte',en:'Medieval tower · Art gallery',fr:'Tour médiévale · Galerie d\'art',de:'Mittelalterlicher Turm · Kunstgalerie',es:'Torre medieval · Galería de arte'},
         note:{it:'Unico bastione medievale sopravvissuto. Oggi galleria d\'arte. Piazza Cavour è il "salotto" della città.',en:'The only surviving medieval bastion, now an art gallery. Piazza Cavour is the city\'s living room.',fr:'Seul bastion médiéval survivant. Aujourd\'hui galerie d\'art.',de:'Das einzige erhaltene mittelalterliche Bollwerk, heute Kunstgalerie.',es:'Único bastión medieval superviviente, hoy galería de arte.'} },
@@ -782,7 +803,9 @@ function buildPanel(id) {
     ];
     var html = '';
     attrazioni.forEach(function(a) {
-      html += '<div class="list-item"><div class="li-name">' + a.nome + '</div><div class="li-type">' + t(a.tipo) + '</div><div class="li-note">' + t(a.note) + '</div></div>';
+      var mlink = a.maps ? ' <span style="font-size:11px;color:var(--cam-primary)">🗺️</span>' : '';
+      var nameHtml = a.maps ? '<a href="' + a.maps + '" target="_blank" style="color:inherit;text-decoration:none">' + a.nome + mlink + '</a>' : a.nome;
+      html += '<div class="list-item"><div class="li-name">' + nameHtml + '</div><div class="li-type">' + t(a.tipo) + '</div><div class="li-note">' + t(a.note) + '</div></div>';
     });
     html += mapLink('https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8', t({it:'Centro storico — Google Maps',en:'Historic centre — Google Maps',fr:'Centre historique — Google Maps',de:'Altstadt — Google Maps',es:'Centro histórico — Google Maps'}));
     return panelWrap(id, html);
@@ -890,6 +913,39 @@ function buildPanel(id) {
       ' WhatsApp Giuseppe' +
       '</a></div>'
     );
+  }
+
+  // ---- SERVIZI EXTRA ----
+  if (id === 'servizi') {
+    var iban = 'IT34U0301503200000005863002';
+    var servizi_list = [
+      { icon:'🛏️', nome:{it:'Cambio biancheria letto',en:'Bed linen change',fr:'Changement de linge de lit',de:'Bettwäschewechsel',es:'Cambio de ropa de cama'}, prezzo:{it:'€9 a persona',en:'€9 per person',fr:'€9 par personne',de:'€9 pro Person',es:'€9 por persona'}, note:{it:'Su richiesta, disponibile ogni 4 giorni',en:'On request, available every 4 days',fr:'Sur demande, disponible tous les 4 jours',de:'Auf Anfrage, alle 4 Tage möglich',es:'Bajo petición, disponible cada 4 días'} },
+      { icon:'🚿', nome:{it:'Cambio asciugamani',en:'Towel change',fr:'Changement de serviettes',de:'Handtuchwechsel',es:'Cambio de toallas'}, prezzo:{it:'€6 a persona',en:'€6 per person',fr:'€6 par personne',de:'€6 pro Person',es:'€6 por persona'}, note:{it:'Su richiesta in qualsiasi momento',en:'On request at any time',fr:'Sur demande à tout moment',de:'Jederzeit auf Anfrage',es:'Bajo petición en cualquier momento'} },
+      { icon:'🧹', nome:{it:'Pulizia extra camera',en:'Extra room cleaning',fr:'Nettoyage supplémentaire',de:'Zusätzliche Zimmerreinigung',es:'Limpieza extra de habitación'}, prezzo:'€15', note:{it:'Pulizia completa durante il soggiorno',en:'Full cleaning during the stay',fr:'Nettoyage complet pendant le séjour',de:'Vollständige Reinigung während des Aufenthalts',es:'Limpieza completa durante la estancia'} },
+      { icon:'📦', nome:{it:'Deposito bagagli',en:'Luggage storage',fr:'Consigne à bagages',de:'Gepäckaufbewahrung',es:'Consigna de equipaje'}, prezzo:'€5/giorno', note:{it:'Prima del check-in o dopo il check-out',en:'Before check-in or after check-out',fr:'Avant le check-in ou après le check-out',de:'Vor dem Check-in oder nach dem Check-out',es:'Antes del check-in o después del check-out'} },
+      { icon:'🚗', nome:{it:'Servizio NCC / Navetta',en:'Private transfer / Shuttle',fr:'Transfert privé / Navette',de:'Privattransfer / Shuttle',es:'Traslado privado / Lanzadera'}, prezzo:{it:'su preventivo',en:'on quote',fr:'sur devis',de:'auf Anfrage',es:'bajo presupuesto'}, note:{it:'Aeroporto Bari, stazione, destinazioni su richiesta',en:'Bari Airport, train station, destinations on request',fr:'Aéroport de Bari, gare, destinations sur demande',de:'Flughafen Bari, Bahnhof, Ziele auf Anfrage',es:'Aeropuerto de Bari, estación, destinos bajo petición'} },
+      { icon:'🚕', nome:{it:'Taxi convenzionato',en:'Taxi',fr:'Taxi',de:'Taxi',es:'Taxi'}, prezzo:{it:'su richiesta',en:'on request',fr:'sur demande',de:'auf Anfrage',es:'bajo petición'}, note:{it:'346 6153134 · 371 1914565 · H24',en:'346 6153134 · 371 1914565 · 24/7',fr:'346 6153134 · 371 1914565 · H24',de:'346 6153134 · 371 1914565 · 24/7',es:'346 6153134 · 371 1914565 · H24'} },
+      { icon:'👶', nome:{it:'Culla',en:'Baby cot',fr:'Lit bébé',de:'Babybett',es:'Cuna'}, prezzo:{it:'€30 per il soggiorno',en:'€30 for the stay',fr:'€30 pour le séjour',de:'€30 für den Aufenthalt',es:'€30 por la estancia'}, note:{it:'Su richiesta, soggetta a disponibilità',en:'On request, subject to availability',fr:'Sur demande, selon disponibilité',de:'Auf Anfrage, je nach Verfügbarkeit',es:'Bajo petición, sujeto a disponibilidad'} },
+    ];
+    var html = '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">' +
+      t({it:'Richiedi i servizi scrivendo ad Alò o su WhatsApp a Giuseppe.',en:'Request services by writing to Alò or via WhatsApp to Giuseppe.',fr:'Demandez les services en écrivant à Alò ou par WhatsApp à Giuseppe.',de:'Dienste über Alò oder per WhatsApp an Giuseppe anfordern.',es:'Solicita los servicios escribiendo a Alò o por WhatsApp a Giuseppe.'}) + '</p>';
+    servizi_list.forEach(function(s) {
+      var priceStr = typeof s.prezzo === 'object' ? t(s.prezzo) : s.prezzo;
+      html += '<div class="list-item"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
+        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">' + s.icon + '</span><div class="li-name">' + t(s.nome) + '</div></div>' +
+        '<span style="font-size:12px;font-weight:700;color:var(--cam-primary);background:var(--cam-light);padding:3px 10px;border-radius:999px;white-space:nowrap">' + priceStr + '</span>' +
+        '</div><div class="li-note" style="margin-top:3px;padding-left:26px">' + t(s.note) + '</div></div>';
+    });
+    html += '<div class="section-sep">' + t({it:'COME PAGARE',en:'HOW TO PAY',fr:'COMMENT PAYER',de:'WIE BEZAHLEN',es:'CÓMO PAGAR'}) + '</div>';
+    html += '<div style="background:var(--sand-ll);border-radius:12px;padding:13px 14px;margin:8px 0;border-left:3px solid var(--cam-primary)">' +
+      '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--cam-primary);margin-bottom:5px">IBAN — GIUSEPPE ACQUAFREDDA</div>' +
+      '<div style="font-size:12.5px;font-weight:600;color:var(--ink);letter-spacing:.03em">' + iban + '</div>' +
+      '<button onclick="navigator.clipboard.writeText(\'' + iban + '\')" style="background:var(--cam-primary);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;margin-top:7px">' +
+      t({it:'Copia IBAN',en:'Copy IBAN',fr:'Copier IBAN',de:'IBAN kopieren',es:'Copiar IBAN'}) + '</button></div>';
+    html += '<a href="https://wa.me/393336410329" target="_blank" class="wa-btn">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' +
+      ' WhatsApp Giuseppe</a>';
+    return panelWrap(id, html);
   }
 
   return panelWrap(id, '<p>Contenuto in arrivo.</p>');
