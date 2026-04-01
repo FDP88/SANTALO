@@ -309,6 +309,39 @@
     @media (max-width: 900px) { .rooms-grid { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 580px) { .rooms-grid { grid-template-columns: 1fr; } }
 
+
+    /* ===== STORIA ===== */
+    .storia-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 48px;
+    }
+    .storia-card {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 24px; overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .storia-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .storia-year {
+      background: var(--brown-d);
+      color: #fff; padding: 20px 24px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 700; letter-spacing: -.02em;
+      line-height: 1;
+    }
+    .storia-content { padding: 22px 24px; }
+    .storia-card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 600; color: var(--brown-d);
+      margin-bottom: 12px; line-height: 1.2;
+    }
+    .storia-content p {
+      font-size: 13.5px; color: var(--muted); line-height: 1.8;
+    }
+    .storia-content p em { color: var(--brown); font-style: italic; font-weight: 500; }
+    @media (max-width: 900px) { .storia-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 580px) { .storia-grid { grid-template-columns: 1fr; } }
+
     /* ===== RECENSIONI ===== */
     .reviews-section {
       background: linear-gradient(160deg, var(--brown-d) 0%, #5C2015 100%);
@@ -531,23 +564,13 @@
   </div>
   <div class="hero-right">
     <div class="hero-img-card">
-      <!-- FOTO PRINCIPALE: sostituisci con <img src="foto-principale.jpg" alt="Santalò B&B"> -->
-      <div class="img-placeholder">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-        <span data-i18n="ph.hero1">Foto principale B&B</span>
-      </div>
+      <img src="foto/esterno-palazzo.jpg" alt="Santalò B&B — palazzo del 1928, centro storico di Bitonto" loading="eager" style="object-position:center top"/>
     </div>
     <div class="hero-img-card">
-      <!-- FOTO 2: camera o vicolo -->
-      <div class="img-placeholder">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      </div>
+      <img src="foto/terrazza-tramonto.jpg" alt="Terrazza panoramica Santalò B&B — tramonto" loading="lazy" style="object-position:center top"/>
     </div>
     <div class="hero-img-card">
-      <!-- FOTO 3: dettaglio o esterno -->
-      <div class="img-placeholder">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      </div>
+      <img src="foto/camera-1954-b.jpg" alt="Camera 1954 — Santalò B&B" loading="lazy" style="object-position:center"/>
     </div>
   </div>
 </div>
@@ -612,12 +635,46 @@
       </div>
     </div>
     <div class="about-img">
-      <!-- FOTO VICOLO: <img src="foto-vicolo.jpg" alt="Vico Storto Sant'Eligio"> -->
-      <div class="img-placeholder">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-        <span data-i18n="ph.about">Foto del vicolo o della struttura</span>
+      <img src="foto/esterno-palazzo.jpg" alt="Santalò B&B — palazzo storico del 1928 nel centro medievale di Bitonto" loading="lazy" style="object-position:center top"/>
+    </div>
+  </div>
+</div>
+
+
+<!-- STORIA -->
+<div class="section-wrap" id="storia" style="padding-top:0;padding-bottom:80px">
+  <hr style="border:none;border-top:1px solid var(--line);margin-bottom:80px">
+  <div class="section-label" data-i18n="storia.label">La nostra storia</div>
+  <h2 class="section-title" data-i18n-html="storia.title">Santalò:<br>una <em>storia</em> in tre atti</h2>
+  <div class="storia-grid">
+
+    <div class="storia-card">
+      <div class="storia-year">1928</div>
+      <div class="storia-img" style="height:200px;overflow:hidden"><img src="foto/esterno-palazzo.jpg" alt="Palazzo Santalò — 1928" style="width:100%;height:100%;object-fit:cover;object-position:top center"/></div>
+      <div class="storia-content">
+        <h3 class="storia-card-title" data-i18n="storia.1.title">Il palazzo</h3>
+        <p data-i18n="storia.1.text">L'anno è visibile ancora oggi sulla facciata principale. È il momento in cui questo palazzo prende forma nel quartiere più antico di Bitonto, in quello che i bitontini chiamavano <em>«dreit a Sandalou»</em> — proprio qui, accanto all'ex chiesa di Sant'Eligio. Un palazzo borghese, solido, con i pavimenti in cotto che ancora oggi scricchiolano sotto i piedi come allora.</p>
       </div>
     </div>
+
+    <div class="storia-card">
+      <div class="storia-year">1954 · 1956</div>
+      <div class="storia-img" style="height:200px;overflow:hidden"><img src="foto/bozzetto-512.jpg" alt="Bozzetto anni '50 — n. 512" style="width:100%;height:100%;object-fit:cover;object-position:top"/></div>
+      <div class="storia-content">
+        <h3 class="storia-card-title" data-i18n="storia.2.title">Il sarto e i bozzetti di Parigi</h3>
+        <p data-i18n="storia.2.text">Il primo proprietario era un sarto. Riceveva bozzetti di moda — quelli che trovi oggi incorniciati nelle camere, recuperati e restaurati da URSI Galleria — e cuciva i prototipi. Li spediva a Parigi. È da questi bozzetti, datati 1954 e 1956, che le nostre camere prendono il nome. Una storia di artigianato, eleganza e scambio tra la Puglia e la capitale della moda.</p>
+      </div>
+    </div>
+
+    <div class="storia-card">
+      <div class="storia-year">Santalò</div>
+      <div class="storia-img" style="height:200px;overflow:hidden"><img src="foto/bozzetto-rosa.jpg" alt="Bozzetto anni '50 — cappotto rosa" style="width:100%;height:100%;object-fit:cover;object-position:top"/></div>
+      <div class="storia-content">
+        <h3 class="storia-card-title" data-i18n="storia.3.title">Il nome: Sant'Eligio, Alò, Sandalou</h3>
+        <p data-i18n="storia.3.text">In dialetto bitontino si diceva <em>«dreit a Sandalou»</em> per indicare questo luogo. Sandalou è la storpiatura dialettale di <em>Sant'Alò</em> — cioè Sant'Eligio, il cui nome in francese medievale era <em>Alò</em>. Qui sorgeva la chiesa di Sant'Eligio, consacrata nel 1299 e oggi inglobata nel palazzo. Il santo francese dell'oreficeria, dei cavalli e dei fabbri — venerato a Bitonto dal XIII al XVII secolo — è ancora qui, nel nome del vicolo e nel nome del B&B.</p>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -657,11 +714,7 @@
     <div class="room-card" data-cam="1954">
       <div class="room-img">
         <div class="room-year-badge">1954</div>
-        <!-- <img src="foto-1954.jpg" alt="Camera 1954"> -->
-        <div class="img-placeholder">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span style="font-size:11px" data-i18n="ph.1954">Foto Camera 1954</span>
-        </div>
+        <img src="foto/camera-1954-b.jpg" alt="Camera 1954 — pavimento in cotto e bozzetti di moda" loading="lazy" style="object-position:center"/>
       </div>
       <div class="room-body">
         <div class="room-floor" data-i18n="room.1954.floor">1° piano · Codice 43757</div>
@@ -677,11 +730,7 @@
     <div class="room-card" data-cam="1956">
       <div class="room-img">
         <div class="room-year-badge">1956</div>
-        <!-- <img src="foto-1956.jpg" alt="Camera 1956"> -->
-        <div class="img-placeholder">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span style="font-size:11px" data-i18n="ph.1956">Foto Camera 1956</span>
-        </div>
+        <img src="foto/camera-1956-c.jpg" alt="Camera 1956 — bozzetti di moda e pavimento in cotto" loading="lazy" style="object-position:center"/>
       </div>
       <div class="room-body">
         <div class="room-floor" data-i18n="room.1956.floor">2° piano · Codice 43757</div>
@@ -761,13 +810,13 @@
 <!-- GALLERY -->
 <div class="section-wrap" id="gallery" style="padding-bottom:48px">
   <div class="section-label" data-i18n="gallery.label">Gallery</div>
-  <h2 class="section-title" data-i18n-html="gallery.title">Immagini<br>della <em>struttura</em></h2>
+  <h2 class="section-title" data-i18n-html="gallery.title">I bozzetti<br>del <em>sarto</em></h2>
   <div class="gallery-grid">
-    <div class="gallery-item"><div class="img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span style="font-size:11px;color:var(--muted)" data-i18n="ph.g1">Foto principale</span></div></div>
-    <div class="gallery-item"><div class="img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
-    <div class="gallery-item"><div class="img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
-    <div class="gallery-item"><div class="img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
-    <div class="gallery-item"><div class="img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div></div>
+    <div class="gallery-item"><img src="foto/bozzetto-14930.jpg" alt="Bozzetto moda anni '50 — n. 14930/14931" loading="lazy" style="object-position:top"/></div>
+    <div class="gallery-item"><img src="foto/bozzetto-664.jpg" alt="Bozzetto moda anni '50 — n. 664" loading="lazy" style="object-position:top"/></div>
+    <div class="gallery-item"><img src="foto/bozzetto-rosa.jpg" alt="Bozzetto moda anni '50" loading="lazy" style="object-position:top"/></div>
+    <div class="gallery-item"><img src="foto/bozzetto-H784.jpg" alt="Bozzetto moda anni '50 — n. H784" loading="lazy" style="object-position:top"/></div>
+    <div class="gallery-item"><img src="foto/bozzetto-667.jpg" alt="Bozzetto moda anni '50 — n. 667" loading="lazy" style="object-position:top"/></div>
   </div>
 </div>
 
@@ -861,26 +910,26 @@ var T = {
     'nav.rooms':'Camere','nav.location':'Dove siamo','nav.gallery':'Gallery','nav.contact':'Contatti','nav.book':'Prenota ora',
     'hero.eyebrow':'Bitonto · Puglia · Centro storico',
     'hero.title':'San<em>talò</em><br>Bed &amp; Breakfast',
-    'hero.sub':'Nel cuore del centro storico di Bitonto, a 20 minuti da Bari. Tre camere indipendenti con accesso autonomo, in un vicolo medievale unico.',
+    'hero.sub':'Nel cuore del centro storico di Bitonto, a due passi dalla Cattedrale romanica e dal Torrione angioino. Tre camere indipendenti in un palazzo di fine Ottocento restaurato, a 20 minuti da Bari.',
     'hero.cta1':'Prenota su WhatsApp','hero.cta2':'Scopri le camere',
     'stat.rooms':'camere indipendenti','stat.bari':'da Bari e aeroporto','stat.checkin':'accesso autonomo',
     'about.label':'Il nostro B&B',
     'about.title':'Un angolo <em>autentico</em><br>nel centro medievale',
     'about.sub':'Santalò è un B&B ricavato in un palazzo storico nel cuore del centro antico di Bitonto, la città dell\'olio DOP pugliese.',
-    'about.p1':'Tre camere indipendenti su piani diversi, ognuna con accesso autonomo tramite codice o key box. Nessun orario di reception, massima libertà.',
-    'about.p2':'A pochi passi dalla Cattedrale romanica del XII secolo, da piazza Cavour e dai migliori ristoranti della città. A 20 minuti da Bari e dal mare.',
+    'about.p1':'Un palazzo di fine Ottocento restituito al suo splendore originale: pavimenti in cotto restaurati, infissi in legno originali, bagni ampi e luminosi. Tre camere indipendenti su piani diversi, arredate con semplicità ed eleganza, ognuna con accesso autonomo tramite codice o key box.',
+    'about.p2':'Siamo nel quartiere più tranquillo e silenzioso del centro storico, affacciati sulla bellissima Chiesa di San Michele. A poche centinaia di metri dalla Cattedrale romanica pugliese — considerata la più matura espressione del romanico della regione — e dal Torrione angioino. E a disposizione c'è la terrazza panoramica condivisa: il posto giusto per un caffè al tramonto, tra i caratteristici tetti a spiovente di Bitonto.',
     'feat.access.title':'Accesso autonomo H24','feat.access.sub':'Check-in dalle 15:00 con codice personale',
     'feat.location.title':'Posizione unica','feat.location.sub':'Vico Storto Sant\'Eligio 9, centro storico medievale',
     'feat.alo.title':'Assistente Alò H24','feat.alo.sub':'Supporto in 5 lingue, sempre disponibile',
     'feat.sea.title':'Vicino al mare','feat.sea.sub':'Giovinazzo e Santo Spirito a 10-15 minuti',
     'rooms.label':'Le camere','rooms.title':'Tre camere,<br>tre <em>storie</em>',
     'rooms.sub':'Ognuna porta il nome dell\'anno in cui è stato costruito il palazzo.',
-    'room.1920.floor':'Piano terra · Accesso con key box',
-    'room.1920.desc':'Camera al piano terra con cucina privata ad uso esclusivo. Accesso con key box sul portone principale.',
+    'room.1920.floor':'Piano terra · Costruito nel 1928',
+    'room.1920.desc':'Al piano terra del palazzo originale del 1928. Cucina privata ad uso esclusivo, pavimento in cotto restaurato, accesso con key box sul portone principale.',
     'room.1954.floor':'1° piano · Tastierino digitale',
-    'room.1954.desc':'Camera al primo piano con cucina condivisa sulla terrazza panoramica. Accesso con tastierino digitale.',
+    'room.1954.desc':'Al primo piano, prende il nome dai bozzetti di moda del 1954 ritrovati nel palazzo — i prototipi del sarto che li inviava a Parigi. Cucina condivisa sulla terrazza panoramica.',
     'room.1956.floor':'2° piano · Tastierino digitale',
-    'room.1956.desc':'Camera al secondo piano con vista sui tetti del centro storico. Cucina condivisa sulla terrazza panoramica.',
+    'room.1956.desc':'Al secondo piano, prende il nome dai bozzetti del 1956 della stessa collezione. Vista sui tetti del centro storico e cucina condivisa sulla terrazza panoramica.',
     'tag.kitchen':'Cucina privata','tag.ac':'Aria condizionata','tag.wifi':'WiFi','tag.terrace':'Terrazza','tag.view':'Vista centro storico',
     'rev.label':'Cosa dicono di noi',
     'rev.title':'Le parole<br>dei nostri <em>ospiti</em>',
@@ -890,7 +939,7 @@ var T = {
     'rev.2.name':'Sophie L.',
     'rev.3.text':'"Il vicolo medievale è magico. Silenzio assoluto la notte, a 5 minuti a piedi da tutto. Assistente Alò utilissimo."',
     'rev.3.name':'Andreas K.',
-    'gallery.label':'Gallery','gallery.title':'Immagini<br>della <em>struttura</em>',
+    'gallery.label':'I bozzetti del sarto','gallery.title':'I bozzetti<br>del <em>sarto</em>',
     'loc.label':'Dove siamo','loc.title':'Nel cuore<br>di <em>Bitonto</em>',
     'loc.sub':'Centro storico medievale, a 20 minuti da Bari e dall\'aeroporto, vicino a Castel del Monte, Polignano e Alberobello.',
     'loc.address.title':'Indirizzo','loc.airport.title':'Aeroporto di Bari','loc.airport.sub':'20 minuti in auto',
@@ -900,6 +949,14 @@ var T = {
     'cta.label':'Prenota il tuo soggiorno','cta.title':'Pronto ad esplorare<br>la <em>Puglia</em>?',
     'cta.sub':'Scrivici su WhatsApp per disponibilità e prezzi. Risposta garantita entro poche ore.',
     'cta.btn1':'Scrivici su WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'storia.label':'La nostra storia',
+    'storia.title':'Santalò:<br>una <em>storia</em> in tre atti',
+    'storia.1.title':'Il palazzo',
+    'storia.1.text':'L'anno è visibile ancora oggi sulla facciata principale. È il momento in cui questo palazzo prende forma nel quartiere più antico di Bitonto, in quello che i bitontini chiamavano «dreit a Sandalou» — proprio qui, accanto all'ex chiesa di Sant'Eligio. Un palazzo borghese, solido, con i pavimenti in cotto che ancora oggi scricchiolano sotto i piedi come allora.',
+    'storia.2.title':'Il sarto e i bozzetti di Parigi',
+    'storia.2.text':'Il primo proprietario era un sarto. Riceveva bozzetti di moda — quelli che trovi oggi incorniciati nelle camere, recuperati e restaurati da URSI Galleria — e cuciva i prototipi. Li spediva a Parigi. È da questi bozzetti, datati 1954 e 1956, che le nostre camere prendono il nome.',
+    'storia.3.title':'Il nome: Sant'Eligio, Alò, Sandalou',
+    'storia.3.text':'In dialetto bitontino si diceva «dreit a Sandalou» per indicare questo luogo. Sandalou è la storpiatura dialettale di Sant'Alò — cioè Sant'Eligio, il cui nome in francese medievale era Alò. Qui sorgeva la chiesa di Sant'Eligio, consacrata nel 1299. Il santo dell'oreficeria e dei fabbri — venerato a Bitonto dal XIII al XVII secolo — è ancora qui, nel nome del vicolo e nel nome del B&B.',
     'wa.float':'Prenota su WhatsApp',
     'ph.hero1':'Foto principale B&B','ph.about':'Foto del vicolo o della struttura',
     'ph.1920':'Foto Camera 1920','ph.1954':'Foto Camera 1954','ph.1956':'Foto Camera 1956','ph.g1':'Foto principale',
@@ -914,20 +971,20 @@ var T = {
     'stat.rooms':'independent rooms','stat.bari':'from Bari & airport','stat.checkin':'self check-in',
     'about.label':'Our B&B','about.title':'An <em>authentic</em> corner<br>in the medieval centre',
     'about.sub':'Santalò is a B&B inside a historic building in the heart of Bitonto, the DOP olive oil capital of Puglia.',
-    'about.p1':'Three independent rooms on different floors, each with autonomous access via code or key box. No reception hours — total freedom.',
-    'about.p2':'Steps from the 12th-century Romanesque Cathedral, Piazza Cavour and the best restaurants. 20 minutes from Bari and the sea.',
+    'about.p1':'A late-19th century palazzo restored to its original splendour: restored terracotta floors, original wooden fixtures, spacious and bright bathrooms. Three independent rooms on different floors, furnished with understated elegance, each with autonomous access via code or key box.',
+    'about.p2':'We're in the quietest corner of the historic centre, overlooking the beautiful Church of San Michele. Steps from the Romanesque Cathedral — considered the finest expression of Apulian Romanesque — and the Angevin Tower. And there's a shared panoramic terrace: the perfect spot for a sunset coffee among Bitonto's characteristic sloping rooftops.',
     'feat.access.title':'Self check-in 24/7','feat.access.sub':'Check-in from 3:00 PM with personal code',
     'feat.location.title':'Unique location','feat.location.sub':'Vico Storto Sant\'Eligio 9, medieval historic centre',
     'feat.alo.title':'Alò Assistant 24/7','feat.alo.sub':'Support in 5 languages, always available',
     'feat.sea.title':'Near the sea','feat.sea.sub':'Giovinazzo and Santo Spirito 10-15 minutes away',
     'rooms.label':'The rooms','rooms.title':'Three rooms,<br>three <em>stories</em>',
     'rooms.sub':'Each room is named after the year the building was constructed.',
-    'room.1920.floor':'Ground floor · Key box access',
-    'room.1920.desc':'Ground floor room with private kitchen for exclusive use. Access via key box on the main door.',
+    'room.1920.floor':'Ground floor · Built in 1928',
+    'room.1920.desc':'On the ground floor of the original 1928 building. Private kitchen for exclusive use, restored terracotta floor, key box access on the main door.',
     'room.1954.floor':'1st floor · Digital keypad',
-    'room.1954.desc':'First floor room with shared kitchen on the panoramic rooftop terrace. Digital keypad access.',
+    'room.1954.desc':'On the first floor, named after the 1954 fashion sketches found in the building — prototypes made by the tailor who sent them to Paris. Shared kitchen on the panoramic rooftop terrace.',
     'room.1956.floor':'2nd floor · Digital keypad',
-    'room.1956.desc':'Second floor room with views over the rooftops of the historic centre. Shared kitchen on the panoramic terrace.',
+    'room.1956.desc':'On the second floor, named after the 1956 sketches from the same collection. Views over the historic centre rooftops and shared kitchen on the panoramic terrace.',
     'tag.kitchen':'Private kitchen','tag.ac':'Air conditioning','tag.wifi':'WiFi','tag.terrace':'Terrace','tag.view':'Historic centre view',
     'rev.label':'What our guests say','rev.title':'Words from<br>our <em>guests</em>',
     'rev.1.text':'"Perfect location in the historic centre. Clean room, self check-in was super convenient. We\'ll definitely be back."',
@@ -936,7 +993,7 @@ var T = {
     'rev.2.name':'Sophie L.',
     'rev.3.text':'"The medieval alley is magical. Absolute silence at night, 5 minutes on foot from everything. Alò assistant was very useful."',
     'rev.3.name':'Andreas K.',
-    'gallery.label':'Gallery','gallery.title':'Photos of<br>the <em>property</em>',
+    'gallery.label':'I bozzetti del sarto','gallery.title':'The tailor\'s<br><em>sketches</em>',
     'loc.label':'Location','loc.title':'In the heart<br>of <em>Bitonto</em>',
     'loc.sub':'Medieval historic centre, 20 minutes from Bari and the airport, close to Castel del Monte, Polignano and Alberobello.',
     'loc.address.title':'Address','loc.airport.title':'Bari Airport','loc.airport.sub':'20 minutes by car',
@@ -946,6 +1003,14 @@ var T = {
     'cta.label':'Book your stay','cta.title':'Ready to explore<br><em>Puglia</em>?',
     'cta.sub':'Write to us on WhatsApp for availability and prices. Reply guaranteed within a few hours.',
     'cta.btn1':'Write on WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'storia.label':'Our story',
+    'storia.title':'Santalò:<br>a story in <em>three acts</em>',
+    'storia.1.title':'The building',
+    'storia.1.text':'The year 1928 is still visible on the main façade. This is when the palazzo took shape in the oldest quarter of Bitonto, in the spot the locals called «dreit a Sandalou» — right here, next to the former church of Sant'Eligio. A solid bourgeois building, with terracotta floors that still creak underfoot just as they did then.',
+    'storia.2.title':'The tailor and the Paris sketches',
+    'storia.2.text':'The first owner was a tailor. He received fashion sketches — the ones you'll find framed in the rooms today, recovered and restored by URSI Galleria — and sewed the prototypes. He sent them to Paris. It is from these sketches, dated 1954 and 1956, that our rooms take their names.',
+    'storia.3.title':'The name: Saint Eligius, Alò, Sandalou',
+    'storia.3.text':'In the Bitonto dialect, locals said «dreit a Sandalou» to indicate this place. Sandalou is the dialectal corruption of Sant'Alò — that is, Saint Eligius, whose name in medieval French was Alò. The church of Sant'Eligio once stood here, consecrated in 1299. The patron saint of goldsmiths and blacksmiths — venerated in Bitonto from the 13th to the 17th century — lives on in the name of the alley and the name of the B&B.',
     'wa.float':'Book on WhatsApp',
     'ph.hero1':'Main B&B photo','ph.about':'Photo of alley or building',
     'ph.1920':'Photo Room 1920','ph.1954':'Photo Room 1954','ph.1956':'Photo Room 1956','ph.g1':'Main photo',
@@ -955,31 +1020,31 @@ var T = {
     'nav.rooms':'Chambres','nav.location':'Où nous sommes','nav.gallery':'Galerie','nav.contact':'Contact','nav.book':'Réserver',
     'hero.eyebrow':'Bitonto · Pouilles · Centre historique',
     'hero.title':'San<em>talò</em><br>Bed &amp; Breakfast',
-    'hero.sub':'Au cœur du centre historique de Bitonto, à 20 minutes de Bari. Trois chambres indépendantes avec accès autonome, dans une ruelle médiévale unique.',
+    'hero.sub':'Au cœur du centre historique de Bitonto, à deux pas de la Cathédrale romane et du Torrione angevin. Trois chambres indépendantes dans un palazzo restauré de la fin du XIXe siècle, à 20 minutes de Bari.',
     'hero.cta1':'Réserver sur WhatsApp','hero.cta2':'Découvrir les chambres',
     'stat.rooms':'chambres indépendantes','stat.bari':'de Bari et aéroport','stat.checkin':'accès autonome',
     'about.label':'Notre B&B','about.title':'Un coin <em>authentique</em><br>dans le centre médiéval',
     'about.sub':'Santalò est un B&B aménagé dans un bâtiment historique au cœur de Bitonto, la capitale de l\'huile DOP des Pouilles.',
-    'about.p1':'Trois chambres indépendantes à différents étages, chacune avec accès autonome par code ou boîte à clé. Pas d\'horaires de réception — liberté totale.',
-    'about.p2':'À quelques pas de la Cathédrale romane du XIIe siècle, de la Piazza Cavour et des meilleurs restaurants. À 20 minutes de Bari et de la mer.',
+    'about.p1':'Un palazzo de la fin du XIXe siècle rendu à sa splendeur originelle : carrelages en terre cuite restaurés, menuiseries en bois d\'origine, salles de bains spacieuses et lumineuses. Trois chambres indépendantes à différents étages, meublées avec sobriété et élégance.',
+    'about.p2':'Nous sommes dans le quartier le plus calme et silencieux du centre historique, donnant sur la belle Église de San Michele. À quelques centaines de mètres de la Cathédrale romane — considérée comme la plus belle expression du roman des Pouilles — et du Torrione angevin. Et une terrasse panoramique partagée vous attend : l'endroit idéal pour un café au coucher du soleil.',
     'feat.access.title':'Accès autonome H24','feat.access.sub':'Check-in à partir de 15h00 avec code personnel',
     'feat.location.title':'Emplacement unique','feat.location.sub':'Vico Storto Sant\'Eligio 9, centre historique médiéval',
     'feat.alo.title':'Assistant Alò H24','feat.alo.sub':'Assistance en 5 langues, toujours disponible',
     'feat.sea.title':'Près de la mer','feat.sea.sub':'Giovinazzo et Santo Spirito à 10-15 minutes',
     'rooms.label':'Les chambres','rooms.title':'Trois chambres,<br>trois <em>histoires</em>',
     'rooms.sub':'Chaque chambre porte le nom de l\'année de construction du bâtiment.',
-    'room.1920.floor':'Rez-de-chaussée · Boîte à clé',
-    'room.1920.desc':'Chambre au rez-de-chaussée avec cuisine privée à usage exclusif. Accès par boîte à clé sur la porte principale.',
+    'room.1920.floor':'Rez-de-chaussée · Construit en 1928',
+    'room.1920.desc':'Au rez-de-chaussée du bâtiment original de 1928. Cuisine privée à usage exclusif, carrelage en terre cuite restauré, accès par boîte à clé.',
     'room.1954.floor':'1er étage · Clavier numérique',
-    'room.1954.desc':'Chambre au premier étage avec cuisine partagée sur la terrasse panoramique. Accès par clavier numérique.',
+    'room.1954.desc':'Au premier étage, nommée d'après les croquis de mode de 1954 retrouvés dans le bâtiment — des prototypes du tailleur envoyés à Paris. Cuisine partagée sur la terrasse panoramique.',
     'room.1956.floor':'2ème étage · Clavier numérique',
-    'room.1956.desc':'Chambre au deuxième étage avec vue sur les toits du centre historique. Cuisine partagée sur la terrasse.',
+    'room.1956.desc':'Au deuxième étage, nommée d'après les croquis de 1956 de la même collection. Vue sur les toits du centre historique et cuisine partagée sur la terrasse panoramique.',
     'tag.kitchen':'Cuisine privée','tag.ac':'Climatisation','tag.wifi':'WiFi','tag.terrace':'Terrasse','tag.view':'Vue centre historique',
     'rev.label':'Ce que disent nos hôtes','rev.title':'Les mots<br>de nos <em>hôtes</em>',
     'rev.1.text':'"Emplacement parfait dans le centre historique. Chambre propre, accès autonome très pratique. Nous reviendrons."','rev.1.name':'Marco R.',
     'rev.2.text':'"Très belle structure, très caractéristique. Le carrelage en terre cuite est magnifique. Giuseppe a été très aimable."','rev.2.name':'Sophie L.',
     'rev.3.text':'"La ruelle médiévale est magique. Silence absolu la nuit, à 5 minutes à pied de tout. L\'assistant Alò très utile."','rev.3.name':'Andreas K.',
-    'gallery.label':'Galerie','gallery.title':'Photos de<br>la <em>structure</em>',
+    'gallery.label':'Galerie','gallery.title':'Les croquis<br>du <em>tailleur</em>',
     'loc.label':'Où nous sommes','loc.title':'Au cœur<br>de <em>Bitonto</em>',
     'loc.sub':'Centre historique médiéval, à 20 minutes de Bari et de l\'aéroport, près de Castel del Monte, Polignano et Alberobello.',
     'loc.address.title':'Adresse','loc.airport.title':'Aéroport de Bari','loc.airport.sub':'20 minutes en voiture',
@@ -989,6 +1054,14 @@ var T = {
     'cta.label':'Réservez votre séjour','cta.title':'Prêt à explorer<br>les <em>Pouilles</em> ?',
     'cta.sub':'Écrivez-nous sur WhatsApp pour disponibilités et tarifs. Réponse garantie en quelques heures.',
     'cta.btn1':'Écrire sur WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'storia.label':'Notre histoire',
+    'storia.title':'Santalò :<br>une histoire en <em>trois actes</em>',
+    'storia.1.title':'Le bâtiment',
+    'storia.1.text':'L'année 1928 est encore visible sur la façade principale. C'est à ce moment que le palazzo a pris forme dans le quartier le plus ancien de Bitonto, à l'endroit que les habitants appelaient «dreit a Sandalou» — ici même, à côté de l'ancienne église de Sant'Eligio. Un bâtiment bourgeois solide, avec des carrelages en terre cuite qui craquent encore sous les pieds comme autrefois.',
+    'storia.2.title':'Le tailleur et les croquis de Paris',
+    'storia.2.text':'Le premier propriétaire était tailleur. Il recevait des croquis de mode — ceux que vous trouverez encadrés dans les chambres, récupérés et restaurés par URSI Galleria — et cousait les prototypes. Il les envoyait à Paris. C'est de ces croquis, datés 1954 et 1956, que nos chambres tirent leur nom.',
+    'storia.3.title':'Le nom : Saint Éloi, Alò, Sandalou',
+    'storia.3.text':'En dialecte bitontino, on disait «dreit a Sandalou» pour désigner cet endroit. Sandalou est la déformation dialectale de Sant'Alò — c'est-à-dire Saint Éloi, dont le nom en français médiéval était Alò. L'église de Sant'Eligio se trouvait ici, consacrée en 1299. Le saint des orfèvres et des forgerons — vénéré à Bitonto du XIIIe au XVIIe siècle — est encore présent dans le nom de la ruelle et du B&B.',
     'wa.float':'Réserver sur WhatsApp',
     'ph.hero1':'Photo principale B&B','ph.about':'Photo de la ruelle',
     'ph.1920':'Photo Chambre 1920','ph.1954':'Photo Chambre 1954','ph.1956':'Photo Chambre 1956','ph.g1':'Photo principale',
@@ -998,31 +1071,31 @@ var T = {
     'nav.rooms':'Zimmer','nav.location':'Lage','nav.gallery':'Galerie','nav.contact':'Kontakt','nav.book':'Jetzt buchen',
     'hero.eyebrow':'Bitonto · Apulien · Altstadt',
     'hero.title':'San<em>talò</em><br>Bed &amp; Breakfast',
-    'hero.sub':'Im Herzen der Altstadt von Bitonto, 20 Minuten von Bari. Drei unabhängige Zimmer mit Selbst-Check-in in einer einzigartigen mittelalterlichen Gasse.',
+    'hero.sub':'Im Herzen der Altstadt von Bitonto, wenige Schritte vom romanischen Dom und dem Angevinischen Turm. Drei unabhängige Zimmer in einem restaurierten Palazzo des späten 19. Jahrhunderts, 20 Minuten von Bari.',
     'hero.cta1':'Auf WhatsApp buchen','hero.cta2':'Zimmer entdecken',
     'stat.rooms':'unabhängige Zimmer','stat.bari':'von Bari & Flughafen','stat.checkin':'Selbst-Check-in',
     'about.label':'Unser B&B','about.title':'Ein <em>authentischer</em> Ort<br>im mittelalterlichen Zentrum',
     'about.sub':'Santalò ist ein B&B in einem historischen Gebäude im Herzen von Bitonto, der DOP-Olivenöl-Hauptstadt Apuliens.',
-    'about.p1':'Drei unabhängige Zimmer auf verschiedenen Etagen, jedes mit autonomem Zugang per Code oder Schlüsselbox. Keine Rezeptionszeiten — maximale Freiheit.',
-    'about.p2':'Nur wenige Schritte vom romanischen Dom aus dem 12. Jahrhundert, vom Piazza Cavour und den besten Restaurants. 20 Minuten von Bari und dem Meer.',
+    'about.p1':'Ein Palazzo des späten 19. Jahrhunderts in seiner ursprünglichen Pracht wiederhergestellt: restaurierte Terrakottaböden, originale Holzrahmen, geräumige und helle Badezimmer. Drei unabhängige Zimmer auf verschiedenen Etagen, schlicht und elegant eingerichtet, jedes mit autonomem Zugang per Code oder Schlüsselbox.',
+    'about.p2':'Wir befinden uns im ruhigsten Viertel der Altstadt, mit Blick auf die wunderschöne Kirche San Michele. Nur wenige Hundert Meter vom romanischen Dom — als feinster Ausdruck der apulischen Romanik gilt — und dem Angevinischen Turm. Und eine gemeinsame Panoramaterrasse erwartet Sie: der perfekte Ort für einen Kaffee bei Sonnenuntergang.',
     'feat.access.title':'Selbst-Check-in 24/7','feat.access.sub':'Check-in ab 15:00 Uhr mit persönlichem Code',
     'feat.location.title':'Einzigartige Lage','feat.location.sub':'Vico Storto Sant\'Eligio 9, mittelalterliche Altstadt',
     'feat.alo.title':'Assistent Alò 24/7','feat.alo.sub':'Unterstützung in 5 Sprachen, immer verfügbar',
     'feat.sea.title':'In Meeresnähe','feat.sea.sub':'Giovinazzo und Santo Spirito 10-15 Minuten entfernt',
     'rooms.label':'Die Zimmer','rooms.title':'Drei Zimmer,<br>drei <em>Geschichten</em>',
     'rooms.sub':'Jedes Zimmer trägt den Namen des Baujahres des Gebäudes.',
-    'room.1920.floor':'Erdgeschoss · Schlüsselbox',
-    'room.1920.desc':'Erdgeschoss-Zimmer mit privater Küche zur alleinigen Nutzung. Zugang über Schlüsselbox an der Haupttür.',
+    'room.1920.floor':'Erdgeschoss · Erbaut 1928',
+    'room.1920.desc':'Im Erdgeschoss des Originalgebäudes von 1928. Private Küche, restaurierter Terrakottaboden, Schlüsselbox-Zugang.',
     'room.1954.floor':'1. Stock · Digitales Tastenfeld',
-    'room.1954.desc':'Zimmer im ersten Stock mit gemeinsamer Küche auf der Panoramaterrasse. Digitales Tastenfeld.',
+    'room.1954.desc':'Im ersten Stock, benannt nach den Modeskizzen von 1954 im Gebäude — Prototypen des Schneiders, der sie nach Paris schickte. Gemeinsame Küche auf der Panoramaterrasse.',
     'room.1956.floor':'2. Stock · Digitales Tastenfeld',
-    'room.1956.desc':'Zimmer im zweiten Stock mit Blick über die Dächer der Altstadt. Gemeinsame Küche auf der Terrasse.',
+    'room.1956.desc':'Im zweiten Stock, benannt nach den Skizzen von 1956 derselben Kollektion. Blick über die Altstadtdächer und gemeinsame Küche auf der Panoramaterrasse.',
     'tag.kitchen':'Private Küche','tag.ac':'Klimaanlage','tag.wifi':'WLAN','tag.terrace':'Terrasse','tag.view':'Altstadtblick',
     'rev.label':'Was unsere Gäste sagen','rev.title':'Worte<br>unserer <em>Gäste</em>',
     'rev.1.text':'"Perfekte Lage in der Altstadt. Sauberes Zimmer, Selbst-Check-in sehr bequem. Wir kommen definitiv wieder."','rev.1.name':'Marco R.',
     'rev.2.text':'"Wunderschöne, charaktervolle Unterkunft. Der Terrakottaboden ist atemberaubend. Giuseppe war sehr freundlich."','rev.2.name':'Sophie L.',
     'rev.3.text':'"Die mittelalterliche Gasse ist magisch. Absolute Stille nachts, 5 Minuten zu Fuß von allem. Alò-Assistent sehr nützlich."','rev.3.name':'Andreas K.',
-    'gallery.label':'Galerie','gallery.title':'Fotos der<br><em>Unterkunft</em>',
+    'gallery.label':'Galerie','gallery.title':'Die Skizzen<br>des <em>Schneiders</em>',
     'loc.label':'Lage','loc.title':'Im Herzen<br>von <em>Bitonto</em>',
     'loc.sub':'Mittelalterliche Altstadt, 20 Minuten von Bari und dem Flughafen, nahe Castel del Monte, Polignano und Alberobello.',
     'loc.address.title':'Adresse','loc.airport.title':'Flughafen Bari','loc.airport.sub':'20 Minuten mit dem Auto',
@@ -1032,6 +1105,14 @@ var T = {
     'cta.label':'Buchen Sie Ihren Aufenthalt','cta.title':'Bereit, <em>Apulien</em><br>zu entdecken?',
     'cta.sub':'Schreiben Sie uns auf WhatsApp für Verfügbarkeit und Preise. Antwort garantiert innerhalb weniger Stunden.',
     'cta.btn1':'WhatsApp schreiben','cta.btn2':'✉️ info@bebsantalo.it',
+    'storia.label':'Unsere Geschichte',
+    'storia.title':'Santalò:<br>eine Geschichte in <em>drei Akten</em>',
+    'storia.1.title':'Das Gebäude',
+    'storia.1.text':'Das Jahr 1928 ist noch heute auf der Hauptfassade zu sehen. Damals nahm der Palazzo im ältesten Viertel von Bitonto Gestalt an, an dem Ort, den die Einheimischen «dreit a Sandalou» nannten — genau hier, neben der ehemaligen Kirche Sant'Eligio. Ein solides bürgerliches Gebäude, mit Terrakottaböden, die noch heute wie damals unter den Füßen knarren.',
+    'storia.2.title':'Der Schneider und die Pariser Skizzen',
+    'storia.2.text':'Der erste Eigentümer war Schneider. Er erhielt Modeskizzen — die Sie heute gerahmt in den Zimmern finden, geborgen und restauriert von URSI Galleria — und nähte die Prototypen. Er schickte sie nach Paris. Nach diesen Skizzen aus den Jahren 1954 und 1956 tragen unsere Zimmer ihre Namen.',
+    'storia.3.title':'Der Name: Sankt Eligius, Alò, Sandalou',
+    'storia.3.text':'Im Dialekt von Bitonto sagte man «dreit a Sandalou», um diesen Ort zu bezeichnen. Sandalou ist die dialektale Verformung von Sant'Alò — also Sankt Eligius, dessen Name im mittelalterlichen Französisch Alò war. Hier stand die Kirche Sant'Eligio, geweiht 1299. Der Schutzpatron der Goldschmiede und Schmiede — in Bitonto vom 13. bis zum 17. Jahrhundert verehrt — lebt im Namen der Gasse und des B&B weiter.',
     'wa.float':'Auf WhatsApp buchen',
     'ph.hero1':'Hauptfoto B&B','ph.about':'Foto der Gasse',
     'ph.1920':'Foto Zimmer 1920','ph.1954':'Foto Zimmer 1954','ph.1956':'Foto Zimmer 1956','ph.g1':'Hauptfoto',
@@ -1041,31 +1122,31 @@ var T = {
     'nav.rooms':'Habitaciones','nav.location':'Ubicación','nav.gallery':'Galería','nav.contact':'Contacto','nav.book':'Reservar',
     'hero.eyebrow':'Bitonto · Apulia · Centro histórico',
     'hero.title':'San<em>talò</em><br>Bed &amp; Breakfast',
-    'hero.sub':'En el corazón del centro histórico de Bitonto, a 20 minutos de Bari. Tres habitaciones independientes con acceso autónomo, en un callejón medieval único.',
+    'hero.sub':'En el corazón del centro histórico de Bitonto, a pasos de la Catedral románica y del Torrione angevino. Tres habitaciones independientes en un palazzo restaurado de finales del siglo XIX, a 20 minutos de Bari.',
     'hero.cta1':'Reservar en WhatsApp','hero.cta2':'Ver las habitaciones',
     'stat.rooms':'habitaciones independientes','stat.bari':'de Bari y aeropuerto','stat.checkin':'acceso autónomo',
     'about.label':'Nuestro B&B','about.title':'Un rincón <em>auténtico</em><br>en el centro medieval',
     'about.sub':'Santalò es un B&B en un edificio histórico en el corazón de Bitonto, la capital del aceite de oliva DOP de Apulia.',
-    'about.p1':'Tres habitaciones independientes en diferentes plantas, cada una con acceso autónomo por código o caja de llaves. Sin horario de recepción — libertad total.',
-    'about.p2':'A pocos pasos de la Catedral románica del siglo XII, de la Piazza Cavour y los mejores restaurantes. A 20 minutos de Bari y el mar.',
+    'about.p1':'Un palazzo de finales del siglo XIX devuelto a su esplendor original: suelos de terracota restaurados, carpintería de madera original, cuartos de baño amplios y luminosos. Tres habitaciones independientes en diferentes plantas, amuebladas con sencillez y elegancia, cada una con acceso autónomo por código o caja de llaves.',
+    'about.p2':'Estamos en el rincón más tranquilo y silencioso del centro histórico, frente a la hermosa Iglesia de San Michele. A pocos cientos de metros de la Catedral románica — considerada la expresión más madura del románico apulio — y del Torrione angevino. Y una terraza panorámica compartida le espera: el lugar perfecto para un café al atardecer.',
     'feat.access.title':'Acceso autónomo 24/7','feat.access.sub':'Check-in desde las 15:00 con código personal',
     'feat.location.title':'Ubicación única','feat.location.sub':'Vico Storto Sant\'Eligio 9, centro histórico medieval',
     'feat.alo.title':'Asistente Alò 24/7','feat.alo.sub':'Soporte en 5 idiomas, siempre disponible',
     'feat.sea.title':'Cerca del mar','feat.sea.sub':'Giovinazzo y Santo Spirito a 10-15 minutos',
     'rooms.label':'Las habitaciones','rooms.title':'Tres habitaciones,<br>tres <em>historias</em>',
     'rooms.sub':'Cada habitación lleva el nombre del año de construcción del edificio.',
-    'room.1920.floor':'Planta baja · Caja de llaves',
-    'room.1920.desc':'Habitación en planta baja con cocina privada de uso exclusivo. Acceso con caja de llaves en la puerta principal.',
+    'room.1920.floor':'Planta baja · Construido en 1928',
+    'room.1920.desc':'En la planta baja del edificio original de 1928. Cocina privada de uso exclusivo, suelo de terracota restaurado, acceso con caja de llaves.',
     'room.1954.floor':'1ª planta · Teclado digital',
-    'room.1954.desc':'Habitación en primera planta con cocina compartida en la terraza panorámica. Acceso con teclado digital.',
+    'room.1954.desc':'En la primera planta, nombrada por los bocetos de moda de 1954 encontrados en el edificio — prototipos del sastre que los enviaba a París. Cocina compartida en la terraza panorámica.',
     'room.1956.floor':'2ª planta · Teclado digital',
-    'room.1956.desc':'Habitación en segunda planta con vistas a los tejados del centro histórico. Cocina compartida en la terraza.',
+    'room.1956.desc':'En la segunda planta, nombrada por los bocetos de 1956 de la misma colección. Vistas a los tejados del centro histórico y cocina compartida en la terraza panorámica.',
     'tag.kitchen':'Cocina privada','tag.ac':'Aire acondicionado','tag.wifi':'WiFi','tag.terrace':'Terraza','tag.view':'Vista centro histórico',
     'rev.label':'Lo que dicen nuestros huéspedes','rev.title':'Las palabras<br>de nuestros <em>huéspedes</em>',
     'rev.1.text':'"Ubicación perfecta en el centro histórico. Habitación limpia, acceso autónomo muy cómodo. Volveremos sin duda."','rev.1.name':'Marco R.',
     'rev.2.text':'"Propiedad preciosa y muy característica. El suelo de terracota es impresionante. Giuseppe fue muy amable y atento."','rev.2.name':'Sophie L.',
     'rev.3.text':'"El callejón medieval es mágico. Silencio absoluto de noche, a 5 minutos a pie de todo. El asistente Alò muy útil."','rev.3.name':'Andreas K.',
-    'gallery.label':'Galería','gallery.title':'Fotos de<br>la <em>propiedad</em>',
+    'gallery.label':'Galería','gallery.title':'Los bocetos<br>del <em>sastre</em>',
     'loc.label':'Ubicación','loc.title':'En el corazón<br>de <em>Bitonto</em>',
     'loc.sub':'Centro histórico medieval, a 20 minutos de Bari y el aeropuerto, cerca de Castel del Monte, Polignano y Alberobello.',
     'loc.address.title':'Dirección','loc.airport.title':'Aeropuerto de Bari','loc.airport.sub':'20 minutos en coche',
@@ -1075,6 +1156,14 @@ var T = {
     'cta.label':'Reserve su estancia','cta.title':'¿Listo para explorar<br><em>Apulia</em>?',
     'cta.sub':'Escríbanos por WhatsApp para disponibilidad y precios. Respuesta garantizada en pocas horas.',
     'cta.btn1':'Escribir en WhatsApp','cta.btn2':'✉️ info@bebsantalo.it',
+    'storia.label':'Nuestra historia',
+    'storia.title':'Santalò:<br>una historia en <em>tres actos</em>',
+    'storia.1.title':'El edificio',
+    'storia.1.text':'El año 1928 aún es visible en la fachada principal. Es cuando el palazzo tomó forma en el barrio más antiguo de Bitonto, en el lugar que los lugareños llamaban «dreit a Sandalou» — aquí mismo, junto a la antigua iglesia de Sant'Eligio. Un sólido edificio burgués, con suelos de terracota que aún crujen bajo los pies como entonces.',
+    'storia.2.title':'El sastre y los bocetos de París',
+    'storia.2.text':'El primer propietario era sastre. Recibía bocetos de moda — los que hoy encontrarás enmarcados en las habitaciones, recuperados y restaurados por URSI Galleria — y cosía los prototipos. Los enviaba a París. De estos bocetos, fechados en 1954 y 1956, toman su nombre nuestras habitaciones.',
+    'storia.3.title':'El nombre: San Eloy, Alò, Sandalou',
+    'storia.3.text':'En el dialecto bitontino se decía «dreit a Sandalou» para indicar este lugar. Sandalou es la corrupción dialectal de Sant'Alò — es decir, San Eloy, cuyo nombre en francés medieval era Alò. Aquí se alzaba la iglesia de Sant'Eligio, consagrada en 1299. El patrón de los orfebres y herreros — venerado en Bitonto del siglo XIII al XVII — sigue aquí, en el nombre del callejón y del B&B.',
     'wa.float':'Reservar en WhatsApp',
     'ph.hero1':'Foto principal B&B','ph.about':'Foto del callejón',
     'ph.1920':'Foto Habitación 1920','ph.1954':'Foto Habitación 1954','ph.1956':'Foto Habitación 1956','ph.g1':'Foto principal',
