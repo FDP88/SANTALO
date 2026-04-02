@@ -747,13 +747,21 @@ function renderPrenotazioni() {
       '</div>' +
       '</div>' +
       (isSelected ? '<div style="padding:0 16px 12px;display:flex;gap:5px;flex-wrap:wrap">' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\''+clLink(p).replace(/'/g,'%27')+'\',\'Link check-in copiato\');event.stopPropagation()">📋 Check-in</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\''+botLink(p).replace(/'/g,'%27')+'\',\'Link chatbot copiato\');event.stopPropagation()">🤖 Chatbot</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copiaLinkCI('+p.id+');event.stopPropagation()">📋 Check-in</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copiaLinkBot('+p.id+');event.stopPropagation()">🤖 Chatbot</button>' +
       '</div>' : '') +
       '</div>';
   }).join('');
 }
 
+function copiaLinkCI(id) {
+  var p = prenotazioni.find(function(x){return x.id===id;});
+  if (p) copy(clLink(p), 'Link check-in copiato');
+}
+function copiaLinkBot(id) {
+  var p = prenotazioni.find(function(x){return x.id===id;});
+  if (p) copy(botLink(p), 'Link chatbot copiato');
+}
 function seleziona(id) {
   selected = prenotazioni.find(function(p) { return p.id === id; }) || null;
   renderPrenotazioni(); generaMessaggio(); aggiornaLink();
