@@ -710,17 +710,22 @@ function renderPrenotazioni() {
     var oggiTag = isToday ? '<span class="oggi-badge">● OGGI</span>' : '';
     var strutTag = isInStruttura ? '<span class="struttura-badge">🏠 IN STRUTTURA</span>' : '';
 
+    var camNum = (p.camera||'').replace('Camera ','');
+    var camColor = camNum==='1920' ? 'var(--c1920)' : camNum==='1954' ? 'var(--c1954)' : camNum==='1956' ? 'var(--c1956)' : 'var(--brown)';
     return '<div class="' + cardClass + '">' +
-      '<div class="booking-inner"><div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
-      '<div style="flex:1">' +
-      '<div class="booking-name">' + esc(p.nome||'--') + (p.camera ? '<span style="font-size:11px;font-weight:600;color:#fff;background:var(--brown);border-radius:999px;padding:2px 8px;margin-left:6px">' + esc(p.camera.replace('Camera ','')) + '</span>' : '') + oggiTag + strutTag + '</div>' +
+      '<div class="booking-cam-stripe cam-' + camNum + '"></div>' +
+      '<div class="booking-inner">' +
+      '<div class="booking-head">' +
+      '<div style="display:flex;align-items:center;gap:8px;flex:1"><div style="flex:1">' +
+      '<div class="booking-name">' + esc(p.nome||'--') + (p.camera ? '<span style="font-size:11px;font-weight:600;color:#fff;background:'+camColor+';border-radius:999px;padding:2px 8px;margin-left:6px">' + esc(camNum) + '</span>' : '') + oggiTag + strutTag + '</div>' +
       '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
       '</div></div>' +
       '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
       (function(){ var pi=presenceInfo(p); return pi ? '<span title="'+pi.label+'" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:'+pi.dot+';font-weight:600;background:'+pi.dot+'18;padding:3px 8px;border-radius:999px"><span style="width:8px;height:8px;border-radius:50%;background:'+pi.dot+';display:inline-block"></span>'+pi.label+'</span>' : ''; })() +
       '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
       '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
-      '</div></div>' +
+      '</div>' +
+      '</div>' +
       '<div class="meta-grid">' +
       '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
       '<div class="meta-cell"><b>Arrivo</b><span>' + fmt(p.arrivo) + '</span></div>' +
@@ -733,7 +738,9 @@ function renderPrenotazioni() {
       '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
-      '</div></div></div></div>';
+      '</div>' +
+      '</div>' +
+      '</div>';
   }).join('');
 }
 
