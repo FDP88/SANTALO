@@ -3,75 +3,212 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Santalo -- Gestionale</title>
+  <title>Santalò B&B — Gestionale</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root{--brown:#6B2D1F;--brown-d:#3d1a10;--brown-l:#8C4F35;--sand:#C4A882;--sand-l:#E8D9C0;--cream:#FAF7F2;--cream-d:#F3EBE2;--ink:#2E241F;--muted:#7A6B61;--line:#e7d9cc;--ok:#2f7d4a;--ok-bg:#e7f5ec;--warn:#b45309;--warn-bg:#fef3c7;--err:#b91c1c;--err-bg:#fee2e2;}
+    :root{
+      --brown:#6B2D1F;--brown-d:#3d1a10;--brown-l:#8C4F35;
+      --sand:#C4A882;--sand-l:#E8D9C0;--sand-ll:#F5EDE0;
+      --cream:#FAF7F2;--cream-d:#F0E6D8;
+      --ink:#2E241F;--muted:#7A6B61;--line:#e7d9cc;
+      --ok:#2f7d4a;--ok-bg:#e7f5ec;--warn:#b45309;--warn-bg:#fef3c7;--err:#b91c1c;--err-bg:#fee2e2;
+      /* camere */
+      --c1920:#8C6D2F;--c1920d:#5C4510;--c1920l:#F5ECD4;
+      --c1954:#5C7A5C;--c1954d:#3A5C3A;--c1954l:#E8F0E8;
+      --c1956:#3A5F7A;--c1956d:#1E3D52;--c1956l:#E0EBF2;
+    }
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',Arial,sans-serif;background:var(--cream);color:var(--ink);font-size:15px}
+
+    /* ===== HEADER ===== */
+    .site-header{
+      background:var(--brown-d);
+      position:relative;overflow:hidden;
+      margin-bottom:0;
+    }
+    .site-header::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,var(--brown-d) 0%,var(--brown-l) 100%);
+      opacity:.95;
+    }
+    .header-content{
+      position:relative;z-index:2;
+      max-width:1440px;margin:0 auto;
+      padding:22px 24px 20px;
+      display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    }
+    .header-logo{
+      width:52px;height:52px;flex-shrink:0;
+      background:rgba(255,255,255,.92);border-radius:12px;
+      overflow:hidden;display:flex;align-items:center;justify-content:center;
+    }
+    .header-logo img{width:130%;height:130%;object-fit:cover;margin:-15%}
+    .header-text{flex:1}
+    .header-eyebrow{
+      font-size:10px;font-weight:600;letter-spacing:.12em;
+      text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:4px;
+    }
+    .header-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:2rem;font-weight:700;color:#fff;line-height:1;
+      margin-bottom:6px;letter-spacing:-.02em;
+    }
+    .header-title em{font-style:italic;opacity:.85}
+    .header-sub{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.04em}
+    .header-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+
+    /* Fascia pavimento nell'header */
+    .header-floor{
+      height:52px;overflow:hidden;position:relative;
+      background:var(--brown-d);
+    }
+    .header-floor svg{width:100%;height:100%;display:block}
+    .header-floor::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(to bottom,rgba(0,0,0,.35) 0%,transparent 100%);
+      pointer-events:none;
+    }
+
+    /* ===== LAYOUT ===== */
     .wrap{max-width:1440px;margin:0 auto;padding:18px}
-    .hero{background:linear-gradient(135deg,var(--brown-d),var(--brown-l));color:#fff;border-radius:20px;padding:22px 26px;margin-bottom:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-    .hero-logo{width:56px;height:56px;flex-shrink:0;background:rgba(255,255,255,.92);border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-    .hero-logo img{width:130%;height:130%;object-fit:cover;margin:-15%}
-    .hero-text h1{font-size:1.55rem;font-weight:600;margin-bottom:3px}
-    .hero-text p{font-size:.85rem;opacity:.75}
-    .hero-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
     .pill{display:inline-block;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(255,255,255,.15);color:#fff}
     .pill.ok{background:var(--ok-bg);color:var(--ok)}
     .pill.err{background:var(--err-bg);color:var(--err)}
+
+    /* ===== BUTTONS ===== */
     .btn{border:none;border-radius:10px;padding:9px 15px;font-weight:600;font-size:13.5px;cursor:pointer;transition:all .15s;font-family:inherit;line-height:1}
     .btn-primary{background:var(--brown);color:#fff}.btn-primary:hover{background:var(--brown-l)}
     .btn-ghost{background:var(--cream-d);color:var(--brown);border:1px solid var(--line)}.btn-ghost:hover{background:var(--sand-l)}
     .btn-green{background:#25D366;color:#fff}.btn-green:hover{background:#128C7E}
     .btn-sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
-    .btn-hero{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35)}.btn-hero:hover{background:rgba(255,255,255,.28)}
+    .btn-hero{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28)}.btn-hero:hover{background:rgba(255,255,255,.24)}
+
+    /* ===== GRID ===== */
     .grid-main{display:grid;grid-template-columns:1.1fr .95fr;gap:16px}
-    .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}
-    .card-title{font-size:1rem;font-weight:600;color:var(--brown);margin-bottom:14px}
-    .tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
-    .tab{padding:7px 13px;border-radius:8px 8px 0 0;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);font-family:inherit;transition:all .15s}
-    .tab.active{background:var(--brown);color:#fff}
-    .list{display:flex;flex-direction:column;gap:11px;max-height:72vh;overflow-y:auto;padding-right:4px}
+
+    /* ===== CARD ===== */
+    .card{
+      background:#fff;border:1px solid var(--line);
+      border-radius:18px;padding:18px;
+      box-shadow:0 2px 12px rgba(107,45,31,.05);
+    }
+    .card-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:1.15rem;font-weight:600;color:var(--brown);
+      margin-bottom:14px;display:flex;align-items:center;gap:8px;
+    }
+
+    /* ===== TABS ===== */
+    .tabs{display:flex;gap:3px;border-bottom:2px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+    .tab{
+      padding:8px 14px;border-radius:10px 10px 0 0;
+      font-size:12.5px;font-weight:600;cursor:pointer;
+      border:none;background:none;color:var(--muted);
+      font-family:inherit;transition:all .15s;
+      border-bottom:2px solid transparent;margin-bottom:-2px;
+    }
+    .tab:hover{color:var(--brown);background:var(--cream-d)}
+    .tab.active{color:var(--brown);border-bottom-color:var(--brown);background:transparent}
+
+    /* ===== LISTA PRENOTAZIONI ===== */
+    .list{display:flex;flex-direction:column;gap:10px;max-height:72vh;overflow-y:auto;padding-right:4px}
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
-    .booking{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;transition:border-color .15s}
+
+    /* ===== CARD PRENOTAZIONE ===== */
+    .booking{
+      border:1.5px solid var(--line);border-radius:14px;
+      padding:0;background:#fff;transition:all .18s;
+      overflow:hidden;
+    }
+    .booking:hover{border-color:var(--sand);box-shadow:0 2px 12px rgba(107,45,31,.06)}
     .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.08)}
+    .booking.oggi-highlight{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.12)}
+
+    /* Striscia colorata camera */
+    .booking-cam-stripe{
+      height:4px;width:100%;
+      background:var(--line);
+    }
+    .booking-cam-stripe.cam-1920{background:linear-gradient(90deg,var(--c1920),var(--c1920d))}
+    .booking-cam-stripe.cam-1954{background:linear-gradient(90deg,var(--c1954),var(--c1954d))}
+    .booking-cam-stripe.cam-1956{background:linear-gradient(90deg,var(--c1956),var(--c1956d))}
+
+    .booking-inner{padding:13px 14px}
     .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
-    .booking-name{font-size:1.05rem;font-weight:600}
+    .booking-name{font-size:1rem;font-weight:700;letter-spacing:-.01em}
     .booking-sub{font-size:11px;color:var(--muted);margin-top:1px}
+
     .status-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
     .s-da{background:var(--warn-bg);color:var(--warn)}
     .s-ok{background:var(--ok-bg);color:var(--ok)}
     .s-inv{background:#dbeafe;color:#1e40af}
-    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
-    .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
-    .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-    .meta-cell span{font-size:13px;font-weight:500}
+
+    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+    .meta-cell{
+      background:var(--cream);border-radius:9px;padding:7px 10px;
+      border:1px solid var(--cream-d);
+    }
+    .meta-cell b{display:block;font-size:9px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;letter-spacing:.05em}
+    .meta-cell span{font-size:13px;font-weight:600}
     .booking-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+
+    /* Badge presenza */
+    .oggi-badge{
+      display:inline-flex;align-items:center;gap:3px;
+      background:#dcfce7;color:#166534;
+      border-radius:999px;padding:2px 8px;
+      font-size:10px;font-weight:700;margin-left:5px;vertical-align:middle;
+    }
+    .struttura-badge{
+      display:inline-flex;align-items:center;gap:3px;
+      background:#dbeafe;color:#1e3a8a;
+      border-radius:999px;padding:2px 8px;
+      font-size:10px;font-weight:700;margin-left:5px;vertical-align:middle;
+    }
+
+    /* ===== FORM ===== */
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ff{display:flex;flex-direction:column;gap:4px}
-    .ff label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-    input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;color:var(--ink);background:#fff;font-size:14px;transition:border-color .15s}
+    .ff label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    input,select,textarea{
+      width:100%;padding:9px 12px;border:1.5px solid var(--line);
+      border-radius:10px;font:inherit;color:var(--ink);
+      background:#fff;font-size:14px;transition:border-color .15s;
+    }
     input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brown)}
     textarea{min-height:90px;resize:vertical}
-    .right-panel{display:flex;flex-direction:column;gap:16px}
+
+    /* ===== PANNELLO DESTRO ===== */
+    .right-panel{display:flex;flex-direction:column;gap:14px}
     .msg-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-    .msg-area{width:100%;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:13.5px;line-height:1.6;color:var(--ink)}
+    .msg-area{
+      width:100%;min-height:180px;resize:vertical;
+      border:1.5px solid var(--line);border-radius:12px;
+      padding:12px;font:inherit;font-size:13.5px;line-height:1.6;color:var(--ink);
+    }
     .msg-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
     .esito{font-size:12px;color:var(--ok);margin-top:6px;min-height:16px;font-weight:600}
+
     .link-box{background:var(--cream);border-radius:10px;padding:11px 13px;border:1px solid var(--line);margin-bottom:8px}
-    .link-box-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+    .link-box-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px;letter-spacing:.05em}
     .link-box-url{font-size:11.5px;word-break:break-all;color:var(--brown);margin-bottom:7px}
     .link-box-btns{display:flex;gap:6px;flex-wrap:wrap}
+
+    /* ===== CHECKIN ITEMS ===== */
     .checkin-item{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--cream);margin-bottom:10px}
     .checkin-name{font-weight:600;font-size:.95rem;margin-bottom:3px}
     .checkin-meta{font-size:12px;color:var(--muted)}
+
+    /* ===== FOOTER ===== */
     .footer{margin-top:20px;padding:16px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:13px}
     .badge{display:inline-flex;align-items:center;justify-content:center;background:#b91c1c;color:#fff;border-radius:999px;font-size:11px;font-weight:700;min-width:18px;height:18px;padding:0 5px;margin-left:5px;vertical-align:middle}
+
     @media(max-width:1000px){.grid-main{grid-template-columns:1fr}}
     @media(max-width:600px){.meta-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.msg-row{grid-template-columns:1fr}}
-    /* CALENDARIO + PULIZIE */
+
+    /* ===== CALENDARIO ===== */
     .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     .cal-nav-btn{background:var(--cream-d);border:1px solid var(--line);border-radius:10px;padding:7px 14px;cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;color:var(--brown)}
     .cal-nav-btn:hover{background:var(--sand-l)}
@@ -122,7 +259,7 @@
     .search-filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
     .search-input-wrap{position:relative;flex:1;min-width:160px}
     .search-input-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
-    .search-input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13px;color:var(--ink);background:#fff;transition:border-color .15s}
+    .search-input{width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:13px;color:var(--ink);background:#fff;transition:border-color .15s}
     .search-input:focus{outline:none;border-color:var(--brown)}
     .filter-pills{display:flex;gap:5px;flex-wrap:wrap}
     .filter-pill{border:none;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;background:var(--cream-d);color:var(--muted)}
@@ -131,31 +268,42 @@
     .filter-pill .pill-count{border-radius:999px;padding:1px 6px;font-size:10px;font-weight:700;background:rgba(107,45,31,.1);color:var(--brown)}
     .filter-pill.active .pill-count{background:rgba(255,255,255,.25);color:#fff}
     .no-results{text-align:center;padding:30px;color:var(--muted);font-size:14px}
-
-    /* Highlight card oggi */
-    .booking.oggi-highlight{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.12)}
-    .oggi-badge{background:#dcfce7;color:#166534;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle}
   </style>
 </head>
 <body>
-<div class="wrap">
-
-  <div class="hero">
-    <div class="hero-logo">
-      <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalo"/>
+<div class="site-header">
+  <div class="header-content">
+    <div class="header-logo">
+      <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalò"/>
     </div>
-    <div class="hero-text" style="flex:1">
-      <h1>Santalò B&amp;B — Gestionale</h1>
-      <p>Prenotazioni · WhatsApp · Check-in · Assistente AI</p>
-      <div class="hero-actions">
-        <button class="btn btn-hero" onclick="loadAll()">Ricarica</button>
+    <div class="header-text">
+      <div class="header-eyebrow">Santalò B&amp;B · Bitonto &nbsp;·&nbsp; Gestionale</div>
+      <h1 class="header-title">Santalò <em>Gestionale</em></h1>
+      <div class="header-sub">Prenotazioni · WhatsApp · Check-in · Assistente AI</div>
+      <div class="header-actions">
+        <button class="btn btn-hero" onclick="loadAll()">↻ Ricarica</button>
         <button class="btn btn-hero" onclick="showTab('nuova')">+ Nuova prenotazione</button>
         <span id="connStatus" class="pill">in attesa...</span>
       </div>
     </div>
   </div>
+  <!-- Fascia pavimento -->
+  <div class="header-floor">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 864 52" preserveAspectRatio="xMidYMid slice">
+      <defs><pattern id="hfp" x="0" y="0" width="108" height="52" patternUnits="userSpaceOnUse">
+        <polygon points="0,26 27,0 54,26 27,52" fill="#2A1A12"/>
+        <polygon points="27,0 54,26 81,0" fill="#C4622A"/>
+        <polygon points="27,52 54,26 81,52" fill="#C4622A"/>
+        <polygon points="54,26 81,0 108,26 81,52" fill="#D9B98A"/>
+      </pattern></defs>
+      <rect width="864" height="52" fill="#C4622A"/>
+      <rect width="864" height="52" fill="url(#hfp)"/>
+    </svg>
+  </div>
+</div>
 
-  <div class="grid-main">
+<div class="wrap">
+  <div class="grid-main" style="margin-top:18px">
     <div>
       <div class="card">
         <div class="tabs">
@@ -559,8 +707,8 @@ function renderPrenotazioni() {
     var isInStruttura = (cat === 'struttura');
     var cardClass = 'booking' + (selected && selected.id === p.id ? ' active' : '') + (isToday ? ' oggi-highlight' : '');
 
-    var oggiTag = isToday ? '<span class="oggi-badge">OGGI</span>' : '';
-    var strutTag = isInStruttura ? '<span class="oggi-badge" style="background:#dbeafe;color:#1e3a8a">IN STRUTTURA</span>' : '';
+    var oggiTag = isToday ? '<span class="oggi-badge">● OGGI</span>' : '';
+    var strutTag = isInStruttura ? '<span class="struttura-badge">🏠 IN STRUTTURA</span>' : '';
 
     return '<div class="' + cardClass + '">' +
       '<div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
@@ -585,7 +733,7 @@ function renderPrenotazioni() {
       '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
-      '</div></div>';
+      '</div></div></div>';
   }).join('');
 }
 
@@ -898,7 +1046,7 @@ function aggiornaPulizie() {
   var el = document.getElementById('pulMsg');
   if (!el) return;
   var target = new Date(); target.setHours(0,0,0,0); target.setDate(target.getDate() + 1);
-  var tStr = target.toISOString().slice(0,10);
+  var tStr = target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0');
   var tFmt = target.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   var cos = prenotazioni.filter(function(p) { return p.partenza === tStr; });
   if (!cos.length) { el.textContent = 'Nessun check-out domani.'; return; }
