@@ -898,7 +898,7 @@ function aggiornaPulizie() {
   var el = document.getElementById('pulMsg');
   if (!el) return;
   var target = new Date(); target.setHours(0,0,0,0); target.setDate(target.getDate() + 1);
-  var tStr = target.toISOString().slice(0,10);
+  var tStr = target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0');
   var tFmt = target.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   var cos = prenotazioni.filter(function(p) { return p.partenza === tStr; });
   if (!cos.length) { el.textContent = 'Nessun check-out domani.'; return; }
