@@ -51,38 +51,28 @@
     .s-ok{background:var(--ok-bg);color:var(--ok)}
     .s-inv{background:#dbeafe;color:#1e40af}
 
-    /* Info inline compatta desktop */
-    .booking-info-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-    .info-chip{display:inline-flex;align-items:center;gap:3px;background:var(--cream);border:1px solid var(--cream-d);border-radius:8px;padding:4px 9px;font-size:12px;font-weight:600;color:var(--ink)}
-    .info-chip .lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-right:2px}
+    /* ===== INFO CHIP - sempre visibili su tutte le dimensioni ===== */
+    .booking-info-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:9px}
+    .info-chip{display:inline-flex;align-items:center;gap:3px;background:var(--cream);border:1px solid var(--cream-d);border-radius:7px;padding:3px 8px;font-size:12px;font-weight:600;color:var(--ink)}
+    .info-chip .lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-right:2px}
+
+    /* meta-grid nascosta sempre — usiamo i chip compatti */
+    .meta-grid{display:none}
 
     /* Bottoni azioni */
     .booking-actions{display:flex;gap:5px;flex-wrap:wrap}
-    .meta-grid{display:none}
 
-    @media(min-width:700px){
-      .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
-      .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
-      .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-      .meta-cell span{font-size:13px;font-weight:500}
-      .booking-info-row{display:none}
-    }
-
-    /* ===== MOBILE COMPACT CARD ===== */
-    /* Su mobile: card cliccabile tutta, info essenziali in una riga */
-    @media(max-width:699px){
-      .booking-body{padding:10px 12px 10px}
-      .booking-name{font-size:.92rem}
-      .booking-sub{font-size:10.5px}
-      /* chip essenziali visibili su mobile */
-      .booking-info-row{display:flex;margin-bottom:8px}
-      .info-chip{padding:3px 7px;font-size:11px}
-      /* azioni compresse su mobile - mostrate solo se la card è selezionata */
+    /* ===== MOBILE COMPACT (< 600px) ===== */
+    @media(max-width:599px){
+      .booking-body{padding:9px 11px 9px}
+      .booking-name{font-size:.9rem}
+      .booking-sub{font-size:10px}
+      .info-chip{padding:2px 6px;font-size:10.5px}
+      .info-chip .lbl{font-size:9px}
+      /* azioni: solo sulla card selezionata */
       .booking-actions{display:none}
       .booking.active .booking-actions{display:flex;flex-wrap:wrap;gap:4px;padding-top:8px;border-top:1px solid var(--line);margin-top:6px}
-      .booking.active .booking-actions .btn-sm{font-size:11.5px;padding:5px 10px}
-      /* bottone elimina sempre visibile */
-      .btn-delete-mobile{display:inline-flex !important}
+      .booking.active .booking-actions .btn-sm{font-size:11px;padding:5px 9px}
     }
 
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
