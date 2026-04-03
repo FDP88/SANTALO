@@ -522,15 +522,10 @@ function loadAll() {
     // Riordina: check-in prima, poi permanenza, checkout, arrivo, altri, passati
     var order = {checkin:0, permanenza:1, checkout:2, arrivo:3, altri:4, passati:5};
     prenotazioni.sort(function(a,b) {
-      var catA = categorize(a), catB = categorize(b);
-      var ca = order[catA] != null ? order[catA] : 4;
-      var cb = order[catB] != null ? order[catB] : 4;
+      var ca = order[categorize(a)] != null ? order[categorize(a)] : 4;
+      var cb = order[categorize(b)] != null ? order[categorize(b)] : 4;
       if (ca !== cb) return ca - cb;
-      // Dentro ogni categoria: per data arrivo ASC (chi arriva prima in cima)
-      // Per checkout/passati: per partenza ASC
-      var dateA = (catA === 'checkout' || catA === 'passati') ? (a.partenza||'') : (a.arrivo||'');
-      var dateB = (catB === 'checkout' || catB === 'passati') ? (b.partenza||'') : (b.arrivo||'');
-      return dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
+      return (a.arrivo||'') < (b.arrivo||'') ? -1 : 1;
     });
 
     if (!selected && prenotazioni.length) selected = prenotazioni[0];
