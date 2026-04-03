@@ -575,7 +575,7 @@ function presenceInfo(p) {
     var today = new Date(); today.setHours(0,0,0,0);
     var par = new Date(p.partenza+'T12:00:00'); par.setHours(0,0,0,0);
     var diffPar = Math.round((par - today) / 86400000);
-    return {dot:'#16a34a', label:'🏠 In struttura · esce tra ' + diffPar + 'gg', cls:'stato-permanenza'};
+    return {dot:'#16a34a', label:'🏠 In struttura (-' + diffPar + 'gg)', cls:'stato-permanenza'};
   }
   if (cat === 'arrivo_7gg') {
     var today2 = new Date(); today2.setHours(0,0,0,0);
@@ -650,13 +650,13 @@ function renderPrenotazioni() {
       '<div class="booking-body">' +
       '<div class="booking-head">' +
         '<div style="flex:1;min-width:0">' +
-          '<div class="booking-name">' + esc(p.nome||'--') + statoBadge + '</div>' +
+          '<div class="booking-name">' + esc(p.nome||'--') + '</div>' +
+          (presencePill ? '<div style="margin-top:3px">' + presencePill + '</div>' : '') +
           '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
-          presencePill +
           '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
-          '<button class="btn btn-sm btn-delete-mobile" title="Elimina" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
+          '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;border-radius:8px">🗑️</button>' +
         '</div>' +
       '</div>' +
       infoChips +
