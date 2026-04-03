@@ -37,11 +37,11 @@
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
 
     /* ===== BOOKING CARD ===== */
-    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:rgba(107,45,31,.08)}
+    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;cursor:pointer;-webkit-tap-highlight-color:rgba(107,45,31,.08);min-height:76px}
     .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.08)}
     .booking:not(.active):hover{border-color:var(--sand);box-shadow:0 2px 12px rgba(107,45,31,.07)}
     .booking-stripe{height:4px;width:100%}
-    .booking-body{padding:14px 16px 12px}
+    .booking-body{padding:14px 16px 12px;border-radius:15px}
     .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
     .booking-name{font-size:1rem;font-weight:700;line-height:1.25;letter-spacing:-.01em}
     .booking-sub{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
@@ -633,10 +633,17 @@ function renderPrenotazioni() {
       '<span class="info-chip"><span class="lbl">Osp</span>' + (p.num_ospiti||'--') + '</span>' +
       '</div>';
 
-    // Presenza pill (per desktop, accanto al nome)
+    // Presenza pill (accanto al nome)
     var presencePill = '';
     if (pi) {
-      presencePill = '<span title="' + pi.label + '" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:' + pi.dot + ';font-weight:600;background:' + pi.dot + '18;padding:3px 8px;border-radius:999px;flex-shrink:0"><span style="width:7px;height:7px;border-radius:50%;background:' + pi.dot + ';display:inline-block"></span>' + pi.label + '</span>';
+      var bgMap = {
+        checkin_oggi: 'rgba(30,64,175,.1)',
+        checkout_oggi: 'rgba(180,83,9,.1)',
+        permanenza: 'rgba(22,163,74,.1)',
+        arrivo_7gg: 'rgba(124,58,237,.1)'
+      };
+      var bg = bgMap[cat] || 'rgba(0,0,0,.06)';
+      presencePill = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:' + pi.dot + ';font-weight:600;background:' + bg + ';padding:3px 8px;border-radius:999px;flex-shrink:0"><span style="width:7px;height:7px;border-radius:50%;background:' + pi.dot + ';display:inline-block;flex-shrink:0"></span>' + pi.label + '</span>';
     }
 
     return '<div class="' + cardClass + '" onclick="seleziona(' + p.id + ')">' +
