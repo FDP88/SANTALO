@@ -146,7 +146,7 @@
     </div>
     <div class="hero-text" style="flex:1">
       <h1>Santalò B&amp;B — Gestionale</h1>
-      <p>Prenotazioni \u00b7 WhatsApp \u00b7 Check-in \u00b7 Assistente AI</p>
+      <p>Prenotazioni · WhatsApp · Check-in · Assistente AI</p>
       <div class="hero-actions">
         <button class="btn btn-hero" onclick="loadAll()">Ricarica</button>
         <button class="btn btn-hero" onclick="showTab('nuova')">+ Nuova prenotazione</button>
@@ -162,9 +162,9 @@
           <button class="tab active" id="tab-lista" onclick="showTab('lista')">Prenotazioni</button>
           <button class="tab" id="tab-nuova" onclick="showTab('nuova')">+ Nuova</button>
           <button class="tab" id="tab-checkin" onclick="showTab('checkin')">Check-in ricevuti<span id="badgeCheckin" class="badge" style="display:none"></span></button>
-          <button class="tab" id="tab-chat" onclick="showTab('chat')">\ud83d\udcac Conversazioni</button>
-          <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">\ud83d\udccb Alloggiati</button>
-          <button class="tab" id="tab-calendario" onclick="showTab('calendario')">\ud83d\udcc5 Calendario</button>
+          <button class="tab" id="tab-chat" onclick="showTab('chat')">💬 Conversazioni</button>
+          <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">📋 Alloggiati</button>
+          <button class="tab" id="tab-calendario" onclick="showTab('calendario')">📅 Calendario</button>
         </div>
 
         <div id="panel-lista">
@@ -172,15 +172,15 @@
           <div class="search-filter-bar">
             <div class="search-input-wrap">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input class="search-input" id="searchInput" placeholder="Cerca per nome, camera, canale\u2026" oninput="onSearch(this.value)"/>
+              <input class="search-input" id="searchInput" placeholder="Cerca per nome, camera, canale…" oninput="onSearch(this.value)"/>
             </div>
           </div>
           <div class="filter-pills" style="margin-bottom:12px">
             <button class="filter-pill active" data-filter="tutti" id="pill-tutti" onclick="setFilter('tutti')">Tutte <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="oggi" id="pill-oggi" onclick="setFilter('oggi')">\ud83d\udfe2 Oggi <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="struttura" id="pill-struttura" onclick="setFilter('struttura')">\ud83c\udfe0 In struttura <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="arrivo" id="pill-arrivo" onclick="setFilter('arrivo')">\ud83d\udcc5 In arrivo (7gg) <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">\u2713 Passati <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="oggi" id="pill-oggi" onclick="setFilter('oggi')">🟢 Oggi <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="struttura" id="pill-struttura" onclick="setFilter('struttura')">🏠 In struttura <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="arrivo" id="pill-arrivo" onclick="setFilter('arrivo')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">✓ Passati <span class="pill-count">0</span></button>
           </div>
           <div id="listaPrenotazioni" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
@@ -195,8 +195,8 @@
               <select id="f-camera">
                 <option value="">-- Seleziona --</option>
                 <option value="Camera 1920">Camera 1920 (piano terra)</option>
-                <option value="Camera 1954">Camera 1954 (1\u00b0 piano)</option>
-                <option value="Camera 1956">Camera 1956 (2\u00b0 piano)</option>
+                <option value="Camera 1954">Camera 1954 (1° piano)</option>
+                <option value="Camera 1956">Camera 1956 (2° piano)</option>
               </select>
             </div>
             <div class="ff"><label>N. ospiti</label>
@@ -209,11 +209,11 @@
             </div>
             <div class="ff"><label>Lingua ospite</label>
               <select id="f-lingua">
-                <option value="it">\ud83c\uddee\ud83c\uddf9 Italiano</option>
-                <option value="en">\ud83c\uddec\ud83c\udde7 Inglese</option>
-                <option value="fr">\ud83c\uddeb\ud83c\uddf7 Francese</option>
-                <option value="de">\ud83c\udde9\ud83c\uddea Tedesco</option>
-                <option value="es">\ud83c\uddea\ud83c\uddf8 Spagnolo</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="en">🇬🇧 Inglese</option>
+                <option value="fr">🇫🇷 Francese</option>
+                <option value="de">🇩🇪 Tedesco</option>
+                <option value="es">🇪🇸 Spagnolo</option>
               </select>
             </div>
             <div class="ff"><label>Orario arrivo stimato</label><input id="f-orario" placeholder="Es. 16:00"/></div>
@@ -267,7 +267,7 @@
               <option value="reminder">Reminder check-in</option>
               <option value="istruzioni">Istruzioni accesso</option>
               <option value="checkout">Richiesta recensione</option>
-              <option value="pulizie">\ud83e\uddf9 Pulizie (Marianna)</option>
+              <option value="pulizie">🧹 Pulizie (Marianna)</option>
             </select>
           </div>
           <div class="ff">
@@ -312,8 +312,8 @@
   </div>
 
   <div class="footer">
-    Santalò Bed &amp; Breakfast \u00b7 Vico Storto Sant&#39;Eligio 9 \u00b7 70032 Bitonto (BA)<br>
-    CF: CQFGPP88E31A662T \u00b7 P. IVA: 08212010725
+    Santalò Bed &amp; Breakfast · Vico Storto Sant&#39;Eligio 9 · 70032 Bitonto (BA)<br>
+    CF: CQFGPP88E31A662T · P. IVA: 08212010725
   </div>
 </div>
 
@@ -462,7 +462,7 @@ function onSearch(val) {
 // ===== PRENOTAZIONI =====
 function eliminaPrenotazione(id, evt) {
   evt.stopPropagation();
-  if (!confirm('Eliminare questa prenotazione? L\'operazione non \u00e8 reversibile.')) return;
+  if (!confirm('Eliminare questa prenotazione? L\'operazione non è reversibile.')) return;
   sb.from('prenotazioni').delete().eq('id', id).then(function(result) {
     if (result.error) { alert('Errore: ' + result.error.message); return; }
     if (selected && selected.id === id) selected = null;
@@ -561,12 +561,12 @@ function renderPrenotazioni() {
       '<div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
       '<div style="flex:1">' +
       '<div class="booking-name">' + esc(p.nome||'--') + oggiTag + strutTag + '</div>' +
-      '<div class="booking-sub">#' + p.id + ' \u00b7 ' + esc(p.canale||'--') + (p.lingua ? ' \u00b7 ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' \u00b7 ' + esc(p.telefono) : '') + '</div>' +
+      '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
       '</div></div>' +
       '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
       (function(){ var pi=presenceInfo(p); return pi ? '<span title="'+pi.label+'" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:'+pi.dot+';font-weight:600;background:'+pi.dot+'18;padding:3px 8px;border-radius:999px"><span style="width:8px;height:8px;border-radius:50%;background:'+pi.dot+';display:inline-block"></span>'+pi.label+'</span>' : ''; })() +
       '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
-      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">\ud83d\uddd1\ufe0f</button>' +
+      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
       '</div></div>' +
       '<div class="meta-grid">' +
       '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
@@ -576,7 +576,7 @@ function renderPrenotazioni() {
       '</div>' +
       '<div class="booking-actions">' +
       '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">\u270f\ufe0f Modifica</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">✏️ Modifica</button>' +
       '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
@@ -594,7 +594,7 @@ function aggiornaLink() {
   if (!selected) { el.innerHTML = '<span style="color:var(--muted)">Seleziona una prenotazione dalla lista.</span>'; return; }
   var cl = clLink(selected), bot = botLink(selected);
   el.innerHTML =
-    '<div style="font-size:.82rem;color:var(--muted);margin-bottom:10px">Selezionato: <strong style="color:var(--ink)">' + esc(selected.nome) + '</strong> \u00b7 ' + esc(selected.camera) + '</div>' +
+    '<div style="font-size:.82rem;color:var(--muted);margin-bottom:10px">Selezionato: <strong style="color:var(--ink)">' + esc(selected.nome) + '</strong> · ' + esc(selected.camera) + '</div>' +
     '<div class="link-box"><div class="link-box-label">Link Check-in</div><div class="link-box-url">' + esc(cl) + '</div><div class="link-box-btns">' +
     '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + cl.replace(/'/g,'%27') + '\',\'Copiato\')">Copia</button>' +
     '<button class="btn btn-green btn-sm" onclick="waLink(\'' + cl.replace(/'/g,'%27') + '\')">WhatsApp</button>' +
@@ -617,8 +617,8 @@ Abbassa la leva, estrai la chiave e apri il portone.';
 \
 In questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\
 \
-Lo vedi il portone grande con su scritto 1920! NON \u00e8 QUELLO!\
-C\'\u00e8 un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprir\u00e0.\
+Lo vedi il portone grande con su scritto 1920! NON è QUELLO!\
+C\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\
 \
 Una volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1954.\
 \
@@ -627,8 +627,8 @@ Sali al 1 piano e trovi la tua camera.';
 \
 In questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\
 \
-Lo vedi il portone grande con su scritto 1920! NON \u00e8 QUELLO!\
-C\'\u00e8 un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprir\u00e0.\
+Lo vedi il portone grande con su scritto 1920! NON è QUELLO!\
+C\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\
 \
 Una volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1956.\
 \
@@ -660,37 +660,37 @@ Vico Storto Sant\'Eligio 9 - Bitonto\
 To ensure a quick and easy check-in, please complete the online check-in before your arrival:\
 \
 ' + cl; },
-    fr: function(n,arr,par,cam,cl) { return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons h\u00e2te de vous accueillir.\
+    fr: function(n,arr,par,cam,cl) { return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons hâte de vous accueillir.\
 \
-Voici le r\u00e9capitulatif de votre r\u00e9servation :\
+Voici le récapitulatif de votre réservation :\
 \
 Du ' + arr + ' au ' + par + '\
 Chambre ' + cam + '\
 Vico Storto Sant\'Eligio 9 - Bitonto\
 \
-Pour garantir un acc\u00e8s rapide et autonome, merci de compl\u00e9ter le check-in en ligne avant votre arriv\u00e9e :\
+Pour garantir un accès rapide et autonome, merci de compléter le check-in en ligne avant votre arrivée :\
 \
 ' + cl; },
-    de: function(n,arr,par,cam,cl) { return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gew\u00e4hlt haben! Wir freuen uns, Sie begr\u00fc\u00dfen zu d\u00fcrfen.\
+    de: function(n,arr,par,cam,cl) { return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gewählt haben! Wir freuen uns, Sie begrüßen zu dürfen.\
 \
-Hier ist Ihre Buchungs\u00fcbersicht:\
+Hier ist Ihre Buchungsübersicht:\
 \
 Vom ' + arr + ' bis ' + par + '\
 Zimmer ' + cam + '\
 Vico Storto Sant\'Eligio 9 - Bitonto\
 \
-Bitte vervollst\u00e4ndigen Sie den Online-Check-in vor Ihrer Ankunft:\
+Bitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\
 \
 ' + cl; },
-    es: function(n,arr,par,cam,cl) { return 'Buenos d\u00edas ' + n + ', \u00a1gracias por elegir nuestro B&B! Estamos deseando recibirle.\
+    es: function(n,arr,par,cam,cl) { return 'Buenos días ' + n + ', ¡gracias por elegir nuestro B&B! Estamos deseando recibirle.\
 \
-Aqu\u00ed est\u00e1 el resumen de su reserva:\
+Aquí está el resumen de su reserva:\
 \
 Del ' + arr + ' al ' + par + '\
-Habitaci\u00f3n ' + cam + '\
+Habitación ' + cam + '\
 Vico Storto Sant\'Eligio 9 - Bitonto\
 \
-Para garantizar un acceso r\u00e1pido, le pedimos que complete el check-in online antes de su llegada:\
+Para garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\
 \
 ' + cl; }
   },
@@ -711,25 +711,25 @@ To ensure a quick and easy check-in, please complete the online check-in before 
 Thank you!'; },
     fr: function(n,cl) { return 'Bonjour ' + n + ' !\
 \
-Pour garantir un acc\u00e8s rapide, merci de compl\u00e9ter le check-in en ligne avant votre arriv\u00e9e :\
+Pour garantir un accès rapide, merci de compléter le check-in en ligne avant votre arrivée :\
 \
 ' + cl + '\
 \
 Merci !'; },
     de: function(n,cl) { return 'Hallo ' + n + '!\
 \
-Bitte vervollst\u00e4ndigen Sie den Online-Check-in vor Ihrer Ankunft:\
+Bitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\
 \
 ' + cl + '\
 \
 Danke!'; },
-    es: function(n,cl) { return '\u00a1Hola ' + n + '!\
+    es: function(n,cl) { return '¡Hola ' + n + '!\
 \
-Para garantizar un acceso r\u00e1pido, le pedimos que complete el check-in online antes de su llegada:\
+Para garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\
 \
 ' + cl + '\
 \
-\u00a1Gracias!'; }
+¡Gracias!'; }
   },
   chatbot: {
     it: function(n,bot) { return 'Ciao ' + n + '!\
@@ -752,23 +752,23 @@ You can write in any language, at any time.\
 Enjoy your stay!'; },
     fr: function(n,bot) { return 'Bonjour ' + n + ' !\
 \
-Voici Alò, votre assistant personnel H24 pour tout votre s\u00e9jour :\
+Voici Alò, votre assistant personnel H24 pour tout votre séjour :\
 \
 ' + bot + '\
 \
-Vous pouvez \u00e9crire dans n\'importe quelle langue, \u00e0 toute heure.\
+Vous pouvez écrire dans n\'importe quelle langue, à toute heure.\
 \
-Bon s\u00e9jour !'; },
+Bon séjour !'; },
     de: function(n,bot) { return 'Hallo ' + n + '!\
 \
-Das ist Alò, Ihr pers\u00f6nlicher 24/7-Assistent f\u00fcr Ihren gesamten Aufenthalt:\
+Das ist Alò, Ihr persönlicher 24/7-Assistent für Ihren gesamten Aufenthalt:\
 \
 ' + bot + '\
 \
-Sie k\u00f6nnen in jeder Sprache schreiben, zu jeder Zeit.\
+Sie können in jeder Sprache schreiben, zu jeder Zeit.\
 \
 Guten Aufenthalt!'; },
-    es: function(n,bot) { return '\u00a1Hola ' + n + '!\
+    es: function(n,bot) { return '¡Hola ' + n + '!\
 \
 Te presento a Alò, tu asistente personal H24 para toda tu estancia:\
 \
@@ -776,12 +776,12 @@ Te presento a Alò, tu asistente personal H24 para toda tu estancia:\
 \
 Puedes escribirle en cualquier idioma, a cualquier hora.\
 \
-\u00a1Que disfrutes tu estancia!'; }
+¡Que disfrutes tu estancia!'; }
   },
   reminder: {
     it: function(n,arr,cl) { return 'Ciao ' + n + '!\
 \
-Ti ricordiamo che il tuo arrivo \u00e8 previsto per il ' + arr + '. Se non hai ancora completato il check-in online:\
+Ti ricordiamo che il tuo arrivo è previsto per il ' + arr + '. Se non hai ancora completato il check-in online:\
 \
 ' + cl + '\
 \
@@ -795,25 +795,25 @@ A reminder that your arrival is scheduled for ' + arr + '. If you haven\'t compl
 Thank you!'; },
     fr: function(n,arr,cl) { return 'Bonjour ' + n + ' !\
 \
-Rappel : votre arriv\u00e9e est pr\u00e9vue le ' + arr + '. Si vous n\'avez pas encore compl\u00e9t\u00e9 le check-in en ligne :\
+Rappel : votre arrivée est prévue le ' + arr + '. Si vous n\'avez pas encore complété le check-in en ligne :\
 \
 ' + cl + '\
 \
 Merci !'; },
     de: function(n,arr,cl) { return 'Hallo ' + n + '!\
 \
-Erinnerung: Ihre Ankunft ist f\u00fcr den ' + arr + ' geplant. Falls Sie den Online-Check-in noch nicht abgeschlossen haben:\
+Erinnerung: Ihre Ankunft ist für den ' + arr + ' geplant. Falls Sie den Online-Check-in noch nicht abgeschlossen haben:\
 \
 ' + cl + '\
 \
 Danke!'; },
-    es: function(n,arr,cl) { return '\u00a1Hola ' + n + '!\
+    es: function(n,arr,cl) { return '¡Hola ' + n + '!\
 \
-Recordatorio: su llegada est\u00e1 prevista para el ' + arr + '. Si a\u00fan no ha completado el check-in online:\
+Recordatorio: su llegada está prevista para el ' + arr + '. Si aún no ha completado el check-in online:\
 \
 ' + cl + '\
 \
-\u00a1Gracias!'; }
+¡Gracias!'; }
   },
   istruzioni: {
     it: function(n,istrUrl,bot) { return 'Ciao ' + n + ', siamo pronti ad accoglierti!\
@@ -822,7 +822,7 @@ Clicca qui per scoprire come entrare e tutte le info utili per il tuo soggiorno:
 \
 ' + istrUrl + '\
 \
-Per qualsiasi domanda il tuo assistente H24 Alò \u00e8 sempre disponibile:\
+Per qualsiasi domanda il tuo assistente H24 Alò è sempre disponibile:\
 \
 ' + bot + '\
 \
@@ -838,9 +838,9 @@ For any questions, your 24/7 assistant Alò is always available:\
 ' + bot + '\
 \
 Enjoy your stay!'; },
-    fr: function(n,istrUrl,bot) { return 'Bonjour ' + n + ', nous sommes pr\u00eats \u00e0 vous accueillir !\
+    fr: function(n,istrUrl,bot) { return 'Bonjour ' + n + ', nous sommes prêts à vous accueillir !\
 \
-Cliquez ici pour savoir comment acc\u00e9der \u00e0 votre chambre et toutes les infos utiles :\
+Cliquez ici pour savoir comment accéder à votre chambre et toutes les infos utiles :\
 \
 ' + istrUrl + '\
 \
@@ -848,29 +848,29 @@ Pour toute question, votre assistant H24 Alò est toujours disponible :\
 \
 ' + bot + '\
 \
-Bon s\u00e9jour !'; },
+Bon séjour !'; },
     de: function(n,istrUrl,bot) { return 'Hallo ' + n + ', wir sind bereit, Sie zu empfangen!\
 \
-Klicken Sie hier f\u00fcr alle Informationen zu Ihrem Aufenthalt:\
+Klicken Sie hier für alle Informationen zu Ihrem Aufenthalt:\
 \
 ' + istrUrl + '\
 \
-F\u00fcr Fragen steht Ihnen Ihr 24/7-Assistent Alò zur Verf\u00fcgung:\
+Für Fragen steht Ihnen Ihr 24/7-Assistent Alò zur Verfügung:\
 \
 ' + bot + '\
 \
 Guten Aufenthalt!'; },
-    es: function(n,istrUrl,bot) { return '\u00a1Hola ' + n + ', estamos listos para recibirle!\
+    es: function(n,istrUrl,bot) { return '¡Hola ' + n + ', estamos listos para recibirle!\
 \
-Haga clic aqu\u00ed para saber c\u00f3mo acceder a su habitaci\u00f3n y toda la informaci\u00f3n \u00fatil:\
+Haga clic aquí para saber cómo acceder a su habitación y toda la información útil:\
 \
 ' + istrUrl + '\
 \
-Para cualquier pregunta, su asistente H24 Alò siempre est\u00e1 disponible:\
+Para cualquier pregunta, su asistente H24 Alò siempre está disponible:\
 \
 ' + bot + '\
 \
-\u00a1Que disfrute su estancia!'; }
+¡Que disfrute su estancia!'; }
   },
   checkout: {
     it: function(n,canale,rev) { return 'Ciao ' + n + '!\
@@ -891,28 +891,28 @@ If you have 2 minutes, a review' + (canale ? ' on ' + canale : '') + ' would mea
 Thank you so much, see you next time!'; },
     fr: function(n,canale,rev) { return 'Bonjour ' + n + ' !\
 \
-Nous esp\u00e9rons que votre s\u00e9jour a \u00e9t\u00e9 agr\u00e9able.\
-Si vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait \u00e9norm\u00e9ment :\
+Nous espérons que votre séjour a été agréable.\
+Si vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait énormément :\
 \
 ' + rev + '\
 \
-Merci du fond du c\u0153ur, \u00e0 bient\u00f4t !'; },
+Merci du fond du cœur, à bientôt !'; },
     de: function(n,canale,rev) { return 'Hallo ' + n + '!\
 \
 Wir hoffen, Ihr Aufenthalt war angenehm.\
-Wenn Sie 2 Minuten Zeit haben, w\u00fcrde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\
+Wenn Sie 2 Minuten Zeit haben, würde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\
 \
 ' + rev + '\
 \
-Vielen herzlichen Dank, bis zum n\u00e4chsten Mal!'; },
-    es: function(n,canale,rev) { return '\u00a1Hola ' + n + '!\
+Vielen herzlichen Dank, bis zum nächsten Mal!'; },
+    es: function(n,canale,rev) { return '¡Hola ' + n + '!\
 \
 Esperamos que su estancia haya sido agradable.\
-Si tiene 2 minutos, una rese\u00f1a' + (canale ? ' en ' + canale : '') + ' nos ayudar\u00eda much\u00edsimo:\
+Si tiene 2 minutos, una reseña' + (canale ? ' en ' + canale : '') + ' nos ayudaría muchísimo:\
 \
 ' + rev + '\
 \
-\u00a1Much\u00edsimas gracias, hasta la pr\u00f3xima!'; }
+¡Muchísimas gracias, hasta la próxima!'; }
   },
   pulizie: {
     it: function(cam, par, note) {
@@ -999,7 +999,7 @@ function modificaPrenotazione(id) {
   document.getElementById('f-nome').dataset.editId = id;
   document.getElementById('salvataEsito').textContent = '';
   showTab('nuova');
-  document.querySelector('[onclick="salvaPrenotazione()"]').textContent = '\ud83d\udcbe Salva modifiche';
+  document.querySelector('[onclick="salvaPrenotazione()"]').textContent = '💾 Salva modifiche';
 }
 
 function salvaPrenotazione() {
@@ -1080,12 +1080,12 @@ function loadConversazioni() {
         var isBot = m.ruolo === 'alo';
         return '<div style="margin:4px 0;padding:7px 11px;border-radius:10px;font-size:13px;line-height:1.5;' +
           (isBot ? 'background:var(--cream);border:1px solid var(--line);' : 'background:var(--brown);color:#fff;margin-left:20px;') + '">' +
-          '<span style="font-size:10px;font-weight:700;opacity:.6;display:block;margin-bottom:2px">' + (isBot ? 'AL\u00d2' : 'OSPITE') + '</span>' +
+          '<span style="font-size:10px;font-weight:700;opacity:.6;display:block;margin-bottom:2px">' + (isBot ? 'ALÒ' : 'OSPITE') + '</span>' +
           esc(m.messaggio) + '</div>';
       }).join('');
       return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-        '<div><strong style="font-size:.95rem">' + esc(g.nome||'Ospite') + '</strong> \u00b7 <span style="color:var(--muted);font-size:12px">Camera ' + esc(g.camera||'--') + '</span></div>' +
+        '<div><strong style="font-size:.95rem">' + esc(g.nome||'Ospite') + '</strong> · <span style="color:var(--muted);font-size:12px">Camera ' + esc(g.camera||'--') + '</span></div>' +
         '<span style="font-size:11px;color:var(--muted)">' + g.data + '</span></div>' +
         msgs + '</div>';
     }).join('');
@@ -1097,7 +1097,7 @@ function loadConversazioni() {
 // ===== ALLOGGIATI WEB =====
 var CODICE_STRUTTURA = 'BA008847 ';
 var TIPI_DOC_AW = {
-  'IDENT': 'IDENT', 'Carta di identit\u00e0': 'IDENT',
+  'IDENT': 'IDENT', 'Carta di identità': 'IDENT',
   'IDELE': 'IDELE', 'PASOR': 'PASOR', 'Passaporto': 'PASOR',
   'PATEN': 'PATEN', 'Patente': 'PATEN', 'RIFUG': 'RIFUG', 'Permesso di soggiorno': 'RIFUG',
 };
@@ -1138,8 +1138,8 @@ function loadAlloggiati() {
     root.innerHTML = completate.map(function(p) {
       return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
         '<div><div style="font-weight:600;font-size:.95rem">' + esc(p.nome||'--') + '</div>' +
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' \u00b7 ' + fmt(p.arrivo) + ' \u2192 ' + fmt(p.partenza) + ' \u00b7 ' + (p.num_ospiti||1) + ' ospiti</div></div>' +
-        '<button class="btn btn-primary btn-sm" onclick="generaSchedina(' + p.id + ')">\ud83d\udccb Genera schedina</button>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' · ' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + ' · ' + (p.num_ospiti||1) + ' ospiti</div></div>' +
+        '<button class="btn btn-primary btn-sm" onclick="generaSchedina(' + p.id + ')">📋 Genera schedina</button>' +
         '</div>';
     }).join('');
   });
@@ -1178,7 +1178,7 @@ function aggiornaPulizie() {
     var cam = (p.camera||'').replace('Camera ','');
     var ospite = (p.nome||'').split(' ')[0];
     var stesso = prenotazioni.find(function(q) { return q.arrivo === tStr && q.camera === p.camera && q.id !== p.id; });
-    var r = '\u2022 Camera ' + cam + ' (check-out: ' + ospite + ')';
+    var r = '• Camera ' + cam + ' (check-out: ' + ospite + ')';
     if (stesso) r += nl + '  NB: nuovo arrivo: ' + (stesso.nome||'').split(' ')[0];
     return r;
   });
@@ -1224,14 +1224,14 @@ function renderCalendario() {
   var cosOggi = prenotazioni.filter(function(p){ return p.partenza===todayStr; });
   var cisOggi = prenotazioni.filter(function(p){ return p.arrivo===todayStr; });
   var strip = '<div class="today-strip"><span class="today-strip-title">Oggi ' + today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) + '</span>';
-  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">\ud83d\udeb6 '+(p.nome||'').split(' ')[0]+' \u2013 '+(p.camera||'').replace('Camera ','')+'</span>'; });
-  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">\ud83d\udeec '+(p.nome||'').split(' ')[0]+' \u2013 '+(p.camera||'').replace('Camera ','')+'</span>'; });
+  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">🚶 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
+  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">🛬 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
   if (!cosOggi.length&&!cisOggi.length) strip += '<span class="today-pill none">Nessun arrivo o partenza oggi</span>';
   strip += '</div>';
   var d0 = dayList[0], d1 = dayList[WIN-1];
-  var rangeLabel = d0.d + ' ' + MESI_FULL[d0.m].slice(0,3) + (d0.y!==d1.y?' '+d0.y:'') + ' \u2192 ' + d1.d + ' ' + MESI_FULL[d1.m].slice(0,3) + ' ' + d1.y;
-  var nav = '<div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-15)">\u00ab -15</button><button class="cal-nav-btn" onclick="calShift(-7)">\u2039 -7</button><button class="cal-nav-btn" onclick="calGoToday()" style="background:var(--brown);color:#fff">Oggi</button><span class="cal-title" style="flex:1;text-align:center">' + rangeLabel + '</span><button class="cal-nav-btn" onclick="calShift(7)">+7 \u203a</button><button class="cal-nav-btn" onclick="calShift(15)">+15 \u00bb</button></div>';
-  var gotoRow = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;color:var(--muted)">Vai alla data:</span><input type="date" id="calGotoInput" style="padding:5px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px;color:var(--ink)"><button class="cal-nav-btn" onclick="calGoTo()">\u2192 Vai</button></div>';
+  var rangeLabel = d0.d + ' ' + MESI_FULL[d0.m].slice(0,3) + (d0.y!==d1.y?' '+d0.y:'') + ' → ' + d1.d + ' ' + MESI_FULL[d1.m].slice(0,3) + ' ' + d1.y;
+  var nav = '<div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-15)">« -15</button><button class="cal-nav-btn" onclick="calShift(-7)">‹ -7</button><button class="cal-nav-btn" onclick="calGoToday()" style="background:var(--brown);color:#fff">Oggi</button><span class="cal-title" style="flex:1;text-align:center">' + rangeLabel + '</span><button class="cal-nav-btn" onclick="calShift(7)">+7 ›</button><button class="cal-nav-btn" onclick="calShift(15)">+15 »</button></div>';
+  var gotoRow = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;color:var(--muted)">Vai alla data:</span><input type="date" id="calGotoInput" style="padding:5px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px;color:var(--ink)"><button class="cal-nav-btn" onclick="calGoTo()">→ Vai</button></div>';
   var leg = '<div class="cal-legend"><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#2563eb"></div>Prenotato</div><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#16a34a"></div>Check-in OK</div><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#9ca3af"></div>Passato</div></div>';
   var maps = CAMERE_CAL.map(function(cam) {
     var map = {};
@@ -1267,7 +1267,7 @@ function renderCalendario() {
           var lastVisDs = dayList[i+span-1].ds;
           var depD = new Date(pren.partenza+'T12:00:00'); depD.setDate(depD.getDate()-1);
           var isDep = depD.toISOString().slice(0,10) === lastVisDs;
-          var bar = '<div class="cal-bar" style="background:'+col+'"><div class="cal-bar-inner">'+(showArr?'<span class="cal-bar-x">\u25b6</span>':'')+'<span class="cal-bar-name">'+esc(nome)+'</span>'+(span > 2?'<span class="cal-bar-x">'+nights+'n</span>':'')+(isDep?'<span class="cal-bar-x">\u25c0</span>':'')+'</div><div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' \u2192 '+fmt(pren.partenza)+'<br>'+nights+' notti \u00b7 '+esc(stato)+'</div></div>';
+          var bar = '<div class="cal-bar" style="background:'+col+'"><div class="cal-bar-inner">'+(showArr?'<span class="cal-bar-x">▶</span>':'')+'<span class="cal-bar-name">'+esc(nome)+'</span>'+(span > 2?'<span class="cal-bar-x">'+nights+'n</span>':'')+(isDep?'<span class="cal-bar-x">◀</span>':'')+'</div><div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>'+nights+' notti · '+esc(stato)+'</div></div>';
           tbody += '<td class="'+cls+'" colspan="'+span+'" style="padding:3px 2px">'+bar+'</td>';
           i += span;
         } else { tbody += '<td class="'+cls+'"></td>'; i++; }
@@ -1285,8 +1285,8 @@ function renderCalendario() {
       prox += '<div class="prox-row"><span class="prox-date"'+(isT3?' style="color:var(--brown);font-weight:800"':'')+'>';
       prox += day.dateObj.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
       prox += (isT3?' (oggi)':'') + '</span>';
-      co2.forEach(function(p){ prox += '<span class="today-pill out" style="font-size:11px">\ud83d\udeb6 '+(p.nome||'').split(' ')[0]+'</span>'; });
-      ci2.forEach(function(p){ prox += '<span class="today-pill in" style="font-size:11px">\ud83d\udeec '+(p.nome||'').split(' ')[0]+'</span>'; });
+      co2.forEach(function(p){ prox += '<span class="today-pill out" style="font-size:11px">🚶 '+(p.nome||'').split(' ')[0]+'</span>'; });
+      ci2.forEach(function(p){ prox += '<span class="today-pill in" style="font-size:11px">🛬 '+(p.nome||'').split(' ')[0]+'</span>'; });
       prox += '</div>';
     }
   });
@@ -1307,7 +1307,7 @@ function apriCheckinModal(id) {
     if (o.documento_fronte_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_fronte_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Fronte</a> ';
     if (o.documento_retro_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_retro_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Retro</a> ';
     if (o.selfie_documento_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.selfie_documento_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Selfie</a>';
-    document.getElementById('ciModalBody').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'+(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')+'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">\u270e Modifica</button><button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca">\ud83d\uddd1 Elimina</button></div>';
+    document.getElementById('ciModalBody').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'+(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')+'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">✎ Modifica</button><button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca">🗑 Elimina</button></div>';
     document.getElementById('ciModal').style.display = 'flex';
   });
 }
@@ -1321,9 +1321,9 @@ function apriModificaCI(id) {
   var g2 = 'display:grid;grid-template-columns:1fr 1fr;gap:10px';
   var html = sez('Anagrafica') + '<div style="'+g2+'">' + inp('nome','Nome') + inp('cognome','Cognome') + sel('sesso','Sesso',[{v:'1',t:'Maschio'},{v:'2',t:'Femmina'}]) + inp('data_nascita','Data nascita','date') + sel('tipo_alloggiato','Tipo alloggiato',TIPI_ALL) + '</div>' +
     sez('Nascita') + '<div style="'+g2+'">' + sel('nato_italia','Nato in Italia',[{v:'true',t:'Si'},{v:'false',t:'No'}]) + inp('provincia_nascita','Provincia (EE se estero)') + inp('comune_nascita_codice','Codice comune nascita (IT)') + inp('stato_nascita_codice','Codice stato nascita (estero)') + inp('cittadinanza_codice','Codice cittadinanza') + '</div>' +
-    sez('Documento') + '<div style="'+g2+'">' + sel('tipo_documento','Tipo doc',[{v:'IDENT',t:'Carta identit\u00e0'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]) + inp('numero_documento','Numero documento') + inp('data_rilascio_documento','Data rilascio','date') + inp('luogo_rilascio_codice','Codice luogo rilascio') + '</div>' +
-    '<div style="background:var(--warn-bg);border:1px solid #fcd34d;border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px">\u2139 Per stranieri: Codice luogo rilascio = codice stato (es. 100000215 per Francia)</div>' +
-    '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">\u2713 Salva</button><button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
+    sez('Documento') + '<div style="'+g2+'">' + sel('tipo_documento','Tipo doc',[{v:'IDENT',t:'Carta identità'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]) + inp('numero_documento','Numero documento') + inp('data_rilascio_documento','Data rilascio','date') + inp('luogo_rilascio_codice','Codice luogo rilascio') + '</div>' +
+    '<div style="background:var(--warn-bg);border:1px solid #fcd34d;border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px">ℹ Per stranieri: Codice luogo rilascio = codice stato (es. 100000215 per Francia)</div>' +
+    '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">✓ Salva</button><button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
   document.getElementById('ciModalBody').innerHTML = html;
 }
 
