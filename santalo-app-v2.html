@@ -35,20 +35,33 @@
     .tab.active{background:var(--brown);color:#fff}
     .list{display:flex;flex-direction:column;gap:11px;max-height:72vh;overflow-y:auto;padding-right:4px}
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
-    .booking{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;transition:border-color .15s}
+    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;overflow:hidden}
     .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.08)}
-    .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
-    .booking-name{font-size:1.05rem;font-weight:600}
-    .booking-sub{font-size:11px;color:var(--muted);margin-top:1px}
-    .status-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+    .booking:not(.active):hover{border-color:var(--sand);box-shadow:0 2px 12px rgba(107,45,31,.07)}
+    .booking-stripe{height:4px;width:100%}
+    .booking-body{padding:13px 14px 11px}
+    .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:7px}
+    .booking-name{font-size:1rem;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+    .booking-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+    .booking-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+    .status-pill{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
     .s-da{background:var(--warn-bg);color:var(--warn)}
     .s-ok{background:var(--ok-bg);color:var(--ok)}
     .s-inv{background:#dbeafe;color:#1e40af}
-    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
-    .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
-    .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-    .meta-cell span{font-size:13px;font-weight:500}
-    .booking-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+    /* Info inline compatta */
+    .booking-info-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+    .info-chip{display:inline-flex;align-items:center;gap:3px;background:var(--cream);border:1px solid var(--cream-d);border-radius:8px;padding:4px 9px;font-size:12px;font-weight:600;color:var(--ink)}
+    .info-chip .lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-right:2px}
+    /* Bottoni azioni */
+    .booking-actions{display:flex;gap:5px;flex-wrap:wrap}
+    .meta-grid{display:none} /* nascosto — info nella riga compatta */
+    @media(min-width:700px){
+      .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
+      .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
+      .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+      .meta-cell span{font-size:13px;font-weight:500}
+      .booking-info-row{display:none}
+    }
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ff{display:flex;flex-direction:column;gap:4px}
     .ff label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -265,7 +278,7 @@
               <option value="checkin">Link check-in</option>
               <option value="chatbot">Link assistente AI</option>
               <option value="reminder">Reminder check-in</option>
-              <option value="istruzioni">Istruzioni accesso</option>
+              <option value="benvenuto">🏠 Benvenuto · Accesso</option>
               <option value="checkout">Richiesta recensione</option>
               <option value="pulizie">🧹 Pulizie (Marianna)</option>
             </select>
@@ -324,6 +337,7 @@ var sb = window.supabase.createClient(SB_URL, SB_KEY);
 var BASE = 'https://fdp88.github.io/SANTALO';
 var CHECKIN_URL = BASE + '/santalo-checkin-ospite.html';
 var CHATBOT_URL = BASE + '/santalo-chat.html';
+var GUEST_URL   = BASE + '/santalo-guest.html';
 var MAPS_URL = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
 var PULIZIE_PHONE = '393802473821';
 var prenotazioni = [];
@@ -355,6 +369,10 @@ function clLink(p) {
 function botLink(p) {
   var q = new URLSearchParams({prenotazione_id:p.id, nome:p.nome||'', camera:p.camera||'', arrivo:p.arrivo||'', partenza:p.partenza||''});
   return CHATBOT_URL + '?' + q;
+}
+function guestLink(p) {
+  var q = new URLSearchParams({nome:p.nome||'', camera:p.camera||'', arrivo:p.arrivo||'', partenza:p.partenza||''});
+  return GUEST_URL + '?' + q;
 }
 function esito(id, msg, c) {
   var e = document.getElementById(id);
@@ -497,7 +515,7 @@ function loadAll() {
     }
     prenotazioni = result.data || [];
 
-    // Riordina: oggi prima, poi struttura, poi arrivo, poi altri, poi passati
+    // Riordina: check-in prima, poi permanenza, checkout, arrivo, altri, passati
     var order = {oggi:0, struttura:1, arrivo:2, altri:3, passati:4};
     prenotazioni.sort(function(a,b) {
       var ca = order[categorize(a)] ?? 3;
@@ -554,7 +572,7 @@ function renderPrenotazioni() {
     var isInStruttura = (cat === 'struttura');
     var cardClass = 'booking' + (selected && selected.id === p.id ? ' active' : '') + (isToday ? ' oggi-highlight' : '');
 
-    var oggiTag = isToday ? '<span class="oggi-badge">OGGI</span>' : '';
+    var oggiTag = isToday ? '<span class="oggi-badge">● OGGI</span>' : '';
     var strutTag = isInStruttura ? '<span class="oggi-badge" style="background:#dbeafe;color:#1e3a8a">IN STRUTTURA</span>' : '';
 
     return '<div class="' + cardClass + '">' +
@@ -566,7 +584,7 @@ function renderPrenotazioni() {
       '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
       (function(){ var pi=presenceInfo(p); return pi ? '<span title="'+pi.label+'" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:'+pi.dot+';font-weight:600;background:'+pi.dot+'18;padding:3px 8px;border-radius:999px"><span style="width:8px;height:8px;border-radius:50%;background:'+pi.dot+';display:inline-block"></span>'+pi.label+'</span>' : ''; })() +
       '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
-      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
+      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event);event.stopPropagation()" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
       '</div></div>' +
       '<div class="meta-grid">' +
       '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
@@ -576,12 +594,12 @@ function renderPrenotazioni() {
       '</div>' +
       '<div class="booking-actions">' +
       '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">✏️ Modifica</button>' +
-      '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
+      '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy('' + clLink(p).replace(/'/g,'%27') + '','Link check-in copiato')">Copia check-in</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy('' + botLink(p).replace(/'/g,'%27') + '','Link chatbot copiato')">Copia chatbot</button>' +
       '</div></div>';
-  }).join('');
+    }).join('');
 }
 
 function seleziona(id) {
@@ -607,321 +625,52 @@ function aggiornaLink() {
 }
 
 // ===== MESSAGGI WHATSAPP =====
-function istr(cam) {
-  var c = String(cam||'').replace('Camera ','');
-  if (c==='1920') return 'Accesso Camera 1920 - Piano terra\
-All\'esterno trovi una key box sul muro.\
-Codice: 4660\
-Abbassa la leva, estrai la chiave e apri il portone.';
-  if (c==='1954') return 'Accesso Camera 1954 - Primo piano\
-\
-In questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\
-\
-Lo vedi il portone grande con su scritto 1920! NON è QUELLO!\
-C\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\
-\
-Una volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1954.\
-\
-Sali al 1 piano e trovi la tua camera.';
-  if (c==='1956') return 'Accesso Camera 1956 - Secondo piano\
-\
-In questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\
-\
-Lo vedi il portone grande con su scritto 1920! NON è QUELLO!\
-C\'è un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprirà.\
-\
-Una volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1956.\
-\
-Sali al 2 piano e trovi la tua camera.';
-  return 'Ti invieremo le istruzioni specifiche per la tua camera.';
-}
-
 var TEMPLATES = {
   conferma: {
-    it: function(n,arr,par,cam,cl) { return 'Buongiorno ' + n + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\
-\
-Ecco il riepilogo della tua prenotazione:\
-\
-Dal ' + arr + ' al ' + par + '\
-Camera ' + cam + '\
-Vico Storto Sant\'Eligio 9 - Bitonto\
-\
-Per garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\
-\
-' + cl; },
-    en: function(n,arr,par,cam,cl) { return 'Good morning ' + n + ', thank you for choosing our B&B! We look forward to welcoming you.\
-\
-Here is your booking summary:\
-\
-From ' + arr + ' to ' + par + '\
-Room ' + cam + '\
-Vico Storto Sant\'Eligio 9 - Bitonto\
-\
-To ensure a quick and easy check-in, please complete the online check-in before your arrival:\
-\
-' + cl; },
-    fr: function(n,arr,par,cam,cl) { return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons hâte de vous accueillir.\
-\
-Voici le récapitulatif de votre réservation :\
-\
-Du ' + arr + ' au ' + par + '\
-Chambre ' + cam + '\
-Vico Storto Sant\'Eligio 9 - Bitonto\
-\
-Pour garantir un accès rapide et autonome, merci de compléter le check-in en ligne avant votre arrivée :\
-\
-' + cl; },
-    de: function(n,arr,par,cam,cl) { return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gewählt haben! Wir freuen uns, Sie begrüßen zu dürfen.\
-\
-Hier ist Ihre Buchungsübersicht:\
-\
-Vom ' + arr + ' bis ' + par + '\
-Zimmer ' + cam + '\
-Vico Storto Sant\'Eligio 9 - Bitonto\
-\
-Bitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\
-\
-' + cl; },
-    es: function(n,arr,par,cam,cl) { return 'Buenos días ' + n + ', ¡gracias por elegir nuestro B&B! Estamos deseando recibirle.\
-\
-Aquí está el resumen de su reserva:\
-\
-Del ' + arr + ' al ' + par + '\
-Habitación ' + cam + '\
-Vico Storto Sant\'Eligio 9 - Bitonto\
-\
-Para garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\
-\
-' + cl; }
+    it: function(n,arr,par,cam,cl) { return 'Buongiorno ' + n + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\n\nEcco il riepilogo della tua prenotazione:\n\nDal ' + arr + ' al ' + par + '\nCamera ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl; },
+    en: function(n,arr,par,cam,cl) { return 'Good morning ' + n + ', thank you for choosing our B&B! We look forward to welcoming you.\n\nHere is your booking summary:\n\nFrom ' + arr + ' to ' + par + '\nRoom ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nTo ensure a quick and easy check-in, please complete the online check-in before your arrival:\n\n' + cl; },
+    fr: function(n,arr,par,cam,cl) { return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons hâte de vous accueillir.\n\nVoici le récapitulatif de votre réservation :\n\nDu ' + arr + ' au ' + par + '\nChambre ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPour garantir un accès rapide et autonome, merci de compléter le check-in en ligne avant votre arrivée :\n\n' + cl; },
+    de: function(n,arr,par,cam,cl) { return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gewählt haben! Wir freuen uns, Sie begrüßen zu dürfen.\n\nHier ist Ihre Buchungsübersicht:\n\nVom ' + arr + ' bis ' + par + '\nZimmer ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nBitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\n\n' + cl; },
+    es: function(n,arr,par,cam,cl) { return 'Buenos días ' + n + ', ¡gracias por elegir nuestro B&B! Estamos deseando recibirle.\n\nAquí está el resumen de su reserva:\n\nDel ' + arr + ' al ' + par + '\nHabitación ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPara garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\n\n' + cl; }
   },
   checkin: {
-    it: function(n,cl) { return 'Ciao ' + n + '!\
-\
-Per garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\
-\
-' + cl + '\
-\
-Grazie!'; },
-    en: function(n,cl) { return 'Hi ' + n + '!\
-\
-To ensure a quick and easy check-in, please complete the online check-in before your arrival:\
-\
-' + cl + '\
-\
-Thank you!'; },
-    fr: function(n,cl) { return 'Bonjour ' + n + ' !\
-\
-Pour garantir un accès rapide, merci de compléter le check-in en ligne avant votre arrivée :\
-\
-' + cl + '\
-\
-Merci !'; },
-    de: function(n,cl) { return 'Hallo ' + n + '!\
-\
-Bitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\
-\
-' + cl + '\
-\
-Danke!'; },
-    es: function(n,cl) { return '¡Hola ' + n + '!\
-\
-Para garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\
-\
-' + cl + '\
-\
-¡Gracias!'; }
+    it: function(n,cl) { return 'Ciao ' + n + '!\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl + '\n\nGrazie!'; },
+    en: function(n,cl) { return 'Hi ' + n + '!\n\nTo ensure a quick and easy check-in, please complete the online check-in before your arrival:\n\n' + cl + '\n\nThank you!'; },
+    fr: function(n,cl) { return 'Bonjour ' + n + ' !\n\nPour garantir un accès rapide, merci de compléter le check-in en ligne avant votre arrivée :\n\n' + cl + '\n\nMerci !'; },
+    de: function(n,cl) { return 'Hallo ' + n + '!\n\nBitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\n\n' + cl + '\n\nDanke!'; },
+    es: function(n,cl) { return '¡Hola ' + n + '!\n\nPara garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\n\n' + cl + '\n\n¡Gracias!'; }
   },
   chatbot: {
-    it: function(n,bot) { return 'Ciao ' + n + '!\
-\
-Ti presento Alò, il tuo assistente personale H24 per tutto il soggiorno:\
-\
-' + bot + '\
-\
-Puoi scrivergli in qualsiasi lingua, a qualsiasi ora.\
-\
-Buon soggiorno!'; },
-    en: function(n,bot) { return 'Hi ' + n + '!\
-\
-Meet Alò, your personal 24/7 assistant for your entire stay:\
-\
-' + bot + '\
-\
-You can write in any language, at any time.\
-\
-Enjoy your stay!'; },
-    fr: function(n,bot) { return 'Bonjour ' + n + ' !\
-\
-Voici Alò, votre assistant personnel H24 pour tout votre séjour :\
-\
-' + bot + '\
-\
-Vous pouvez écrire dans n\'importe quelle langue, à toute heure.\
-\
-Bon séjour !'; },
-    de: function(n,bot) { return 'Hallo ' + n + '!\
-\
-Das ist Alò, Ihr persönlicher 24/7-Assistent für Ihren gesamten Aufenthalt:\
-\
-' + bot + '\
-\
-Sie können in jeder Sprache schreiben, zu jeder Zeit.\
-\
-Guten Aufenthalt!'; },
-    es: function(n,bot) { return '¡Hola ' + n + '!\
-\
-Te presento a Alò, tu asistente personal H24 para toda tu estancia:\
-\
-' + bot + '\
-\
-Puedes escribirle en cualquier idioma, a cualquier hora.\
-\
-¡Que disfrutes tu estancia!'; }
+    it: function(n,bot) { return 'Ciao ' + n + '!\n\nTi presento Alò, il tuo assistente personale H24 per tutto il soggiorno:\n\n' + bot + '\n\nPuoi scrivergli in qualsiasi lingua, a qualsiasi ora.\n\nBuon soggiorno!'; },
+    en: function(n,bot) { return 'Hi ' + n + '!\n\nMeet Alò, your personal 24/7 assistant for your entire stay:\n\n' + bot + '\n\nYou can write in any language, at any time.\n\nEnjoy your stay!'; },
+    fr: function(n,bot) { return 'Bonjour ' + n + ' !\n\nVoici Alò, votre assistant personnel H24 pour tout votre séjour :\n\n' + bot + '\n\nVous pouvez écrire dans n\'importe quelle langue, à toute heure.\n\nBon séjour !'; },
+    de: function(n,bot) { return 'Hallo ' + n + '!\n\nDas ist Alò, Ihr persönlicher 24/7-Assistent für Ihren gesamten Aufenthalt:\n\n' + bot + '\n\nSie können in jeder Sprache schreiben, zu jeder Zeit.\n\nGuten Aufenthalt!'; },
+    es: function(n,bot) { return '¡Hola ' + n + '!\n\nTe presento a Alò, tu asistente personal H24 para toda tu estancia:\n\n' + bot + '\n\nPuedes escribirle en cualquier idioma, a cualquier hora.\n\n¡Que disfrutes tu estancia!'; }
   },
   reminder: {
-    it: function(n,arr,cl) { return 'Ciao ' + n + '!\
-\
-Ti ricordiamo che il tuo arrivo è previsto per il ' + arr + '. Se non hai ancora completato il check-in online:\
-\
-' + cl + '\
-\
-Grazie!'; },
-    en: function(n,arr,cl) { return 'Hi ' + n + '!\
-\
-A reminder that your arrival is scheduled for ' + arr + '. If you haven\'t completed the online check-in yet:\
-\
-' + cl + '\
-\
-Thank you!'; },
-    fr: function(n,arr,cl) { return 'Bonjour ' + n + ' !\
-\
-Rappel : votre arrivée est prévue le ' + arr + '. Si vous n\'avez pas encore complété le check-in en ligne :\
-\
-' + cl + '\
-\
-Merci !'; },
-    de: function(n,arr,cl) { return 'Hallo ' + n + '!\
-\
-Erinnerung: Ihre Ankunft ist für den ' + arr + ' geplant. Falls Sie den Online-Check-in noch nicht abgeschlossen haben:\
-\
-' + cl + '\
-\
-Danke!'; },
-    es: function(n,arr,cl) { return '¡Hola ' + n + '!\
-\
-Recordatorio: su llegada está prevista para el ' + arr + '. Si aún no ha completado el check-in online:\
-\
-' + cl + '\
-\
-¡Gracias!'; }
+    it: function(n,arr,cl) { return 'Ciao ' + n + '!\n\nTi ricordiamo che il tuo arrivo è previsto per il ' + arr + '. Se non hai ancora completato il check-in online:\n\n' + cl + '\n\nGrazie!'; },
+    en: function(n,arr,cl) { return 'Hi ' + n + '!\n\nA reminder that your arrival is scheduled for ' + arr + '. If you haven\'t completed the online check-in yet:\n\n' + cl + '\n\nThank you!'; },
+    fr: function(n,arr,cl) { return 'Bonjour ' + n + ' !\n\nRappel : votre arrivée est prévue le ' + arr + '. Si vous n\'avez pas encore complété le check-in en ligne :\n\n' + cl + '\n\nMerci !'; },
+    de: function(n,arr,cl) { return 'Hallo ' + n + '!\n\nErinnerung: Ihre Ankunft ist für den ' + arr + ' geplant. Falls Sie den Online-Check-in noch nicht abgeschlossen haben:\n\n' + cl + '\n\nDanke!'; },
+    es: function(n,arr,cl) { return '¡Hola ' + n + '!\n\nRecordatorio: su llegada está prevista para el ' + arr + '. Si aún no ha completado el check-in online:\n\n' + cl + '\n\n¡Gracias!'; }
   },
-  istruzioni: {
-    it: function(n,istrUrl,bot) { return 'Ciao ' + n + ', siamo pronti ad accoglierti!\
-\
-Clicca qui per scoprire come entrare e tutte le info utili per il tuo soggiorno:\
-\
-' + istrUrl + '\
-\
-Per qualsiasi domanda il tuo assistente H24 Alò è sempre disponibile:\
-\
-' + bot + '\
-\
-Buon soggiorno!'; },
-    en: function(n,istrUrl,bot) { return 'Hi ' + n + ', we are ready to welcome you!\
-\
-Click here to find out how to access your room and all useful information for your stay:\
-\
-' + istrUrl + '\
-\
-For any questions, your 24/7 assistant Alò is always available:\
-\
-' + bot + '\
-\
-Enjoy your stay!'; },
-    fr: function(n,istrUrl,bot) { return 'Bonjour ' + n + ', nous sommes prêts à vous accueillir !\
-\
-Cliquez ici pour savoir comment accéder à votre chambre et toutes les infos utiles :\
-\
-' + istrUrl + '\
-\
-Pour toute question, votre assistant H24 Alò est toujours disponible :\
-\
-' + bot + '\
-\
-Bon séjour !'; },
-    de: function(n,istrUrl,bot) { return 'Hallo ' + n + ', wir sind bereit, Sie zu empfangen!\
-\
-Klicken Sie hier für alle Informationen zu Ihrem Aufenthalt:\
-\
-' + istrUrl + '\
-\
-Für Fragen steht Ihnen Ihr 24/7-Assistent Alò zur Verfügung:\
-\
-' + bot + '\
-\
-Guten Aufenthalt!'; },
-    es: function(n,istrUrl,bot) { return '¡Hola ' + n + ', estamos listos para recibirle!\
-\
-Haga clic aquí para saber cómo acceder a su habitación y toda la información útil:\
-\
-' + istrUrl + '\
-\
-Para cualquier pregunta, su asistente H24 Alò siempre está disponible:\
-\
-' + bot + '\
-\
-¡Que disfrute su estancia!'; }
+  benvenuto: {
+    it: function(n,gl) { return 'Ciao ' + n + '! 🏠\n\nSiamo pronti ad accoglierti. Qui trovi tutto quello che ti serve per il tuo soggiorno: come entrare in camera, WiFi, parcheggio, dove mangiare, cosa vedere a Bitonto e molto altro.\n\n' + gl + '\n\nPer qualsiasi domanda, Alò è sempre disponibile H24 direttamente dalla pagina.\n\nBuon soggiorno! 🌿'; },
+    en: function(n,gl) { return 'Hi ' + n + '! 🏠\n\nWe\'re ready to welcome you. Here you\'ll find everything you need for your stay: how to access your room, WiFi, parking, where to eat, what to see in Bitonto and much more.\n\n' + gl + '\n\nFor any questions, Alò is always available 24/7 directly from the page.\n\nEnjoy your stay! 🌿'; },
+    fr: function(n,gl) { return 'Bonjour ' + n + ' ! 🏠\n\nNous sommes prêts à vous accueillir. Vous trouverez ici tout ce dont vous avez besoin : comment entrer dans votre chambre, WiFi, parking, où manger, quoi voir à Bitonto et bien plus.\n\n' + gl + '\n\nPour toute question, Alò est toujours disponible H24 directement depuis la page.\n\nBon séjour ! 🌿'; },
+    de: function(n,gl) { return 'Hallo ' + n + '! 🏠\n\nWir sind bereit, Sie zu empfangen. Hier finden Sie alles für Ihren Aufenthalt: Zugang zum Zimmer, WLAN, Parken, wo man essen kann, was man in Bitonto sehen kann und vieles mehr.\n\n' + gl + '\n\nFür Fragen steht Ihnen Alò 24/7 direkt auf der Seite zur Verfügung.\n\nGuten Aufenthalt! 🌿'; },
+    es: function(n,gl) { return '¡Hola ' + n + '! 🏠\n\nEstamos listos para recibirle. Aquí encontrará todo lo que necesita para su estancia: cómo acceder a su habitación, WiFi, aparcamiento, dónde comer, qué ver en Bitonto y mucho más.\n\n' + gl + '\n\nPara cualquier pregunta, Alò está siempre disponible 24/7 directamente desde la página.\n\n¡Que disfrute su estancia! 🌿'; }
   },
   checkout: {
-    it: function(n,canale,rev) { return 'Ciao ' + n + '!\
-\
-Speriamo che il soggiorno sia stato piacevole.\
-Se hai 2 minuti, una recensione' + (canale ? ' su ' + canale : '') + ' ci aiuterebbe moltissimo:\
-\
-' + rev + '\
-\
-Grazie di cuore, alla prossima!'; },
-    en: function(n,canale,rev) { return 'Hi ' + n + '!\
-\
-We hope you enjoyed your stay.\
-If you have 2 minutes, a review' + (canale ? ' on ' + canale : '') + ' would mean a lot to us:\
-\
-' + rev + '\
-\
-Thank you so much, see you next time!'; },
-    fr: function(n,canale,rev) { return 'Bonjour ' + n + ' !\
-\
-Nous espérons que votre séjour a été agréable.\
-Si vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait énormément :\
-\
-' + rev + '\
-\
-Merci du fond du cœur, à bientôt !'; },
-    de: function(n,canale,rev) { return 'Hallo ' + n + '!\
-\
-Wir hoffen, Ihr Aufenthalt war angenehm.\
-Wenn Sie 2 Minuten Zeit haben, würde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\
-\
-' + rev + '\
-\
-Vielen herzlichen Dank, bis zum nächsten Mal!'; },
-    es: function(n,canale,rev) { return '¡Hola ' + n + '!\
-\
-Esperamos que su estancia haya sido agradable.\
-Si tiene 2 minutos, una reseña' + (canale ? ' en ' + canale : '') + ' nos ayudaría muchísimo:\
-\
-' + rev + '\
-\
-¡Muchísimas gracias, hasta la próxima!'; }
+    it: function(n,canale,rev) { return 'Ciao ' + n + '!\n\nSperiamo che il soggiorno sia stato piacevole.\nSe hai 2 minuti, una recensione' + (canale ? ' su ' + canale : '') + ' ci aiuterebbe moltissimo:\n\n' + rev + '\n\nGrazie di cuore, alla prossima!'; },
+    en: function(n,canale,rev) { return 'Hi ' + n + '!\n\nWe hope you enjoyed your stay.\nIf you have 2 minutes, a review' + (canale ? ' on ' + canale : '') + ' would mean a lot to us:\n\n' + rev + '\n\nThank you so much, see you next time!'; },
+    fr: function(n,canale,rev) { return 'Bonjour ' + n + ' !\n\nNous espérons que votre séjour a été agréable.\nSi vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait énormément :\n\n' + rev + '\n\nMerci du fond du cœur, à bientôt !'; },
+    de: function(n,canale,rev) { return 'Hallo ' + n + '!\n\nWir hoffen, Ihr Aufenthalt war angenehm.\nWenn Sie 2 Minuten Zeit haben, würde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\n\n' + rev + '\n\nVielen herzlichen Dank, bis zum nächsten Mal!'; },
+    es: function(n,canale,rev) { return '¡Hola ' + n + '!\n\nEsperamos que su estancia haya sido agradable.\nSi tiene 2 minutos, una reseña' + (canale ? ' en ' + canale : '') + ' nos ayudaría muchísimo:\n\n' + rev + '\n\n¡Muchísimas gracias, hasta la próxima!'; }
   },
   pulizie: {
     it: function(cam, par, note) {
-      return 'Ciao Marianna!\
-Ci sarebbe da pulire la ' + cam + ' il giorno di check out (' + par + ').' + (note ? '\
-\
-Note: ' + note : '') + '\
-\
-Grazie!';
+      return 'Ciao Marianna!\nCi sarebbe da pulire la ' + cam + ' il giorno di check out (' + par + ').' + (note ? '\n\nNote: ' + note : '') + '\n\nGrazie!';
     }
   }
 };
@@ -938,9 +687,6 @@ function generaMessaggio() {
   var fn = T[lang] || T['en'] || T['it'];
   var msg = '';
   var camNum = String(camera||'').replace('Camera ','');
-  var istrUrl = (camNum==='1954' || camNum==='1956')
-    ? 'https://fdp88.github.io/SANTALO/santalo-istruzioni-' + camNum + '.html'
-    : MAPS_URL;
   var GOOGLE_REVIEW = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
   if (tpl === 'pulizie') {
     var pfn = (TEMPLATES.pulizie || {}).it;
@@ -954,7 +700,7 @@ function generaMessaggio() {
     else if (tpl==='checkin') msg = fn(nome, cl);
     else if (tpl==='chatbot') msg = fn(nome, bot);
     else if (tpl==='reminder') msg = fn(nome, arrivo, cl);
-    else if (tpl==='istruzioni') msg = fn(nome, istrUrl, bot);
+    else if (tpl==='benvenuto') msg = fn(nome, guestLink(p));
     else if (tpl==='checkout') msg = fn(nome, p.canale||'', GOOGLE_REVIEW);
   }
   document.getElementById('messaggio').value = msg;
@@ -972,9 +718,7 @@ function waLink(link) {
   if (!selected) return;
   var ph = phone(selected.telefono || '');
   var nome = (selected.nome||'ospite').split(' ')[0];
-  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent('Ciao ' + nome + '\
-\
-' + link), '_blank');
+  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent('Ciao ' + nome + '\n\n' + link), '_blank');
 }
 function waDiretto(id) {
   var p = prenotazioni.find(function(x) { return x.id === id; });
@@ -1125,8 +869,7 @@ function buildRecord(ospite, arrivo, partenza) {
   return tipo + awDate(arrivo) + giorni + awPad(ospite.cognome || '', 50) + awPad(ospite.nome || '', 30) + awPad(ospite.sesso || '1', 1) + awDate(ospite.data_nascita) + comuneNascita + provinciaNascita + statoNascita + awPad(ospite.cittadinanza_codice || '100000100', 9) + awPad(TIPI_DOC_AW[ospite.tipo_documento] || 'PASOR', 5) + awPad(ospite.numero_documento || '', 20) + luogoRilascio;
 }
 
-function buildFile(pren, ospiti) { var lines = []; ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); }); return lines.join('\r\
-'); }
+function buildFile(pren, ospiti) { var lines = []; ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); }); return lines.join('\r\n'); }
 
 function loadAlloggiati() {
   var root = document.getElementById('listaAlloggiati');
@@ -1168,12 +911,11 @@ function aggiornaPulizie() {
   var el = document.getElementById('pulMsg');
   if (!el) return;
   var target = new Date(); target.setHours(0,0,0,0); target.setDate(target.getDate() + 1);
-  var tStr = target.toISOString().slice(0,10);
+  var tStr = target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0');
   var tFmt = target.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   var cos = prenotazioni.filter(function(p) { return p.partenza === tStr; });
   if (!cos.length) { el.textContent = 'Nessun check-out domani.'; return; }
-  var nl = '\
-';
+  var nl = '\n';
   var righe = cos.map(function(p) {
     var cam = (p.camera||'').replace('Camera ','');
     var ospite = (p.nome||'').split(' ')[0];
@@ -1182,13 +924,7 @@ function aggiornaPulizie() {
     if (stesso) r += nl + '  NB: nuovo arrivo: ' + (stesso.nome||'').split(' ')[0];
     return r;
   });
-  el.textContent = 'Ciao Marianna!\
-\
-Domani (' + tFmt + ') camere da rifare:\
-\
-' + righe.join(nl) + '\
-\
-Grazie!';
+  el.textContent = 'Ciao Marianna!\n\nDomani (' + tFmt + ') camere da rifare:\n\n' + righe.join(nl) + '\n\nGrazie!';
 }
 function copiaPulizie() {
   var txt = document.getElementById('pulMsg').textContent;
