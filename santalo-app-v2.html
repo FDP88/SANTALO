@@ -37,31 +37,51 @@
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
 
     /* ===== BOOKING CARD ===== */
-    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;cursor:pointer;-webkit-tap-highlight-color:rgba(107,45,31,.08);min-height:76px}
-    .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.08)}
-    .booking:not(.active):hover{border-color:var(--sand);box-shadow:0 2px 12px rgba(107,45,31,.07)}
-    .booking-stripe{height:4px;width:100%}
-    .booking-body{padding:14px 16px 12px;border-radius:15px}
-    .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
-    .booking-name{font-size:1rem;font-weight:700;line-height:1.25;letter-spacing:-.01em}
-    .booking-sub{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
-    .booking-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
-    .status-pill{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+    .booking{border:3px solid var(--line);border-radius:16px;background:#fff;transition:all .18s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .booking:not(.active):hover{opacity:.92;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+    .booking-body{padding:16px 18px 14px}
+
+    /* Colori bordo per camera */
+    .cam-1954{border-color:#2e7d50}        /* verde */
+    .cam-1956{border-color:#1a56a0}        /* blu */
+    .cam-1920{border-color:#b8860b}        /* ocra */
+    .cam-none{border-color:#ccc}           /* grigio se nessuna camera */
+
+    /* Card selezionata: bordo più spesso e shadow */
+    .booking.active.cam-1954{border-color:#2e7d50;box-shadow:0 0 0 3px rgba(46,125,80,.15)}
+    .booking.active.cam-1956{border-color:#1a56a0;box-shadow:0 0 0 3px rgba(26,86,160,.15)}
+    .booking.active.cam-1920{border-color:#b8860b;box-shadow:0 0 0 3px rgba(184,134,11,.15)}
+    .booking.active.cam-none{border-color:#999;box-shadow:0 0 0 3px rgba(0,0,0,.08)}
+
+    /* Riga nome + badge destra */
+    .bk-row1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+    .bk-nome{font-size:1.05rem;font-weight:700;line-height:1.3;color:var(--ink)}
+    .bk-destra{display:flex;align-items:center;gap:7px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+
+    /* Riga info: arrivo/partenza testo + ospiti */
+    .bk-row2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:0}
+    .bk-timing{font-size:13.5px;font-weight:600;color:var(--ink)}
+    .bk-timing .sep{color:var(--muted);margin:0 4px}
+    .bk-ospiti{font-size:13px;color:var(--muted);font-weight:500}
+
+    /* Status pill */
+    .status-pill{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
     .s-da{background:var(--warn-bg);color:var(--warn)}
     .s-ok{background:var(--ok-bg);color:var(--ok)}
     .s-inv{background:#dbeafe;color:#1e40af}
 
-    /* ===== INFO CHIP - sempre visibili ===== */
-    .booking-info-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-    .info-chip{display:inline-flex;align-items:center;gap:4px;background:var(--cream);border:1px solid var(--cream-d);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap}
-    .info-chip .lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-right:1px;letter-spacing:.04em}
+    /* Tag speciali ARRIVA OGGI / PARTE OGGI */
+    .tag-oggi{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+    .tag-checkin{background:#dbeafe;color:#1e40af}
+    .tag-checkout{background:#fef3c7;color:#b45309}
+    .tag-struttura{background:#dcfce7;color:#166534}
 
-    /* meta-grid nascosta — usiamo i chip */
-    .meta-grid{display:none}
-
-    /* Bottoni azioni: nascosti di default, visibili solo su .active */
+    /* Bottoni azioni: nascosti, visibili solo su .active */
     .booking-actions{display:none}
-    .booking.active .booking-actions{display:flex;gap:6px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--line);margin-top:6px}
+    .booking.active .booking-actions{
+      display:flex;gap:8px;flex-wrap:wrap;
+      padding-top:12px;border-top:1px solid var(--line);margin-top:12px
+    }
 
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ff{display:flex;flex-direction:column;gap:4px}
@@ -598,83 +618,57 @@ function renderPrenotazioni() {
 
   root.innerHTML = filtered.map(function(p) {
     var cat = categorize(p);
-    var pi = presenceInfo(p);
     var isActive = selected && selected.id === p.id;
 
-    // Classe highlight in base alla categoria
-    var highlightClass = '';
-    if (cat === 'checkin_oggi') highlightClass = ' checkin-highlight';
-    else if (cat === 'checkout_oggi') highlightClass = ' checkout-highlight';
-    else if (cat === 'permanenza') highlightClass = ' permanenza-highlight';
+    // Classe colore bordo per camera
+    var camNum = (p.camera||'').replace(/[^0-9]/g,'');
+    var camClass = camNum === '1954' ? 'cam-1954' : camNum === '1956' ? 'cam-1956' : camNum === '1920' ? 'cam-1920' : 'cam-none';
+    var cardClass = 'booking ' + camClass + (isActive ? ' active' : '');
 
-    var cardClass = 'booking' + (isActive ? ' active' : '') + highlightClass;
+    // Calcola giorni arrivo / partenza
+    var today = new Date(); today.setHours(0,0,0,0);
 
-    // Badge stato presenza (inline nel nome)
-    var statoBadge = '';
-    if (pi && pi.cls) {
-      statoBadge = '<span class="stato-badge ' + pi.cls + '">' + pi.label + '</span>';
+    var arrivoTxt = '';
+    if (p.arrivo) {
+      var arr = new Date(p.arrivo+'T12:00:00'); arr.setHours(0,0,0,0);
+      var diffArr = Math.round((arr - today) / 86400000);
+      if (diffArr === 0) arrivoTxt = '<span class="tag-oggi tag-checkin">🛬 ARRIVA OGGI</span>';
+      else if (diffArr > 0) arrivoTxt = '<span class="bk-timing">Arriva tra <strong>' + diffArr + ' gg</strong></span>';
+      else arrivoTxt = '<span class="bk-timing" style="color:var(--muted)">Arrivato</span>';
     }
 
-    // Calcola notti
-    var notti = '--';
-    if (p.arrivo && p.partenza) {
-      var a = new Date(p.arrivo+'T12:00:00');
-      var b = new Date(p.partenza+'T12:00:00');
-      var diff = Math.round((b - a) / 86400000);
-      notti = diff > 0 ? diff + 'n' : '--';
+    var partenzaTxt = '';
+    if (p.partenza) {
+      var par = new Date(p.partenza+'T12:00:00'); par.setHours(0,0,0,0);
+      var diffPar = Math.round((par - today) / 86400000);
+      if (diffPar === 0) partenzaTxt = '<span class="tag-oggi tag-checkout">🛫 PARTE OGGI</span>';
+      else if (diffPar > 0 && diffArr <= 0) partenzaTxt = '<span class="tag-oggi tag-struttura">🏠 Parte tra ' + diffPar + ' gg</span>';
+      else if (diffPar > 0) partenzaTxt = '<span class="bk-timing" style="color:var(--muted)">Parte il ' + fmt(p.partenza) + '</span>';
     }
 
-    // Chip info essenziali (visibili su mobile)
-    var infoChips =
-      '<div class="booking-info-row">' +
-      '<span class="info-chip"><span class="lbl">Cam</span>' + esc((p.camera||'--').replace('Camera ','')) + '</span>' +
-      '<span class="info-chip"><span class="lbl">Arr</span>' + fmt(p.arrivo) + '</span>' +
-      '<span class="info-chip"><span class="lbl">Dur</span>' + notti + '</span>' +
-      '<span class="info-chip"><span class="lbl">Osp</span>' + (p.num_ospiti||'--') + '</span>' +
-      '</div>';
-
-    // Presenza pill (accanto al nome)
-    var presencePill = '';
-    if (pi) {
-      var bgMap = {
-        checkin_oggi: 'rgba(30,64,175,.1)',
-        checkout_oggi: 'rgba(180,83,9,.1)',
-        permanenza: 'rgba(22,163,74,.1)',
-        arrivo_7gg: 'rgba(124,58,237,.1)'
-      };
-      var bg = bgMap[cat] || 'rgba(0,0,0,.06)';
-      presencePill = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:' + pi.dot + ';font-weight:600;background:' + bg + ';padding:3px 8px;border-radius:999px;flex-shrink:0"><span style="width:7px;height:7px;border-radius:50%;background:' + pi.dot + ';display:inline-block;flex-shrink:0"></span>' + pi.label + '</span>';
-    }
+    var ospiti = p.num_ospiti ? '<span class="bk-ospiti">👥 ' + p.num_ospiti + ' ospiti</span>' : '';
 
     return '<div class="' + cardClass + '" onclick="seleziona(' + p.id + ')">' +
       '<div class="booking-body">' +
-      '<div class="booking-head">' +
-        '<div style="flex:1;min-width:0">' +
-          '<div class="booking-name">' + esc(p.nome||'--') + '</div>' +
-          (presencePill ? '<div style="margin-top:3px">' + presencePill + '</div>' : '') +
-          '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
+        '<div class="bk-row1">' +
+          '<div>' +
+            '<div class="bk-nome">' + esc(p.nome||'--') + '</div>' +
+            '<div style="font-size:11.5px;color:var(--muted);margin-top:3px">#' + p.id + ' · ' + esc(p.canale||'--') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
+          '</div>' +
+          '<div class="bk-destra">' +
+            '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
+            ospiti +
+            '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;border-radius:8px">🗑️</button>' +
+          '</div>' +
         '</div>' +
-        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
-          '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
-          '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;border-radius:8px">🗑️</button>' +
+        '<div class="bk-row2">' + arrivoTxt + (arrivoTxt && partenzaTxt ? '<span style="color:var(--line)">·</span>' : '') + partenzaTxt + '</div>' +
+        '<div class="booking-actions">' +
+          '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
+          '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
         '</div>' +
       '</div>' +
-      infoChips +
-      '<div class="meta-grid">' +
-        '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
-        '<div class="meta-cell"><b>Arrivo</b><span>' + fmt(p.arrivo) + '</span></div>' +
-        '<div class="meta-cell"><b>Partenza</b><span>' + fmt(p.partenza) + '</span></div>' +
-        '<div class="meta-cell"><b>Ospiti</b><span>' + (p.num_ospiti||'--') + '</span></div>' +
-      '</div>' +
-      '<div class="booking-actions">' +
-        '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ');event.stopPropagation()">Seleziona</button>' +
-        '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
-        '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
-        '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\');event.stopPropagation()">Copia check-in</button>' +
-        '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\');event.stopPropagation()">Copia chatbot</button>' +
-      '</div>' +
-      '</div></div>';
-    }).join('');
+    '</div>';
+  }).join('');
 }
 
 function seleziona(id) {
