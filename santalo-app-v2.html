@@ -596,8 +596,8 @@ function renderPrenotazioni() {
       '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
       '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy('' + clLink(p).replace(/'/g,'%27') + '','Link check-in copiato')">Copia check-in</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy('' + botLink(p).replace(/'/g,'%27') + '','Link chatbot copiato')">Copia chatbot</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
       '</div></div>';
     }).join('');
 }
