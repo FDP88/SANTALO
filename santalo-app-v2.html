@@ -35,20 +35,32 @@
     .tab.active{background:var(--brown);color:#fff}
     .list{display:flex;flex-direction:column;gap:11px;max-height:72vh;overflow-y:auto;padding-right:4px}
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
-    .booking{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;transition:border-color .15s}
-    .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.08)}
-    .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
-    .booking-name{font-size:1.05rem;font-weight:600}
-    .booking-sub{font-size:11px;color:var(--muted);margin-top:1px}
-    .status-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;overflow:hidden}
+    .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.1)}
+    .booking-stripe{height:4px;width:100%}
+    .booking-body{padding:13px 14px 11px}
+    .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:7px}
+    .booking-name{font-size:1rem;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+    .booking-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+    .booking-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+    .status-pill{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
     .s-da{background:var(--warn-bg);color:var(--warn)}
     .s-ok{background:var(--ok-bg);color:var(--ok)}
     .s-inv{background:#dbeafe;color:#1e40af}
-    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
-    .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
-    .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-    .meta-cell span{font-size:13px;font-weight:500}
-    .booking-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+    /* Info inline compatta */
+    .booking-info-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+    .info-chip{display:inline-flex;align-items:center;gap:3px;background:var(--cream);border:1px solid var(--cream-d);border-radius:8px;padding:4px 9px;font-size:12px;font-weight:600;color:var(--ink)}
+    .info-chip .lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-right:2px}
+    /* Bottoni azioni */
+    .booking-actions{display:flex;gap:5px;flex-wrap:wrap}
+    .meta-grid{display:none} /* nascosto — info nella riga compatta */
+    @media(min-width:700px){
+      .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
+      .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
+      .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+      .meta-cell span{font-size:13px;font-weight:500}
+      .booking-info-row{display:none}
+    }
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ff{display:flex;flex-direction:column;gap:4px}
     .ff label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -572,17 +584,39 @@ function renderPrenotazioni() {
     var oggiTag = isToday ? '<span class="oggi-badge">🛬 CHECK-IN</span>' : (isCheckOut ? '<span class="oggi-badge" style="background:#fef3c7;color:#92400e">🛫 CHECK-OUT</span>' : '');
     var strutTag = isInStruttura ? '<span class="struttura-badge">🏠 PERMANENZA</span>' : '';
 
+    var camNum = (p.camera||'').replace('Camera ','');
+    var stripeColor = camNum==='1920' ? '#8C6D2F' : camNum==='1954' ? '#5C7A5C' : camNum==='1956' ? '#3A5F7A' : '#C4A882';
+    var camBg = camNum==='1920' ? '#F5ECD4' : camNum==='1954' ? '#E8F0E8' : camNum==='1956' ? '#E0EBF2' : '#F5EDE0';
+    var oggi2 = new Date(); oggi2.setHours(0,0,0,0);
+    var arrD2 = p.arrivo ? new Date(p.arrivo+'T12:00:00') : null; if(arrD2) arrD2.setHours(0,0,0,0);
+    var parD2 = p.partenza ? new Date(p.partenza+'T12:00:00') : null; if(parD2) parD2.setHours(0,0,0,0);
+    var notti = (arrD2 && parD2) ? Math.round((parD2-arrD2)/86400000) : '--';
+    var ggArr = arrD2 ? Math.round((arrD2-oggi2)/86400000) : null;
+    var arrivoChip = ggArr === null ? '' : ggArr === 0 ? '<span class="info-chip" style="background:#dcfce7;border-color:#86efac;color:#166534">oggi</span>' : ggArr === 1 ? '<span class="info-chip" style="background:#fef9c3;border-color:#fde047;color:#854d0e">domani</span>' : ggArr > 0 ? '<span class="info-chip" style="color:var(--muted)">tra '+ggArr+'gg</span>' : '';
+
     return '<div class="' + cardClass + '">' +
-      '<div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
-      '<div style="flex:1">' +
-      '<div class="booking-name">' + esc(p.nome||'--') + oggiTag + strutTag + '</div>' +
-      '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
-      '</div></div>' +
-      '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
-      (function(){ var pi=presenceInfo(p); return pi ? '<span title="'+pi.label+'" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:'+pi.dot+';font-weight:600;background:'+pi.dot+'18;padding:3px 8px;border-radius:999px"><span style="width:8px;height:8px;border-radius:50%;background:'+pi.dot+';display:inline-block"></span>'+pi.label+'</span>' : ''; })() +
+      '<div class="booking-stripe" style="background:'+stripeColor+'"></div>' +
+      '<div class="booking-body">' +
+      '<div class="booking-head">' +
+      '<div style="flex:1;min-width:0">' +
+      '<div class="booking-name">' + esc(p.nome||'--') + '</div>' +
+      '<div class="booking-sub">' + esc(p.canale||'--') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
+      '</div>' +
+      '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione('+p.id+',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;flex-shrink:0">🗑️</button>' +
+      '</div>' +
+      '<div class="booking-badges">' +
+      (p.camera ? '<span style="background:'+camBg+';color:'+stripeColor+';border-radius:8px;padding:2px 9px;font-size:11px;font-weight:700">' + esc(p.camera) + '</span>' : '') +
+      oggiTag + strutTag +
       '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
-      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
-      '</div></div>' +
+      (function(){ var pi=presenceInfo(p); return pi ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;color:'+pi.dot+';font-weight:700;background:'+pi.dot+'18;padding:2px 7px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:'+pi.dot+';display:inline-block"></span>'+pi.label+'</span>' : ''; })() +
+      '</div>' +
+      '<div class="booking-info-row">' +
+      '<span class="info-chip">✈️ ' + fmt(p.arrivo) + '</span>' +
+      '<span class="info-chip">🏠 ' + fmt(p.partenza) + '</span>' +
+      '<span class="info-chip">🌙 ' + notti + 'n</span>' +
+      (p.num_ospiti ? '<span class="info-chip">👤 ' + p.num_ospiti + '</span>' : '') +
+      arrivoChip +
+      '</div>' +
       '<div class="meta-grid">' +
       '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
       '<div class="meta-cell"><b>Arrivo</b><span>' + fmt(p.arrivo) + '</span></div>' +
@@ -591,10 +625,11 @@ function renderPrenotazioni() {
       '</div>' +
       '<div class="booking-actions">' +
       '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">✏️ Modifica</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">✏️</button>' +
       '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Check-in copiato\')">Check-in</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Chatbot copiato\')">Chatbot</button>' +
+      '</div>' +
       '</div></div>';
   }).join('');
 }
