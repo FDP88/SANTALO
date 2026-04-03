@@ -59,19 +59,20 @@
     /* meta-grid nascosta sempre — usiamo i chip compatti */
     .meta-grid{display:none}
 
-    /* Bottoni azioni */
-    .booking-actions{display:flex;gap:5px;flex-wrap:wrap}
+    /* Bottoni azioni: nascosti di default, visibili solo sulla card selezionata */
+    .booking-actions{display:none}
+    .booking.active .booking-actions{
+      display:flex;gap:5px;flex-wrap:wrap;
+      padding-top:10px;border-top:1px solid var(--line);margin-top:4px
+    }
 
-    /* ===== MOBILE COMPACT (< 600px) ===== */
+    /* Su mobile < 600px chip ancora più compatti */
     @media(max-width:599px){
       .booking-body{padding:9px 11px 9px}
       .booking-name{font-size:.9rem}
       .booking-sub{font-size:10px}
       .info-chip{padding:2px 6px;font-size:10.5px}
       .info-chip .lbl{font-size:9px}
-      /* azioni: solo sulla card selezionata */
-      .booking-actions{display:none}
-      .booking.active .booking-actions{display:flex;flex-wrap:wrap;gap:4px;padding-top:8px;border-top:1px solid var(--line);margin-top:6px}
       .booking.active .booking-actions .btn-sm{font-size:11px;padding:5px 9px}
     }
 
