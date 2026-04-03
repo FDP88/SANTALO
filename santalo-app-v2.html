@@ -731,11 +731,11 @@ var TEMPLATES = {
     es: function(n,gl) { return '¡Hola ' + n + '! 🏠\n\nEstamos listos para recibirle. Aquí encontrará todo lo que necesita para su estancia: cómo acceder a su habitación, WiFi, aparcamiento, dónde comer, qué ver en Bitonto y mucho más.\n\n' + gl + '\n\nPara cualquier pregunta, Alò está siempre disponible 24/7 directamente desde la página.\n\n¡Que disfrute su estancia! 🌿'; }
   },
   checkout: {
-    it: function(n,canale,rev) { return 'Ciao ' + n + '!\n\nSperiamo che il soggiorno sia stato piacevole.\nSe hai 2 minuti, una recensione' + (canale ? ' su ' + canale : '') + ' ci aiuterebbe moltissimo:\n\n' + rev + '\n\nGrazie di cuore, alla prossima!'; },
-    en: function(n,canale,rev) { return 'Hi ' + n + '!\n\nWe hope you enjoyed your stay.\nIf you have 2 minutes, a review' + (canale ? ' on ' + canale : '') + ' would mean a lot to us:\n\n' + rev + '\n\nThank you so much, see you next time!'; },
-    fr: function(n,canale,rev) { return 'Bonjour ' + n + ' !\n\nNous espérons que votre séjour a été agréable.\nSi vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait énormément :\n\n' + rev + '\n\nMerci du fond du cœur, à bientôt !'; },
-    de: function(n,canale,rev) { return 'Hallo ' + n + '!\n\nWir hoffen, Ihr Aufenthalt war angenehm.\nWenn Sie 2 Minuten Zeit haben, würde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\n\n' + rev + '\n\nVielen herzlichen Dank, bis zum nächsten Mal!'; },
-    es: function(n,canale,rev) { return '¡Hola ' + n + '!\n\nEsperamos que su estancia haya sido agradable.\nSi tiene 2 minutos, una reseña' + (canale ? ' en ' + canale : '') + ' nos ayudaría muchísimo:\n\n' + rev + '\n\n¡Muchísimas gracias, hasta la próxima!'; }
+    it: function(n,canale) { return 'Ciao ' + n + '! 😊\n\nSperiamo che il soggiorno al B&B Santalò sia stato di tuo gradimento e che ti sia sentito/a a casa.\n\nSe hai apprezzato la tua esperienza, ci farebbe davvero piacere se lasciassi una recensione positiva su ' + (canale || 'il portale dove hai prenotato') + ' — per noi significa tantissimo e aiuta altri viaggiatori a sceglierci.\n\nGrazie di cuore e speriamo di rivederti presto a Bitonto! 🙏'; },
+    en: function(n,canale) { return 'Hi ' + n + '! 😊\n\nWe hope your stay at B&B Santalò was enjoyable and that you felt right at home.\n\nIf you had a good experience, we would really appreciate it if you could leave a positive review on ' + (canale || 'the platform where you booked') + ' — it means a lot to us and helps other travellers choose us.\n\nThank you so much and we hope to see you again soon in Bitonto! 🙏'; },
+    fr: function(n,canale) { return 'Bonjour ' + n + ' ! 😊\n\nNous espérons que votre séjour au B&B Santalò vous a plu et que vous vous êtes senti(e) comme à la maison.\n\nSi vous avez apprécié votre expérience, nous serions vraiment touchés que vous laissiez un avis positif sur ' + (canale || 'la plateforme où vous avez réservé') + ' — cela compte énormément pour nous.\n\nMerci du fond du cœur et à bientôt à Bitonto ! 🙏'; },
+    de: function(n,canale) { return 'Hallo ' + n + '! 😊\n\nWir hoffen, Ihr Aufenthalt im B&B Santalò war angenehm und Sie haben sich wie zu Hause gefühlt.\n\nWenn Sie Ihren Aufenthalt genossen haben, würden wir uns sehr freuen, wenn Sie eine positive Bewertung auf ' + (canale || 'der Plattform, auf der Sie gebucht haben') + ' hinterlassen — das bedeutet uns sehr viel.\n\nVielen herzlichen Dank und bis bald in Bitonto! 🙏'; },
+    es: function(n,canale) { return '¡Hola ' + n + '! 😊\n\nEsperamos que su estancia en el B&B Santalò haya sido de su agrado y que se haya sentido como en casa.\n\nSi disfrutó de su experiencia, le agradeceríamos mucho que dejara una reseña positiva en ' + (canale || 'la plataforma donde realizó su reserva') + ' — para nosotros significa muchísimo.\n\n¡Muchas gracias y esperamos volver a verle pronto en Bitonto! 🙏'; }
   },
   pulizie: {
     it: function(cam, par, note) {
@@ -770,7 +770,7 @@ function generaMessaggio() {
     else if (tpl==='chatbot') msg = fn(nome, bot);
     else if (tpl==='reminder') msg = fn(nome, arrivo, cl);
     else if (tpl==='benvenuto') msg = fn(nome, guestLink(p));
-    else if (tpl==='checkout') msg = fn(nome, p.canale||'', GOOGLE_REVIEW);
+    else if (tpl==='checkout') msg = fn(nome, p.canale||'');
   }
   document.getElementById('messaggio').value = msg;
   document.getElementById('telefonoOut').value = p.telefono || '';
