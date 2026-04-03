@@ -134,6 +134,7 @@
 
     /* Highlight card oggi */
     .booking.oggi-highlight{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.12)}
+    .booking.checkout-highlight{border-color:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.12)}
     .oggi-badge{background:#dcfce7;color:#166534;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle}
   </style>
 </head>
@@ -177,10 +178,10 @@
           </div>
           <div class="filter-pills" style="margin-bottom:12px">
             <button class="filter-pill active" data-filter="tutti" id="pill-tutti" onclick="setFilter('tutti')">Tutte <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="oggi" id="pill-oggi" onclick="setFilter('oggi')">🟢 Oggi <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="struttura" id="pill-struttura" onclick="setFilter('struttura')">🏠 In struttura <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="checkin" id="pill-checkin" onclick="setFilter('checkin')">🛬 Check-in <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="permanenza" id="pill-permanenza" onclick="setFilter('permanenza')">🏠 Permanenza <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="checkout" id="pill-checkout" onclick="setFilter('checkout')">🛫 Check-out <span class="pill-count">0</span></button>
             <button class="filter-pill" data-filter="arrivo" id="pill-arrivo" onclick="setFilter('arrivo')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">✓ Passati <span class="pill-count">0</span></button>
           </div>
           <div id="listaPrenotazioni" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
@@ -398,18 +399,21 @@ var searchQuery = '';
 
 function getTodayStr() {
   var d = new Date(); d.setHours(0,0,0,0);
-  return d.toISOString().slice(0,10);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
+function getTodayLocal() {
+  var d = new Date(); d.setHours(0,0,0,0); return d;
+}
 function categorize(p) {
   if (!p.arrivo || !p.partenza) return 'altri';
-  var today = new Date(); today.setHours(0,0,0,0);
-  var todayStr = today.toISOString().slice(0,10);
+  var today = getTodayLocal();
   var arr = new Date(p.arrivo+'T12:00:00'); arr.setHours(0,0,0,0);
   var par = new Date(p.partenza+'T12:00:00'); par.setHours(0,0,0,0);
   if (par < today) return 'passati';
-  if (arr.getTime() === today.getTime()) return 'oggi';
-  if (arr < today && par > today) return 'struttura';
+  if (par.getTime() === today.getTime()) return 'checkout';
+  if (arr.getTime() === today.getTime()) return 'checkin';
+  if (arr < today && par > today) return 'permanenza';
   var in7 = new Date(today); in7.setDate(in7.getDate()+7);
   if (arr > today && arr <= in7) return 'arrivo';
   return 'altri';
@@ -418,10 +422,10 @@ function categorize(p) {
 function matchesFilter(p, filter) {
   var cat = categorize(p);
   if (filter === 'tutti') return true;
-  if (filter === 'oggi') return cat === 'oggi';
-  if (filter === 'struttura') return cat === 'struttura';
+  if (filter === 'checkin') return cat === 'checkin';
+  if (filter === 'permanenza') return cat === 'permanenza';
+  if (filter === 'checkout') return cat === 'checkout';
   if (filter === 'arrivo') return cat === 'arrivo';
-  if (filter === 'passati') return cat === 'passati';
   return true;
 }
 
@@ -442,7 +446,7 @@ function countFor(filter) {
 }
 
 function updateFilterCounts() {
-  ['tutti','oggi','struttura','arrivo','passati'].forEach(function(f) {
+  ['tutti','checkin','permanenza','checkout','arrivo'].forEach(function(f) {
     var el = document.getElementById('pill-'+f);
     if (el) {
       var c = el.querySelector('.pill-count');
@@ -502,13 +506,18 @@ function loadAll() {
     }
     prenotazioni = result.data || [];
 
-    // Riordina: oggi prima, poi struttura, poi arrivo, poi altri, poi passati
-    var order = {oggi:0, struttura:1, arrivo:2, altri:3, passati:4};
+    // Riordina: check-in prima, poi permanenza, checkout, arrivo, altri, passati
+    var order = {checkin:0, permanenza:1, checkout:2, arrivo:3, altri:4, passati:5};
     prenotazioni.sort(function(a,b) {
-      var ca = order[categorize(a)] ?? 3;
-      var cb = order[categorize(b)] ?? 3;
+      var catA = categorize(a), catB = categorize(b);
+      var ca = order[catA] != null ? order[catA] : 4;
+      var cb = order[catB] != null ? order[catB] : 4;
       if (ca !== cb) return ca - cb;
-      return (a.arrivo||'') < (b.arrivo||'') ? -1 : 1;
+      // Dentro ogni categoria: per data arrivo ASC (chi arriva prima in cima)
+      // Per checkout/passati: per partenza ASC
+      var dateA = (catA === 'checkout' || catA === 'passati') ? (a.partenza||'') : (a.arrivo||'');
+      var dateB = (catB === 'checkout' || catB === 'passati') ? (b.partenza||'') : (b.arrivo||'');
+      return dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
     });
 
     if (!selected && prenotazioni.length) selected = prenotazioni[0];
@@ -555,12 +564,13 @@ function renderPrenotazioni() {
 
   root.innerHTML = filtered.map(function(p) {
     var cat = categorize(p);
-    var isToday = (cat === 'oggi');
-    var isInStruttura = (cat === 'struttura');
-    var cardClass = 'booking' + (selected && selected.id === p.id ? ' active' : '') + (isToday ? ' oggi-highlight' : '');
+    var isToday = (cat === 'checkin');
+    var isInStruttura = (cat === 'permanenza');
+    var isCheckOut = (cat === 'checkout');
+    var cardClass = 'booking' + (selected && selected.id === p.id ? ' active' : '') + (isToday ? ' oggi-highlight' : '') + (isCheckOut ? ' checkout-highlight' : '');
 
-    var oggiTag = isToday ? '<span class="oggi-badge">OGGI</span>' : '';
-    var strutTag = isInStruttura ? '<span class="oggi-badge" style="background:#dbeafe;color:#1e3a8a">IN STRUTTURA</span>' : '';
+    var oggiTag = isToday ? '<span class="oggi-badge">🛬 CHECK-IN</span>' : (isCheckOut ? '<span class="oggi-badge" style="background:#fef3c7;color:#92400e">🛫 CHECK-OUT</span>' : '');
+    var strutTag = isInStruttura ? '<span class="struttura-badge">🏠 PERMANENZA</span>' : '';
 
     return '<div class="' + cardClass + '">' +
       '<div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
