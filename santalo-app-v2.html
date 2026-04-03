@@ -35,33 +35,20 @@
     .tab.active{background:var(--brown);color:#fff}
     .list{display:flex;flex-direction:column;gap:11px;max-height:72vh;overflow-y:auto;padding-right:4px}
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
-    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;overflow:hidden}
+    .booking{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;transition:border-color .15s}
     .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.08)}
-    .booking:not(.active):hover{border-color:var(--sand);box-shadow:0 2px 12px rgba(107,45,31,.07)}
-    .booking-stripe{height:4px;width:100%}
-    .booking-body{padding:13px 14px 11px}
-    .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:7px}
-    .booking-name{font-size:1rem;font-weight:700;line-height:1.2;letter-spacing:-.01em}
-    .booking-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
-    .booking-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
-    .status-pill{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+    .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+    .booking-name{font-size:1.05rem;font-weight:600}
+    .booking-sub{font-size:11px;color:var(--muted);margin-top:1px}
+    .status-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
     .s-da{background:var(--warn-bg);color:var(--warn)}
     .s-ok{background:var(--ok-bg);color:var(--ok)}
     .s-inv{background:#dbeafe;color:#1e40af}
-    /* Info inline compatta */
-    .booking-info-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-    .info-chip{display:inline-flex;align-items:center;gap:3px;background:var(--cream);border:1px solid var(--cream-d);border-radius:8px;padding:4px 9px;font-size:12px;font-weight:600;color:var(--ink)}
-    .info-chip .lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-right:2px}
-    /* Bottoni azioni */
-    .booking-actions{display:flex;gap:5px;flex-wrap:wrap}
-    .meta-grid{display:none} /* nascosto — info nella riga compatta */
-    @media(min-width:700px){
-      .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
-      .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
-      .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-      .meta-cell span{font-size:13px;font-weight:500}
-      .booking-info-row{display:none}
-    }
+    .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
+    .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
+    .meta-cell b{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+    .meta-cell span{font-size:13px;font-weight:500}
+    .booking-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ff{display:flex;flex-direction:column;gap:4px}
     .ff label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -159,7 +146,7 @@
     </div>
     <div class="hero-text" style="flex:1">
       <h1>Santalò B&amp;B — Gestionale</h1>
-      <p>Prenotazioni · WhatsApp · Check-in · Assistente AI</p>
+      <p>Prenotazioni \u00b7 WhatsApp \u00b7 Check-in \u00b7 Assistente AI</p>
       <div class="hero-actions">
         <button class="btn btn-hero" onclick="loadAll()">Ricarica</button>
         <button class="btn btn-hero" onclick="showTab('nuova')">+ Nuova prenotazione</button>
@@ -175,9 +162,9 @@
           <button class="tab active" id="tab-lista" onclick="showTab('lista')">Prenotazioni</button>
           <button class="tab" id="tab-nuova" onclick="showTab('nuova')">+ Nuova</button>
           <button class="tab" id="tab-checkin" onclick="showTab('checkin')">Check-in ricevuti<span id="badgeCheckin" class="badge" style="display:none"></span></button>
-          <button class="tab" id="tab-chat" onclick="showTab('chat')">💬 Conversazioni</button>
-          <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">📋 Alloggiati</button>
-          <button class="tab" id="tab-calendario" onclick="showTab('calendario')">📅 Calendario</button>
+          <button class="tab" id="tab-chat" onclick="showTab('chat')">\ud83d\udcac Conversazioni</button>
+          <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">\ud83d\udccb Alloggiati</button>
+          <button class="tab" id="tab-calendario" onclick="showTab('calendario')">\ud83d\udcc5 Calendario</button>
         </div>
 
         <div id="panel-lista">
@@ -185,15 +172,15 @@
           <div class="search-filter-bar">
             <div class="search-input-wrap">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input class="search-input" id="searchInput" placeholder="Cerca per nome, camera, canale…" oninput="onSearch(this.value)"/>
+              <input class="search-input" id="searchInput" placeholder="Cerca per nome, camera, canale\u2026" oninput="onSearch(this.value)"/>
             </div>
           </div>
           <div class="filter-pills" style="margin-bottom:12px">
             <button class="filter-pill active" data-filter="tutti" id="pill-tutti" onclick="setFilter('tutti')">Tutte <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="oggi" id="pill-oggi" onclick="setFilter('oggi')">🟢 Oggi <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="struttura" id="pill-struttura" onclick="setFilter('struttura')">🏠 In struttura <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="arrivo" id="pill-arrivo" onclick="setFilter('arrivo')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">✓ Passati <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="oggi" id="pill-oggi" onclick="setFilter('oggi')">\ud83d\udfe2 Oggi <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="struttura" id="pill-struttura" onclick="setFilter('struttura')">\ud83c\udfe0 In struttura <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="arrivo" id="pill-arrivo" onclick="setFilter('arrivo')">\ud83d\udcc5 In arrivo (7gg) <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">\u2713 Passati <span class="pill-count">0</span></button>
           </div>
           <div id="listaPrenotazioni" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
@@ -208,8 +195,8 @@
               <select id="f-camera">
                 <option value="">-- Seleziona --</option>
                 <option value="Camera 1920">Camera 1920 (piano terra)</option>
-                <option value="Camera 1954">Camera 1954 (1° piano)</option>
-                <option value="Camera 1956">Camera 1956 (2° piano)</option>
+                <option value="Camera 1954">Camera 1954 (1\u00b0 piano)</option>
+                <option value="Camera 1956">Camera 1956 (2\u00b0 piano)</option>
               </select>
             </div>
             <div class="ff"><label>N. ospiti</label>
@@ -222,11 +209,11 @@
             </div>
             <div class="ff"><label>Lingua ospite</label>
               <select id="f-lingua">
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="en">🇬🇧 Inglese</option>
-                <option value="fr">🇫🇷 Francese</option>
-                <option value="de">🇩🇪 Tedesco</option>
-                <option value="es">🇪🇸 Spagnolo</option>
+                <option value="it">\ud83c\uddee\ud83c\uddf9 Italiano</option>
+                <option value="en">\ud83c\uddec\ud83c\udde7 Inglese</option>
+                <option value="fr">\ud83c\uddeb\ud83c\uddf7 Francese</option>
+                <option value="de">\ud83c\udde9\ud83c\uddea Tedesco</option>
+                <option value="es">\ud83c\uddea\ud83c\uddf8 Spagnolo</option>
               </select>
             </div>
             <div class="ff"><label>Orario arrivo stimato</label><input id="f-orario" placeholder="Es. 16:00"/></div>
@@ -278,9 +265,9 @@
               <option value="checkin">Link check-in</option>
               <option value="chatbot">Link assistente AI</option>
               <option value="reminder">Reminder check-in</option>
-              <option value="benvenuto">🏠 Benvenuto · Accesso</option>
+              <option value="istruzioni">Istruzioni accesso</option>
               <option value="checkout">Richiesta recensione</option>
-              <option value="pulizie">🧹 Pulizie (Marianna)</option>
+              <option value="pulizie">\ud83e\uddf9 Pulizie (Marianna)</option>
             </select>
           </div>
           <div class="ff">
@@ -325,8 +312,8 @@
   </div>
 
   <div class="footer">
-    Santalò Bed &amp; Breakfast · Vico Storto Sant&#39;Eligio 9 · 70032 Bitonto (BA)<br>
-    CF: CQFGPP88E31A662T · P. IVA: 08212010725
+    Santalò Bed &amp; Breakfast \u00b7 Vico Storto Sant&#39;Eligio 9 \u00b7 70032 Bitonto (BA)<br>
+    CF: CQFGPP88E31A662T \u00b7 P. IVA: 08212010725
   </div>
 </div>
 
@@ -337,7 +324,6 @@ var sb = window.supabase.createClient(SB_URL, SB_KEY);
 var BASE = 'https://fdp88.github.io/SANTALO';
 var CHECKIN_URL = BASE + '/santalo-checkin-ospite.html';
 var CHATBOT_URL = BASE + '/santalo-chat.html';
-var GUEST_URL   = BASE + '/santalo-guest.html';
 var MAPS_URL = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
 var PULIZIE_PHONE = '393802473821';
 var prenotazioni = [];
@@ -369,10 +355,6 @@ function clLink(p) {
 function botLink(p) {
   var q = new URLSearchParams({prenotazione_id:p.id, nome:p.nome||'', camera:p.camera||'', arrivo:p.arrivo||'', partenza:p.partenza||''});
   return CHATBOT_URL + '?' + q;
-}
-function guestLink(p) {
-  var q = new URLSearchParams({nome:p.nome||'', camera:p.camera||'', arrivo:p.arrivo||'', partenza:p.partenza||''});
-  return GUEST_URL + '?' + q;
 }
 function esito(id, msg, c) {
   var e = document.getElementById(id);
@@ -480,7 +462,7 @@ function onSearch(val) {
 // ===== PRENOTAZIONI =====
 function eliminaPrenotazione(id, evt) {
   evt.stopPropagation();
-  if (!confirm('Eliminare questa prenotazione? L\'operazione non è reversibile.')) return;
+  if (!confirm('Eliminare questa prenotazione? L\'operazione non \u00e8 reversibile.')) return;
   sb.from('prenotazioni').delete().eq('id', id).then(function(result) {
     if (result.error) { alert('Errore: ' + result.error.message); return; }
     if (selected && selected.id === id) selected = null;
@@ -515,7 +497,7 @@ function loadAll() {
     }
     prenotazioni = result.data || [];
 
-    // Riordina: check-in prima, poi permanenza, checkout, arrivo, altri, passati
+    // Riordina: oggi prima, poi struttura, poi arrivo, poi altri, poi passati
     var order = {oggi:0, struttura:1, arrivo:2, altri:3, passati:4};
     prenotazioni.sort(function(a,b) {
       var ca = order[categorize(a)] ?? 3;
@@ -572,19 +554,19 @@ function renderPrenotazioni() {
     var isInStruttura = (cat === 'struttura');
     var cardClass = 'booking' + (selected && selected.id === p.id ? ' active' : '') + (isToday ? ' oggi-highlight' : '');
 
-    var oggiTag = isToday ? '<span class="oggi-badge">● OGGI</span>' : '';
+    var oggiTag = isToday ? '<span class="oggi-badge">OGGI</span>' : '';
     var strutTag = isInStruttura ? '<span class="oggi-badge" style="background:#dbeafe;color:#1e3a8a">IN STRUTTURA</span>' : '';
 
     return '<div class="' + cardClass + '">' +
       '<div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
       '<div style="flex:1">' +
       '<div class="booking-name">' + esc(p.nome||'--') + oggiTag + strutTag + '</div>' +
-      '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
+      '<div class="booking-sub">#' + p.id + ' \u00b7 ' + esc(p.canale||'--') + (p.lingua ? ' \u00b7 ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' \u00b7 ' + esc(p.telefono) : '') + '</div>' +
       '</div></div>' +
       '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
       (function(){ var pi=presenceInfo(p); return pi ? '<span title="'+pi.label+'" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:'+pi.dot+';font-weight:600;background:'+pi.dot+'18;padding:3px 8px;border-radius:999px"><span style="width:8px;height:8px;border-radius:50%;background:'+pi.dot+';display:inline-block"></span>'+pi.label+'</span>' : ''; })() +
       '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
-      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event);event.stopPropagation()" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
+      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">\ud83d\uddd1\ufe0f</button>' +
       '</div></div>' +
       '<div class="meta-grid">' +
       '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
@@ -594,12 +576,12 @@ function renderPrenotazioni() {
       '</div>' +
       '<div class="booking-actions">' +
       '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
-      '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy('' + clLink(p).replace(/'/g,'%27') + '','Link check-in copiato')">Copia check-in</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy('' + botLink(p).replace(/'/g,'%27') + '','Link chatbot copiato')">Copia chatbot</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">\u270f\ufe0f Modifica</button>' +
+      '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
       '</div></div>';
-    }).join('');
+  }).join('');
 }
 
 function seleziona(id) {
@@ -612,7 +594,7 @@ function aggiornaLink() {
   if (!selected) { el.innerHTML = '<span style="color:var(--muted)">Seleziona una prenotazione dalla lista.</span>'; return; }
   var cl = clLink(selected), bot = botLink(selected);
   el.innerHTML =
-    '<div style="font-size:.82rem;color:var(--muted);margin-bottom:10px">Selezionato: <strong style="color:var(--ink)">' + esc(selected.nome) + '</strong> · ' + esc(selected.camera) + '</div>' +
+    '<div style="font-size:.82rem;color:var(--muted);margin-bottom:10px">Selezionato: <strong style="color:var(--ink)">' + esc(selected.nome) + '</strong> \u00b7 ' + esc(selected.camera) + '</div>' +
     '<div class="link-box"><div class="link-box-label">Link Check-in</div><div class="link-box-url">' + esc(cl) + '</div><div class="link-box-btns">' +
     '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + cl.replace(/'/g,'%27') + '\',\'Copiato\')">Copia</button>' +
     '<button class="btn btn-green btn-sm" onclick="waLink(\'' + cl.replace(/'/g,'%27') + '\')">WhatsApp</button>' +
@@ -625,52 +607,321 @@ function aggiornaLink() {
 }
 
 // ===== MESSAGGI WHATSAPP =====
+function istr(cam) {
+  var c = String(cam||'').replace('Camera ','');
+  if (c==='1920') return 'Accesso Camera 1920 - Piano terra\
+All\'esterno trovi una key box sul muro.\
+Codice: 4660\
+Abbassa la leva, estrai la chiave e apri il portone.';
+  if (c==='1954') return 'Accesso Camera 1954 - Primo piano\
+\
+In questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\
+\
+Lo vedi il portone grande con su scritto 1920! NON \u00e8 QUELLO!\
+C\'\u00e8 un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprir\u00e0.\
+\
+Una volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1954.\
+\
+Sali al 1 piano e trovi la tua camera.';
+  if (c==='1956') return 'Accesso Camera 1956 - Secondo piano\
+\
+In questo video ti mostriamo come arrivare al nostro B&B (https://youtu.be/9kUTB6ZsaPc).\
+\
+Lo vedi il portone grande con su scritto 1920! NON \u00e8 QUELLO!\
+C\'\u00e8 un portoncino piccolo costeggiando la struttura, con un tastierino elettrico. Inserisci il codice: 43757 e la porta si aprir\u00e0.\
+\
+Una volta dentro, sulla tua destra, sul desk della reception trovi un contenitore piccolo in legno con all\'interno le chiavi della tua camera con il portachiavi 1956.\
+\
+Sali al 2 piano e trovi la tua camera.';
+  return 'Ti invieremo le istruzioni specifiche per la tua camera.';
+}
+
 var TEMPLATES = {
   conferma: {
-    it: function(n,arr,par,cam,cl) { return 'Buongiorno ' + n + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\n\nEcco il riepilogo della tua prenotazione:\n\nDal ' + arr + ' al ' + par + '\nCamera ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl; },
-    en: function(n,arr,par,cam,cl) { return 'Good morning ' + n + ', thank you for choosing our B&B! We look forward to welcoming you.\n\nHere is your booking summary:\n\nFrom ' + arr + ' to ' + par + '\nRoom ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nTo ensure a quick and easy check-in, please complete the online check-in before your arrival:\n\n' + cl; },
-    fr: function(n,arr,par,cam,cl) { return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons hâte de vous accueillir.\n\nVoici le récapitulatif de votre réservation :\n\nDu ' + arr + ' au ' + par + '\nChambre ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPour garantir un accès rapide et autonome, merci de compléter le check-in en ligne avant votre arrivée :\n\n' + cl; },
-    de: function(n,arr,par,cam,cl) { return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gewählt haben! Wir freuen uns, Sie begrüßen zu dürfen.\n\nHier ist Ihre Buchungsübersicht:\n\nVom ' + arr + ' bis ' + par + '\nZimmer ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nBitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\n\n' + cl; },
-    es: function(n,arr,par,cam,cl) { return 'Buenos días ' + n + ', ¡gracias por elegir nuestro B&B! Estamos deseando recibirle.\n\nAquí está el resumen de su reserva:\n\nDel ' + arr + ' al ' + par + '\nHabitación ' + cam + '\nVico Storto Sant\'Eligio 9 - Bitonto\n\nPara garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\n\n' + cl; }
+    it: function(n,arr,par,cam,cl) { return 'Buongiorno ' + n + ', grazie per aver scelto il nostro B&B! Non vediamo l\'ora di accoglierti.\
+\
+Ecco il riepilogo della tua prenotazione:\
+\
+Dal ' + arr + ' al ' + par + '\
+Camera ' + cam + '\
+Vico Storto Sant\'Eligio 9 - Bitonto\
+\
+Per garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\
+\
+' + cl; },
+    en: function(n,arr,par,cam,cl) { return 'Good morning ' + n + ', thank you for choosing our B&B! We look forward to welcoming you.\
+\
+Here is your booking summary:\
+\
+From ' + arr + ' to ' + par + '\
+Room ' + cam + '\
+Vico Storto Sant\'Eligio 9 - Bitonto\
+\
+To ensure a quick and easy check-in, please complete the online check-in before your arrival:\
+\
+' + cl; },
+    fr: function(n,arr,par,cam,cl) { return 'Bonjour ' + n + ', merci d\'avoir choisi notre B&B ! Nous avons h\u00e2te de vous accueillir.\
+\
+Voici le r\u00e9capitulatif de votre r\u00e9servation :\
+\
+Du ' + arr + ' au ' + par + '\
+Chambre ' + cam + '\
+Vico Storto Sant\'Eligio 9 - Bitonto\
+\
+Pour garantir un acc\u00e8s rapide et autonome, merci de compl\u00e9ter le check-in en ligne avant votre arriv\u00e9e :\
+\
+' + cl; },
+    de: function(n,arr,par,cam,cl) { return 'Guten Tag ' + n + ', vielen Dank, dass Sie unser B&B gew\u00e4hlt haben! Wir freuen uns, Sie begr\u00fc\u00dfen zu d\u00fcrfen.\
+\
+Hier ist Ihre Buchungs\u00fcbersicht:\
+\
+Vom ' + arr + ' bis ' + par + '\
+Zimmer ' + cam + '\
+Vico Storto Sant\'Eligio 9 - Bitonto\
+\
+Bitte vervollst\u00e4ndigen Sie den Online-Check-in vor Ihrer Ankunft:\
+\
+' + cl; },
+    es: function(n,arr,par,cam,cl) { return 'Buenos d\u00edas ' + n + ', \u00a1gracias por elegir nuestro B&B! Estamos deseando recibirle.\
+\
+Aqu\u00ed est\u00e1 el resumen de su reserva:\
+\
+Del ' + arr + ' al ' + par + '\
+Habitaci\u00f3n ' + cam + '\
+Vico Storto Sant\'Eligio 9 - Bitonto\
+\
+Para garantizar un acceso r\u00e1pido, le pedimos que complete el check-in online antes de su llegada:\
+\
+' + cl; }
   },
   checkin: {
-    it: function(n,cl) { return 'Ciao ' + n + '!\n\nPer garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\n\n' + cl + '\n\nGrazie!'; },
-    en: function(n,cl) { return 'Hi ' + n + '!\n\nTo ensure a quick and easy check-in, please complete the online check-in before your arrival:\n\n' + cl + '\n\nThank you!'; },
-    fr: function(n,cl) { return 'Bonjour ' + n + ' !\n\nPour garantir un accès rapide, merci de compléter le check-in en ligne avant votre arrivée :\n\n' + cl + '\n\nMerci !'; },
-    de: function(n,cl) { return 'Hallo ' + n + '!\n\nBitte vervollständigen Sie den Online-Check-in vor Ihrer Ankunft:\n\n' + cl + '\n\nDanke!'; },
-    es: function(n,cl) { return '¡Hola ' + n + '!\n\nPara garantizar un acceso rápido, le pedimos que complete el check-in online antes de su llegada:\n\n' + cl + '\n\n¡Gracias!'; }
+    it: function(n,cl) { return 'Ciao ' + n + '!\
+\
+Per garantirti un accesso rapido e autonomo, ti chiediamo di completare il check-in online prima dell\'arrivo:\
+\
+' + cl + '\
+\
+Grazie!'; },
+    en: function(n,cl) { return 'Hi ' + n + '!\
+\
+To ensure a quick and easy check-in, please complete the online check-in before your arrival:\
+\
+' + cl + '\
+\
+Thank you!'; },
+    fr: function(n,cl) { return 'Bonjour ' + n + ' !\
+\
+Pour garantir un acc\u00e8s rapide, merci de compl\u00e9ter le check-in en ligne avant votre arriv\u00e9e :\
+\
+' + cl + '\
+\
+Merci !'; },
+    de: function(n,cl) { return 'Hallo ' + n + '!\
+\
+Bitte vervollst\u00e4ndigen Sie den Online-Check-in vor Ihrer Ankunft:\
+\
+' + cl + '\
+\
+Danke!'; },
+    es: function(n,cl) { return '\u00a1Hola ' + n + '!\
+\
+Para garantizar un acceso r\u00e1pido, le pedimos que complete el check-in online antes de su llegada:\
+\
+' + cl + '\
+\
+\u00a1Gracias!'; }
   },
   chatbot: {
-    it: function(n,bot) { return 'Ciao ' + n + '!\n\nTi presento Alò, il tuo assistente personale H24 per tutto il soggiorno:\n\n' + bot + '\n\nPuoi scrivergli in qualsiasi lingua, a qualsiasi ora.\n\nBuon soggiorno!'; },
-    en: function(n,bot) { return 'Hi ' + n + '!\n\nMeet Alò, your personal 24/7 assistant for your entire stay:\n\n' + bot + '\n\nYou can write in any language, at any time.\n\nEnjoy your stay!'; },
-    fr: function(n,bot) { return 'Bonjour ' + n + ' !\n\nVoici Alò, votre assistant personnel H24 pour tout votre séjour :\n\n' + bot + '\n\nVous pouvez écrire dans n\'importe quelle langue, à toute heure.\n\nBon séjour !'; },
-    de: function(n,bot) { return 'Hallo ' + n + '!\n\nDas ist Alò, Ihr persönlicher 24/7-Assistent für Ihren gesamten Aufenthalt:\n\n' + bot + '\n\nSie können in jeder Sprache schreiben, zu jeder Zeit.\n\nGuten Aufenthalt!'; },
-    es: function(n,bot) { return '¡Hola ' + n + '!\n\nTe presento a Alò, tu asistente personal H24 para toda tu estancia:\n\n' + bot + '\n\nPuedes escribirle en cualquier idioma, a cualquier hora.\n\n¡Que disfrutes tu estancia!'; }
+    it: function(n,bot) { return 'Ciao ' + n + '!\
+\
+Ti presento Alò, il tuo assistente personale H24 per tutto il soggiorno:\
+\
+' + bot + '\
+\
+Puoi scrivergli in qualsiasi lingua, a qualsiasi ora.\
+\
+Buon soggiorno!'; },
+    en: function(n,bot) { return 'Hi ' + n + '!\
+\
+Meet Alò, your personal 24/7 assistant for your entire stay:\
+\
+' + bot + '\
+\
+You can write in any language, at any time.\
+\
+Enjoy your stay!'; },
+    fr: function(n,bot) { return 'Bonjour ' + n + ' !\
+\
+Voici Alò, votre assistant personnel H24 pour tout votre s\u00e9jour :\
+\
+' + bot + '\
+\
+Vous pouvez \u00e9crire dans n\'importe quelle langue, \u00e0 toute heure.\
+\
+Bon s\u00e9jour !'; },
+    de: function(n,bot) { return 'Hallo ' + n + '!\
+\
+Das ist Alò, Ihr pers\u00f6nlicher 24/7-Assistent f\u00fcr Ihren gesamten Aufenthalt:\
+\
+' + bot + '\
+\
+Sie k\u00f6nnen in jeder Sprache schreiben, zu jeder Zeit.\
+\
+Guten Aufenthalt!'; },
+    es: function(n,bot) { return '\u00a1Hola ' + n + '!\
+\
+Te presento a Alò, tu asistente personal H24 para toda tu estancia:\
+\
+' + bot + '\
+\
+Puedes escribirle en cualquier idioma, a cualquier hora.\
+\
+\u00a1Que disfrutes tu estancia!'; }
   },
   reminder: {
-    it: function(n,arr,cl) { return 'Ciao ' + n + '!\n\nTi ricordiamo che il tuo arrivo è previsto per il ' + arr + '. Se non hai ancora completato il check-in online:\n\n' + cl + '\n\nGrazie!'; },
-    en: function(n,arr,cl) { return 'Hi ' + n + '!\n\nA reminder that your arrival is scheduled for ' + arr + '. If you haven\'t completed the online check-in yet:\n\n' + cl + '\n\nThank you!'; },
-    fr: function(n,arr,cl) { return 'Bonjour ' + n + ' !\n\nRappel : votre arrivée est prévue le ' + arr + '. Si vous n\'avez pas encore complété le check-in en ligne :\n\n' + cl + '\n\nMerci !'; },
-    de: function(n,arr,cl) { return 'Hallo ' + n + '!\n\nErinnerung: Ihre Ankunft ist für den ' + arr + ' geplant. Falls Sie den Online-Check-in noch nicht abgeschlossen haben:\n\n' + cl + '\n\nDanke!'; },
-    es: function(n,arr,cl) { return '¡Hola ' + n + '!\n\nRecordatorio: su llegada está prevista para el ' + arr + '. Si aún no ha completado el check-in online:\n\n' + cl + '\n\n¡Gracias!'; }
+    it: function(n,arr,cl) { return 'Ciao ' + n + '!\
+\
+Ti ricordiamo che il tuo arrivo \u00e8 previsto per il ' + arr + '. Se non hai ancora completato il check-in online:\
+\
+' + cl + '\
+\
+Grazie!'; },
+    en: function(n,arr,cl) { return 'Hi ' + n + '!\
+\
+A reminder that your arrival is scheduled for ' + arr + '. If you haven\'t completed the online check-in yet:\
+\
+' + cl + '\
+\
+Thank you!'; },
+    fr: function(n,arr,cl) { return 'Bonjour ' + n + ' !\
+\
+Rappel : votre arriv\u00e9e est pr\u00e9vue le ' + arr + '. Si vous n\'avez pas encore compl\u00e9t\u00e9 le check-in en ligne :\
+\
+' + cl + '\
+\
+Merci !'; },
+    de: function(n,arr,cl) { return 'Hallo ' + n + '!\
+\
+Erinnerung: Ihre Ankunft ist f\u00fcr den ' + arr + ' geplant. Falls Sie den Online-Check-in noch nicht abgeschlossen haben:\
+\
+' + cl + '\
+\
+Danke!'; },
+    es: function(n,arr,cl) { return '\u00a1Hola ' + n + '!\
+\
+Recordatorio: su llegada est\u00e1 prevista para el ' + arr + '. Si a\u00fan no ha completado el check-in online:\
+\
+' + cl + '\
+\
+\u00a1Gracias!'; }
   },
-  benvenuto: {
-    it: function(n,gl) { return 'Ciao ' + n + '! 🏠\n\nSiamo pronti ad accoglierti. Qui trovi tutto quello che ti serve per il tuo soggiorno: come entrare in camera, WiFi, parcheggio, dove mangiare, cosa vedere a Bitonto e molto altro.\n\n' + gl + '\n\nPer qualsiasi domanda, Alò è sempre disponibile H24 direttamente dalla pagina.\n\nBuon soggiorno! 🌿'; },
-    en: function(n,gl) { return 'Hi ' + n + '! 🏠\n\nWe\'re ready to welcome you. Here you\'ll find everything you need for your stay: how to access your room, WiFi, parking, where to eat, what to see in Bitonto and much more.\n\n' + gl + '\n\nFor any questions, Alò is always available 24/7 directly from the page.\n\nEnjoy your stay! 🌿'; },
-    fr: function(n,gl) { return 'Bonjour ' + n + ' ! 🏠\n\nNous sommes prêts à vous accueillir. Vous trouverez ici tout ce dont vous avez besoin : comment entrer dans votre chambre, WiFi, parking, où manger, quoi voir à Bitonto et bien plus.\n\n' + gl + '\n\nPour toute question, Alò est toujours disponible H24 directement depuis la page.\n\nBon séjour ! 🌿'; },
-    de: function(n,gl) { return 'Hallo ' + n + '! 🏠\n\nWir sind bereit, Sie zu empfangen. Hier finden Sie alles für Ihren Aufenthalt: Zugang zum Zimmer, WLAN, Parken, wo man essen kann, was man in Bitonto sehen kann und vieles mehr.\n\n' + gl + '\n\nFür Fragen steht Ihnen Alò 24/7 direkt auf der Seite zur Verfügung.\n\nGuten Aufenthalt! 🌿'; },
-    es: function(n,gl) { return '¡Hola ' + n + '! 🏠\n\nEstamos listos para recibirle. Aquí encontrará todo lo que necesita para su estancia: cómo acceder a su habitación, WiFi, aparcamiento, dónde comer, qué ver en Bitonto y mucho más.\n\n' + gl + '\n\nPara cualquier pregunta, Alò está siempre disponible 24/7 directamente desde la página.\n\n¡Que disfrute su estancia! 🌿'; }
+  istruzioni: {
+    it: function(n,istrUrl,bot) { return 'Ciao ' + n + ', siamo pronti ad accoglierti!\
+\
+Clicca qui per scoprire come entrare e tutte le info utili per il tuo soggiorno:\
+\
+' + istrUrl + '\
+\
+Per qualsiasi domanda il tuo assistente H24 Alò \u00e8 sempre disponibile:\
+\
+' + bot + '\
+\
+Buon soggiorno!'; },
+    en: function(n,istrUrl,bot) { return 'Hi ' + n + ', we are ready to welcome you!\
+\
+Click here to find out how to access your room and all useful information for your stay:\
+\
+' + istrUrl + '\
+\
+For any questions, your 24/7 assistant Alò is always available:\
+\
+' + bot + '\
+\
+Enjoy your stay!'; },
+    fr: function(n,istrUrl,bot) { return 'Bonjour ' + n + ', nous sommes pr\u00eats \u00e0 vous accueillir !\
+\
+Cliquez ici pour savoir comment acc\u00e9der \u00e0 votre chambre et toutes les infos utiles :\
+\
+' + istrUrl + '\
+\
+Pour toute question, votre assistant H24 Alò est toujours disponible :\
+\
+' + bot + '\
+\
+Bon s\u00e9jour !'; },
+    de: function(n,istrUrl,bot) { return 'Hallo ' + n + ', wir sind bereit, Sie zu empfangen!\
+\
+Klicken Sie hier f\u00fcr alle Informationen zu Ihrem Aufenthalt:\
+\
+' + istrUrl + '\
+\
+F\u00fcr Fragen steht Ihnen Ihr 24/7-Assistent Alò zur Verf\u00fcgung:\
+\
+' + bot + '\
+\
+Guten Aufenthalt!'; },
+    es: function(n,istrUrl,bot) { return '\u00a1Hola ' + n + ', estamos listos para recibirle!\
+\
+Haga clic aqu\u00ed para saber c\u00f3mo acceder a su habitaci\u00f3n y toda la informaci\u00f3n \u00fatil:\
+\
+' + istrUrl + '\
+\
+Para cualquier pregunta, su asistente H24 Alò siempre est\u00e1 disponible:\
+\
+' + bot + '\
+\
+\u00a1Que disfrute su estancia!'; }
   },
   checkout: {
-    it: function(n,canale,rev) { return 'Ciao ' + n + '!\n\nSperiamo che il soggiorno sia stato piacevole.\nSe hai 2 minuti, una recensione' + (canale ? ' su ' + canale : '') + ' ci aiuterebbe moltissimo:\n\n' + rev + '\n\nGrazie di cuore, alla prossima!'; },
-    en: function(n,canale,rev) { return 'Hi ' + n + '!\n\nWe hope you enjoyed your stay.\nIf you have 2 minutes, a review' + (canale ? ' on ' + canale : '') + ' would mean a lot to us:\n\n' + rev + '\n\nThank you so much, see you next time!'; },
-    fr: function(n,canale,rev) { return 'Bonjour ' + n + ' !\n\nNous espérons que votre séjour a été agréable.\nSi vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait énormément :\n\n' + rev + '\n\nMerci du fond du cœur, à bientôt !'; },
-    de: function(n,canale,rev) { return 'Hallo ' + n + '!\n\nWir hoffen, Ihr Aufenthalt war angenehm.\nWenn Sie 2 Minuten Zeit haben, würde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\n\n' + rev + '\n\nVielen herzlichen Dank, bis zum nächsten Mal!'; },
-    es: function(n,canale,rev) { return '¡Hola ' + n + '!\n\nEsperamos que su estancia haya sido agradable.\nSi tiene 2 minutos, una reseña' + (canale ? ' en ' + canale : '') + ' nos ayudaría muchísimo:\n\n' + rev + '\n\n¡Muchísimas gracias, hasta la próxima!'; }
+    it: function(n,canale,rev) { return 'Ciao ' + n + '!\
+\
+Speriamo che il soggiorno sia stato piacevole.\
+Se hai 2 minuti, una recensione' + (canale ? ' su ' + canale : '') + ' ci aiuterebbe moltissimo:\
+\
+' + rev + '\
+\
+Grazie di cuore, alla prossima!'; },
+    en: function(n,canale,rev) { return 'Hi ' + n + '!\
+\
+We hope you enjoyed your stay.\
+If you have 2 minutes, a review' + (canale ? ' on ' + canale : '') + ' would mean a lot to us:\
+\
+' + rev + '\
+\
+Thank you so much, see you next time!'; },
+    fr: function(n,canale,rev) { return 'Bonjour ' + n + ' !\
+\
+Nous esp\u00e9rons que votre s\u00e9jour a \u00e9t\u00e9 agr\u00e9able.\
+Si vous avez 2 minutes, un avis' + (canale ? ' sur ' + canale : '') + ' nous aiderait \u00e9norm\u00e9ment :\
+\
+' + rev + '\
+\
+Merci du fond du c\u0153ur, \u00e0 bient\u00f4t !'; },
+    de: function(n,canale,rev) { return 'Hallo ' + n + '!\
+\
+Wir hoffen, Ihr Aufenthalt war angenehm.\
+Wenn Sie 2 Minuten Zeit haben, w\u00fcrde uns eine Bewertung' + (canale ? ' auf ' + canale : '') + ' sehr helfen:\
+\
+' + rev + '\
+\
+Vielen herzlichen Dank, bis zum n\u00e4chsten Mal!'; },
+    es: function(n,canale,rev) { return '\u00a1Hola ' + n + '!\
+\
+Esperamos que su estancia haya sido agradable.\
+Si tiene 2 minutos, una rese\u00f1a' + (canale ? ' en ' + canale : '') + ' nos ayudar\u00eda much\u00edsimo:\
+\
+' + rev + '\
+\
+\u00a1Much\u00edsimas gracias, hasta la pr\u00f3xima!'; }
   },
   pulizie: {
     it: function(cam, par, note) {
-      return 'Ciao Marianna!\nCi sarebbe da pulire la ' + cam + ' il giorno di check out (' + par + ').' + (note ? '\n\nNote: ' + note : '') + '\n\nGrazie!';
+      return 'Ciao Marianna!\
+Ci sarebbe da pulire la ' + cam + ' il giorno di check out (' + par + ').' + (note ? '\
+\
+Note: ' + note : '') + '\
+\
+Grazie!';
     }
   }
 };
@@ -687,6 +938,9 @@ function generaMessaggio() {
   var fn = T[lang] || T['en'] || T['it'];
   var msg = '';
   var camNum = String(camera||'').replace('Camera ','');
+  var istrUrl = (camNum==='1954' || camNum==='1956')
+    ? 'https://fdp88.github.io/SANTALO/santalo-istruzioni-' + camNum + '.html'
+    : MAPS_URL;
   var GOOGLE_REVIEW = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
   if (tpl === 'pulizie') {
     var pfn = (TEMPLATES.pulizie || {}).it;
@@ -700,7 +954,7 @@ function generaMessaggio() {
     else if (tpl==='checkin') msg = fn(nome, cl);
     else if (tpl==='chatbot') msg = fn(nome, bot);
     else if (tpl==='reminder') msg = fn(nome, arrivo, cl);
-    else if (tpl==='benvenuto') msg = fn(nome, guestLink(p));
+    else if (tpl==='istruzioni') msg = fn(nome, istrUrl, bot);
     else if (tpl==='checkout') msg = fn(nome, p.canale||'', GOOGLE_REVIEW);
   }
   document.getElementById('messaggio').value = msg;
@@ -718,7 +972,9 @@ function waLink(link) {
   if (!selected) return;
   var ph = phone(selected.telefono || '');
   var nome = (selected.nome||'ospite').split(' ')[0];
-  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent('Ciao ' + nome + '\n\n' + link), '_blank');
+  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent('Ciao ' + nome + '\
+\
+' + link), '_blank');
 }
 function waDiretto(id) {
   var p = prenotazioni.find(function(x) { return x.id === id; });
@@ -743,7 +999,7 @@ function modificaPrenotazione(id) {
   document.getElementById('f-nome').dataset.editId = id;
   document.getElementById('salvataEsito').textContent = '';
   showTab('nuova');
-  document.querySelector('[onclick="salvaPrenotazione()"]').textContent = '💾 Salva modifiche';
+  document.querySelector('[onclick="salvaPrenotazione()"]').textContent = '\ud83d\udcbe Salva modifiche';
 }
 
 function salvaPrenotazione() {
@@ -824,12 +1080,12 @@ function loadConversazioni() {
         var isBot = m.ruolo === 'alo';
         return '<div style="margin:4px 0;padding:7px 11px;border-radius:10px;font-size:13px;line-height:1.5;' +
           (isBot ? 'background:var(--cream);border:1px solid var(--line);' : 'background:var(--brown);color:#fff;margin-left:20px;') + '">' +
-          '<span style="font-size:10px;font-weight:700;opacity:.6;display:block;margin-bottom:2px">' + (isBot ? 'ALÒ' : 'OSPITE') + '</span>' +
+          '<span style="font-size:10px;font-weight:700;opacity:.6;display:block;margin-bottom:2px">' + (isBot ? 'AL\u00d2' : 'OSPITE') + '</span>' +
           esc(m.messaggio) + '</div>';
       }).join('');
       return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-        '<div><strong style="font-size:.95rem">' + esc(g.nome||'Ospite') + '</strong> · <span style="color:var(--muted);font-size:12px">Camera ' + esc(g.camera||'--') + '</span></div>' +
+        '<div><strong style="font-size:.95rem">' + esc(g.nome||'Ospite') + '</strong> \u00b7 <span style="color:var(--muted);font-size:12px">Camera ' + esc(g.camera||'--') + '</span></div>' +
         '<span style="font-size:11px;color:var(--muted)">' + g.data + '</span></div>' +
         msgs + '</div>';
     }).join('');
@@ -841,7 +1097,7 @@ function loadConversazioni() {
 // ===== ALLOGGIATI WEB =====
 var CODICE_STRUTTURA = 'BA008847 ';
 var TIPI_DOC_AW = {
-  'IDENT': 'IDENT', 'Carta di identità': 'IDENT',
+  'IDENT': 'IDENT', 'Carta di identit\u00e0': 'IDENT',
   'IDELE': 'IDELE', 'PASOR': 'PASOR', 'Passaporto': 'PASOR',
   'PATEN': 'PATEN', 'Patente': 'PATEN', 'RIFUG': 'RIFUG', 'Permesso di soggiorno': 'RIFUG',
 };
@@ -869,7 +1125,8 @@ function buildRecord(ospite, arrivo, partenza) {
   return tipo + awDate(arrivo) + giorni + awPad(ospite.cognome || '', 50) + awPad(ospite.nome || '', 30) + awPad(ospite.sesso || '1', 1) + awDate(ospite.data_nascita) + comuneNascita + provinciaNascita + statoNascita + awPad(ospite.cittadinanza_codice || '100000100', 9) + awPad(TIPI_DOC_AW[ospite.tipo_documento] || 'PASOR', 5) + awPad(ospite.numero_documento || '', 20) + luogoRilascio;
 }
 
-function buildFile(pren, ospiti) { var lines = []; ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); }); return lines.join('\r\n'); }
+function buildFile(pren, ospiti) { var lines = []; ospiti.forEach(function(o) { lines.push(buildRecord(o, pren.arrivo, pren.partenza)); }); return lines.join('\r\
+'); }
 
 function loadAlloggiati() {
   var root = document.getElementById('listaAlloggiati');
@@ -881,8 +1138,8 @@ function loadAlloggiati() {
     root.innerHTML = completate.map(function(p) {
       return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
         '<div><div style="font-weight:600;font-size:.95rem">' + esc(p.nome||'--') + '</div>' +
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' · ' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + ' · ' + (p.num_ospiti||1) + ' ospiti</div></div>' +
-        '<button class="btn btn-primary btn-sm" onclick="generaSchedina(' + p.id + ')">📋 Genera schedina</button>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' \u00b7 ' + fmt(p.arrivo) + ' \u2192 ' + fmt(p.partenza) + ' \u00b7 ' + (p.num_ospiti||1) + ' ospiti</div></div>' +
+        '<button class="btn btn-primary btn-sm" onclick="generaSchedina(' + p.id + ')">\ud83d\udccb Genera schedina</button>' +
         '</div>';
     }).join('');
   });
@@ -911,20 +1168,27 @@ function aggiornaPulizie() {
   var el = document.getElementById('pulMsg');
   if (!el) return;
   var target = new Date(); target.setHours(0,0,0,0); target.setDate(target.getDate() + 1);
-  var tStr = target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0');
+  var tStr = target.toISOString().slice(0,10);
   var tFmt = target.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   var cos = prenotazioni.filter(function(p) { return p.partenza === tStr; });
   if (!cos.length) { el.textContent = 'Nessun check-out domani.'; return; }
-  var nl = '\n';
+  var nl = '\
+';
   var righe = cos.map(function(p) {
     var cam = (p.camera||'').replace('Camera ','');
     var ospite = (p.nome||'').split(' ')[0];
     var stesso = prenotazioni.find(function(q) { return q.arrivo === tStr && q.camera === p.camera && q.id !== p.id; });
-    var r = '• Camera ' + cam + ' (check-out: ' + ospite + ')';
+    var r = '\u2022 Camera ' + cam + ' (check-out: ' + ospite + ')';
     if (stesso) r += nl + '  NB: nuovo arrivo: ' + (stesso.nome||'').split(' ')[0];
     return r;
   });
-  el.textContent = 'Ciao Marianna!\n\nDomani (' + tFmt + ') camere da rifare:\n\n' + righe.join(nl) + '\n\nGrazie!';
+  el.textContent = 'Ciao Marianna!\
+\
+Domani (' + tFmt + ') camere da rifare:\
+\
+' + righe.join(nl) + '\
+\
+Grazie!';
 }
 function copiaPulizie() {
   var txt = document.getElementById('pulMsg').textContent;
@@ -960,14 +1224,14 @@ function renderCalendario() {
   var cosOggi = prenotazioni.filter(function(p){ return p.partenza===todayStr; });
   var cisOggi = prenotazioni.filter(function(p){ return p.arrivo===todayStr; });
   var strip = '<div class="today-strip"><span class="today-strip-title">Oggi ' + today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) + '</span>';
-  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">🚶 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
-  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">🛬 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
+  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">\ud83d\udeb6 '+(p.nome||'').split(' ')[0]+' \u2013 '+(p.camera||'').replace('Camera ','')+'</span>'; });
+  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">\ud83d\udeec '+(p.nome||'').split(' ')[0]+' \u2013 '+(p.camera||'').replace('Camera ','')+'</span>'; });
   if (!cosOggi.length&&!cisOggi.length) strip += '<span class="today-pill none">Nessun arrivo o partenza oggi</span>';
   strip += '</div>';
   var d0 = dayList[0], d1 = dayList[WIN-1];
-  var rangeLabel = d0.d + ' ' + MESI_FULL[d0.m].slice(0,3) + (d0.y!==d1.y?' '+d0.y:'') + ' → ' + d1.d + ' ' + MESI_FULL[d1.m].slice(0,3) + ' ' + d1.y;
-  var nav = '<div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-15)">« -15</button><button class="cal-nav-btn" onclick="calShift(-7)">‹ -7</button><button class="cal-nav-btn" onclick="calGoToday()" style="background:var(--brown);color:#fff">Oggi</button><span class="cal-title" style="flex:1;text-align:center">' + rangeLabel + '</span><button class="cal-nav-btn" onclick="calShift(7)">+7 ›</button><button class="cal-nav-btn" onclick="calShift(15)">+15 »</button></div>';
-  var gotoRow = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;color:var(--muted)">Vai alla data:</span><input type="date" id="calGotoInput" style="padding:5px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px;color:var(--ink)"><button class="cal-nav-btn" onclick="calGoTo()">→ Vai</button></div>';
+  var rangeLabel = d0.d + ' ' + MESI_FULL[d0.m].slice(0,3) + (d0.y!==d1.y?' '+d0.y:'') + ' \u2192 ' + d1.d + ' ' + MESI_FULL[d1.m].slice(0,3) + ' ' + d1.y;
+  var nav = '<div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-15)">\u00ab -15</button><button class="cal-nav-btn" onclick="calShift(-7)">\u2039 -7</button><button class="cal-nav-btn" onclick="calGoToday()" style="background:var(--brown);color:#fff">Oggi</button><span class="cal-title" style="flex:1;text-align:center">' + rangeLabel + '</span><button class="cal-nav-btn" onclick="calShift(7)">+7 \u203a</button><button class="cal-nav-btn" onclick="calShift(15)">+15 \u00bb</button></div>';
+  var gotoRow = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;color:var(--muted)">Vai alla data:</span><input type="date" id="calGotoInput" style="padding:5px 10px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-size:13px;color:var(--ink)"><button class="cal-nav-btn" onclick="calGoTo()">\u2192 Vai</button></div>';
   var leg = '<div class="cal-legend"><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#2563eb"></div>Prenotato</div><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#16a34a"></div>Check-in OK</div><div class="cal-legend-item"><div class="cal-legend-dot" style="background:#9ca3af"></div>Passato</div></div>';
   var maps = CAMERE_CAL.map(function(cam) {
     var map = {};
@@ -1003,7 +1267,7 @@ function renderCalendario() {
           var lastVisDs = dayList[i+span-1].ds;
           var depD = new Date(pren.partenza+'T12:00:00'); depD.setDate(depD.getDate()-1);
           var isDep = depD.toISOString().slice(0,10) === lastVisDs;
-          var bar = '<div class="cal-bar" style="background:'+col+'"><div class="cal-bar-inner">'+(showArr?'<span class="cal-bar-x">▶</span>':'')+'<span class="cal-bar-name">'+esc(nome)+'</span>'+(span > 2?'<span class="cal-bar-x">'+nights+'n</span>':'')+(isDep?'<span class="cal-bar-x">◀</span>':'')+'</div><div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>'+nights+' notti · '+esc(stato)+'</div></div>';
+          var bar = '<div class="cal-bar" style="background:'+col+'"><div class="cal-bar-inner">'+(showArr?'<span class="cal-bar-x">\u25b6</span>':'')+'<span class="cal-bar-name">'+esc(nome)+'</span>'+(span > 2?'<span class="cal-bar-x">'+nights+'n</span>':'')+(isDep?'<span class="cal-bar-x">\u25c0</span>':'')+'</div><div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' \u2192 '+fmt(pren.partenza)+'<br>'+nights+' notti \u00b7 '+esc(stato)+'</div></div>';
           tbody += '<td class="'+cls+'" colspan="'+span+'" style="padding:3px 2px">'+bar+'</td>';
           i += span;
         } else { tbody += '<td class="'+cls+'"></td>'; i++; }
@@ -1021,8 +1285,8 @@ function renderCalendario() {
       prox += '<div class="prox-row"><span class="prox-date"'+(isT3?' style="color:var(--brown);font-weight:800"':'')+'>';
       prox += day.dateObj.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
       prox += (isT3?' (oggi)':'') + '</span>';
-      co2.forEach(function(p){ prox += '<span class="today-pill out" style="font-size:11px">🚶 '+(p.nome||'').split(' ')[0]+'</span>'; });
-      ci2.forEach(function(p){ prox += '<span class="today-pill in" style="font-size:11px">🛬 '+(p.nome||'').split(' ')[0]+'</span>'; });
+      co2.forEach(function(p){ prox += '<span class="today-pill out" style="font-size:11px">\ud83d\udeb6 '+(p.nome||'').split(' ')[0]+'</span>'; });
+      ci2.forEach(function(p){ prox += '<span class="today-pill in" style="font-size:11px">\ud83d\udeec '+(p.nome||'').split(' ')[0]+'</span>'; });
       prox += '</div>';
     }
   });
@@ -1043,7 +1307,7 @@ function apriCheckinModal(id) {
     if (o.documento_fronte_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_fronte_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Fronte</a> ';
     if (o.documento_retro_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_retro_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Retro</a> ';
     if (o.selfie_documento_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.selfie_documento_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Selfie</a>';
-    document.getElementById('ciModalBody').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'+(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')+'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">✎ Modifica</button><button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca">🗑 Elimina</button></div>';
+    document.getElementById('ciModalBody').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'+(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')+'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">\u270e Modifica</button><button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca">\ud83d\uddd1 Elimina</button></div>';
     document.getElementById('ciModal').style.display = 'flex';
   });
 }
@@ -1057,9 +1321,9 @@ function apriModificaCI(id) {
   var g2 = 'display:grid;grid-template-columns:1fr 1fr;gap:10px';
   var html = sez('Anagrafica') + '<div style="'+g2+'">' + inp('nome','Nome') + inp('cognome','Cognome') + sel('sesso','Sesso',[{v:'1',t:'Maschio'},{v:'2',t:'Femmina'}]) + inp('data_nascita','Data nascita','date') + sel('tipo_alloggiato','Tipo alloggiato',TIPI_ALL) + '</div>' +
     sez('Nascita') + '<div style="'+g2+'">' + sel('nato_italia','Nato in Italia',[{v:'true',t:'Si'},{v:'false',t:'No'}]) + inp('provincia_nascita','Provincia (EE se estero)') + inp('comune_nascita_codice','Codice comune nascita (IT)') + inp('stato_nascita_codice','Codice stato nascita (estero)') + inp('cittadinanza_codice','Codice cittadinanza') + '</div>' +
-    sez('Documento') + '<div style="'+g2+'">' + sel('tipo_documento','Tipo doc',[{v:'IDENT',t:'Carta identità'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]) + inp('numero_documento','Numero documento') + inp('data_rilascio_documento','Data rilascio','date') + inp('luogo_rilascio_codice','Codice luogo rilascio') + '</div>' +
-    '<div style="background:var(--warn-bg);border:1px solid #fcd34d;border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px">ℹ Per stranieri: Codice luogo rilascio = codice stato (es. 100000215 per Francia)</div>' +
-    '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">✓ Salva</button><button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
+    sez('Documento') + '<div style="'+g2+'">' + sel('tipo_documento','Tipo doc',[{v:'IDENT',t:'Carta identit\u00e0'},{v:'IDELE',t:'CI Elettronica'},{v:'PASOR',t:'Passaporto'},{v:'PATEN',t:'Patente'},{v:'RIFUG',t:'Permesso soggiorno'}]) + inp('numero_documento','Numero documento') + inp('data_rilascio_documento','Data rilascio','date') + inp('luogo_rilascio_codice','Codice luogo rilascio') + '</div>' +
+    '<div style="background:var(--warn-bg);border:1px solid #fcd34d;border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px">\u2139 Per stranieri: Codice luogo rilascio = codice stato (es. 100000215 per Francia)</div>' +
+    '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><button class="btn btn-primary btn-sm" onclick="salvaCI('+id+')">\u2713 Salva</button><button class="btn btn-ghost btn-sm" onclick="apriCheckinModal('+id+')">Annulla</button></div>';
   document.getElementById('ciModalBody').innerHTML = html;
 }
 
