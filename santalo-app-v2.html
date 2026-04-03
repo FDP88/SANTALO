@@ -36,7 +36,9 @@
     .list{display:flex;flex-direction:column;gap:11px;max-height:72vh;overflow-y:auto;padding-right:4px}
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
     .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;overflow:hidden}
-    .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.1)}
+    .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.15);background:linear-gradient(to bottom,#fff7ed,#fff)}
+    .booking.active .booking-body{background:linear-gradient(to bottom,#fff7ed,#fff)}
+    .booking:not(.active):hover{border-color:var(--sand);box-shadow:0 2px 12px rgba(107,45,31,.07)}
     .booking-stripe{height:4px;width:100%}
     .booking-body{padding:13px 14px 11px}
     .booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:7px}
@@ -594,7 +596,7 @@ function renderPrenotazioni() {
     var ggArr = arrD2 ? Math.round((arrD2-oggi2)/86400000) : null;
     var arrivoChip = ggArr === null ? '' : ggArr === 0 ? '<span class="info-chip" style="background:#dcfce7;border-color:#86efac;color:#166534">oggi</span>' : ggArr === 1 ? '<span class="info-chip" style="background:#fef9c3;border-color:#fde047;color:#854d0e">domani</span>' : ggArr > 0 ? '<span class="info-chip" style="color:var(--muted)">tra '+ggArr+'gg</span>' : '';
 
-    return '<div class="' + cardClass + '">' +
+    return '<div class="' + cardClass + '" onclick="seleziona('+p.id+')" style="cursor:pointer">' +
       '<div class="booking-stripe" style="background:'+stripeColor+'"></div>' +
       '<div class="booking-body">' +
       '<div class="booking-head">' +
@@ -602,7 +604,7 @@ function renderPrenotazioni() {
       '<div class="booking-name">' + esc(p.nome||'--') + '</div>' +
       '<div class="booking-sub">' + esc(p.canale||'--') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
       '</div>' +
-      '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione('+p.id+',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;flex-shrink:0">🗑️</button>' +
+      '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione('+p.id+',event);event.stopPropagation()" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;flex-shrink:0">🗑️</button>' +
       '</div>' +
       '<div class="booking-badges">' +
       (p.camera ? '<span style="background:'+camBg+';color:'+stripeColor+';border-radius:8px;padding:2px 9px;font-size:11px;font-weight:700">' + esc(p.camera) + '</span>' : '') +
@@ -624,11 +626,11 @@ function renderPrenotazioni() {
       '<div class="meta-cell"><b>Ospiti</b><span>' + (p.num_ospiti||'--') + '</span></div>' +
       '</div>' +
       '<div class="booking-actions">' +
-      '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ')">✏️</button>' +
-      '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ')">WhatsApp</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Check-in copiato\')">Check-in</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Chatbot copiato\')">Chatbot</button>' +
+      
+      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione('+p.id+');event.stopPropagation()">✏️ Modifica</button>' +
+      '<button class="btn btn-green btn-sm" onclick="waDiretto('+p.id+');event.stopPropagation()">WhatsApp</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Check-in copiato\');event.stopPropagation()">Check-in</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Chatbot copiato\');event.stopPropagation()">Chatbot</button>' +
       '</div>' +
       '</div></div>';
   }).join('');
