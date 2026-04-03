@@ -35,7 +35,9 @@
     .tab.active{background:var(--brown);color:#fff}
     .list{display:flex;flex-direction:column;gap:11px;max-height:72vh;overflow-y:auto;padding-right:4px}
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
-    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;overflow:hidden}
+
+    /* ===== BOOKING CARD ===== */
+    .booking{border:1.5px solid var(--line);border-radius:16px;padding:0;background:#fff;transition:all .18s;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:rgba(107,45,31,.08)}
     .booking.active{border-color:var(--brown);box-shadow:0 0 0 3px rgba(107,45,31,.08)}
     .booking:not(.active):hover{border-color:var(--sand);box-shadow:0 2px 12px rgba(107,45,31,.07)}
     .booking-stripe{height:4px;width:100%}
@@ -48,13 +50,16 @@
     .s-da{background:var(--warn-bg);color:var(--warn)}
     .s-ok{background:var(--ok-bg);color:var(--ok)}
     .s-inv{background:#dbeafe;color:#1e40af}
-    /* Info inline compatta */
+
+    /* Info inline compatta desktop */
     .booking-info-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
     .info-chip{display:inline-flex;align-items:center;gap:3px;background:var(--cream);border:1px solid var(--cream-d);border-radius:8px;padding:4px 9px;font-size:12px;font-weight:600;color:var(--ink)}
     .info-chip .lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-right:2px}
+
     /* Bottoni azioni */
     .booking-actions{display:flex;gap:5px;flex-wrap:wrap}
-    .meta-grid{display:none} /* nascosto — info nella riga compatta */
+    .meta-grid{display:none}
+
     @media(min-width:700px){
       .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}
       .meta-cell{background:var(--cream);border-radius:9px;padding:8px 10px;border:1px solid var(--cream-d)}
@@ -62,6 +67,24 @@
       .meta-cell span{font-size:13px;font-weight:500}
       .booking-info-row{display:none}
     }
+
+    /* ===== MOBILE COMPACT CARD ===== */
+    /* Su mobile: card cliccabile tutta, info essenziali in una riga */
+    @media(max-width:699px){
+      .booking-body{padding:10px 12px 10px}
+      .booking-name{font-size:.92rem}
+      .booking-sub{font-size:10.5px}
+      /* chip essenziali visibili su mobile */
+      .booking-info-row{display:flex;margin-bottom:8px}
+      .info-chip{padding:3px 7px;font-size:11px}
+      /* azioni compresse su mobile - mostrate solo se la card è selezionata */
+      .booking-actions{display:none}
+      .booking.active .booking-actions{display:flex;flex-wrap:wrap;gap:4px;padding-top:8px;border-top:1px solid var(--line);margin-top:6px}
+      .booking.active .booking-actions .btn-sm{font-size:11.5px;padding:5px 10px}
+      /* bottone elimina sempre visibile */
+      .btn-delete-mobile{display:inline-flex !important}
+    }
+
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ff{display:flex;flex-direction:column;gap:4px}
     .ff label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -84,6 +107,7 @@
     .badge{display:inline-flex;align-items:center;justify-content:center;background:#b91c1c;color:#fff;border-radius:999px;font-size:11px;font-weight:700;min-width:18px;height:18px;padding:0 5px;margin-left:5px;vertical-align:middle}
     @media(max-width:1000px){.grid-main{grid-template-columns:1fr}}
     @media(max-width:600px){.meta-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.msg-row{grid-template-columns:1fr}}
+
     /* CALENDARIO + PULIZIE */
     .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     .cal-nav-btn{background:var(--cream-d);border:1px solid var(--line);border-radius:10px;padding:7px 14px;cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;color:var(--brown)}
@@ -137,17 +161,37 @@
     .search-input-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
     .search-input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13px;color:var(--ink);background:#fff;transition:border-color .15s}
     .search-input:focus{outline:none;border-color:var(--brown)}
-    .filter-pills{display:flex;gap:5px;flex-wrap:wrap}
-    .filter-pill{border:none;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;background:var(--cream-d);color:var(--muted)}
+
+    /* ===== FILTRI PILL - NUOVI ===== */
+    .filter-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+    .filter-pill{border:none;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;background:var(--cream-d);color:var(--muted);white-space:nowrap}
     .filter-pill:hover{background:var(--sand-l);color:var(--brown)}
     .filter-pill.active{background:var(--brown);color:#fff}
     .filter-pill .pill-count{border-radius:999px;padding:1px 6px;font-size:10px;font-weight:700;background:rgba(107,45,31,.1);color:var(--brown)}
     .filter-pill.active .pill-count{background:rgba(255,255,255,.25);color:#fff}
+
+    /* Colori per i nuovi filtri pill */
+    .filter-pill[data-filter="checkin_oggi"]:not(.active){background:#dbeafe;color:#1e40af}
+    .filter-pill[data-filter="checkin_oggi"].active{background:#1e40af;color:#fff}
+    .filter-pill[data-filter="permanenza"]:not(.active){background:#dcfce7;color:#166534}
+    .filter-pill[data-filter="permanenza"].active{background:#16a34a;color:#fff}
+    .filter-pill[data-filter="checkout_oggi"]:not(.active){background:#fef3c7;color:#92400e}
+    .filter-pill[data-filter="checkout_oggi"].active{background:#b45309;color:#fff}
+    .filter-pill[data-filter="arrivo_7gg"]:not(.active){background:#f3e8ff;color:#6b21a8}
+    .filter-pill[data-filter="arrivo_7gg"].active{background:#7c3aed;color:#fff}
+
     .no-results{text-align:center;padding:30px;color:var(--muted);font-size:14px}
 
-    /* Highlight card oggi */
-    .booking.oggi-highlight{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.12)}
-    .oggi-badge{background:#dcfce7;color:#166534;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle}
+    /* Highlight card oggi/checkin */
+    .booking.checkin-highlight{border-color:#1e40af;box-shadow:0 0 0 2px rgba(30,64,175,.12)}
+    .booking.checkout-highlight{border-color:#b45309;box-shadow:0 0 0 2px rgba(180,83,9,.12)}
+    .booking.permanenza-highlight{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.1)}
+
+    /* Badge stati inline */
+    .stato-badge{border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700;margin-left:4px;vertical-align:middle;display:inline-block}
+    .stato-checkin-in{background:#dbeafe;color:#1e40af}
+    .stato-permanenza{background:#dcfce7;color:#166534}
+    .stato-checkout-out{background:#fef3c7;color:#92400e}
   </style>
 </head>
 <body>
@@ -181,20 +225,24 @@
         </div>
 
         <div id="panel-lista">
-          <!-- BARRA RICERCA + FILTRI -->
+          <!-- BARRA RICERCA -->
           <div class="search-filter-bar">
             <div class="search-input-wrap">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input class="search-input" id="searchInput" placeholder="Cerca per nome, camera, canale…" oninput="onSearch(this.value)"/>
             </div>
           </div>
-          <div class="filter-pills" style="margin-bottom:12px">
+
+          <!-- NUOVI FILTRI PILL -->
+          <div class="filter-pills">
             <button class="filter-pill active" data-filter="tutti" id="pill-tutti" onclick="setFilter('tutti')">Tutte <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="oggi" id="pill-oggi" onclick="setFilter('oggi')">🟢 Oggi <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="struttura" id="pill-struttura" onclick="setFilter('struttura')">🏠 In struttura <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="arrivo" id="pill-arrivo" onclick="setFilter('arrivo')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="checkin_oggi" id="pill-checkin_oggi" onclick="setFilter('checkin_oggi')">🛬 Check-in <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="permanenza" id="pill-permanenza" onclick="setFilter('permanenza')">🏠 Permanenza <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="checkout_oggi" id="pill-checkout_oggi" onclick="setFilter('checkout_oggi')">🛫 Check-out <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="arrivo_7gg" id="pill-arrivo_7gg" onclick="setFilter('arrivo_7gg')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
             <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">✓ Passati <span class="pill-count">0</span></button>
           </div>
+
           <div id="listaPrenotazioni" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
           </div>
@@ -414,28 +462,27 @@ function getTodayStr() {
   return d.toISOString().slice(0,10);
 }
 
+// Categorizzazione prenotazione - AGGIORNATA con nuove categorie
 function categorize(p) {
   if (!p.arrivo || !p.partenza) return 'altri';
   var today = new Date(); today.setHours(0,0,0,0);
-  var todayStr = today.toISOString().slice(0,10);
   var arr = new Date(p.arrivo+'T12:00:00'); arr.setHours(0,0,0,0);
   var par = new Date(p.partenza+'T12:00:00'); par.setHours(0,0,0,0);
+
   if (par < today) return 'passati';
-  if (arr.getTime() === today.getTime()) return 'oggi';
-  if (arr < today && par > today) return 'struttura';
+  if (par.getTime() === today.getTime()) return 'checkout_oggi';
+  if (arr.getTime() === today.getTime()) return 'checkin_oggi';
+  if (arr < today && par > today) return 'permanenza';
   var in7 = new Date(today); in7.setDate(in7.getDate()+7);
-  if (arr > today && arr <= in7) return 'arrivo';
+  if (arr > today && arr <= in7) return 'arrivo_7gg';
   return 'altri';
 }
 
 function matchesFilter(p, filter) {
   var cat = categorize(p);
-  if (filter === 'tutti') return true;
-  if (filter === 'oggi') return cat === 'oggi';
-  if (filter === 'struttura') return cat === 'struttura';
-  if (filter === 'arrivo') return cat === 'arrivo';
+  if (filter === 'tutti') return cat !== 'passati';
   if (filter === 'passati') return cat === 'passati';
-  return true;
+  return cat === filter;
 }
 
 function filterPrenotazioni() {
@@ -451,11 +498,13 @@ function filterPrenotazioni() {
 }
 
 function countFor(filter) {
-  return prenotazioni.filter(function(p) { return matchesFilter(p, filter); }).length;
+  if (filter === 'tutti') return prenotazioni.filter(function(p) { return categorize(p) !== 'passati'; }).length;
+  if (filter === 'passati') return prenotazioni.filter(function(p) { return categorize(p) === 'passati'; }).length;
+  return prenotazioni.filter(function(p) { return categorize(p) === filter; }).length;
 }
 
 function updateFilterCounts() {
-  ['tutti','oggi','struttura','arrivo','passati'].forEach(function(f) {
+  ['tutti','checkin_oggi','permanenza','checkout_oggi','arrivo_7gg','passati'].forEach(function(f) {
     var el = document.getElementById('pill-'+f);
     if (el) {
       var c = el.querySelector('.pill-count');
@@ -515,11 +564,11 @@ function loadAll() {
     }
     prenotazioni = result.data || [];
 
-    // Riordina: check-in prima, poi permanenza, checkout, arrivo, altri, passati
-    var order = {oggi:0, struttura:1, arrivo:2, altri:3, passati:4};
+    // Ordine: checkin_oggi → checkout_oggi → permanenza → arrivo_7gg → altri → passati
+    var order = {checkin_oggi:0, checkout_oggi:1, permanenza:2, arrivo_7gg:3, altri:4, passati:5};
     prenotazioni.sort(function(a,b) {
-      var ca = order[categorize(a)] ?? 3;
-      var cb = order[categorize(b)] ?? 3;
+      var ca = order[categorize(a)] !== undefined ? order[categorize(a)] : 4;
+      var cb = order[categorize(b)] !== undefined ? order[categorize(b)] : 4;
       if (ca !== cb) return ca - cb;
       return (a.arrivo||'') < (b.arrivo||'') ? -1 : 1;
     });
@@ -539,18 +588,23 @@ function sClass(s) {
   return 's-inv';
 }
 
+// Info presenza in base alla categoria
 function presenceInfo(p) {
-  if (!p.arrivo || !p.partenza) return null;
-  var today = new Date(); today.setHours(0,0,0,0);
-  var arr = new Date(p.arrivo); arr.setHours(0,0,0,0);
-  var par = new Date(p.partenza); par.setHours(0,0,0,0);
-  var diffArr = Math.round((arr - today) / 86400000);
-  var diffPar = Math.round((par - today) / 86400000);
-  if (diffPar === 0) return {dot:'#f59e0b', label:'Check-out oggi'};
-  if (diffArr === 0) return {dot:'#16a34a', label:'Arriva oggi'};
-  if (diffArr < 0 && diffPar > 0) return {dot:'#22c55e', label:'In struttura'};
-  if (diffArr > 0 && diffArr <= 7) return {dot:'#3b82f6', label:'Arrivo tra ' + diffArr + ' gg'};
-  if (diffPar < 0) return {dot:'#9ca3af', label:'Concluso'};
+  var cat = categorize(p);
+  if (cat === 'checkin_oggi') return {dot:'#1e40af', label:'🛬 Arriva oggi', cls:'stato-checkin-in'};
+  if (cat === 'checkout_oggi') return {dot:'#b45309', label:'🛫 Parte oggi', cls:'stato-checkout-out'};
+  if (cat === 'permanenza') {
+    var today = new Date(); today.setHours(0,0,0,0);
+    var par = new Date(p.partenza+'T12:00:00'); par.setHours(0,0,0,0);
+    var diffPar = Math.round((par - today) / 86400000);
+    return {dot:'#16a34a', label:'🏠 In struttura · esce tra ' + diffPar + 'gg', cls:'stato-permanenza'};
+  }
+  if (cat === 'arrivo_7gg') {
+    var today2 = new Date(); today2.setHours(0,0,0,0);
+    var arr = new Date(p.arrivo+'T12:00:00'); arr.setHours(0,0,0,0);
+    var diffArr = Math.round((arr - today2) / 86400000);
+    return {dot:'#7c3aed', label:'📅 Tra ' + diffArr + ' gg', cls:null};
+  }
   return null;
 }
 
@@ -564,40 +618,76 @@ function renderPrenotazioni() {
     return;
   }
 
-  var todayStr = getTodayStr();
-
   root.innerHTML = filtered.map(function(p) {
     var cat = categorize(p);
-    var isToday = (cat === 'oggi');
-    var isInStruttura = (cat === 'struttura');
-    var cardClass = 'booking' + (selected && selected.id === p.id ? ' active' : '') + (isToday ? ' oggi-highlight' : '');
+    var pi = presenceInfo(p);
+    var isActive = selected && selected.id === p.id;
 
-    var oggiTag = isToday ? '<span class="oggi-badge">● OGGI</span>' : '';
-    var strutTag = isInStruttura ? '<span class="oggi-badge" style="background:#dbeafe;color:#1e3a8a">IN STRUTTURA</span>' : '';
+    // Classe highlight in base alla categoria
+    var highlightClass = '';
+    if (cat === 'checkin_oggi') highlightClass = ' checkin-highlight';
+    else if (cat === 'checkout_oggi') highlightClass = ' checkout-highlight';
+    else if (cat === 'permanenza') highlightClass = ' permanenza-highlight';
 
-    return '<div class="' + cardClass + '">' +
-      '<div class="booking-head"><div style="display:flex;align-items:center;gap:8px;flex:1">' +
-      '<div style="flex:1">' +
-      '<div class="booking-name">' + esc(p.nome||'--') + oggiTag + strutTag + '</div>' +
-      '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
-      '</div></div>' +
-      '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
-      (function(){ var pi=presenceInfo(p); return pi ? '<span title="'+pi.label+'" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:'+pi.dot+';font-weight:600;background:'+pi.dot+'18;padding:3px 8px;border-radius:999px"><span style="width:8px;height:8px;border-radius:50%;background:'+pi.dot+';display:inline-block"></span>'+pi.label+'</span>' : ''; })() +
-      '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
-      '<button class="btn btn-sm" title="Elimina prenotazione" onclick="eliminaPrenotazione(' + p.id + ',event);event.stopPropagation()" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
-      '</div></div>' +
+    var cardClass = 'booking' + (isActive ? ' active' : '') + highlightClass;
+
+    // Badge stato presenza (inline nel nome)
+    var statoBadge = '';
+    if (pi && pi.cls) {
+      statoBadge = '<span class="stato-badge ' + pi.cls + '">' + pi.label + '</span>';
+    }
+
+    // Calcola notti
+    var notti = '--';
+    if (p.arrivo && p.partenza) {
+      var a = new Date(p.arrivo+'T12:00:00');
+      var b = new Date(p.partenza+'T12:00:00');
+      var diff = Math.round((b - a) / 86400000);
+      notti = diff > 0 ? diff + 'n' : '--';
+    }
+
+    // Chip info essenziali (visibili su mobile)
+    var infoChips =
+      '<div class="booking-info-row">' +
+      '<span class="info-chip"><span class="lbl">Cam</span>' + esc((p.camera||'--').replace('Camera ','')) + '</span>' +
+      '<span class="info-chip"><span class="lbl">Arr</span>' + fmt(p.arrivo) + '</span>' +
+      '<span class="info-chip"><span class="lbl">Dur</span>' + notti + '</span>' +
+      '<span class="info-chip"><span class="lbl">Osp</span>' + (p.num_ospiti||'--') + '</span>' +
+      '</div>';
+
+    // Presenza pill (per desktop, accanto al nome)
+    var presencePill = '';
+    if (pi) {
+      presencePill = '<span title="' + pi.label + '" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:' + pi.dot + ';font-weight:600;background:' + pi.dot + '18;padding:3px 8px;border-radius:999px;flex-shrink:0"><span style="width:7px;height:7px;border-radius:50%;background:' + pi.dot + ';display:inline-block"></span>' + pi.label + '</span>';
+    }
+
+    return '<div class="' + cardClass + '" onclick="seleziona(' + p.id + ')">' +
+      '<div class="booking-body">' +
+      '<div class="booking-head">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="booking-name">' + esc(p.nome||'--') + statoBadge + '</div>' +
+          '<div class="booking-sub">#' + p.id + ' · ' + esc(p.canale||'--') + (p.lingua ? ' · ' + esc(p.lingua.toUpperCase()) : '') + (p.telefono ? ' · ' + esc(p.telefono) : '') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
+          presencePill +
+          '<span class="status-pill ' + sClass(p.stato_checkin) + '">' + esc(p.stato_checkin||'da compilare') + '</span>' +
+          '<button class="btn btn-sm btn-delete-mobile" title="Elimina" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px">🗑️</button>' +
+        '</div>' +
+      '</div>' +
+      infoChips +
       '<div class="meta-grid">' +
-      '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
-      '<div class="meta-cell"><b>Arrivo</b><span>' + fmt(p.arrivo) + '</span></div>' +
-      '<div class="meta-cell"><b>Partenza</b><span>' + fmt(p.partenza) + '</span></div>' +
-      '<div class="meta-cell"><b>Ospiti</b><span>' + (p.num_ospiti||'--') + '</span></div>' +
+        '<div class="meta-cell"><b>Camera</b><span>' + esc(p.camera||'--') + '</span></div>' +
+        '<div class="meta-cell"><b>Arrivo</b><span>' + fmt(p.arrivo) + '</span></div>' +
+        '<div class="meta-cell"><b>Partenza</b><span>' + fmt(p.partenza) + '</span></div>' +
+        '<div class="meta-cell"><b>Ospiti</b><span>' + (p.num_ospiti||'--') + '</span></div>' +
       '</div>' +
       '<div class="booking-actions">' +
-      '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ')">Seleziona</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
-      '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\')">Copia check-in</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\')">Copia chatbot</button>' +
+        '<button class="btn btn-primary btn-sm" onclick="seleziona(' + p.id + ');event.stopPropagation()">Seleziona</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
+        '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + clLink(p).replace(/'/g,'%27') + '\',\'Link check-in copiato\');event.stopPropagation()">Copia check-in</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="copy(\'' + botLink(p).replace(/'/g,'%27') + '\',\'Link chatbot copiato\');event.stopPropagation()">Copia chatbot</button>' +
+      '</div>' +
       '</div></div>';
     }).join('');
 }
