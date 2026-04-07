@@ -1277,12 +1277,49 @@ function aggiornaTotale() {
   document.getElementById('fat-totale').textContent = '€ ' + tot.toFixed(2).replace('.',',');
 }
 
+function estraiConsonanti(str) {
+  // Estrae le consonanti da una stringa
+  return (str || '').toUpperCase().replace(/[^A-Z]/g,'').replace(/[AEIOU]/g,'');
+}
+
+function cfFittizioEstero(nomeCompleto) {
+  // Per clienti esteri: consonanti del nome + cognome, riempite con 0 fino a 11 caratteri
+  var parti = (nomeCompleto || '').trim().split(/\s+/);
+  var consonanti = '';
+  parti.forEach(function(p) { consonanti += estraiConsonanti(p); });
+  // Riempi con zeri fino a 11 caratteri
+  while (consonanti.length < 11) consonanti += '0';
+  return consonanti.slice(0, 11);
+}
+
 function precompilaDaPrenotazione() {
   if (!selected) { alert('Seleziona prima una prenotazione dalla lista!'); return; }
   var p = selected;
 
-  // Cliente
+  // Nome cliente
   document.getElementById('fat-cliente-nome').value = p.nome || '';
+
+  // Determina se italiano o estero
+  var lingua = (p.lingua || 'it').toLowerCase();
+  var isEstero = lingua !== 'it';
+  var nazione = isEstero ? (lingua === 'en' ? 'GB' : lingua === 'fr' ? 'FR' : lingua === 'de' ? 'DE' : lingua === 'es' ? 'ES' : lingua === 'ro' ? 'RO' : lingua.toUpperCase()) : 'IT';
+
+  // Codice fiscale: per italiani lascia vuoto (da inserire), per esteri genera fittizio
+  if (isEstero) {
+    document.getElementById('fat-cliente-cf').value = cfFittizioEstero(p.nome);
+    document.getElementById('fat-cliente-sdi').value = 'XXXXXXX';
+    document.getElementById('fat-cliente-nazione').value = nazione;
+    document.getElementById('fat-cliente-via').value = 'ND';
+    document.getElementById('fat-cliente-cap').value = '00000';
+    document.getElementById('fat-cliente-citta').value = nazione;
+  } else {
+    document.getElementById('fat-cliente-cf').value = '';
+    document.getElementById('fat-cliente-sdi').value = '0000000';
+    document.getElementById('fat-cliente-nazione').value = 'IT';
+    document.getElementById('fat-cliente-via').value = '';
+    document.getElementById('fat-cliente-cap').value = '';
+    document.getElementById('fat-cliente-citta').value = '';
+  }
 
   // Descrizione automatica
   var desc = 'Soggiorno B&B Santalò';
@@ -1293,15 +1330,16 @@ function precompilaDaPrenotazione() {
   document.getElementById('fat-desc').value = desc;
 
   // Calcola notti come quantità
+  var notti = 1;
   if (p.arrivo && p.partenza) {
     var a = new Date(p.arrivo+'T12:00:00');
     var b = new Date(p.partenza+'T12:00:00');
-    var notti = Math.round((b - a) / 86400000);
-    if (notti > 0) document.getElementById('fat-qta').value = notti;
+    notti = Math.max(1, Math.round((b - a) / 86400000));
   }
+  document.getElementById('fat-qta').value = notti;
 
   aggiornaTotale();
-  document.getElementById('fat-esito').textContent = '✓ Precompilato da: ' + p.nome;
+  document.getElementById('fat-esito').textContent = '✓ Precompilato da: ' + p.nome + (isEstero ? ' (cliente estero — verifica nazione e CF)' : ' (cliente italiano — inserisci CF)');
   document.getElementById('fat-esito').style.color = 'var(--ok)';
 }
 
