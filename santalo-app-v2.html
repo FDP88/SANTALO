@@ -467,17 +467,16 @@
     </div>
   </div>
 
-  <!-- MODAL COPIA DI CORTESIA -->
   <div id="copiaModal" style="display:none;position:fixed;inset:0;background:rgba(46,36,31,.6);z-index:2000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)chiudiCopia()">
     <div style="background:#fff;border-radius:22px;max-width:680px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(46,36,31,.22);display:flex;flex-direction:column">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px 0">
-        <div style="font-size:1.05rem;font-weight:700;color:var(--brown)">📄 Copia di cortesia</div>
-        <button onclick="chiudiCopia()" style="background:var(--cream-d);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1.1rem;color:var(--muted)">✕</button>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--brown)">Copia di cortesia</div>
+        <button onclick="chiudiCopia()" style="background:var(--cream-d);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1.1rem;color:var(--muted)">x</button>
       </div>
       <div id="copiaPreview" style="margin:16px 22px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#faf8f5"></div>
       <div style="padding:0 22px 20px;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" onclick="scaricaPDF()">⬇️ Scarica PDF</button>
-        <button class="btn btn-green btn-sm" onclick="inviaCopiaWhatsApp()">📱 Invia su WhatsApp</button>
+        <button class="btn btn-primary btn-sm" onclick="scaricaPDF()">Scarica PDF</button>
+        <button class="btn btn-green btn-sm" onclick="inviaCopiaWhatsApp()">Invia su WhatsApp</button>
         <button class="btn btn-ghost btn-sm" onclick="chiudiCopia()">Chiudi</button>
       </div>
     </div>
@@ -563,10 +562,8 @@ function showTab(t) {
   if (t === 'alloggiati') loadAlloggiati();
   if (t === 'calendario') renderCalendario();
   if (t === 'fatture') {
-    // Preimposta data odierna
     var oggi = new Date().toISOString().slice(0,10);
     document.getElementById('fat-data').value = oggi;
-    // Numero fattura automatico da localStorage
     var nextNum = parseInt(localStorage.getItem('santalo_prossima_fattura') || '1');
     document.getElementById('fat-numero').value = nextNum;
   }
@@ -1281,10 +1278,6 @@ window.addEventListener('DOMContentLoaded', function() { loadAll(); });
 // ===== FATTURAZIONE ELETTRONICA =====
 var WORKER_URL = 'https://santalo-bot.giuseppe-acquafredda.workers.dev';
 
-function escXML(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
-}
-
 var MITTENTE = {
   denominazione: 'Santalò Bed and Breakfast di Giuseppe Acquafredda',
   piva: '08212010725',
@@ -1365,7 +1358,6 @@ function precompilaDaPrenotazione() {
   }
   document.getElementById('fat-qta').value = notti;
 
-  // Precompila importo se disponibile nella prenotazione
   if (p.importo && parseFloat(p.importo) > 0) {
     document.getElementById('fat-importo').value = parseFloat(p.importo).toFixed(2);
   }
@@ -1410,13 +1402,13 @@ function buildXML() {
 '      <DatiAnagrafici>\n' +
 '        <IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>' + MITTENTE.piva + '</IdCodice></IdFiscaleIVA>\n' +
 '        <CodiceFiscale>' + MITTENTE.cf + '</CodiceFiscale>\n' +
-'        <Anagrafica><Denominazione>' + escXML(MITTENTE.denominazione) + '</Denominazione></Anagrafica>\n' +
+'        <Anagrafica><Denominazione>' + MITTENTE.denominazione + '</Denominazione></Anagrafica>\n' +
 '        <RegimeFiscale>' + MITTENTE.regime + '</RegimeFiscale>\n' +
 '      </DatiAnagrafici>\n' +
 '      <Sede>\n' +
-'        <Indirizzo>' + escXML(MITTENTE.via) + '</Indirizzo>\n' +
+'        <Indirizzo>' + MITTENTE.via + '</Indirizzo>\n' +
 '        <CAP>' + MITTENTE.cap + '</CAP>\n' +
-'        <Comune>' + escXML(MITTENTE.citta) + '</Comune>\n' +
+'        <Comune>' + MITTENTE.citta + '</Comune>\n' +
 '        <Provincia>' + MITTENTE.provincia + '</Provincia>\n' +
 '        <Nazione>' + MITTENTE.nazione + '</Nazione>\n' +
 '      </Sede>\n' +
@@ -1424,12 +1416,12 @@ function buildXML() {
 '    <CessionarioCommittente>\n' +
 '      <DatiAnagrafici>\n' +
 '        ' + cfTag + '\n' +
-'        <Anagrafica><Denominazione>' + escXML(clienteNome) + '</Denominazione></Anagrafica>\n' +
+'        <Anagrafica><Denominazione>' + clienteNome + '</Denominazione></Anagrafica>\n' +
 '      </DatiAnagrafici>\n' +
 '      <Sede>\n' +
-'        <Indirizzo>' + escXML(clienteVia || 'ND') + '</Indirizzo>\n' +
+'        <Indirizzo>' + (clienteVia || 'ND') + '</Indirizzo>\n' +
 '        <CAP>' + (clienteCap || '00000') + '</CAP>\n' +
-'        <Comune>' + escXML(clienteCitta || 'ND') + '</Comune>\n' +
+'        <Comune>' + (clienteCitta || 'ND') + '</Comune>\n' +
 '        <Nazione>' + clienteNazione + '</Nazione>\n' +
 '      </Sede>\n' +
 '    </CessionarioCommittente>\n' +
@@ -1448,7 +1440,7 @@ function buildXML() {
 '    <DatiBeniServizi>\n' +
 '      <DettaglioLinee>\n' +
 '        <NumeroLinea>1</NumeroLinea>\n' +
-'        <Descrizione>' + escXML(desc) + '</Descrizione>\n' +
+'        <Descrizione>' + desc + '</Descrizione>\n' +
 '        <Quantita>' + qta + '</Quantita>\n' +
 '        <PrezzoUnitario>' + importo + '</PrezzoUnitario>\n' +
 '        <PrezzoTotale>' + totale + '</PrezzoTotale>\n' +
@@ -1528,11 +1520,10 @@ async function inviaAdAruba() {
     if (data.success) {
       esito.textContent = '✅ Fattura inviata ad Aruba con successo! File: ' + result.nomeFile;
       esito.style.color = 'var(--ok)';
-      // Incrementa numero fattura e salva in localStorage
       var numEl = document.getElementById('fat-numero');
-      var nextNum = parseInt(numEl.value || '1') + 1;
-      numEl.value = nextNum;
-      localStorage.setItem('santalo_prossima_fattura', nextNum);
+      var nextN = parseInt(numEl.value || '1') + 1;
+      numEl.value = nextN;
+      localStorage.setItem('santalo_prossima_fattura', nextN);
     } else {
       esito.textContent = '❌ Errore invio: ' + JSON.stringify(data.risposta || data.error);
       esito.style.color = 'var(--err)';
@@ -1546,157 +1537,7 @@ async function inviaAdAruba() {
   btn.textContent = '📤 Invia ad Aruba → SDI';
 }
 
-// ===== COPIA DI CORTESIA =====
-function buildHTMLCopia() {
-  var numero = document.getElementById('fat-numero').value || '1';
-  var data = document.getElementById('fat-data').value;
-  var clienteNome = document.getElementById('fat-cliente-nome').value;
-  var clienteCf = document.getElementById('fat-cliente-cf').value;
-  var clienteVia = document.getElementById('fat-cliente-via').value;
-  var clienteCap = document.getElementById('fat-cliente-cap').value;
-  var clienteCitta = document.getElementById('fat-cliente-citta').value;
-  var clienteNazione = document.getElementById('fat-cliente-nazione').value || 'IT';
-  var clienteSdi = document.getElementById('fat-cliente-sdi').value || '';
-  var desc = document.getElementById('fat-desc').value || 'Soggiorno B&B Santalò';
-  var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
-  var importo = parseFloat(document.getElementById('fat-importo').value) || 0;
-  var totale = (qta * importo).toFixed(2);
-  var dateFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('it-IT') : '--';
-
-  return `
-    <div style="font-family:'DM Sans',Arial,sans-serif;padding:36px 40px;background:#fff;color:#2e241f;min-height:600px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #6B2D1F">
-        <div>
-          <div style="font-size:22px;font-weight:700;color:#6B2D1F">Santalò Bed and Breakfast</div>
-          <div style="font-size:13px;color:#7A6B61;margin-top:4px">di Giuseppe Acquafredda</div>
-          <div style="font-size:12px;color:#7A6B61;margin-top:8px;line-height:1.7">
-            Corte San Eligio 10 · 70032 Bitonto (BA)<br>
-            P.IVA: 08212010725 · CF: CQFGPP88E31A662T<br>
-            Regime forfettario RF19
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div style="background:#6B2D1F;color:#fff;padding:6px 16px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px">COPIA DI CORTESIA</div>
-          <div style="font-size:22px;font-weight:700;color:#2e241f">Fattura n° ${esc(numero)}</div>
-          <div style="font-size:13px;color:#7A6B61;margin-top:4px">Data: ${dateFmt}</div>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">
-        <div>
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;letter-spacing:.06em;margin-bottom:8px">Mittente</div>
-          <div style="font-size:13px;line-height:1.7">
-            <strong>Santalò Bed and Breakfast</strong><br>
-            Corte San Eligio 10<br>70032 Bitonto (BA) · IT
-          </div>
-        </div>
-        <div>
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;letter-spacing:.06em;margin-bottom:8px">Destinatario</div>
-          <div style="font-size:13px;line-height:1.7">
-            <strong>${esc(clienteNome||'--')}</strong><br>
-            ${clienteVia ? esc(clienteVia)+'<br>' : ''}
-            ${clienteCap||clienteCitta ? (esc(clienteCap)+' '+esc(clienteCitta)+'<br>') : ''}
-            ${esc(clienteNazione)}<br>
-            ${clienteCf ? 'CF/P.IVA: '+esc(clienteCf) : ''}
-            ${clienteSdi && clienteSdi !== '0000000' && clienteSdi !== 'XXXXXXX' ? '<br>SDI: '+esc(clienteSdi) : ''}
-          </div>
-        </div>
-      </div>
-
-      <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
-        <thead>
-          <tr style="background:#6B2D1F;color:#fff">
-            <th style="padding:10px 14px;text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:8px 0 0 0">Descrizione</th>
-            <th style="padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;width:70px">Q.tà</th>
-            <th style="padding:10px 14px;text-align:right;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;width:110px">Prezzo unit.</th>
-            <th style="padding:10px 14px;text-align:right;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;width:110px;border-radius:0 8px 0 0">Totale</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid #e7d9cc">
-            <td style="padding:12px 14px;font-size:13px">${esc(desc)}</td>
-            <td style="padding:12px 14px;text-align:center;font-size:13px">${qta}</td>
-            <td style="padding:12px 14px;text-align:right;font-size:13px">€ ${importo.toFixed(2).replace('.',',')}</td>
-            <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:600">€ ${parseFloat(totale).toFixed(2).replace('.',',')}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div style="display:flex;justify-content:flex-end;margin-bottom:24px">
-        <div style="background:#faf6f1;border:1px solid #e7d9cc;border-radius:12px;padding:14px 20px;text-align:right;min-width:220px">
-          <div style="font-size:12px;color:#7A6B61;margin-bottom:4px">Importo totale</div>
-          <div style="font-size:26px;font-weight:700;color:#6B2D1F">€ ${parseFloat(totale).toFixed(2).replace('.',',')}</div>
-          <div style="font-size:11px;color:#7A6B61;margin-top:4px">IVA non applicata · Regime forfettario</div>
-        </div>
-      </div>
-
-      <div style="border-top:1px solid #e7d9cc;padding-top:16px;font-size:11px;color:#7A6B61;line-height:1.6">
-        Operazione non soggetta ex art. 1 c. 58 L. 190/2014 – Regime Forfettario.<br>
-        Questo documento è una <strong>copia di cortesia</strong> e non ha valore fiscale. Il documento fiscale è la fattura elettronica inviata al SDI.
-      </div>
-    </div>`;
-}
-
-function apriCopiaCortesia() {
-  var esito = document.getElementById('fat-esito');
-  if (!document.getElementById('fat-cliente-nome').value) {
-    esito.textContent = '⚠️ Inserisci almeno il nome del cliente';
-    esito.style.color = 'var(--warn)';
-    return;
-  }
-  document.getElementById('copiaPreview').innerHTML = buildHTMLCopia();
-  var modal = document.getElementById('copiaModal');
-  modal.style.display = 'flex';
-}
-
-function chiudiCopia() {
-  document.getElementById('copiaModal').style.display = 'none';
-}
-
-function scaricaPDF() {
-  var html = buildHTMLCopia();
-  var win = window.open('', '_blank');
-  if (!win) { alert('Abilita i popup per scaricare il PDF'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>Fattura copia di cortesia</title>
-    <style>
-      @media print { body{margin:0} button{display:none!important} }
-      body{margin:0;background:#fff}
-    </style>
-  </head><body>${html}
-  <div style="text-align:center;padding:16px;font-family:sans-serif">
-    <button onclick="window.print()" style="background:#6B2D1F;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">🖨️ Stampa / Salva PDF</button>
-  </div>
-  </body></html>`);
-  win.document.close();
-}
-
-function inviaCopiaWhatsApp() {
-  var numero = document.getElementById('fat-numero').value || '1';
-  var clienteNome = document.getElementById('fat-cliente-nome').value || 'ospite';
-  var totale = (parseFloat(document.getElementById('fat-qta').value||1) * parseFloat(document.getElementById('fat-importo').value||0)).toFixed(2).replace('.',',');
-  var desc = document.getElementById('fat-desc').value || 'soggiorno';
-  var data = document.getElementById('fat-data').value;
-  var dateFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('it-IT') : '--';
-
-  var msg = 'Gentile ' + clienteNome.split(' ')[0] + ',\n\n' +
-    'Le inviamo la copia di cortesia della fattura n° ' + numero + ' del ' + dateFmt + '.\n\n' +
-    '📋 ' + desc + '\n' +
-    '💶 Totale: € ' + totale + '\n\n' +
-    'La fattura elettronica è stata inviata al Sistema di Interscambio (SDI).\n\n' +
-    'Santalò B&B · Bitonto\n' +
-    '📞 +39 333 6410329';
-
-  var ph = '';
-  if (selected && selected.telefono) {
-    ph = phone(selected.telefono);
-  }
-  var url = 'https://wa.me/' + (ph || '') + '?text=' + encodeURIComponent(msg);
-  window.open(url, '_blank');
-}
-
-
+async function caricaFattureInviate() {
   var el = document.getElementById('lista-fatture-inviate');
   el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px">⏳ Caricamento...</div>';
   try {
@@ -1722,6 +1563,118 @@ function inviaCopiaWhatsApp() {
     el.innerHTML = '<div style="text-align:center;color:var(--err);padding:20px">Errore: ' + e.message + '</div>';
   }
 }
+// ===== COPIA DI CORTESIA =====
+function escXML(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildHTMLCopia() {
+  var numero = document.getElementById('fat-numero').value || '1';
+  var data = document.getElementById('fat-data').value;
+  var clienteNome = document.getElementById('fat-cliente-nome').value;
+  var clienteCf = document.getElementById('fat-cliente-cf').value;
+  var clienteVia = document.getElementById('fat-cliente-via').value;
+  var clienteCap = document.getElementById('fat-cliente-cap').value;
+  var clienteCitta = document.getElementById('fat-cliente-citta').value;
+  var clienteNazione = document.getElementById('fat-cliente-nazione').value || 'IT';
+  var clienteSdi = document.getElementById('fat-cliente-sdi').value || '';
+  var desc = document.getElementById('fat-desc').value || 'Soggiorno';
+  var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
+  var importo = parseFloat(document.getElementById('fat-importo').value) || 0;
+  var totale = (qta * importo).toFixed(2);
+  var dateFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('it-IT') : '--';
+  var totFmt = parseFloat(totale).toFixed(2).replace('.',',');
+  var impFmt = importo.toFixed(2).replace('.',',');
+
+  var html = '<div style="font-family:Arial,sans-serif;padding:36px 40px;background:#fff;color:#2e241f">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #6B2D1F">';
+  html += '<div><div style="font-size:22px;font-weight:700;color:#6B2D1F">Santalò Bed and Breakfast</div>';
+  html += '<div style="font-size:13px;color:#7A6B61;margin-top:4px">di Giuseppe Acquafredda</div>';
+  html += '<div style="font-size:12px;color:#7A6B61;margin-top:8px;line-height:1.7">Corte San Eligio 10 - 70032 Bitonto (BA)<br>P.IVA: 08212010725 - CF: CQFGPP88E31A662T<br>Regime forfettario RF19</div></div>';
+  html += '<div style="text-align:right"><div style="background:#6B2D1F;color:#fff;padding:6px 16px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px">COPIA DI CORTESIA</div>';
+  html += '<div style="font-size:22px;font-weight:700">Fattura n. ' + esc(numero) + '</div>';
+  html += '<div style="font-size:13px;color:#7A6B61;margin-top:4px">Data: ' + dateFmt + '</div></div></div>';
+
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">';
+  html += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;margin-bottom:8px">Mittente</div>';
+  html += '<div style="font-size:13px;line-height:1.7"><strong>Santalo Bed and Breakfast</strong><br>Corte San Eligio 10<br>70032 Bitonto (BA)</div></div>';
+  html += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;margin-bottom:8px">Destinatario</div>';
+  html += '<div style="font-size:13px;line-height:1.7"><strong>' + esc(clienteNome || '--') + '</strong>';
+  if (clienteVia) html += '<br>' + esc(clienteVia);
+  if (clienteCap || clienteCitta) html += '<br>' + esc(clienteCap) + ' ' + esc(clienteCitta);
+  html += '<br>' + esc(clienteNazione);
+  if (clienteCf) html += '<br>CF/P.IVA: ' + esc(clienteCf);
+  if (clienteSdi && clienteSdi !== '0000000' && clienteSdi !== 'XXXXXXX') html += '<br>SDI: ' + esc(clienteSdi);
+  html += '</div></div></div>';
+
+  html += '<table style="width:100%;border-collapse:collapse;margin-bottom:24px">';
+  html += '<thead><tr style="background:#6B2D1F;color:#fff">';
+  html += '<th style="padding:10px 14px;text-align:left;font-size:12px">Descrizione</th>';
+  html += '<th style="padding:10px 14px;text-align:center;font-size:12px;width:70px">Q.ta</th>';
+  html += '<th style="padding:10px 14px;text-align:right;font-size:12px;width:110px">Prezzo unit.</th>';
+  html += '<th style="padding:10px 14px;text-align:right;font-size:12px;width:110px">Totale</th></tr></thead>';
+  html += '<tbody><tr style="border-bottom:1px solid #e7d9cc">';
+  html += '<td style="padding:12px 14px;font-size:13px">' + esc(desc) + '</td>';
+  html += '<td style="padding:12px 14px;text-align:center;font-size:13px">' + qta + '</td>';
+  html += '<td style="padding:12px 14px;text-align:right;font-size:13px">EUR ' + impFmt + '</td>';
+  html += '<td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:600">EUR ' + totFmt + '</td>';
+  html += '</tr></tbody></table>';
+
+  html += '<div style="display:flex;justify-content:flex-end;margin-bottom:24px">';
+  html += '<div style="background:#faf6f1;border:1px solid #e7d9cc;border-radius:12px;padding:14px 20px;text-align:right;min-width:220px">';
+  html += '<div style="font-size:12px;color:#7A6B61;margin-bottom:4px">Importo totale</div>';
+  html += '<div style="font-size:26px;font-weight:700;color:#6B2D1F">EUR ' + totFmt + '</div>';
+  html += '<div style="font-size:11px;color:#7A6B61;margin-top:4px">IVA non applicata - Regime forfettario</div></div></div>';
+
+  html += '<div style="border-top:1px solid #e7d9cc;padding-top:16px;font-size:11px;color:#7A6B61;line-height:1.6">';
+  html += 'Operazione non soggetta ex art. 1 c. 58 L. 190/2014 - Regime Forfettario.<br>';
+  html += 'Questo documento e una <strong>copia di cortesia</strong> e non ha valore fiscale.</div></div>';
+
+  return html;
+}
+
+function apriCopiaCortesia() {
+  if (!document.getElementById('fat-cliente-nome').value) {
+    var e = document.getElementById('fat-esito');
+    e.textContent = 'Inserisci almeno il nome del cliente';
+    e.style.color = 'var(--warn)';
+    return;
+  }
+  document.getElementById('copiaPreview').innerHTML = buildHTMLCopia();
+  document.getElementById('copiaModal').style.display = 'flex';
+}
+
+function chiudiCopia() {
+  document.getElementById('copiaModal').style.display = 'none';
+}
+
+function scaricaPDF() {
+  var html = buildHTMLCopia();
+  var win = window.open('', '_blank');
+  if (!win) { alert('Abilita i popup per scaricare il PDF'); return; }
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fattura</title><style>@media print{button{display:none}}body{margin:0}</style></head><body>' + html + '<div style="text-align:center;padding:16px"><button onclick="window.print()" style="background:#6B2D1F;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">Stampa / Salva PDF</button></div></body></html>');
+  win.document.close();
+}
+
+function inviaCopiaWhatsApp() {
+  var numero = document.getElementById('fat-numero').value || '1';
+  var clienteNome = document.getElementById('fat-cliente-nome').value || 'ospite';
+  var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
+  var importo = parseFloat(document.getElementById('fat-importo').value) || 0;
+  var totale = (qta * importo).toFixed(2).replace('.',',');
+  var desc = document.getElementById('fat-desc').value || 'soggiorno';
+  var data = document.getElementById('fat-data').value;
+  var dateFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('it-IT') : '--';
+  var msg = 'Gentile ' + clienteNome.split(' ')[0] + ',\n\n' +
+    'Le inviamo la copia di cortesia della fattura n. ' + numero + ' del ' + dateFmt + '.\n\n' +
+    desc + '\n' +
+    'Totale: EUR ' + totale + '\n\n' +
+    'La fattura elettronica e stata inviata al SDI.\n\n' +
+    'Santalo B&B - Bitonto\n+39 333 6410329';
+  var ph = selected && selected.telefono ? phone(selected.telefono) : '';
+  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
 </script>
 </body>
 </html>
