@@ -1739,6 +1739,70 @@ function guestTemplate(index, totalGuests) {
     '<input type="file" accept="image/*" data-file="selfie_documento" id="file_selfie_'+index+'" style="display:none">'+
     '<button type="button" class="upload-btn" id="btn_selfie_'+index+'" onclick="document.getElementById(\'file_selfie_'+index+'\').click()">'+ L.btn_selfie +'</button>'+
     '<div class="upload-preview" id="prev_selfie_'+index+'"></div></div>'+
+
+    // Sezione fatturazione — appare sempre (non solo per italiani)
+    '<div id="fat_section_'+index+'" style="grid-column:1/-1">'+
+    '<div style="background:#fff8ef;border:1.5px solid rgba(196,168,130,.55);border-radius:16px;padding:18px;margin-top:4px">'+
+    '<div style="font-size:13.5px;font-weight:700;color:var(--brown);margin-bottom:6px">🧾 Dati per fatturazione elettronica</div>'+
+    '<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.6;background:#fff;border-radius:10px;padding:10px 13px;border:1px solid rgba(196,168,130,.3)">'+
+    '⚠️ <strong>Sezione separata dalla schedina alloggiati.</strong> '+
+    'Se desideri ricevere fattura elettronica per il soggiorno, compila questi dati. '+
+    'Non sono obbligatori: se non li compili non riceverai fattura.'+
+    '</div>'+
+
+    // Selettore tipo soggetto
+    '<div style="margin-bottom:14px">'+
+    '<label>Tipo soggetto</label>'+
+    '<select id="fat_tipo_'+index+'" onchange="toggleFatTipo('+index+')">'+
+    '<option value="">— Nessuna fattura —</option>'+
+    '<option value="pf">👤 Persona fisica</option>'+
+    '<option value="pg">🏢 Soggetto giuridico (azienda/professionista)</option>'+
+    '</select>'+
+    '</div>'+
+
+    // PERSONA FISICA
+    '<div id="fat_pf_'+index+'" style="display:none">'+
+    '<div class="grid">'+
+    '<div class="full"><label>Nome e Cognome *</label>'+
+    '<input id="fat_pf_nome_'+index+'" placeholder="Mario Rossi"></div>'+
+    '<div><label>Codice Fiscale *</label>'+
+    '<input id="fat_pf_cf_'+index+'" placeholder="RSSMRA80A01H501U" maxlength="16" style="text-transform:uppercase"></div>'+
+    '<div><label>Email (per ricezione fattura)</label>'+
+    '<input id="fat_pf_email_'+index+'" type="email" placeholder="mario@email.com"></div>'+
+    '<div class="full"><label>Indirizzo *</label>'+
+    '<input id="fat_pf_via_'+index+'" placeholder="Via Roma 1"></div>'+
+    '<div><label>CAP *</label>'+
+    '<input id="fat_pf_cap_'+index+'" placeholder="00100" maxlength="5"></div>'+
+    '<div><label>Città *</label>'+
+    '<input id="fat_pf_citta_'+index+'" placeholder="Roma"></div>'+
+    '</div>'+
+    '</div>'+
+
+    // SOGGETTO GIURIDICO
+    '<div id="fat_pg_'+index+'" style="display:none">'+
+    '<div class="grid">'+
+    '<div class="full"><label>Ragione Sociale *</label>'+
+    '<input id="fat_pg_ragsoc_'+index+'" placeholder="Rossi S.r.l."></div>'+
+    '<div><label>Partita IVA *</label>'+
+    '<input id="fat_pg_piva_'+index+'" placeholder="12345678901" maxlength="11"></div>'+
+    '<div><label>Codice Fiscale</label>'+
+    '<input id="fat_pg_cf_'+index+'" placeholder="12345678901 (se diverso da P.IVA)" maxlength="16" style="text-transform:uppercase"></div>'+
+    '<div><label>Codice SDI / PEC</label>'+
+    '<input id="fat_pg_sdi_'+index+'" placeholder="ABC1234 oppure pec@esempio.it"></div>'+
+    '<div><label>Email (per copia di cortesia)</label>'+
+    '<input id="fat_pg_email_'+index+'" type="email" placeholder="amministrazione@azienda.it"></div>'+
+    '<div class="full"><label>Indirizzo sede legale *</label>'+
+    '<input id="fat_pg_via_'+index+'" placeholder="Via Roma 1"></div>'+
+    '<div><label>CAP *</label>'+
+    '<input id="fat_pg_cap_'+index+'" placeholder="00100" maxlength="5"></div>'+
+    '<div><label>Città *</label>'+
+    '<input id="fat_pg_citta_'+index+'" placeholder="Roma"></div>'+
+    '</div>'+
+    '</div>'+
+
+    '</div>'+
+    '</div>'+
+
     '</div>';
 
   // Popola e pre-seleziona tipo alloggiato in base al numero ospiti
@@ -1817,6 +1881,14 @@ function guestTemplate(index, totalGuests) {
   });
 
   return div;
+}
+
+function toggleFatTipo(index) {
+  var tipo = document.getElementById('fat_tipo_'+index).value;
+  var pfDiv = document.getElementById('fat_pf_'+index);
+  var pgDiv = document.getElementById('fat_pg_'+index);
+  if (pfDiv) pfDiv.style.display = tipo === 'pf' ? '' : 'none';
+  if (pgDiv) pgDiv.style.display = tipo === 'pg' ? '' : 'none';
 }
 
 function renderGuests(count) {
@@ -2052,6 +2124,31 @@ document.getElementById('checkinForm').addEventListener('submit', async function
       var fronte = card.querySelector('[data-file="documento_fronte"]').files[0];
       var retro = card.querySelector('[data-file="documento_retro"]').files[0];
       var selfie = card.querySelector('[data-file="selfie_documento"]').files[0];
+
+      // Dati fatturazione (opzionali)
+      var fatTipoEl = document.getElementById('fat_tipo_'+idx);
+      var fatTipo = fatTipoEl ? fatTipoEl.value : '';
+      if (fatTipo === 'pf') {
+        obj.fat_tipo = 'pf';
+        var v = function(id) { var el = document.getElementById(id); return el && el.value.trim() ? el.value.trim() : null; };
+        obj.fat_nome     = v('fat_pf_nome_'+idx);
+        obj.fat_cf       = v('fat_pf_cf_'+idx) ? v('fat_pf_cf_'+idx).toUpperCase() : null;
+        obj.fat_email    = v('fat_pf_email_'+idx);
+        obj.fat_via      = v('fat_pf_via_'+idx);
+        obj.fat_cap      = v('fat_pf_cap_'+idx);
+        obj.fat_citta    = v('fat_pf_citta_'+idx);
+      } else if (fatTipo === 'pg') {
+        obj.fat_tipo = 'pg';
+        var v = function(id) { var el = document.getElementById(id); return el && el.value.trim() ? el.value.trim() : null; };
+        obj.fat_ragsoc   = v('fat_pg_ragsoc_'+idx);
+        obj.fat_piva     = v('fat_pg_piva_'+idx);
+        obj.fat_cf       = v('fat_pg_cf_'+idx) ? v('fat_pg_cf_'+idx).toUpperCase() : null;
+        obj.fat_sdi      = v('fat_pg_sdi_'+idx);
+        obj.fat_email    = v('fat_pg_email_'+idx);
+        obj.fat_via      = v('fat_pg_via_'+idx);
+        obj.fat_cap      = v('fat_pg_cap_'+idx);
+        obj.fat_citta    = v('fat_pg_citta_'+idx);
+      }
 
       obj.documento_fronte_path = await uploadGuestFile(fronte, prenotazioneId, idx, 'fronte');
       obj.documento_retro_path = await uploadGuestFile(retro, prenotazioneId, idx, 'retro');
