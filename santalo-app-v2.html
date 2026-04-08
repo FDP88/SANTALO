@@ -909,7 +909,7 @@ function modificaPrenotazione(id) {
   document.getElementById('f-canale').value = p.canale || 'Airbnb';
   document.getElementById('f-lingua').value = p.lingua || 'it';
   document.getElementById('f-orario').value = p.orario || '';
-  document.getElementById('f-importo').value = p.importo || '';
+  document.getElementById('f-importo').value = p.importo ? parseFloat(p.importo).toFixed(2) : '';
   document.getElementById('f-note').value = p.note || '';
   document.getElementById('f-nome').dataset.editId = id;
   document.getElementById('salvataEsito').textContent = '';
