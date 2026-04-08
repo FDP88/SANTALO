@@ -277,7 +277,7 @@
               </select>
             </div>
             <div class="ff"><label>Orario arrivo stimato</label><input id="f-orario" placeholder="Es. 16:00"/></div>
-            <div class="ff"><label>Importo pagato (€)</label><input id="f-importo" type="number" step="0.01" min="0" placeholder="Es. 120.00"/></div>
+            <div class="ff"><label>Importo pagato (EUR)</label><input id="f-importo" type="number" step="0.01" min="0" placeholder="Es. 120.00"/></div>
           </div>
           <div class="ff" style="margin-top:10px"><label>Note interne</label><textarea id="f-note" placeholder="Note..."></textarea></div>
           <div style="display:flex;gap:8px;margin-top:12px">
@@ -318,7 +318,12 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
               <div class="ff">
                 <label>N° Fattura</label>
-                <input id="fat-numero" type="number" min="1" placeholder="es. 1"/>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input id="fat-numero" type="number" min="1" placeholder="1" style="width:80px"/>
+                  <span style="color:var(--muted);font-weight:700">/</span>
+                  <input id="fat-anno" type="text" placeholder="26" maxlength="2" style="width:50px;text-align:center"/>
+                  <span style="font-size:12px;color:var(--muted)">(es. FPR 4/26)</span>
+                </div>
               </div>
               <div class="ff">
                 <label>Data</label>
@@ -564,8 +569,10 @@ function showTab(t) {
   if (t === 'fatture') {
     var oggi = new Date().toISOString().slice(0,10);
     document.getElementById('fat-data').value = oggi;
+    var annoFat = new Date().getFullYear().toString().slice(-2);
     var nextNum = parseInt(localStorage.getItem('santalo_prossima_fattura') || '1');
     document.getElementById('fat-numero').value = nextNum;
+    document.getElementById('fat-anno').value = annoFat;
   }
 }
 
@@ -1298,41 +1305,43 @@ function aggiornaTotale() {
 }
 
 function estraiConsonanti(str) {
-  // Estrae le consonanti da una stringa
   return (str || '').toUpperCase().replace(/[^A-Z]/g,'').replace(/[AEIOU]/g,'');
 }
 
-function cfFittizioEstero(nomeCompleto) {
-  // Per clienti esteri: consonanti del nome + cognome, riempite con 0 fino a 11 caratteri
+function idFiscaleEstero(nomeCompleto) {
+  // Consonanti di tutte le parole del nome, poi zeri fino a 28 caratteri (max Aruba per estero)
   var parti = (nomeCompleto || '').trim().split(/\s+/);
-  var consonanti = '';
-  parti.forEach(function(p) { consonanti += estraiConsonanti(p); });
-  // Riempi con zeri fino a 11 caratteri
-  while (consonanti.length < 11) consonanti += '0';
-  return consonanti.slice(0, 11);
+  var cons = '';
+  parti.forEach(function(p) { cons += estraiConsonanti(p); });
+  while (cons.length < 28) cons += '0';
+  return cons.slice(0, 28);
+}
+
+function linguaToNazione(lingua) {
+  var map = {en:'GB', fr:'FR', de:'DE', es:'ES', ro:'RO', pt:'PT', nl:'NL', pl:'PL', lt:'LT', lv:'LV', et:'EE', hr:'HR', cs:'CZ', sk:'SK', sl:'SI', bg:'BG', hu:'HU', da:'DK', fi:'FI', sv:'SE', el:'GR'};
+  return map[lingua] || lingua.toUpperCase().slice(0,2);
 }
 
 function precompilaDaPrenotazione() {
   if (!selected) { alert('Seleziona prima una prenotazione dalla lista!'); return; }
   var p = selected;
 
-  // Nome cliente
   document.getElementById('fat-cliente-nome').value = p.nome || '';
 
-  // Determina se italiano o estero
   var lingua = (p.lingua || 'it').toLowerCase();
   var isEstero = lingua !== 'it';
-  var nazione = isEstero ? (lingua === 'en' ? 'GB' : lingua === 'fr' ? 'FR' : lingua === 'de' ? 'DE' : lingua === 'es' ? 'ES' : lingua === 'ro' ? 'RO' : lingua.toUpperCase()) : 'IT';
+  var nazione = isEstero ? linguaToNazione(lingua) : 'IT';
 
-  // Codice fiscale: per italiani lascia vuoto (da inserire), per esteri genera fittizio
   if (isEstero) {
-    document.getElementById('fat-cliente-cf').value = cfFittizioEstero(p.nome);
+    // Cliente estero: ID fiscale = consonanti nome+cognome + zeri fino a 28 char
+    document.getElementById('fat-cliente-cf').value = nazione + idFiscaleEstero(p.nome);
     document.getElementById('fat-cliente-sdi').value = 'XXXXXXX';
     document.getElementById('fat-cliente-nazione').value = nazione;
-    document.getElementById('fat-cliente-via').value = 'ND';
+    document.getElementById('fat-cliente-via').value = nazione;
     document.getElementById('fat-cliente-cap').value = '00000';
     document.getElementById('fat-cliente-citta').value = nazione;
   } else {
+    // Cliente italiano: CF da inserire manualmente, SDI 0000000
     document.getElementById('fat-cliente-cf').value = '';
     document.getElementById('fat-cliente-sdi').value = '0000000';
     document.getElementById('fat-cliente-nazione').value = 'IT';
@@ -1341,15 +1350,18 @@ function precompilaDaPrenotazione() {
     document.getElementById('fat-cliente-citta').value = '';
   }
 
-  // Descrizione automatica
-  var desc = 'Soggiorno B&B Santalò';
-  if (p.arrivo && p.partenza) {
-    desc += ' dal ' + fmt(p.arrivo) + ' al ' + fmt(p.partenza);
+  // Precompila importo se presente nella prenotazione
+  if (p.importo && parseFloat(p.importo) > 0) {
+    document.getElementById('fat-importo').value = parseFloat(p.importo).toFixed(2);
   }
-  if (p.camera) desc += ' · ' + p.camera;
+
+  // Descrizione
+  var desc = 'Soggiorno B&B Santalo';
+  if (p.arrivo && p.partenza) desc += ' dal ' + fmt(p.arrivo) + ' al ' + fmt(p.partenza);
+  if (p.camera) desc += ' - ' + p.camera;
   document.getElementById('fat-desc').value = desc;
 
-  // Calcola notti come quantità
+  // Notti
   var notti = 1;
   if (p.arrivo && p.partenza) {
     var a = new Date(p.arrivo+'T12:00:00');
@@ -1358,20 +1370,22 @@ function precompilaDaPrenotazione() {
   }
   document.getElementById('fat-qta').value = notti;
 
-  if (p.importo && parseFloat(p.importo) > 0) {
-    document.getElementById('fat-importo').value = parseFloat(p.importo).toFixed(2);
-  }
-
   aggiornaTotale();
-  document.getElementById('fat-esito').textContent = '✓ Precompilato da: ' + p.nome + (isEstero ? ' (cliente estero — verifica nazione e CF)' : ' (cliente italiano — inserisci CF)');
+  document.getElementById('fat-esito').textContent = '✓ Precompilato: ' + p.nome + (isEstero ? ' — estero (' + nazione + '). Verifica ID fiscale.' : ' — italiano. Inserisci codice fiscale.');
   document.getElementById('fat-esito').style.color = 'var(--ok)';
+}
+
+function escXML(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function buildXML() {
   var numero = document.getElementById('fat-numero').value || '1';
+  var anno   = document.getElementById('fat-anno').value || new Date().getFullYear().toString().slice(-2);
+  var numeroFPR = 'FPR ' + numero + '/' + anno;  // es. FPR 4/26
   var data = document.getElementById('fat-data').value;
   var clienteNome = document.getElementById('fat-cliente-nome').value;
-  var clienteCf = document.getElementById('fat-cliente-cf').value;
+  var clienteCf = document.getElementById('fat-cliente-cf').value.trim().toUpperCase();
   var clienteVia = document.getElementById('fat-cliente-via').value;
   var clienteCap = document.getElementById('fat-cliente-cap').value;
   var clienteCitta = document.getElementById('fat-cliente-citta').value;
@@ -1381,34 +1395,57 @@ function buildXML() {
   var qta = document.getElementById('fat-qta').value || '1';
   var importo = parseFloat(document.getElementById('fat-importo').value || '0').toFixed(2);
   var totale = (parseFloat(qta) * parseFloat(importo)).toFixed(2);
+  var scadenza = data; // data pagamento = data fattura
 
+  // Nome file secondo spec SDI
   var nomeFile = 'IT' + MITTENTE.piva + '_' + String(numero).padStart(5,'0') + '.xml';
 
-  // Determina se CF o PIVA cliente
-  var cfTag = clienteCf.length === 16
-    ? '<CodiceFiscale>' + clienteCf + '</CodiceFiscale>'
-    : '<IdFiscaleIVA><IdPaese>' + clienteNazione + '</IdPaese><IdCodice>' + clienteCf + '</IdCodice></IdFiscaleIVA>';
+  // Tag identificativo cliente:
+  // - Italiano PF (CF 16 char): solo <CodiceFiscale>
+  // - Italiano PG (PIVA 11 char): <IdFiscaleIVA> IT + PIVA
+  // - Estero: <IdFiscaleIVA> con nazione + ID fiscale estero
+  var cfTag;
+  if (clienteNazione === 'IT' && clienteCf.length === 16) {
+    cfTag = '<CodiceFiscale>' + escXML(clienteCf) + '</CodiceFiscale>';
+  } else if (clienteNazione === 'IT' && clienteCf.length === 11) {
+    cfTag = '<IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>' + escXML(clienteCf) + '</IdCodice></IdFiscaleIVA>';
+  } else {
+    // Estero: il campo CF contiene gia il prefisso nazione (es. LTGRTBKNTT00000000)
+    var idCodice = clienteCf.length > 2 ? clienteCf.slice(2) : clienteCf;
+    cfTag = '<IdFiscaleIVA><IdPaese>' + escXML(clienteNazione) + '</IdPaese><IdCodice>' + escXML(idCodice) + '</IdCodice></IdFiscaleIVA>';
+  }
+
+  // Tag anagrafica: Nome+Cognome per PF italiano, Denominazione per tutti gli altri
+  var parti = clienteNome.trim().split(/\s+/);
+  var anagraficaTag;
+  if (clienteNazione === 'IT' && clienteCf.length === 16 && parti.length >= 2) {
+    var cognome = parti[0];
+    var nome = parti.slice(1).join(' ');
+    anagraficaTag = '<Anagrafica><Nome>' + escXML(nome) + '</Nome><Cognome>' + escXML(cognome) + '</Cognome></Anagrafica>';
+  } else {
+    anagraficaTag = '<Anagrafica><Denominazione>' + escXML(clienteNome) + '</Denominazione></Anagrafica>';
+  }
 
   var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
 '<p:FatturaElettronica versione="FPR12" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n' +
 '  <FatturaElettronicaHeader>\n' +
 '    <DatiTrasmissione>\n' +
 '      <IdTrasmittente><IdPaese>IT</IdPaese><IdCodice>' + MITTENTE.piva + '</IdCodice></IdTrasmittente>\n' +
-'      <ProgressivoInvio>' + numero + '</ProgressivoInvio>\n' +
+'      <ProgressivoInvio>' + escXML(numeroFPR) + '</ProgressivoInvio>\n' +
 '      <FormatoTrasmissione>FPR12</FormatoTrasmissione>\n' +
-'      <CodiceDestinatario>' + clienteSdi + '</CodiceDestinatario>\n' +
+'      <CodiceDestinatario>' + escXML(clienteSdi) + '</CodiceDestinatario>\n' +
 '    </DatiTrasmissione>\n' +
 '    <CedentePrestatore>\n' +
 '      <DatiAnagrafici>\n' +
 '        <IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>' + MITTENTE.piva + '</IdCodice></IdFiscaleIVA>\n' +
 '        <CodiceFiscale>' + MITTENTE.cf + '</CodiceFiscale>\n' +
-'        <Anagrafica><Denominazione>' + MITTENTE.denominazione + '</Denominazione></Anagrafica>\n' +
+'        <Anagrafica><Denominazione>' + escXML(MITTENTE.denominazione) + '</Denominazione></Anagrafica>\n' +
 '        <RegimeFiscale>' + MITTENTE.regime + '</RegimeFiscale>\n' +
 '      </DatiAnagrafici>\n' +
 '      <Sede>\n' +
-'        <Indirizzo>' + MITTENTE.via + '</Indirizzo>\n' +
+'        <Indirizzo>' + escXML(MITTENTE.via) + '</Indirizzo>\n' +
 '        <CAP>' + MITTENTE.cap + '</CAP>\n' +
-'        <Comune>' + MITTENTE.citta + '</Comune>\n' +
+'        <Comune>' + escXML(MITTENTE.citta) + '</Comune>\n' +
 '        <Provincia>' + MITTENTE.provincia + '</Provincia>\n' +
 '        <Nazione>' + MITTENTE.nazione + '</Nazione>\n' +
 '      </Sede>\n' +
@@ -1416,13 +1453,13 @@ function buildXML() {
 '    <CessionarioCommittente>\n' +
 '      <DatiAnagrafici>\n' +
 '        ' + cfTag + '\n' +
-'        <Anagrafica><Denominazione>' + clienteNome + '</Denominazione></Anagrafica>\n' +
+'        ' + anagraficaTag + '\n' +
 '      </DatiAnagrafici>\n' +
 '      <Sede>\n' +
-'        <Indirizzo>' + (clienteVia || 'ND') + '</Indirizzo>\n' +
-'        <CAP>' + (clienteCap || '00000') + '</CAP>\n' +
-'        <Comune>' + (clienteCitta || 'ND') + '</Comune>\n' +
-'        <Nazione>' + clienteNazione + '</Nazione>\n' +
+'        <Indirizzo>' + escXML(clienteVia || clienteNazione) + '</Indirizzo>\n' +
+'        <CAP>' + escXML(clienteCap || '00000') + '</CAP>\n' +
+'        <Comune>' + escXML(clienteCitta || clienteNazione) + '</Comune>\n' +
+'        <Nazione>' + escXML(clienteNazione) + '</Nazione>\n' +
 '      </Sede>\n' +
 '    </CessionarioCommittente>\n' +
 '  </FatturaElettronicaHeader>\n' +
@@ -1432,15 +1469,15 @@ function buildXML() {
 '        <TipoDocumento>TD01</TipoDocumento>\n' +
 '        <Divisa>EUR</Divisa>\n' +
 '        <Data>' + data + '</Data>\n' +
-'        <Numero>' + numero + '</Numero>\n' +
+'        <Numero>' + escXML(numeroFPR) + '</Numero>\n' +
 '        <ImportoTotaleDocumento>' + totale + '</ImportoTotaleDocumento>\n' +
-'        <Causale>Prestazione di servizi ricettivi - regime forfettario</Causale>\n' +
+'        <Causale>Operazione non soggetta a ritenuta alla fonte a titolo di acconto ai sensi dell'articolo 1, comma 67, l. n. 190 del 2014 e successive modificazioni</Causale>\n' +
 '      </DatiGeneraliDocumento>\n' +
 '    </DatiGenerali>\n' +
 '    <DatiBeniServizi>\n' +
 '      <DettaglioLinee>\n' +
 '        <NumeroLinea>1</NumeroLinea>\n' +
-'        <Descrizione>' + desc + '</Descrizione>\n' +
+'        <Descrizione>' + escXML(desc) + '</Descrizione>\n' +
 '        <Quantita>' + qta + '</Quantita>\n' +
 '        <PrezzoUnitario>' + importo + '</PrezzoUnitario>\n' +
 '        <PrezzoTotale>' + totale + '</PrezzoTotale>\n' +
@@ -1452,20 +1489,21 @@ function buildXML() {
 '        <Natura>N2.2</Natura>\n' +
 '        <ImponibileImporto>' + totale + '</ImponibileImporto>\n' +
 '        <Imposta>0.00</Imposta>\n' +
-'        <RiferimentoNormativo>Operazione non soggetta ex art. 1 c. 58 L. 190/2014 - Regime Forfettario</RiferimentoNormativo>\n' +
+'        <RiferimentoNormativo>Non soggette - altri casi</RiferimentoNormativo>\n' +
 '      </DatiRiepilogo>\n' +
 '    </DatiBeniServizi>\n' +
 '    <DatiPagamento>\n' +
 '      <CondizioniPagamento>TP02</CondizioniPagamento>\n' +
 '      <DettaglioPagamento>\n' +
 '        <ModalitaPagamento>MP05</ModalitaPagamento>\n' +
+'        <DataScadenzaPagamento>' + scadenza + '</DataScadenzaPagamento>\n' +
 '        <ImportoPagamento>' + totale + '</ImportoPagamento>\n' +
 '      </DettaglioPagamento>\n' +
 '    </DatiPagamento>\n' +
 '  </FatturaElettronicaBody>\n' +
 '</p:FatturaElettronica>';
 
-  return { xml: xml, nomeFile: nomeFile };
+  return { xml: xml, nomeFile: nomeFile, numeroFPR: numeroFPR };
 }
 
 function scaricaXML() {
@@ -1481,7 +1519,7 @@ function scaricaXML() {
   a.href = URL.createObjectURL(blob);
   a.download = result.nomeFile;
   a.click();
-  esito.textContent = '✓ XML scaricato: ' + result.nomeFile;
+  esito.textContent = '✓ XML scaricato: ' + result.nomeFile + ' (Fattura ' + result.numeroFPR + ')';
   esito.style.color = 'var(--ok)';
 }
 
@@ -1564,12 +1602,11 @@ async function caricaFattureInviate() {
   }
 }
 // ===== COPIA DI CORTESIA =====
-function escXML(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
 function buildHTMLCopia() {
+  var result = buildXML();
   var numero = document.getElementById('fat-numero').value || '1';
+  var anno   = document.getElementById('fat-anno').value || new Date().getFullYear().toString().slice(-2);
+  var numeroFPR = 'FPR ' + numero + '/' + anno;
   var data = document.getElementById('fat-data').value;
   var clienteNome = document.getElementById('fat-cliente-nome').value;
   var clienteCf = document.getElementById('fat-cliente-cf').value;
@@ -1588,48 +1625,48 @@ function buildHTMLCopia() {
 
   var html = '<div style="font-family:Arial,sans-serif;padding:36px 40px;background:#fff;color:#2e241f">';
   html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #6B2D1F">';
-  html += '<div><div style="font-size:22px;font-weight:700;color:#6B2D1F">Santalò Bed and Breakfast</div>';
-  html += '<div style="font-size:13px;color:#7A6B61;margin-top:4px">di Giuseppe Acquafredda</div>';
+  html += '<div><div style="font-size:20px;font-weight:700;color:#6B2D1F">Santalo Bed and Breakfast</div>';
+  html += '<div style="font-size:12px;color:#7A6B61;margin-top:3px">di Giuseppe Acquafredda</div>';
   html += '<div style="font-size:12px;color:#7A6B61;margin-top:8px;line-height:1.7">Corte San Eligio 10 - 70032 Bitonto (BA)<br>P.IVA: 08212010725 - CF: CQFGPP88E31A662T<br>Regime forfettario RF19</div></div>';
-  html += '<div style="text-align:right"><div style="background:#6B2D1F;color:#fff;padding:6px 16px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:8px">COPIA DI CORTESIA</div>';
-  html += '<div style="font-size:22px;font-weight:700">Fattura n. ' + esc(numero) + '</div>';
+  html += '<div style="text-align:right"><div style="background:#6B2D1F;color:#fff;padding:5px 14px;border-radius:8px;font-size:12px;font-weight:700;margin-bottom:8px">COPIA DI CORTESIA</div>';
+  html += '<div style="font-size:20px;font-weight:700">Fattura n. ' + esc(numeroFPR) + '</div>';
   html += '<div style="font-size:13px;color:#7A6B61;margin-top:4px">Data: ' + dateFmt + '</div></div></div>';
 
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">';
-  html += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;margin-bottom:8px">Mittente</div>';
-  html += '<div style="font-size:13px;line-height:1.7"><strong>Santalo Bed and Breakfast</strong><br>Corte San Eligio 10<br>70032 Bitonto (BA)</div></div>';
-  html += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;margin-bottom:8px">Destinatario</div>';
+  html += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;margin-bottom:6px">Fornitore</div>';
+  html += '<div style="font-size:13px;line-height:1.7"><strong>Santalo Bed and Breakfast</strong><br>Corte San Eligio 10 - 70032 Bitonto (BA)<br>P.IVA: 08212010725</div></div>';
+  html += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;margin-bottom:6px">Cliente</div>';
   html += '<div style="font-size:13px;line-height:1.7"><strong>' + esc(clienteNome || '--') + '</strong>';
-  if (clienteVia) html += '<br>' + esc(clienteVia);
-  if (clienteCap || clienteCitta) html += '<br>' + esc(clienteCap) + ' ' + esc(clienteCitta);
+  if (clienteCf) html += '<br>' + esc(clienteCf);
+  if (clienteVia && clienteVia !== clienteNazione) html += '<br>' + esc(clienteVia);
+  if (clienteCap && clienteCap !== '00000') html += ' ' + esc(clienteCap);
+  if (clienteCitta && clienteCitta !== clienteNazione) html += ' ' + esc(clienteCitta);
   html += '<br>' + esc(clienteNazione);
-  if (clienteCf) html += '<br>CF/P.IVA: ' + esc(clienteCf);
   if (clienteSdi && clienteSdi !== '0000000' && clienteSdi !== 'XXXXXXX') html += '<br>SDI: ' + esc(clienteSdi);
   html += '</div></div></div>';
 
   html += '<table style="width:100%;border-collapse:collapse;margin-bottom:24px">';
   html += '<thead><tr style="background:#6B2D1F;color:#fff">';
-  html += '<th style="padding:10px 14px;text-align:left;font-size:12px">Descrizione</th>';
-  html += '<th style="padding:10px 14px;text-align:center;font-size:12px;width:70px">Q.ta</th>';
-  html += '<th style="padding:10px 14px;text-align:right;font-size:12px;width:110px">Prezzo unit.</th>';
-  html += '<th style="padding:10px 14px;text-align:right;font-size:12px;width:110px">Totale</th></tr></thead>';
+  html += '<th style="padding:10px 14px;text-align:left;font-size:12px;font-weight:700">Descrizione</th>';
+  html += '<th style="padding:10px 14px;text-align:center;font-size:12px;font-weight:700;width:60px">Q.ta</th>';
+  html += '<th style="padding:10px 14px;text-align:right;font-size:12px;font-weight:700;width:100px">Prezzo</th>';
+  html += '<th style="padding:10px 14px;text-align:right;font-size:12px;font-weight:700;width:100px">Totale</th></tr></thead>';
   html += '<tbody><tr style="border-bottom:1px solid #e7d9cc">';
   html += '<td style="padding:12px 14px;font-size:13px">' + esc(desc) + '</td>';
   html += '<td style="padding:12px 14px;text-align:center;font-size:13px">' + qta + '</td>';
   html += '<td style="padding:12px 14px;text-align:right;font-size:13px">EUR ' + impFmt + '</td>';
-  html += '<td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:600">EUR ' + totFmt + '</td>';
+  html += '<td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700">EUR ' + totFmt + '</td>';
   html += '</tr></tbody></table>';
 
   html += '<div style="display:flex;justify-content:flex-end;margin-bottom:24px">';
   html += '<div style="background:#faf6f1;border:1px solid #e7d9cc;border-radius:12px;padding:14px 20px;text-align:right;min-width:220px">';
-  html += '<div style="font-size:12px;color:#7A6B61;margin-bottom:4px">Importo totale</div>';
+  html += '<div style="font-size:12px;color:#7A6B61;margin-bottom:4px">Totale documento</div>';
   html += '<div style="font-size:26px;font-weight:700;color:#6B2D1F">EUR ' + totFmt + '</div>';
-  html += '<div style="font-size:11px;color:#7A6B61;margin-top:4px">IVA non applicata - Regime forfettario</div></div></div>';
+  html += '<div style="font-size:11px;color:#7A6B61;margin-top:4px">IVA non applicata - Regime forfettario RF19</div></div></div>';
 
-  html += '<div style="border-top:1px solid #e7d9cc;padding-top:16px;font-size:11px;color:#7A6B61;line-height:1.6">';
-  html += 'Operazione non soggetta ex art. 1 c. 58 L. 190/2014 - Regime Forfettario.<br>';
-  html += 'Questo documento e una <strong>copia di cortesia</strong> e non ha valore fiscale.</div></div>';
-
+  html += '<div style="border-top:1px solid #e7d9cc;padding-top:14px;font-size:11px;color:#7A6B61;line-height:1.6">';
+  html += 'Operazione non soggetta a ritenuta alla fonte a titolo di acconto ai sensi dell'articolo 1, comma 67, l. n. 190 del 2014 e successive modificazioni.<br>';
+  html += 'Questo documento e una <strong>copia di cortesia</strong> e non ha valore fiscale. Il documento XML originale e disponibile sul portale Fatture e Corrispettivi dell'Agenzia delle Entrate.</div></div>';
   return html;
 }
 
@@ -1652,12 +1689,14 @@ function scaricaPDF() {
   var html = buildHTMLCopia();
   var win = window.open('', '_blank');
   if (!win) { alert('Abilita i popup per scaricare il PDF'); return; }
-  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fattura</title><style>@media print{button{display:none}}body{margin:0}</style></head><body>' + html + '<div style="text-align:center;padding:16px"><button onclick="window.print()" style="background:#6B2D1F;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">Stampa / Salva PDF</button></div></body></html>');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fattura</title><style>@media print{.no-print{display:none}}body{margin:0}</style></head><body>' + html + '<div class="no-print" style="text-align:center;padding:16px"><button onclick="window.print()" style="background:#6B2D1F;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">Stampa / Salva PDF</button></div></body></html>');
   win.document.close();
 }
 
 function inviaCopiaWhatsApp() {
   var numero = document.getElementById('fat-numero').value || '1';
+  var anno   = document.getElementById('fat-anno').value || new Date().getFullYear().toString().slice(-2);
+  var numeroFPR = 'FPR ' + numero + '/' + anno;
   var clienteNome = document.getElementById('fat-cliente-nome').value || 'ospite';
   var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
   var importo = parseFloat(document.getElementById('fat-importo').value) || 0;
@@ -1666,9 +1705,8 @@ function inviaCopiaWhatsApp() {
   var data = document.getElementById('fat-data').value;
   var dateFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('it-IT') : '--';
   var msg = 'Gentile ' + clienteNome.split(' ')[0] + ',\n\n' +
-    'Le inviamo la copia di cortesia della fattura n. ' + numero + ' del ' + dateFmt + '.\n\n' +
-    desc + '\n' +
-    'Totale: EUR ' + totale + '\n\n' +
+    'Le inviamo la copia di cortesia della fattura ' + numeroFPR + ' del ' + dateFmt + '.\n\n' +
+    desc + '\nTotale: EUR ' + totale + '\n\n' +
     'La fattura elettronica e stata inviata al SDI.\n\n' +
     'Santalo B&B - Bitonto\n+39 333 6410329';
   var ph = selected && selected.telefono ? phone(selected.telefono) : '';
