@@ -574,7 +574,7 @@ function buildXML() {
   + '      <DettaglioLinee>\n'
   + '        <NumeroLinea>1</NumeroLinea>\n'
   + '        <Descrizione>' + esc(desc) + '</Descrizione>\n'
-  + '        <Quantita>' + qta + '</Quantita>\n'
+  + '        <Quantita>' + parseFloat(qta).toFixed(2) + '</Quantita>\n'
   + '        <PrezzoUnitario>' + importo + '</PrezzoUnitario>\n'
   + '        <PrezzoTotale>' + totale + '</PrezzoTotale>\n'
   + '        <AliquotaIVA>0.00</AliquotaIVA>\n'
@@ -731,39 +731,68 @@ function selezionaPren(id) {
 }
 
 // ===== PRECOMPILA DA PRENOTAZIONE =====
+  // Mappa cittadinanza (nome stato in italiano) → codice ISO per select nazione fattura
+  var cittadinanzaToISO = {
+    'polonia':'PL','germania':'DE','francia':'FR','spagna':'ES',
+    'regno unito':'GB','gran bretagna':'GB','inghilterra':'GB',
+    'romania':'RO','portogallo':'PT','paesi bassi':'NL','olanda':'NL',
+    'lituania':'LT','lettonia':'LV','estonia':'EE','croazia':'HR',
+    'ungheria':'HU','repubblica ceca':'CZ','slovacchia':'SK','slovenia':'SI',
+    'bulgaria':'BG','danimarca':'DK','finlandia':'FI','svezia':'SE',
+    'grecia':'GR','austria':'AT','belgio':'BE','svizzera':'CH',
+    'norvegia':'NO','stati uniti':'US','canada':'CA','australia':'AU',
+    'giappone':'JP','cina':'CN','ucraina':'UA','russia':'RU',
+    'turchia':'TR','israele':'IL','brasile':'BR','argentina':'AR',
+    'messico':'MX','india':'IN','serbia':'RS','albania':'AL',
+    'bielorussia':'BY','moldavia':'MD','georgia':'GE','armenia':'AM',
+    'azerbaigian':'AZ','kazakistan':'KZ','uzbekistan':'UZ'
+  };
+
 async function precompila() {
   if (!selected) { showEsito('Seleziona prima una prenotazione', 'warn'); return; }
   var p = selected;
   var lingua = (p.lingua || 'it').toLowerCase();
-  var isEstero = lingua !== 'it';
   var nazioneMap = {en:'GB',fr:'FR',de:'DE',es:'ES',ro:'RO',pt:'PT',nl:'NL',pl:'PL',lt:'LT',lv:'LV',et:'EE',hr:'HR',hu:'HU',cs:'CZ',sk:'SK',sl:'SI',bg:'BG',da:'DK',fi:'FI',sv:'SE',el:'GR'};
 
   showEsito('Caricamento dati check-in...', 'ok');
 
-  // Leggo dati fatturazione dal check-in (capofamiglia della prenotazione)
+  // Leggo dati fatturazione + cittadinanza dal check-in del capofamiglia
   var fatDati = null;
+  var cittadinanzaNome = '';
   try {
     var r = await sb.from('checkin_ospiti')
-      .select('fat_tipo,fat_nome,fat_cf,fat_email,fat_via,fat_cap,fat_citta,fat_ragsoc,fat_piva,fat_sdi,codice_fiscale')
+      .select('fat_tipo,fat_nome,fat_cf,fat_email,fat_via,fat_cap,fat_citta,fat_ragsoc,fat_piva,fat_sdi,codice_fiscale,cittadinanza_nome,cittadinanza_codice')
       .eq('prenotazione_id', p.id)
       .eq('is_capofamiglia', true)
       .maybeSingle();
-    if (r.data && r.data.fat_tipo) fatDati = r.data;
-    // Se non c'e capofamiglia, prendo il primo ospite con dati fat
+    if (r.data) {
+      cittadinanzaNome = (r.data.cittadinanza_nome || '').toLowerCase().trim();
+      if (r.data.fat_tipo) fatDati = r.data;
+    }
     if (!fatDati) {
       var r2 = await sb.from('checkin_ospiti')
-        .select('fat_tipo,fat_nome,fat_cf,fat_email,fat_via,fat_cap,fat_citta,fat_ragsoc,fat_piva,fat_sdi,codice_fiscale')
+        .select('fat_tipo,fat_nome,fat_cf,fat_email,fat_via,fat_cap,fat_citta,fat_ragsoc,fat_piva,fat_sdi,codice_fiscale,cittadinanza_nome,cittadinanza_codice')
         .eq('prenotazione_id', p.id)
         .not('fat_tipo', 'is', null)
         .limit(1)
         .maybeSingle();
-      if (r2.data && r2.data.fat_tipo) fatDati = r2.data;
+      if (r2.data) {
+        if (!cittadinanzaNome) cittadinanzaNome = (r2.data.cittadinanza_nome || '').toLowerCase().trim();
+        if (r2.data.fat_tipo) fatDati = r2.data;
+      }
     }
-  } catch(e) { /* ignoro errori, vado avanti senza dati fat */ }
+  } catch(e) {}
+
+  // Determina nazione: prima dalla cittadinanza del check-in, poi dalla lingua come fallback
+  var nazioneISO = '';
+  if (cittadinanzaNome && cittadinanzaNome !== 'italia') {
+    nazioneISO = cittadinanzaToISO[cittadinanzaNome] || '';
+  }
+  var isEstero = nazioneISO ? true : (lingua !== 'it');
+  if (!nazioneISO && isEstero) nazioneISO = nazioneMap[lingua] || 'GB';
 
   // ---- COMPILO FORM CLIENTE ----
   if (fatDati && fatDati.fat_tipo === 'pg') {
-    // PERSONA GIURIDICA ITALIANA
     setTipo('it-pg');
     document.getElementById('pg-ragsoc').value = fatDati.fat_ragsoc || p.nome || '';
     document.getElementById('pg-piva').value   = fatDati.fat_piva || '';
@@ -775,7 +804,6 @@ async function precompila() {
     document.getElementById('pg-email').value  = fatDati.fat_email || '';
 
   } else if (fatDati && fatDati.fat_tipo === 'pf') {
-    // PERSONA FISICA ITALIANA (ha compilato dati fat nel checkin)
     setTipo('it-pf');
     var nomeCompleto = fatDati.fat_nome || p.nome || '';
     var parti = nomeCompleto.trim().split(/\s+/);
@@ -789,31 +817,37 @@ async function precompila() {
     document.getElementById('pf-sdi').value     = '0000000';
 
   } else if (isEstero) {
-    // ESTERO (nessun dato fat o non compilato)
+    // ESTERO: nazione da cittadinanza check-in (fonte primaria) o lingua (fallback)
     setTipo('estero');
     document.getElementById('est-nome').value = p.nome || '';
-    var naz = nazioneMap[lingua] || 'GB';
     var selNaz = document.getElementById('est-nazione');
-    if (selNaz) selNaz.value = naz;
+    if (selNaz && nazioneISO) {
+      selNaz.value = nazioneISO;
+      // Se la nazione non e nella select, lascia il primo valore e mostra warning
+      if (selNaz.value !== nazioneISO) {
+        showEsito('Nazione ' + nazioneISO + ' non in lista — selezionala manualmente', 'warn');
+      }
+    }
     aggiornaIdEstero();
 
   } else {
-    // ITALIANO SENZA DATI FAT — solo nome, CF da checkin se disponibile
+    // ITALIANO senza dati fat — prova a leggere CF dal check-in
     setTipo('it-pf');
     var parti2 = (p.nome || '').trim().split(/\s+/);
     document.getElementById('pf-cognome').value = parti2[0] || '';
     document.getElementById('pf-nome').value    = parti2.slice(1).join(' ') || '';
-    // Prova a leggere CF direttamente da checkin_ospiti
-    var cfDaCi = '';
-    try {
-      var rCf = await sb.from('checkin_ospiti').select('codice_fiscale').eq('prenotazione_id', p.id).eq('is_capofamiglia', true).maybeSingle();
-      if (rCf.data && rCf.data.codice_fiscale) cfDaCi = rCf.data.codice_fiscale;
-    } catch(e) {}
-    document.getElementById('pf-cf').value      = cfDaCi;
-    document.getElementById('pf-via').value     = '';
-    document.getElementById('pf-cap').value     = '';
-    document.getElementById('pf-citta').value   = '';
-    document.getElementById('pf-sdi').value     = '0000000';
+    var cfDaCi = (fatDati && fatDati.codice_fiscale) ? fatDati.codice_fiscale : '';
+    if (!cfDaCi) {
+      try {
+        var rCf = await sb.from('checkin_ospiti').select('codice_fiscale').eq('prenotazione_id', p.id).eq('is_capofamiglia', true).maybeSingle();
+        if (rCf.data && rCf.data.codice_fiscale) cfDaCi = rCf.data.codice_fiscale;
+      } catch(e) {}
+    }
+    document.getElementById('pf-cf').value  = cfDaCi;
+    document.getElementById('pf-via').value = '';
+    document.getElementById('pf-cap').value = '';
+    document.getElementById('pf-citta').value = '';
+    document.getElementById('pf-sdi').value = '0000000';
   }
 
   // ---- DESCRIZIONE ----
@@ -831,15 +865,15 @@ async function precompila() {
     document.getElementById('fat-importo').value = parseFloat(p.importo).toFixed(2);
     document.getElementById('fat-prezzounit').value = '';
   }
-
   aggiornaTotale();
 
-  // Messaggio esito con indicazione di cosa e stato precompilato
+  // Messaggio esito
+  var fonteNazione = cittadinanzaNome ? 'cittadinanza check-in (' + cittadinanzaNome + ')' : 'lingua prenotazione (fallback)';
   var tipoMsg = '';
-  if (fatDati && fatDati.fat_tipo === 'pg') tipoMsg = 'Azienda — dati fatturazione dal check-in ✓';
+  if (fatDati && fatDati.fat_tipo === 'pg') tipoMsg = 'Azienda — dati dal check-in ✓';
   else if (fatDati && fatDati.fat_tipo === 'pf') tipoMsg = 'Persona fisica — dati dal check-in ✓' + (!fatDati.fat_cf ? ' · inserisci CF' : '');
-  else if (isEstero) tipoMsg = 'Estero (' + (nazioneMap[lingua] || 'GB') + ') — verifica ID fiscale';
-  else tipoMsg = 'Italiano — nessun dato fat nel check-in, inserisci CF';
+  else if (isEstero) tipoMsg = 'Estero ' + nazioneISO + ' — da ' + fonteNazione;
+  else tipoMsg = 'Italiano — inserisci CF';
 
   showEsito('Precompilato: ' + p.nome + ' · ' + tipoMsg, 'ok');
 }
