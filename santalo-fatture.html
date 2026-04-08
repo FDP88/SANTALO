@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Santalò — Fatturazione</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --brown:#6B2D1F;--brown-d:#3d1a10;--brown-l:#8C4F35;
+      --sand:#C4A882;--sand-l:#E8D9C0;
+      --cream:#FAF7F2;--cream-d:#F3EBE2;
+      --ink:#2E241F;--muted:#7A6B61;--line:#e7d9cc;
+      --ok:#2f7d4a;--ok-bg:#e7f5ec;
+      --warn:#b45309;--warn-bg:#fef3c7;
+      --err:#b91c1c;--err-bg:#fee2e2;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',Arial,sans-serif;background:var(--cream);color:var(--ink);font-size:15px;min-height:100vh}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px}
+
+    /* HERO */
+    .hero{background:linear-gradient(135deg,var(--brown-d),var(--brown-l));color:#fff;border-radius:20px;padding:22px 26px;margin-bottom:20px;display:flex;align-items:center;gap:18px}
+    .hero-logo{width:52px;height:52px;flex-shrink:0;background:rgba(255,255,255,.92);border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .hero-logo img{width:130%;height:130%;object-fit:cover;margin:-15%}
+    .hero-text h1{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;margin-bottom:3px}
+    .hero-text p{font-size:.85rem;opacity:.75}
+    .hero-back{margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+    .hero-back:hover{background:rgba(255,255,255,.25)}
+
+    /* LAYOUT */
+    .main-grid{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+    @media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+
+    /* CARD */
+    .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:18px}
+    .card-title{font-size:.95rem;font-weight:700;color:var(--brown);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .card-title span{font-size:1.1rem}
+
+    /* FORM */
+    .ff{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+    .ff label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;color:var(--ink);background:#fff;font-size:14px;transition:border-color .15s}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brown)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+    .row-inline{display:flex;gap:8px;align-items:center}
+
+    /* SEZIONE CLIENTE */
+    .cliente-tipo{display:flex;gap:8px;margin-bottom:14px}
+    .tipo-btn{flex:1;padding:10px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--muted);text-align:center;transition:all .15s}
+    .tipo-btn.active{border-color:var(--brown);background:var(--brown);color:#fff}
+    .tipo-btn:hover:not(.active){border-color:var(--sand);color:var(--brown)}
+
+    /* TOTALE */
+    .totale-box{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .totale-label{font-size:13px;color:var(--muted);line-height:1.5}
+    .totale-importo{font-size:1.6rem;font-weight:700;color:var(--brown)}
+
+    /* BOTTONI */
+    .btn{border:none;border-radius:10px;padding:9px 16px;font-weight:600;font-size:13.5px;cursor:pointer;transition:all .15s;font-family:inherit;line-height:1}
+    .btn-primary{background:var(--brown);color:#fff}.btn-primary:hover{background:var(--brown-l)}
+    .btn-ghost{background:var(--cream-d);color:var(--brown);border:1px solid var(--line)}.btn-ghost:hover{background:var(--sand-l)}
+    .btn-green{background:#25D366;color:#fff}.btn-green:hover{background:#128C7E}
+    .btn-sm{padding:7px 12px;font-size:13px;border-radius:8px}
+    .btn-block{width:100%;padding:12px;font-size:14px;border-radius:12px;margin-bottom:8px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+    /* ESITO */
+    .esito{font-size:13px;font-weight:600;min-height:18px;margin-top:10px;padding:8px 12px;border-radius:8px;display:none}
+    .esito.show{display:block}
+    .esito.ok{background:var(--ok-bg);color:var(--ok)}
+    .esito.warn{background:var(--warn-bg);color:var(--warn)}
+    .esito.err{background:var(--err-bg);color:var(--err)}
+
+    /* PRENOTAZIONI SIDEBAR */
+    .pren-list{max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+    .pren-list::-webkit-scrollbar{width:4px}.pren-list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
+    .pren-item{border:2px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .15s;background:#fff}
+    .pren-item:hover{border-color:var(--sand);background:var(--cream)}
+    .pren-item.selected{border-color:var(--brown);background:var(--cream)}
+    .pren-nome{font-weight:700;font-size:.9rem;margin-bottom:2px}
+    .pren-meta{font-size:11.5px;color:var(--muted)}
+    .pren-cam{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;margin-top:4px}
+    .cam-1954{background:#dcfce7;color:#166534}
+    .cam-1956{background:#dbeafe;color:#1e40af}
+    .cam-1920{background:#fef3c7;color:#92400e}
+    .search-pren{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13px;margin-bottom:10px}
+    .search-pren:focus{outline:none;border-color:var(--brown)}
+
+    /* FATTURE LISTA */
+    .fat-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .fat-nome{font-weight:600;font-size:.9rem}
+    .fat-meta{font-size:12px;color:var(--muted);margin-top:2px}
+    .stato-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+
+    /* MODAL PDF */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(46,36,31,.6);z-index:2000;align-items:center;justify-content:center;padding:16px}
+    .modal-overlay.show{display:flex}
+    .modal-box{background:#fff;border-radius:22px;max-width:720px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(46,36,31,.22);display:flex;flex-direction:column}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 22px 0}
+    .modal-title{font-size:1rem;font-weight:700;color:var(--brown)}
+    .modal-close{background:var(--cream-d);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1.1rem;color:var(--muted);line-height:1}
+    .modal-preview{margin:16px 22px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#faf8f5}
+    .modal-actions{padding:0 22px 20px;display:flex;gap:8px;flex-wrap:wrap}
+
+    /* NUMERO FATTURA */
+    .numero-fpr{display:flex;align-items:center;gap:6px}
+    .numero-fpr input{text-align:center}
+    .numero-fpr .sep{font-weight:700;color:var(--muted);font-size:1.1rem;flex-shrink:0}
+    .numero-fpr .preview{font-size:12px;color:var(--muted);white-space:nowrap}
+
+    .divider{border:none;border-top:1px solid var(--line);margin:14px 0}
+    .section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
+    .nota-regime{font-size:12px;color:var(--muted);background:var(--cream);border-radius:8px;padding:9px 12px;border:1px solid var(--line);margin-bottom:14px;line-height:1.5}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-logo">
+      <img src="https://fdp88.github.io/SANTALO/santalo-logo.png" alt="Santalo"/>
+    </div>
+    <div class="hero-text">
+      <h1>🧾 Fatturazione elettronica</h1>
+      <p>Santalò B&amp;B · Bitonto · P.IVA 08212010725 · Regime forfettario RF19</p>
+    </div>
+    <a href="https://fdp88.github.io/SANTALO/santalo-app-v2.html" class="hero-back">← Gestionale</a>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- COLONNA SINISTRA: FORM FATTURA -->
+    <div>
+
+      <!-- SEZIONE NUMERO E DATA -->
+      <div class="card">
+        <div class="card-title"><span>📄</span> Dati documento</div>
+        <div class="grid2">
+          <div class="ff">
+            <label>N° Fattura / Anno</label>
+            <div class="numero-fpr">
+              <input id="fat-num" type="number" min="1" value="1" style="width:70px"/>
+              <span class="sep">/</span>
+              <input id="fat-anno" type="text" maxlength="2" placeholder="26" style="width:50px"/>
+              <span class="preview" id="fat-num-preview">FPR 1/26</span>
+            </div>
+          </div>
+          <div class="ff">
+            <label>Data fattura</label>
+            <input id="fat-data" type="date"/>
+          </div>
+        </div>
+        <div class="ff">
+          <label>Importo pagato dal cliente (EUR)</label>
+          <input id="fat-importo" type="number" step="0.01" min="0" placeholder="es. 120.00" oninput="aggiornaTotale()"/>
+        </div>
+        <div class="nota-regime">Regime forfettario RF19 — IVA non applicata ai sensi art. 1 c. 58 L. 190/2014</div>
+        <div class="totale-box">
+          <div class="totale-label">Totale documento</div>
+          <div class="totale-importo" id="fat-totale">EUR 0,00</div>
+        </div>
+      </div>
+
+      <!-- SEZIONE CLIENTE -->
+      <div class="card">
+        <div class="card-title"><span>👤</span> Dati cliente</div>
+
+        <div class="cliente-tipo">
+          <button class="tipo-btn active" id="tipo-it-pf" onclick="setTipo('it-pf')">🇮🇹 Italiano (persona fisica)</button>
+          <button class="tipo-btn" id="tipo-it-pg" onclick="setTipo('it-pg')">🇮🇹 Italiano (azienda)</button>
+          <button class="tipo-btn" id="tipo-estero" onclick="setTipo('estero')">🌍 Estero</button>
+        </div>
+
+        <div id="form-it-pf">
+          <div class="grid2">
+            <div class="ff"><label>Cognome *</label><input id="pf-cognome" placeholder="Rossi"/></div>
+            <div class="ff"><label>Nome *</label><input id="pf-nome" placeholder="Mario"/></div>
+          </div>
+          <div class="ff"><label>Codice Fiscale *</label><input id="pf-cf" placeholder="RSSMRA80A01H501U" maxlength="16" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length===16?'var(--ok)':(this.value.length>0?'var(--err)':'')"/><div id="cf-hint" style="font-size:11px;color:var(--muted);margin-top:3px">16 caratteri obbligatori</div></div>
+          <div class="grid3">
+            <div class="ff"><label>Indirizzo</label><input id="pf-via" placeholder="Via Roma 1"/></div>
+            <div class="ff"><label>CAP</label><input id="pf-cap" placeholder="00100"/></div>
+            <div class="ff"><label>Città</label><input id="pf-citta" placeholder="Roma"/></div>
+          </div>
+          <div class="ff"><label>Codice SDI</label><input id="pf-sdi" value="0000000" placeholder="0000000"/></div>
+          <div class="ff"><label>Email (opzionale)</label><input id="pf-email" type="email" placeholder="mario@email.it"/></div>
+        </div>
+
+        <div id="form-it-pg" style="display:none">
+          <div class="ff"><label>Ragione Sociale *</label><input id="pg-ragsoc" placeholder="Azienda S.r.l."/></div>
+          <div class="grid2">
+            <div class="ff"><label>P.IVA *</label><input id="pg-piva" placeholder="12345678901" maxlength="11"/></div>
+            <div class="ff"><label>Codice Fiscale</label><input id="pg-cf" placeholder="(se diverso da P.IVA)" style="text-transform:uppercase"/></div>
+          </div>
+          <div class="grid3">
+            <div class="ff"><label>Indirizzo</label><input id="pg-via" placeholder="Via Roma 1"/></div>
+            <div class="ff"><label>CAP</label><input id="pg-cap" placeholder="00100"/></div>
+            <div class="ff"><label>Città</label><input id="pg-citta" placeholder="Roma"/></div>
+          </div>
+          <div class="ff"><label>Codice SDI *</label><input id="pg-sdi" placeholder="es. ABC1234 oppure PEC"/></div>
+          <div class="ff"><label>Email (opzionale)</label><input id="pg-email" type="email" placeholder="fatture@azienda.it"/></div>
+        </div>
+
+        <div id="form-estero" style="display:none">
+          <div class="ff"><label>Nome completo *</label><input id="est-nome" placeholder="Greta Bukantyte" oninput="aggiornaIdEstero()"/></div>
+          <div class="grid2">
+            <div class="ff"><label>Nazione *</label>
+              <select id="est-nazione" onchange="aggiornaIdEstero()">
+                <option value="GB">🇬🇧 Gran Bretagna (GB)</option>
+                <option value="FR">🇫🇷 Francia (FR)</option>
+                <option value="DE">🇩🇪 Germania (DE)</option>
+                <option value="ES">🇪🇸 Spagna (ES)</option>
+                <option value="AT">🇦🇹 Austria (AT)</option>
+                <option value="BE">🇧🇪 Belgio (BE)</option>
+                <option value="NL">🇳🇱 Paesi Bassi (NL)</option>
+                <option value="PT">🇵🇹 Portogallo (PT)</option>
+                <option value="PL">🇵🇱 Polonia (PL)</option>
+                <option value="RO">🇷🇴 Romania (RO)</option>
+                <option value="LT">🇱🇹 Lituania (LT)</option>
+                <option value="LV">🇱🇻 Lettonia (LV)</option>
+                <option value="EE">🇪🇪 Estonia (EE)</option>
+                <option value="HR">🇭🇷 Croazia (HR)</option>
+                <option value="HU">🇭🇺 Ungheria (HU)</option>
+                <option value="CZ">🇨🇿 Repubblica Ceca (CZ)</option>
+                <option value="SK">🇸🇰 Slovacchia (SK)</option>
+                <option value="SI">🇸🇮 Slovenia (SI)</option>
+                <option value="BG">🇧🇬 Bulgaria (BG)</option>
+                <option value="DK">🇩🇰 Danimarca (DK)</option>
+                <option value="FI">🇫🇮 Finlandia (FI)</option>
+                <option value="SE">🇸🇪 Svezia (SE)</option>
+                <option value="GR">🇬🇷 Grecia (GR)</option>
+                <option value="US">🇺🇸 USA (US)</option>
+                <option value="CH">🇨🇭 Svizzera (CH)</option>
+                <option value="NO">🇳🇴 Norvegia (NO)</option>
+                <option value="CN">🇨🇳 Cina (CN)</option>
+                <option value="JP">🇯🇵 Giappone (JP)</option>
+                <option value="AU">🇦🇺 Australia (AU)</option>
+                <option value="CA">🇨🇦 Canada (CA)</option>
+              </select>
+            </div>
+            <div class="ff"><label>ID Fiscale (auto)</label><input id="est-id" placeholder="generato automaticamente" readonly style="background:#f5f0eb;color:var(--brown);font-size:12px"/></div>
+          </div>
+          <div class="ff"><label>Codice SDI</label><input id="est-sdi" value="XXXXXXX" readonly style="background:#f5f0eb;color:var(--brown)"/></div>
+        </div>
+      </div>
+
+      <!-- SEZIONE PRESTAZIONE -->
+      <div class="card">
+        <div class="card-title"><span>🏨</span> Prestazione</div>
+        <div class="ff">
+          <label>Descrizione</label>
+          <input id="fat-desc" placeholder="Soggiorno B&B Santalo dal ... al ... - Camera 1956"/>
+        </div>
+        <div class="grid2">
+          <div class="ff"><label>Quantità (notti)</label><input id="fat-qta" type="number" value="1" min="1"/></div>
+          <div class="ff"><label>Prezzo unitario (EUR)</label><input id="fat-prezzounit" type="number" step="0.01" min="0" placeholder="0.00" oninput="aggiornaTotale()"/></div>
+        </div>
+      </div>
+
+      <!-- AZIONI -->
+      <div class="card">
+        <div class="card-title"><span>⚡</span> Azioni</div>
+        <div class="actions">
+          <button class="btn btn-ghost btn-sm" onclick="scaricaXML()">⬇️ Scarica XML</button>
+          <button class="btn btn-ghost btn-sm" onclick="apriCopia()">👁️ Copia di cortesia</button>
+          <button class="btn btn-primary btn-sm" onclick="inviaAruba()" id="btn-aruba">📤 Invia ad Aruba → SDI</button>
+        </div>
+        <div id="fat-esito" class="esito"></div>
+      </div>
+
+      <!-- LISTA FATTURE INVIATE -->
+      <div class="card">
+        <div class="card-title"><span>📋</span> Fatture inviate <button class="btn btn-ghost btn-sm" onclick="caricaFatture()" style="margin-left:auto;font-size:12px">🔄 Aggiorna</button></div>
+        <div id="lista-fatture"><div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Clicca Aggiorna per caricare le fatture inviate.</div></div>
+      </div>
+
+    </div>
+
+    <!-- COLONNA DESTRA: PRENOTAZIONI -->
+    <div>
+      <div class="card" style="position:sticky;top:18px">
+        <div class="card-title"><span>📅</span> Prenotazioni</div>
+        <input class="search-pren" id="searchPren" placeholder="Cerca nome..." oninput="filtraPren()"/>
+        <div id="pren-list" class="pren-list">
+          <div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Caricamento...</div>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+          <button class="btn btn-ghost btn-sm" style="width:100%" onclick="precompila()">📋 Precompila da selezionata</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL COPIA DI CORTESIA -->
+<div id="copiaModal" class="modal-overlay" onclick="if(event.target===this)chiudiCopia()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">📄 Copia di cortesia</div>
+      <button class="modal-close" onclick="chiudiCopia()">✕</button>
+    </div>
+    <div id="copiaPreview" class="modal-preview"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-sm" onclick="scaricaPDF()">⬇️ Scarica PDF</button>
+      <button class="btn btn-green btn-sm" onclick="inviaWA()">📱 Invia WhatsApp</button>
+      <button class="btn btn-ghost btn-sm" onclick="chiudiCopia()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+var SB_URL = 'https://ifdqcnjdnblvtflqsqmt.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmZHFjbmpkbmJsdnRmbHFzcW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDUzNzksImV4cCI6MjA4OTQyMTM3OX0.VXc_vQBH8I4BP7DQNDjBnQ0LsRAUigYu4-_yCwHGF5w';
+var WORKER_URL = 'https://santalo-bot.giuseppe-acquafredda.workers.dev';
+var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+var MITTENTE = {
+  denominazione: 'SANTALO BED AND BREAKFAST DI ACQUAFREDDA GIUSEPPE',
+  piva: '08212010725',
+  cf: 'CQFGPP88E31A662T',
+  via: 'Corte Sant\'Eligio',
+  civico: '10',
+  cap: '70032',
+  citta: 'Bitonto',
+  provincia: 'BA',
+  nazione: 'IT',
+  regime: 'RF19'
+};
+
+var prenotazioni = [];
+var selected = null;
+var tipoCliente = 'it-pf';
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded', function() {
+  var oggi = new Date().toISOString().slice(0,10);
+  document.getElementById('fat-data').value = oggi;
+  var anno = new Date().getFullYear().toString().slice(-2);
+  document.getElementById('fat-anno').value = anno;
+  var num = parseInt(localStorage.getItem('santalo_prossima_fattura') || '1');
+  document.getElementById('fat-num').value = num;
+  aggiornaPreview();
+  caricaPrenotazioni();
+
+  document.getElementById('fat-num').addEventListener('input', aggiornaPreview);
+  document.getElementById('fat-anno').addEventListener('input', aggiornaPreview);
+});
+
+// ===== UTILITY =====
+function fmt(d) {
+  if (!d) return '--';
+  var x = new Date(d + 'T12:00:00');
+  return isNaN(x) ? d : x.toLocaleDateString('it-IT');
+}
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function phone(p) {
+  if (!p) return '';
+  var c = String(p).replace(/[^\d+]/g, '');
+  if (c.startsWith('00')) c = '+' + c.slice(2);
+  if (c.startsWith('+')) return c.slice(1);
+  if (c.startsWith('39')) return c;
+  return '39' + c;
+}
+function showEsito(msg, tipo) {
+  var el = document.getElementById('fat-esito');
+  el.textContent = msg;
+  el.className = 'esito show ' + (tipo || 'ok');
+  setTimeout(function() { el.className = 'esito'; }, 5000);
+}
+
+// ===== NUMERO FATTURA =====
+function aggiornaPreview() {
+  var num = document.getElementById('fat-num').value || '1';
+  var anno = document.getElementById('fat-anno').value || '26';
+  document.getElementById('fat-num-preview').textContent = 'FPR ' + num + '/' + anno;
+}
+function getNumeroPFR() {
+  var num = document.getElementById('fat-num').value || '1';
+  var anno = document.getElementById('fat-anno').value || new Date().getFullYear().toString().slice(-2);
+  return 'FPR ' + num + '/' + anno;
+}
+
+// ===== TIPO CLIENTE =====
+function setTipo(t) {
+  tipoCliente = t;
+  ['it-pf','it-pg','estero'].forEach(function(x) {
+    document.getElementById('tipo-' + x).classList.toggle('active', x === t);
+    document.getElementById('form-' + x).style.display = x === t ? '' : 'none';
+  });
+}
+
+// ===== ID FISCALE ESTERO (28 char) =====
+function consonanti(str) {
+  return (str || '').toUpperCase().replace(/[^A-Z]/g,'').replace(/[AEIOU]/g,'');
+}
+function idFiscaleEstero(nome) {
+  var parti = (nome || '').trim().split(/\s+/);
+  var cons = '';
+  parti.forEach(function(p) { cons += consonanti(p); });
+  while (cons.length < 16) cons += '0';
+  return cons.slice(0, 16);
+}
+function aggiornaIdEstero() {
+  var nome = document.getElementById('est-nome').value;
+  var nazione = document.getElementById('est-nazione').value;
+  document.getElementById('est-id').value = nazione + idFiscaleEstero(nome);
+}
+
+// ===== TOTALE =====
+function aggiornaTotale() {
+  var imp = parseFloat(document.getElementById('fat-importo').value) || 0;
+  var pu  = parseFloat(document.getElementById('fat-prezzounit').value) || 0;
+  var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
+  // Se importo totale compilato, usa quello; altrimenti qta * prezzounit
+  var tot = imp > 0 ? imp : (qta * pu);
+  document.getElementById('fat-totale').textContent = 'EUR ' + tot.toFixed(2).replace('.',',');
+}
+
+function getTotale() {
+  var imp = parseFloat(document.getElementById('fat-importo').value) || 0;
+  var pu  = parseFloat(document.getElementById('fat-prezzounit').value) || 0;
+  var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
+  return imp > 0 ? imp.toFixed(2) : (qta * pu).toFixed(2);
+}
+function getPrezzoUnit() {
+  var imp = parseFloat(document.getElementById('fat-importo').value) || 0;
+  var pu  = parseFloat(document.getElementById('fat-prezzounit').value) || 0;
+  var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
+  if (imp > 0 && qta > 0) return (imp / qta).toFixed(2);
+  return pu.toFixed(2);
+}
+
+// ===== DATI CLIENTE =====
+function getDatiCliente() {
+  if (tipoCliente === 'it-pf') {
+    var cognome = document.getElementById('pf-cognome').value.trim();
+    var nome    = document.getElementById('pf-nome').value.trim();
+    var cf      = document.getElementById('pf-cf').value.trim().toUpperCase();
+    return {
+      nomeCompleto: cognome + ' ' + nome,
+      nome: nome, cognome: cognome,
+      cf: cf, piva: '',
+      via: document.getElementById('pf-via').value.trim() || 'ND',
+      cap: document.getElementById('pf-cap').value.trim() || '00000',
+      citta: document.getElementById('pf-citta').value.trim() || 'ND',
+      nazione: 'IT',
+      sdi: document.getElementById('pf-sdi').value.trim() || '0000000',
+      tipo: 'it-pf'
+    };
+  } else if (tipoCliente === 'it-pg') {
+    return {
+      nomeCompleto: document.getElementById('pg-ragsoc').value.trim(),
+      nome: '', cognome: '',
+      cf: document.getElementById('pg-cf').value.trim().toUpperCase(),
+      piva: document.getElementById('pg-piva').value.trim(),
+      via: document.getElementById('pg-via').value.trim() || 'ND',
+      cap: document.getElementById('pg-cap').value.trim() || '00000',
+      citta: document.getElementById('pg-citta').value.trim() || 'ND',
+      nazione: 'IT',
+      sdi: document.getElementById('pg-sdi').value.trim() || '0000000',
+      tipo: 'it-pg'
+    };
+  } else {
+    var naz = document.getElementById('est-nazione').value;
+    return {
+      nomeCompleto: document.getElementById('est-nome').value.trim(),
+      nome: '', cognome: '',
+      cf: document.getElementById('est-id').value.trim(),
+      piva: '',
+      via: naz, cap: '00000', citta: naz,
+      nazione: naz,
+      sdi: 'XXXXXXX',
+      tipo: 'estero'
+    };
+  }
+}
+
+// ===== BUILD XML =====
+function buildXML() {
+  var numero    = getNumeroPFR();
+  var numProg   = document.getElementById('fat-num').value || '1';
+  var data      = document.getElementById('fat-data').value;
+  var desc      = document.getElementById('fat-desc').value || 'Soggiorno B&B Santalo';
+  var qta       = document.getElementById('fat-qta').value || '1';
+  var importo   = getPrezzoUnit();
+  var totale    = getTotale();
+  var c         = getDatiCliente();
+  var nomeFile  = 'IT' + MITTENTE.piva + '_' + String(numProg).padStart(5,'0') + '.xml';
+
+  // Tag identificativo cliente
+  var cfTag;
+  if (c.tipo === 'it-pf') {
+    cfTag = '<CodiceFiscale>' + esc(c.cf) + '</CodiceFiscale>';
+  } else if (c.tipo === 'it-pg') {
+    var idCodice = c.piva || c.cf;
+    cfTag = '<IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>' + esc(idCodice) + '</IdCodice></IdFiscaleIVA>';
+    if (c.cf && c.cf !== c.piva) cfTag += '\n        <CodiceFiscale>' + esc(c.cf) + '</CodiceFiscale>';
+  } else {
+    // Estero: id contiene gia prefisso nazione (es. LTGRTBKNTT0000000000000000)
+    var idPaese  = c.nazione;
+    var idCodice2 = c.cf.length > 2 ? c.cf.slice(2) : c.cf;
+    cfTag = '<IdFiscaleIVA><IdPaese>' + esc(idPaese) + '</IdPaese><IdCodice>' + esc(idCodice2) + '</IdCodice></IdFiscaleIVA>';
+  }
+
+  // Tag anagrafica
+  var anagTag;
+  if (c.tipo === 'it-pf' && c.nome && c.cognome) {
+    anagTag = '<Anagrafica><Nome>' + esc(c.nome) + '</Nome><Cognome>' + esc(c.cognome) + '</Cognome></Anagrafica>';
+  } else {
+    anagTag = '<Anagrafica><Denominazione>' + esc(c.nomeCompleto) + '</Denominazione></Anagrafica>';
+  }
+
+  var causale = 'Operazione non soggetta a ritenuta alla fonte a titolo di acconto ai sensi dell\'articolo 1, comma 67, l. n. 190 del 2014 e successive modificazioni';
+
+  var xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+  + '<p:FatturaElettronica versione="FPR12" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'
+  + '  <FatturaElettronicaHeader>\n'
+  + '    <DatiTrasmissione>\n'
+  + '      <IdTrasmittente><IdPaese>IT</IdPaese><IdCodice>' + MITTENTE.piva + '</IdCodice></IdTrasmittente>\n'
+  + '      <ProgressivoInvio>' + esc(numero) + '</ProgressivoInvio>\n'
+  + '      <FormatoTrasmissione>FPR12</FormatoTrasmissione>\n'
+  + '      <CodiceDestinatario>' + esc(c.sdi) + '</CodiceDestinatario>\n'
+  + '    </DatiTrasmissione>\n'
+  + '    <CedentePrestatore>\n'
+  + '      <DatiAnagrafici>\n'
+  + '        <IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>' + MITTENTE.piva + '</IdCodice></IdFiscaleIVA>\n'
+  + '        <CodiceFiscale>' + MITTENTE.cf + '</CodiceFiscale>\n'
+  + '        <Anagrafica><Denominazione>' + esc(MITTENTE.denominazione) + '</Denominazione></Anagrafica>\n'
+  + '        <RegimeFiscale>' + MITTENTE.regime + '</RegimeFiscale>\n'
+  + '      </DatiAnagrafici>\n'
+  + '      <Sede>\n'
+  + '        <Indirizzo>' + esc(MITTENTE.via) + '</Indirizzo>\n'
+  + '        <NumeroCivico>' + esc(MITTENTE.civico) + '</NumeroCivico>\n'
+  + '        <CAP>' + MITTENTE.cap + '</CAP>\n'
+  + '        <Comune>' + esc(MITTENTE.citta) + '</Comune>\n'
+  + '        <Provincia>' + MITTENTE.provincia + '</Provincia>\n'
+  + '        <Nazione>' + MITTENTE.nazione + '</Nazione>\n'
+  + '      </Sede>\n'
+  + '    </CedentePrestatore>\n'
+  + '    <CessionarioCommittente>\n'
+  + '      <DatiAnagrafici>\n'
+  + '        ' + cfTag + '\n'
+  + '        ' + anagTag + '\n'
+  + '      </DatiAnagrafici>\n'
+  + '      <Sede>\n'
+  + '        <Indirizzo>' + esc(c.via) + '</Indirizzo>\n'
+  + '        <CAP>' + esc(c.cap) + '</CAP>\n'
+  + '        <Comune>' + esc(c.citta) + '</Comune>\n'
+  + '        <Nazione>' + esc(c.nazione) + '</Nazione>\n'
+  + '      </Sede>\n'
+  + '    </CessionarioCommittente>\n'
+  + '  </FatturaElettronicaHeader>\n'
+  + '  <FatturaElettronicaBody>\n'
+  + '    <DatiGenerali>\n'
+  + '      <DatiGeneraliDocumento>\n'
+  + '        <TipoDocumento>TD01</TipoDocumento>\n'
+  + '        <Divisa>EUR</Divisa>\n'
+  + '        <Data>' + data + '</Data>\n'
+  + '        <Numero>' + esc(numero) + '</Numero>\n'
+  + '        <ImportoTotaleDocumento>' + totale + '</ImportoTotaleDocumento>\n'
+  + '        <Causale>' + esc(causale) + '</Causale>\n'
+  + '      </DatiGeneraliDocumento>\n'
+  + '    </DatiGenerali>\n'
+  + '    <DatiBeniServizi>\n'
+  + '      <DettaglioLinee>\n'
+  + '        <NumeroLinea>1</NumeroLinea>\n'
+  + '        <Descrizione>' + esc(desc) + '</Descrizione>\n'
+  + '        <Quantita>' + qta + '</Quantita>\n'
+  + '        <PrezzoUnitario>' + importo + '</PrezzoUnitario>\n'
+  + '        <PrezzoTotale>' + totale + '</PrezzoTotale>\n'
+  + '        <AliquotaIVA>0.00</AliquotaIVA>\n'
+  + '        <Natura>N2.2</Natura>\n'
+  + '      </DettaglioLinee>\n'
+  + '      <DatiRiepilogo>\n'
+  + '        <AliquotaIVA>0.00</AliquotaIVA>\n'
+  + '        <Natura>N2.2</Natura>\n'
+  + '        <ImponibileImporto>' + totale + '</ImponibileImporto>\n'
+  + '        <Imposta>0.00</Imposta>\n'
+  + '        <RiferimentoNormativo>Non soggette - altri casi</RiferimentoNormativo>\n'
+  + '      </DatiRiepilogo>\n'
+  + '    </DatiBeniServizi>\n'
+  + '    <DatiPagamento>\n'
+  + '      <CondizioniPagamento>TP02</CondizioniPagamento>\n'
+  + '      <DettaglioPagamento>\n'
+  + '        <ModalitaPagamento>MP05</ModalitaPagamento>\n'
+  + '        <DataScadenzaPagamento>' + data + '</DataScadenzaPagamento>\n'
+  + '        <ImportoPagamento>' + totale + '</ImportoPagamento>\n'
+  + '      </DettaglioPagamento>\n'
+  + '    </DatiPagamento>\n'
+  + '  </FatturaElettronicaBody>\n'
+  + '</p:FatturaElettronica>';
+
+  return { xml: xml, nomeFile: nomeFile, numero: numero };
+}
+
+// ===== SCARICA XML =====
+function validaCliente() {
+  var c = getDatiCliente();
+  if (!c.nomeCompleto) { showEsito('Inserisci il nome del cliente', 'warn'); return null; }
+  if (parseFloat(getTotale()) <= 0) { showEsito('Inserisci un importo valido', 'warn'); return null; }
+  if (c.tipo === 'it-pf') {
+    var cf = document.getElementById('pf-cf').value.trim();
+    if (!cf || cf.length !== 16) { showEsito('Il codice fiscale italiano deve essere di 16 caratteri', 'warn'); document.getElementById('pf-cf').focus(); return null; }
+  }
+  if (c.tipo === 'it-pg') {
+    var piva = document.getElementById('pg-piva').value.trim();
+    if (!piva || piva.length !== 11) { showEsito('La P.IVA deve essere di 11 cifre', 'warn'); document.getElementById('pg-piva').focus(); return null; }
+    var sdi = document.getElementById('pg-sdi').value.trim();
+    if (!sdi) { showEsito('Inserisci il codice SDI o PEC per il soggetto giuridico', 'warn'); document.getElementById('pg-sdi').focus(); return null; }
+  }
+  return c;
+}
+
+function scaricaXML() {
+  var c = validaCliente();
+  if (!c) return;
+  var r = buildXML();
+  var blob = new Blob([r.xml], { type: 'application/xml' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = r.nomeFile;
+  a.click();
+  showEsito('XML scaricato: ' + r.nomeFile + ' (' + r.numero + ')', 'ok');
+}
+
+// ===== INVIA ARUBA =====
+async function inviaAruba() {
+  var c = validaCliente();
+  if (!c) return;
+  var btn = document.getElementById('btn-aruba');
+  btn.disabled = true; btn.textContent = '⏳ Invio...';
+  try {
+    var r = buildXML();
+    var xmlBase64 = btoa(unescape(encodeURIComponent(r.xml)));
+    var res = await fetch(WORKER_URL + '/fattura/invia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ xmlBase64: xmlBase64, nomeFile: r.nomeFile })
+    });
+    var data = await res.json();
+    if (data.success) {
+      var numEl = document.getElementById('fat-num');
+      var nextN = parseInt(numEl.value || '1') + 1;
+      numEl.value = nextN;
+      localStorage.setItem('santalo_prossima_fattura', nextN);
+      aggiornaPreview();
+      showEsito('Fattura ' + r.numero + ' inviata ad Aruba con successo!', 'ok');
+      caricaFatture();
+    } else {
+      showEsito('Errore: ' + JSON.stringify(data.risposta || data.error), 'err');
+    }
+  } catch(e) {
+    showEsito('Errore connessione: ' + e.message, 'err');
+  }
+  btn.disabled = false; btn.textContent = '📤 Invia ad Aruba → SDI';
+}
+
+// ===== LISTA FATTURE =====
+async function caricaFatture() {
+  var el = document.getElementById('lista-fatture');
+  el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Caricamento...</div>';
+  try {
+    var res = await fetch(WORKER_URL + '/fattura/lista', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+    var data = await res.json();
+    var fatture = data.invoices || data.data || data || [];
+    if (!Array.isArray(fatture) || !fatture.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Nessuna fattura trovata.</div>';
+      return;
+    }
+    el.innerHTML = fatture.map(function(f) {
+      var stato = f.status || f.stato || '--';
+      var col = stato === 'INVIATA' || stato === 'CONSEGNATA' ? 'var(--ok)' : stato === 'ERRORE' ? 'var(--err)' : 'var(--warn)';
+      return '<div class="fat-item"><div><div class="fat-nome">' + esc(f.filename || f.nomeFile || '--') + '</div>'
+        + '<div class="fat-meta">' + esc(f.dataInvio || f.created_at || '--') + '</div></div>'
+        + '<span class="stato-pill" style="background:' + col + '22;color:' + col + '">' + esc(stato) + '</span></div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--err);font-size:13px;padding:12px">Errore: ' + esc(e.message) + '</div>';
+  }
+}
+
+// ===== PRENOTAZIONI =====
+function caricaPrenotazioni() {
+  sb.from('prenotazioni').select('*').order('arrivo', {ascending: true}).then(function(r) {
+    if (r.error) { document.getElementById('pren-list').innerHTML = '<div style="color:var(--err);font-size:13px;padding:12px">Errore Supabase</div>'; return; }
+    prenotazioni = (r.data || []).filter(function(p) {
+      if (!p.partenza) return false;
+      var par = new Date(p.partenza + 'T12:00:00');
+      var oggi = new Date(); oggi.setHours(0,0,0,0);
+      var limit = new Date(oggi); limit.setDate(oggi.getDate() - 30);
+      return par >= limit;
+    });
+    prenotazioni.sort(function(a,b) { return (a.arrivo||'') < (b.arrivo||'') ? 1 : -1; });
+    renderPren(prenotazioni);
+  });
+}
+
+function renderPren(list) {
+  var el = document.getElementById('pren-list');
+  if (!list.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Nessuna prenotazione</div>'; return; }
+  el.innerHTML = list.map(function(p) {
+    var isSelected = selected && selected.id === p.id;
+    var camNum = (p.camera||'').replace(/[^0-9]/g,'');
+    var camClass = camNum === '1954' ? 'cam-1954' : camNum === '1956' ? 'cam-1956' : camNum === '1920' ? 'cam-1920' : '';
+    return '<div class="pren-item' + (isSelected ? ' selected' : '') + '" onclick="selezionaPren(' + p.id + ')">'
+      + '<div class="pren-nome">' + esc(p.nome || '--') + '</div>'
+      + '<div class="pren-meta">' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + '</div>'
+      + '<div class="pren-meta">' + esc(p.canale || '') + (p.importo ? ' · EUR ' + parseFloat(p.importo).toFixed(2) : '') + '</div>'
+      + '<span class="pren-cam ' + camClass + '">' + esc(p.camera || '') + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+function filtraPren() {
+  var q = document.getElementById('searchPren').value.toLowerCase();
+  renderPren(prenotazioni.filter(function(p) { return (p.nome||'').toLowerCase().includes(q); }));
+}
+
+function selezionaPren(id) {
+  selected = prenotazioni.find(function(p) { return p.id === id; }) || null;
+  renderPren(document.getElementById('searchPren').value ? prenotazioni.filter(function(p) { return (p.nome||'').toLowerCase().includes(document.getElementById('searchPren').value.toLowerCase()); }) : prenotazioni);
+}
+
+// ===== PRECOMPILA DA PRENOTAZIONE =====
+async function precompila() {
+  if (!selected) { showEsito('Seleziona prima una prenotazione', 'warn'); return; }
+  var p = selected;
+  var lingua = (p.lingua || 'it').toLowerCase();
+  var isEstero = lingua !== 'it';
+  var nazioneMap = {en:'GB',fr:'FR',de:'DE',es:'ES',ro:'RO',pt:'PT',nl:'NL',pl:'PL',lt:'LT',lv:'LV',et:'EE',hr:'HR',hu:'HU',cs:'CZ',sk:'SK',sl:'SI',bg:'BG',da:'DK',fi:'FI',sv:'SE',el:'GR'};
+
+  showEsito('Caricamento dati check-in...', 'ok');
+
+  // Leggo dati fatturazione dal check-in (capofamiglia della prenotazione)
+  var fatDati = null;
+  try {
+    var r = await sb.from('checkin_ospiti')
+      .select('fat_tipo,fat_nome,fat_cf,fat_email,fat_via,fat_cap,fat_citta,fat_ragsoc,fat_piva,fat_sdi,codice_fiscale')
+      .eq('prenotazione_id', p.id)
+      .eq('is_capofamiglia', true)
+      .maybeSingle();
+    if (r.data && r.data.fat_tipo) fatDati = r.data;
+    // Se non c'e capofamiglia, prendo il primo ospite con dati fat
+    if (!fatDati) {
+      var r2 = await sb.from('checkin_ospiti')
+        .select('fat_tipo,fat_nome,fat_cf,fat_email,fat_via,fat_cap,fat_citta,fat_ragsoc,fat_piva,fat_sdi,codice_fiscale')
+        .eq('prenotazione_id', p.id)
+        .not('fat_tipo', 'is', null)
+        .limit(1)
+        .maybeSingle();
+      if (r2.data && r2.data.fat_tipo) fatDati = r2.data;
+    }
+  } catch(e) { /* ignoro errori, vado avanti senza dati fat */ }
+
+  // ---- COMPILO FORM CLIENTE ----
+  if (fatDati && fatDati.fat_tipo === 'pg') {
+    // PERSONA GIURIDICA ITALIANA
+    setTipo('it-pg');
+    document.getElementById('pg-ragsoc').value = fatDati.fat_ragsoc || p.nome || '';
+    document.getElementById('pg-piva').value   = fatDati.fat_piva || '';
+    document.getElementById('pg-cf').value     = fatDati.fat_cf || '';
+    document.getElementById('pg-sdi').value    = fatDati.fat_sdi || '';
+    document.getElementById('pg-via').value    = fatDati.fat_via || '';
+    document.getElementById('pg-cap').value    = fatDati.fat_cap || '';
+    document.getElementById('pg-citta').value  = fatDati.fat_citta || '';
+    document.getElementById('pg-email').value  = fatDati.fat_email || '';
+
+  } else if (fatDati && fatDati.fat_tipo === 'pf') {
+    // PERSONA FISICA ITALIANA (ha compilato dati fat nel checkin)
+    setTipo('it-pf');
+    var nomeCompleto = fatDati.fat_nome || p.nome || '';
+    var parti = nomeCompleto.trim().split(/\s+/);
+    document.getElementById('pf-cognome').value = parti[0] || '';
+    document.getElementById('pf-nome').value    = parti.slice(1).join(' ') || '';
+    document.getElementById('pf-cf').value      = fatDati.fat_cf || fatDati.codice_fiscale || '';
+    document.getElementById('pf-via').value     = fatDati.fat_via || '';
+    document.getElementById('pf-cap').value     = fatDati.fat_cap || '';
+    document.getElementById('pf-citta').value   = fatDati.fat_citta || '';
+    document.getElementById('pf-email').value   = fatDati.fat_email || '';
+    document.getElementById('pf-sdi').value     = '0000000';
+
+  } else if (isEstero) {
+    // ESTERO (nessun dato fat o non compilato)
+    setTipo('estero');
+    document.getElementById('est-nome').value = p.nome || '';
+    var naz = nazioneMap[lingua] || 'GB';
+    var selNaz = document.getElementById('est-nazione');
+    if (selNaz) selNaz.value = naz;
+    aggiornaIdEstero();
+
+  } else {
+    // ITALIANO SENZA DATI FAT — solo nome, CF da checkin se disponibile
+    setTipo('it-pf');
+    var parti2 = (p.nome || '').trim().split(/\s+/);
+    document.getElementById('pf-cognome').value = parti2[0] || '';
+    document.getElementById('pf-nome').value    = parti2.slice(1).join(' ') || '';
+    // Prova a leggere CF direttamente da checkin_ospiti
+    var cfDaCi = '';
+    try {
+      var rCf = await sb.from('checkin_ospiti').select('codice_fiscale').eq('prenotazione_id', p.id).eq('is_capofamiglia', true).maybeSingle();
+      if (rCf.data && rCf.data.codice_fiscale) cfDaCi = rCf.data.codice_fiscale;
+    } catch(e) {}
+    document.getElementById('pf-cf').value      = cfDaCi;
+    document.getElementById('pf-via').value     = '';
+    document.getElementById('pf-cap').value     = '';
+    document.getElementById('pf-citta').value   = '';
+    document.getElementById('pf-sdi').value     = '0000000';
+  }
+
+  // ---- DESCRIZIONE ----
+  var desc = 'PERNOTTAMENTO';
+  if (p.arrivo && p.partenza) {
+    var notti = Math.max(1, Math.round((new Date(p.partenza+'T12:00:00') - new Date(p.arrivo+'T12:00:00')) / 86400000));
+    document.getElementById('fat-qta').value = notti;
+    desc = 'Soggiorno B&B Santalo dal ' + fmt(p.arrivo) + ' al ' + fmt(p.partenza);
+    if (p.camera) desc += ' - ' + p.camera;
+  }
+  document.getElementById('fat-desc').value = desc;
+
+  // ---- IMPORTO ----
+  if (p.importo && parseFloat(p.importo) > 0) {
+    document.getElementById('fat-importo').value = parseFloat(p.importo).toFixed(2);
+    document.getElementById('fat-prezzounit').value = '';
+  }
+
+  aggiornaTotale();
+
+  // Messaggio esito con indicazione di cosa e stato precompilato
+  var tipoMsg = '';
+  if (fatDati && fatDati.fat_tipo === 'pg') tipoMsg = 'Azienda — dati fatturazione dal check-in ✓';
+  else if (fatDati && fatDati.fat_tipo === 'pf') tipoMsg = 'Persona fisica — dati dal check-in ✓' + (!fatDati.fat_cf ? ' · inserisci CF' : '');
+  else if (isEstero) tipoMsg = 'Estero (' + (nazioneMap[lingua] || 'GB') + ') — verifica ID fiscale';
+  else tipoMsg = 'Italiano — nessun dato fat nel check-in, inserisci CF';
+
+  showEsito('Precompilato: ' + p.nome + ' · ' + tipoMsg, 'ok');
+}
+
+// ===== COPIA DI CORTESIA =====
+function buildHTMLCopia() {
+  var numero   = getNumeroPFR();
+  var data     = document.getElementById('fat-data').value;
+  var desc     = document.getElementById('fat-desc').value || 'Soggiorno';
+  var qta      = parseFloat(document.getElementById('fat-qta').value) || 1;
+  var totale   = getTotale();
+  var importo  = getPrezzoUnit();
+  var c        = getDatiCliente();
+  var dateFmt  = data ? new Date(data+'T12:00:00').toLocaleDateString('it-IT') : '--';
+  var totFmt   = parseFloat(totale).toFixed(2).replace('.',',');
+  var impFmt   = parseFloat(importo).toFixed(2).replace('.',',');
+
+  var clienteInfo = '<strong>' + esc(c.nomeCompleto || '--') + '</strong>';
+  if (c.cf) clienteInfo += '<br>CF/P.IVA: ' + esc(c.cf);
+  if (c.piva && c.piva !== c.cf) clienteInfo += '<br>P.IVA: ' + esc(c.piva);
+  if (c.via && c.via !== c.nazione) clienteInfo += '<br>' + esc(c.via);
+  if (c.cap && c.cap !== '00000') clienteInfo += ' ' + esc(c.cap);
+  if (c.citta && c.citta !== c.nazione) clienteInfo += ' ' + esc(c.citta);
+  clienteInfo += '<br>' + esc(c.nazione);
+  if (c.sdi && c.sdi !== '0000000' && c.sdi !== 'XXXXXXX') clienteInfo += '<br>SDI: ' + esc(c.sdi);
+
+  var h = '<div style="font-family:Arial,sans-serif;padding:40px;background:#fff;color:#2e241f;max-width:700px;margin:0 auto">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;margin-bottom:28px;border-bottom:2px solid #6B2D1F">';
+  h += '<div><div style="font-size:20px;font-weight:700;color:#6B2D1F">Santalo Bed and Breakfast</div>';
+  h += '<div style="font-size:12px;color:#7A6B61;margin-top:3px">di Acquafredda Giuseppe</div>';
+  h += '<div style="font-size:12px;color:#7A6B61;margin-top:8px;line-height:1.8">Corte Sant\'Eligio 10 - 70032 Bitonto (BA)<br>P.IVA IT08212010725 - CF CQFGPP88E31A662T<br>Regime forfettario RF19</div></div>';
+  h += '<div style="text-align:right"><div style="background:#6B2D1F;color:#fff;padding:5px 14px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:10px;display:inline-block">COPIA DI CORTESIA</div>';
+  h += '<div style="font-size:20px;font-weight:700">Fattura ' + esc(numero) + '</div>';
+  h += '<div style="font-size:13px;color:#7A6B61;margin-top:3px">Data: ' + dateFmt + '</div></div></div>';
+
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">';
+  h += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;letter-spacing:.06em;margin-bottom:8px">Fornitore</div>';
+  h += '<div style="font-size:13px;line-height:1.8"><strong>Santalo Bed and Breakfast</strong><br>Corte Sant\'Eligio 10<br>70032 Bitonto (BA)<br>P.IVA IT08212010725</div></div>';
+  h += '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6B61;letter-spacing:.06em;margin-bottom:8px">Cliente</div>';
+  h += '<div style="font-size:13px;line-height:1.8">' + clienteInfo + '</div></div></div>';
+
+  h += '<table style="width:100%;border-collapse:collapse;margin-bottom:24px">';
+  h += '<thead><tr style="background:#6B2D1F;color:#fff">';
+  h += '<th style="padding:10px 14px;text-align:left;font-size:12px;font-weight:700;border-radius:8px 0 0 0">Descrizione</th>';
+  h += '<th style="padding:10px 14px;text-align:center;font-size:12px;font-weight:700;width:60px">Q.ta</th>';
+  h += '<th style="padding:10px 14px;text-align:right;font-size:12px;font-weight:700;width:100px">Prezzo</th>';
+  h += '<th style="padding:10px 14px;text-align:right;font-size:12px;font-weight:700;width:110px;border-radius:0 8px 0 0">Totale</th></tr></thead>';
+  h += '<tbody><tr style="border-bottom:1px solid #e7d9cc">';
+  h += '<td style="padding:12px 14px;font-size:13px">' + esc(desc) + '</td>';
+  h += '<td style="padding:12px 14px;text-align:center;font-size:13px">' + qta + '</td>';
+  h += '<td style="padding:12px 14px;text-align:right;font-size:13px">EUR ' + impFmt + '</td>';
+  h += '<td style="padding:12px 14px;text-align:right;font-size:14px;font-weight:700">EUR ' + totFmt + '</td>';
+  h += '</tr></tbody></table>';
+
+  h += '<div style="display:flex;justify-content:flex-end;margin-bottom:24px">';
+  h += '<div style="background:#faf6f1;border:1px solid #e7d9cc;border-radius:12px;padding:16px 22px;text-align:right;min-width:220px">';
+  h += '<div style="font-size:11px;color:#7A6B61;margin-bottom:4px">Totale documento</div>';
+  h += '<div style="font-size:28px;font-weight:700;color:#6B2D1F">EUR ' + totFmt + '</div>';
+  h += '<div style="font-size:11px;color:#7A6B61;margin-top:4px">IVA non applicata - Regime forfettario RF19</div></div></div>';
+
+  h += '<div style="border-top:1px solid #e7d9cc;padding-top:14px;font-size:11px;color:#7A6B61;line-height:1.7">';
+  h += 'Operazione non soggetta a ritenuta alla fonte a titolo di acconto ai sensi dell\'art. 1, comma 67, L. 190/2014 e successive modificazioni.<br>';
+  h += '<strong>Questo documento e una copia di cortesia e non ha valore fiscale.</strong> Il documento XML originale e disponibile sul portale Fatture e Corrispettivi dell\'Agenzia delle Entrate.</div></div>';
+  return h;
+}
+
+function apriCopia() {
+  var c = getDatiCliente();
+  if (!c.nomeCompleto) { showEsito('Inserisci i dati del cliente', 'warn'); return; }
+  document.getElementById('copiaPreview').innerHTML = buildHTMLCopia();
+  document.getElementById('copiaModal').classList.add('show');
+}
+
+function chiudiCopia() {
+  document.getElementById('copiaModal').classList.remove('show');
+}
+
+function scaricaPDF() {
+  var html = buildHTMLCopia();
+  var win = window.open('', '_blank');
+  if (!win) { alert('Abilita i popup per scaricare il PDF'); return; }
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fattura ' + getNumeroPFR() + '</title>'
+    + '<style>@media print{.no-print{display:none!important}}body{margin:0;background:#fff}</style></head><body>'
+    + html
+    + '<div class="no-print" style="text-align:center;padding:20px">'
+    + '<button onclick="window.print()" style="background:#6B2D1F;color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer">🖨️ Stampa / Salva PDF</button>'
+    + '</div></body></html>');
+  win.document.close();
+}
+
+function inviaWA() {
+  var c = getDatiCliente();
+  var numero = getNumeroPFR();
+  var data = document.getElementById('fat-data').value;
+  var dateFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('it-IT') : '--';
+  var totFmt = parseFloat(getTotale()).toFixed(2).replace('.',',');
+  var desc = document.getElementById('fat-desc').value || 'soggiorno';
+  var nome = (c.nomeCompleto || 'ospite').split(' ')[0];
+  var msg = 'Gentile ' + nome + ',\n\n'
+    + 'Le inviamo la copia di cortesia della fattura ' + numero + ' del ' + dateFmt + '.\n\n'
+    + desc + '\nTotale: EUR ' + totFmt + '\n\n'
+    + 'La fattura elettronica e stata inviata al Sistema di Interscambio (SDI).\n\n'
+    + 'Santalo B&B - Bitonto\n+39 333 6410329';
+  var ph = selected && selected.telefono ? phone(selected.telefono) : '';
+  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(msg), '_blank');
+}
+</script>
+</body>
+</html>

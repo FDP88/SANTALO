@@ -174,7 +174,8 @@ var T = {
     lbl_booker:"Nome del prenotante *", lbl_room:"Camera *", lbl_checkin:"Data arrivo *", lbl_checkout:"Data partenza *",
     lbl_nospiti:"Numero ospiti totali *", lbl_orario:"Orario di arrivo previsto", lbl_tel:"Telefono referente", lbl_email:"Email referente",
     lbl_guest:"Ospite", lbl_tipo:"Tipo alloggiato *", lbl_cognome:"Cognome *", lbl_nome:"Nome *",
-    lbl_sesso:"Sesso *", lbl_ddn:"Data di nascita *", lbl_citt:"Cittadinanza *", lbl_nato:"Nato in Italia?",
+    lbl_sesso:"Sesso *", lbl_ddn:"Data di nascita *",
+    lbl_cf:"Codice Fiscale *", lbl_citt:"Cittadinanza *", lbl_nato:"Nato in Italia?",
     lbl_comune:"Comune di nascita *", lbl_prov:"Provincia nascita *", lbl_stato:"Stato di nascita *",
     lbl_tdoc:"Tipo documento *", lbl_ndoc:"Numero documento *", lbl_ddoc:"Data rilascio documento *", lbl_luogo:"Comune/Ente rilascio *",
     lbl_fronte:"Documento fronte *", lbl_retro:"Documento retro *", lbl_selfie:"Selfie con documento *",
@@ -199,7 +200,8 @@ var T = {
     lbl_booker:"Booking name *", lbl_room:"Room *", lbl_checkin:"Arrival date *", lbl_checkout:"Departure date *",
     lbl_nospiti:"Total guests *", lbl_orario:"Estimated arrival time", lbl_tel:"Contact phone", lbl_email:"Contact email",
     lbl_guest:"Guest", lbl_tipo:"Guest type *", lbl_cognome:"Surname *", lbl_nome:"First name *",
-    lbl_sesso:"Gender *", lbl_ddn:"Date of birth *", lbl_citt:"Citizenship *", lbl_nato:"Born in Italy?",
+    lbl_sesso:"Gender *", lbl_ddn:"Date of birth *",
+    lbl_cf:"Tax Code *", lbl_citt:"Citizenship *", lbl_nato:"Born in Italy?",
     lbl_comune:"City of birth *", lbl_prov:"Province *", lbl_stato:"Country of birth *",
     lbl_tdoc:"Document type *", lbl_ndoc:"Document number *", lbl_ddoc:"Issue date *", lbl_luogo:"Issuing authority *",
     lbl_fronte:"Document front *", lbl_retro:"Document back *", lbl_selfie:"Selfie with document *",
@@ -223,7 +225,8 @@ var T = {
     lbl_booker:"Nom du réservant *", lbl_room:"Chambre *", lbl_checkin:"Date d'arrivée *", lbl_checkout:"Date de départ *",
     lbl_nospiti:"Nombre d'hôtes *", lbl_orario:"Heure estimée", lbl_tel:"Téléphone", lbl_email:"Email",
     lbl_guest:"Hôte", lbl_tipo:"Type *", lbl_cognome:"Nom *", lbl_nome:"Prénom *",
-    lbl_sesso:"Sexe *", lbl_ddn:"Date de naissance *", lbl_citt:"Nationalité *", lbl_nato:"Né(e) en Italie ?",
+    lbl_sesso:"Sexe *", lbl_ddn:"Date de naissance *",
+    lbl_cf:"Code fiscal *", lbl_citt:"Nationalité *", lbl_nato:"Né(e) en Italie ?",
     lbl_comune:"Ville de naissance *", lbl_prov:"Province *", lbl_stato:"Pays de naissance *",
     lbl_tdoc:"Type de document *", lbl_ndoc:"Numéro *", lbl_ddoc:"Date d'émission *", lbl_luogo:"Autorité émettrice *",
     lbl_fronte:"Document recto *", lbl_retro:"Document verso *", lbl_selfie:"Selfie avec document *",
@@ -247,7 +250,8 @@ var T = {
     lbl_booker:"Name des Buchenden *", lbl_room:"Zimmer *", lbl_checkin:"Ankunftsdatum *", lbl_checkout:"Abreisedatum *",
     lbl_nospiti:"Anzahl Gäste *", lbl_orario:"Ankunftszeit", lbl_tel:"Telefon", lbl_email:"E-Mail",
     lbl_guest:"Gast", lbl_tipo:"Gasttyp *", lbl_cognome:"Nachname *", lbl_nome:"Vorname *",
-    lbl_sesso:"Geschlecht *", lbl_ddn:"Geburtsdatum *", lbl_citt:"Staatsangehörigkeit *", lbl_nato:"In Italien geboren?",
+    lbl_sesso:"Geschlecht *", lbl_ddn:"Geburtsdatum *",
+    lbl_cf:"Steuer-ID *", lbl_citt:"Staatsangehörigkeit *", lbl_nato:"In Italien geboren?",
     lbl_comune:"Geburtsort *", lbl_prov:"Provinz *", lbl_stato:"Geburtsland *",
     lbl_tdoc:"Dokumenttyp *", lbl_ndoc:"Dokumentnummer *", lbl_ddoc:"Ausstellungsdatum *", lbl_luogo:"Ausstellungsbehörde *",
     lbl_fronte:"Dokument Vorderseite *", lbl_retro:"Dokument Rückseite *", lbl_selfie:"Selfie mit Dokument *",
@@ -271,7 +275,8 @@ var T = {
     lbl_booker:"Nombre del titular *", lbl_room:"Habitación *", lbl_checkin:"Fecha de llegada *", lbl_checkout:"Fecha de salida *",
     lbl_nospiti:"Número de huéspedes *", lbl_orario:"Hora estimada", lbl_tel:"Teléfono", lbl_email:"Email",
     lbl_guest:"Huésped", lbl_tipo:"Tipo *", lbl_cognome:"Apellido *", lbl_nome:"Nombre *",
-    lbl_sesso:"Sexo *", lbl_ddn:"Fecha de nacimiento *", lbl_citt:"Ciudadanía *", lbl_nato:"¿Nacido en Italia?",
+    lbl_sesso:"Sexo *", lbl_ddn:"Fecha de nacimiento *",
+    lbl_cf:"NIF / Código fiscal *", lbl_citt:"Ciudadanía *", lbl_nato:"¿Nacido en Italia?",
     lbl_comune:"Ciudad de nacimiento *", lbl_prov:"Provincia *", lbl_stato:"País de nacimiento *",
     lbl_tdoc:"Tipo de documento *", lbl_ndoc:"Número *", lbl_ddoc:"Fecha de emisión *", lbl_luogo:"Organismo emisor *",
     lbl_fronte:"Documento anverso *", lbl_retro:"Documento reverso *", lbl_selfie:"Selfie con documento *",
@@ -1711,6 +1716,7 @@ function guestTemplate(index, totalGuests) {
     '<div><label>'+L.lbl_nome+'</label><input data-field="nome" required></div>'+
     '<div><label>'+L.lbl_sesso+'</label><select data-field="sesso" required><option value="">'+L.opt_sel+'</option><option value="1">'+L.opt_m+'</option><option value="2">'+L.opt_f+'</option></select></div>'+
     '<div><label>'+L.lbl_ddn+'</label><input data-field="data_nascita" type="date" required></div>'+
+    '<div><label>'+L.lbl_cf+'</label><input data-field="codice_fiscale" id="cf_'+index+'" placeholder="RSSMRA80A01H501U" maxlength="16" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>'+
     '<div id="cittadinanza_wrap_'+index+'">'+'<label>'+L.lbl_citt+'</label></div>'+
     '<div><label>'+L.lbl_nato+'</label><select id="nato_italia_'+index+'"><option value="si">'+L.opt_si+'</option><option value="no">'+L.opt_no+'</option></select></div>'+
     '<div id="comune_nascita_wrap_'+index+'">'+'<label>'+L.lbl_comune+'</label></div>'+
@@ -2101,6 +2107,9 @@ document.getElementById('checkinForm').addEventListener('submit', async function
       card.querySelectorAll('[data-field]').forEach(function(inp) {
         obj[inp.dataset.field] = inp.value ? inp.value.trim() : '';
       });
+      // Codice fiscale (uppercase)
+      var cfEl = card.querySelector('[data-field="codice_fiscale"]');
+      if (cfEl && cfEl.value.trim()) obj.codice_fiscale = cfEl.value.trim().toUpperCase();
 
       var natoItalia = card.querySelector('[id^="nato_italia_"]').value === 'si';
       obj.nato_italia = natoItalia;
