@@ -143,10 +143,10 @@
           <div class="ff">
             <label>N° Fattura / Anno</label>
             <div class="numero-fpr">
-              <input id="fat-num" type="number" min="1" value="1" style="width:70px"/>
+              <input id="fat-num" type="number" min="1" value="6" style="width:70px"/>
               <span class="sep">/</span>
               <input id="fat-anno" type="text" maxlength="2" placeholder="26" style="width:50px"/>
-              <span class="preview" id="fat-num-preview">FPR 1/26</span>
+              <span class="preview" id="fat-num-preview">FPR 6/26</span>
             </div>
           </div>
           <div class="ff">
@@ -344,7 +344,7 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('fat-data').value = oggi;
   var anno = new Date().getFullYear().toString().slice(-2);
   document.getElementById('fat-anno').value = anno;
-  var num = parseInt(localStorage.getItem('santalo_prossima_fattura') || '1');
+  var num = parseInt(localStorage.getItem('santalo_prossima_fattura') || '6');
   document.getElementById('fat-num').value = num;
   aggiornaPreview();
   caricaPrenotazioni();
@@ -699,7 +699,7 @@ function caricaPrenotazioni() {
       var limit = new Date(oggi); limit.setDate(oggi.getDate() - 30);
       return par >= limit;
     });
-    prenotazioni.sort(function(a,b) { return (a.arrivo||'') < (b.arrivo||'') ? 1 : -1; });
+    prenotazioni.sort(function(a,b) { return (a.arrivo||'') > (b.arrivo||'') ? 1 : -1; });
     renderPren(prenotazioni);
   });
 }
@@ -862,8 +862,10 @@ async function precompila() {
 
   // ---- IMPORTO ----
   if (p.importo && parseFloat(p.importo) > 0) {
-    document.getElementById('fat-importo').value = parseFloat(p.importo).toFixed(2);
-    document.getElementById('fat-prezzounit').value = '';
+    var impVal = parseFloat(p.importo);
+    var nottiFat = parseFloat(document.getElementById('fat-qta').value) || 1;
+    document.getElementById('fat-importo').value = impVal.toFixed(2);
+    document.getElementById('fat-prezzounit').value = (impVal / nottiFat).toFixed(2);
   }
   aggiornaTotale();
 
