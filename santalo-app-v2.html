@@ -254,7 +254,7 @@
             <div class="ff"><label>Camera *</label>
               <select id="f-camera">
                 <option value="">-- Seleziona --</option>
-                <option value="Camera 1920">Camera 1920 (piano terra)</option>
+                <option value="Camera 1920">Camera 1928 (piano terra)</option>
                 <option value="Camera 1954">Camera 1954 (1° piano)</option>
                 <option value="Camera 1956">Camera 1956 (2° piano)</option>
               </select>
@@ -396,6 +396,14 @@ function fmt(d) {
   if (!d) return '--';
   var x = new Date(d);
   return isNaN(x) ? d : x.toLocaleDateString('it-IT');
+}
+// Display della camera: il DB conserva "Camera 1920" per le prenotazioni storiche,
+// ma a schermo e nei messaggi mostriamo 1928 (numero civico reale del portone).
+function displayCamera(cam) {
+  if (!cam) return '--';
+  var num = String(cam).replace(/[^0-9]/g, '');
+  if (num === '1920') return '1928';
+  return num || String(cam);
 }
 function esc(s) {
   return String(s || '').replace(/[&<>"']/g, function(m) {
@@ -664,7 +672,7 @@ function renderPrenotazioni() {
             '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;border-radius:8px">🗑️</button>' +
           '</div>' +
         '</div>' +
-        '<div class="bk-row2">' + arrivoTxt + (arrivoTxt && partenzaTxt ? '<span style="color:var(--line)">·</span>' : '') + partenzaTxt + '<span style="margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);background:var(--cream);border:1px solid var(--cream-d);border-radius:7px;padding:3px 9px">📷 ' + esc((p.camera||'--').replace('Camera ','Cam ')) + '</span></div>' +
+        '<div class="bk-row2">' + arrivoTxt + (arrivoTxt && partenzaTxt ? '<span style="color:var(--line)">·</span>' : '') + partenzaTxt + '<span style="margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);background:var(--cream);border:1px solid var(--cream-d);border-radius:7px;padding:3px 9px">📷 Cam ' + displayCamera(p.camera) + '</span></div>' +
         '<div class="booking-actions">' +
           '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
           '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
@@ -758,7 +766,7 @@ function generaMessaggio() {
   var T = TEMPLATES[tpl] || {};
   var fn = T[lang] || T['en'] || T['it'];
   var msg = '';
-  var camNum = String(camera||'').replace('Camera ','');
+  var camNum = displayCamera(camera);
   var GOOGLE_REVIEW = 'https://maps.app.goo.gl/QCtQxhaD7NkAdyVj8';
   if (tpl === 'pulizie') {
     var pfn = (TEMPLATES.pulizie || {}).it;
@@ -903,7 +911,7 @@ function loadConversazioni() {
       }).join('');
       return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-        '<div><strong style="font-size:.95rem">' + esc(g.nome||'Ospite') + '</strong> · <span style="color:var(--muted);font-size:12px">Camera ' + esc(g.camera||'--') + '</span></div>' +
+        '<div><strong style="font-size:.95rem">' + esc(g.nome||'Ospite') + '</strong> · <span style="color:var(--muted);font-size:12px">Camera ' + displayCamera(g.camera) + '</span></div>' +
         '<span style="font-size:11px;color:var(--muted)">' + g.data + '</span></div>' +
         msgs + '</div>';
     }).join('');
@@ -955,7 +963,7 @@ function loadAlloggiati() {
     root.innerHTML = completate.map(function(p) {
       return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
         '<div><div style="font-weight:600;font-size:.95rem">' + esc(p.nome||'--') + '</div>' +
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + esc(p.camera||'--') + ' · ' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + ' · ' + (p.num_ospiti||1) + ' ospiti</div></div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">Camera ' + displayCamera(p.camera) + ' · ' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + ' · ' + (p.num_ospiti||1) + ' ospiti</div></div>' +
         '<button class="btn btn-primary btn-sm" onclick="generaSchedina(' + p.id + ')">📋 Genera schedina</button>' +
         '</div>';
     }).join('');
@@ -991,7 +999,7 @@ function aggiornaPulizie() {
   if (!cos.length) { el.textContent = 'Nessun check-out domani.'; return; }
   var nl = '\n';
   var righe = cos.map(function(p) {
-    var cam = (p.camera||'').replace('Camera ','');
+    var cam = displayCamera(p.camera);
     var ospite = (p.nome||'').split(' ')[0];
     var stesso = prenotazioni.find(function(q) { return q.arrivo === tStr && q.camera === p.camera && q.id !== p.id; });
     var r = '• Camera ' + cam + ' (check-out: ' + ospite + ')';
@@ -1011,7 +1019,7 @@ function waPulizie() { var txt = document.getElementById('pulMsg').textContent; 
 
 // ===== CALENDARIO 15 GIORNI =====
 var CAL_START = (function(){ var d = new Date(); d.setHours(0,0,0,0); return d; })();
-var CAMERE_CAL = [{key:'Camera 1920', label:'1920', col:'#b45309'},{key:'Camera 1954', label:'1954', col:'#6b21a8'},{key:'Camera 1956', label:'1956', col:'#0f766e'}];
+var CAMERE_CAL = [{key:'Camera 1920', label:'1928', col:'#b8860b'},{key:'Camera 1954', label:'1954', col:'#2e7d50'},{key:'Camera 1956', label:'1956', col:'#1a56a0'}];
 var MESI_FULL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 var GGS = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 function p2(n){ return n<10?'0'+n:''+n; }
@@ -1034,8 +1042,8 @@ function renderCalendario() {
   var cosOggi = prenotazioni.filter(function(p){ return p.partenza===todayStr; });
   var cisOggi = prenotazioni.filter(function(p){ return p.arrivo===todayStr; });
   var strip = '<div class="today-strip"><span class="today-strip-title">Oggi ' + today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) + '</span>';
-  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">🚶 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
-  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">🛬 '+(p.nome||'').split(' ')[0]+' – '+(p.camera||'').replace('Camera ','')+'</span>'; });
+  cosOggi.forEach(function(p){ strip += '<span class="today-pill out">🚶 '+(p.nome||'').split(' ')[0]+' – '+displayCamera(p.camera)+'</span>'; });
+  cisOggi.forEach(function(p){ strip += '<span class="today-pill in">🛬 '+(p.nome||'').split(' ')[0]+' – '+displayCamera(p.camera)+'</span>'; });
   if (!cosOggi.length&&!cisOggi.length) strip += '<span class="today-pill none">Nessun arrivo o partenza oggi</span>';
   strip += '</div>';
   var d0 = dayList[0], d1 = dayList[WIN-1];
