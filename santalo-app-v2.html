@@ -37,13 +37,9 @@
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
 
     /* ===== BOOKING CARD ===== */
-    .booking{border:3px solid var(--line);border-radius:16px;background:#fff;transition:all .18s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .booking{border:3px solid var(--line);border-radius:16px;background:#fff;transition:all .18s;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:stretch;overflow:hidden}
     .booking:not(.active):hover{opacity:.92;box-shadow:0 2px 12px rgba(0,0,0,.07)}
-    .booking-body{padding:16px 18px 14px}
-
-    /* ===== CARD CON BANNER LATERALE CAMERA ===== */
-    .booking{position:relative;padding-left:72px;overflow:hidden}
-    .booking-body{padding:16px 18px 14px}
+    .booking-body{padding:14px 16px 12px;flex:1;min-width:0}
 
     /* Bordo card per CANALE di prenotazione */
     .ch-booking{border-color:#1a56a0}       /* booking = blu */
@@ -57,7 +53,7 @@
     .booking.active.ch-diretto,.booking.active.ch-altro{box-shadow:0 0 0 3px rgba(107,114,128,.2)}
 
     /* Banner laterale con numero camera - font guidebook */
-    .cam-banner{position:absolute;top:0;left:0;bottom:0;width:60px;display:flex;align-items:center;justify-content:center;background:#ccc;color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;letter-spacing:.02em;line-height:1}
+    .cam-banner{flex:0 0 58px;display:flex;align-items:center;justify-content:center;background:#ccc;color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;letter-spacing:.02em;line-height:1;align-self:stretch}
     .cam-banner.b-1928{background:#b8860b}
     .cam-banner.b-1954{background:#2e7d50}
     .cam-banner.b-1956{background:#1a56a0}
@@ -272,8 +268,8 @@
             <div class="ff"><label>N. ospiti</label>
               <select id="f-ospiti"><option value="1">1 ospite</option><option value="2">2 ospiti</option></select>
             </div>
-            <div class="ff"><label>Arrivo *</label><input id="f-arrivo" type="date"/></div>
-            <div class="ff"><label>Partenza *</label><input id="f-partenza" type="date"/></div>
+            <div class="ff"><label>Arrivo *</label><input id="f-arrivo" type="date" onchange="aggiornaCamereDisponibili()"/></div>
+            <div class="ff"><label>Partenza *</label><input id="f-partenza" type="date" onchange="aggiornaCamereDisponibili()"/></div>
             <div class="ff"><label>Canale</label>
               <select id="f-canale"><option>Airbnb</option><option>Booking</option><option>Diretto</option><option>Altro</option></select>
             </div>
@@ -511,6 +507,7 @@ function filterPrenotazioni() {
     var q = searchQuery.toLowerCase();
     return (p.nome||'').toLowerCase().includes(q) ||
       (p.camera||'').toLowerCase().includes(q) ||
+      displayCamera(p.camera).toLowerCase().includes(q) ||
       (p.canale||'').toLowerCase().includes(q) ||
       (p.telefono||'').toLowerCase().includes(q);
   });
@@ -848,6 +845,55 @@ function modificaPrenotazione(id) {
   document.getElementById('salvataEsito').textContent = '';
   showTab('nuova');
   document.querySelector('[onclick="salvaPrenotazione()"]').textContent = '💾 Salva modifiche';
+  aggiornaCamereDisponibili();
+}
+
+// ===== ANTI-OVERBOOKING =====
+// Due range [a1,p1) e [a2,p2) si sovrappongono se a1 < p2 && a2 < p1
+function rangesOverlap(a1, p1, a2, p2) {
+  return a1 < p2 && a2 < p1;
+}
+function cameraOccupata(cameraKey, arrivo, partenza, excludeId) {
+  if (!arrivo || !partenza || arrivo >= partenza) return null;
+  for (var i = 0; i < prenotazioni.length; i++) {
+    var p = prenotazioni[i];
+    if (excludeId && String(p.id) === String(excludeId)) continue;
+    if (!camOk(p.camera, cameraKey)) continue;
+    if (!p.arrivo || !p.partenza) continue;
+    if (rangesOverlap(arrivo, partenza, p.arrivo, p.partenza)) return p;
+  }
+  return null;
+}
+function aggiornaCamereDisponibili() {
+  var arrivo = document.getElementById('f-arrivo').value;
+  var partenza = document.getElementById('f-partenza').value;
+  var sel = document.getElementById('f-camera');
+  var editId = document.getElementById('f-nome').dataset.editId || null;
+  var opts = sel.querySelectorAll('option');
+  opts.forEach(function(opt) {
+    if (!opt.value) return;
+    // Rimuovi eventuali marker precedenti
+    var baseLabel = opt.dataset.baseLabel || opt.textContent;
+    opt.dataset.baseLabel = baseLabel;
+    if (!arrivo || !partenza) {
+      opt.disabled = false;
+      opt.textContent = baseLabel;
+      return;
+    }
+    var occ = cameraOccupata(opt.value, arrivo, partenza, editId);
+    if (occ) {
+      opt.disabled = true;
+      opt.textContent = baseLabel + ' — occupata (' + (occ.nome||'?') + ' ' + fmt(occ.arrivo) + '→' + fmt(occ.partenza) + ')';
+    } else {
+      opt.disabled = false;
+      opt.textContent = baseLabel;
+    }
+  });
+  // Se la camera selezionata è ora disabilitata, deseleziona e avvisa
+  if (sel.value && sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].disabled) {
+    esito('salvataEsito', '⚠️ La camera selezionata è occupata in queste date. Scegline un\'altra.', 'var(--err)');
+    sel.value = '';
+  }
 }
 
 function salvaPrenotazione() {
@@ -856,8 +902,15 @@ function salvaPrenotazione() {
   var arrivo = document.getElementById('f-arrivo').value;
   var partenza = document.getElementById('f-partenza').value;
   if (!nome || !camera || !arrivo || !partenza) { esito('salvataEsito', 'Compila i campi obbligatori', 'var(--err)'); return; }
-  esito('salvataEsito', 'Salvataggio...', 'var(--muted)');
+  if (arrivo >= partenza) { esito('salvataEsito', 'La data di partenza deve essere dopo l\'arrivo', 'var(--err)'); return; }
+  // Anti-overbooking: controllo finale prima di salvare
   var editId = document.getElementById('f-nome').dataset.editId;
+  var conflitto = cameraOccupata(camera, arrivo, partenza, editId);
+  if (conflitto) {
+    esito('salvataEsito', '⚠️ ' + camera + ' è già occupata dal ' + fmt(conflitto.arrivo) + ' al ' + fmt(conflitto.partenza) + ' (' + (conflitto.nome||'?') + '). Cambia date o camera.', 'var(--err)');
+    return;
+  }
+  esito('salvataEsito', 'Salvataggio...', 'var(--muted)');
   var dati = {
     nome:nome, camera:camera, arrivo:arrivo, partenza:partenza,
     num_ospiti: parseInt(document.getElementById('f-ospiti').value)||1,
