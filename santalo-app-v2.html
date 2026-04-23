@@ -37,9 +37,9 @@
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
 
     /* ===== BOOKING CARD ===== */
-    .booking{border:3px solid var(--line);border-radius:16px;background:#fff;transition:all .18s;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:stretch;overflow:hidden}
+    .booking{border:3px solid var(--line);border-radius:16px;background:#fff;transition:all .18s;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:stretch;overflow:hidden;flex-shrink:0;min-height:92px}
     .booking:not(.active):hover{opacity:.92;box-shadow:0 2px 12px rgba(0,0,0,.07)}
-    .booking-body{padding:14px 16px 12px;flex:1;min-width:0}
+    .booking-body{padding:14px 16px 12px;flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}
 
     /* Bordo card per CANALE di prenotazione */
     .ch-booking{border-color:#1a56a0}       /* booking = blu */
@@ -53,7 +53,7 @@
     .booking.active.ch-diretto,.booking.active.ch-altro{box-shadow:0 0 0 3px rgba(107,114,128,.2)}
 
     /* Banner laterale con numero camera - font guidebook */
-    .cam-banner{flex:0 0 58px;display:flex;align-items:center;justify-content:center;background:#ccc;color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;letter-spacing:.02em;line-height:1;align-self:stretch}
+    .cam-banner{flex:0 0 58px;display:flex;align-items:center;justify-content:center;background:#ccc;color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;letter-spacing:.02em;line-height:1;min-height:92px}
     .cam-banner.b-1928{background:#b8860b}
     .cam-banner.b-1954{background:#2e7d50}
     .cam-banner.b-1956{background:#1a56a0}
