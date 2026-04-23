@@ -6,7 +6,7 @@
   <title>Santalo -- Gestionale</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{--brown:#6B2D1F;--brown-d:#3d1a10;--brown-l:#8C4F35;--sand:#C4A882;--sand-l:#E8D9C0;--cream:#FAF7F2;--cream-d:#F3EBE2;--ink:#2E241F;--muted:#7A6B61;--line:#e7d9cc;--ok:#2f7d4a;--ok-bg:#e7f5ec;--warn:#b45309;--warn-bg:#fef3c7;--err:#b91c1c;--err-bg:#fee2e2;}
     *{box-sizing:border-box;margin:0;padding:0}
@@ -41,17 +41,26 @@
     .booking:not(.active):hover{opacity:.92;box-shadow:0 2px 12px rgba(0,0,0,.07)}
     .booking-body{padding:16px 18px 14px}
 
-    /* Colori bordo per camera */
-    .cam-1954{border-color:#2e7d50}        /* verde */
-    .cam-1956{border-color:#1a56a0}        /* blu */
-    .cam-1920{border-color:#b8860b}        /* ocra */
-    .cam-none{border-color:#ccc}           /* grigio se nessuna camera */
+    /* ===== CARD CON BANNER LATERALE CAMERA ===== */
+    .booking{position:relative;padding-left:72px;overflow:hidden}
+    .booking-body{padding:16px 18px 14px}
 
-    /* Card selezionata: bordo più spesso e shadow */
-    .booking.active.cam-1954{border-color:#2e7d50;box-shadow:0 0 0 3px rgba(46,125,80,.15)}
-    .booking.active.cam-1956{border-color:#1a56a0;box-shadow:0 0 0 3px rgba(26,86,160,.15)}
-    .booking.active.cam-1920{border-color:#b8860b;box-shadow:0 0 0 3px rgba(184,134,11,.15)}
-    .booking.active.cam-none{border-color:#999;box-shadow:0 0 0 3px rgba(0,0,0,.08)}
+    /* Bordo card per CANALE di prenotazione */
+    .ch-booking{border-color:#1a56a0}       /* booking = blu */
+    .ch-airbnb{border-color:#e11d48}        /* airbnb = rosso */
+    .ch-diretto{border-color:#6b7280}       /* diretto = grigio */
+    .ch-altro{border-color:#6b7280}         /* altro = grigio */
+
+    /* Card selezionata: bordo più spesso e shadow per canale */
+    .booking.active.ch-booking{box-shadow:0 0 0 3px rgba(26,86,160,.18)}
+    .booking.active.ch-airbnb{box-shadow:0 0 0 3px rgba(225,29,72,.18)}
+    .booking.active.ch-diretto,.booking.active.ch-altro{box-shadow:0 0 0 3px rgba(107,114,128,.2)}
+
+    /* Banner laterale con numero camera - font guidebook */
+    .cam-banner{position:absolute;top:0;left:0;bottom:0;width:60px;display:flex;align-items:center;justify-content:center;background:#ccc;color:#fff;font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;letter-spacing:.02em;line-height:1}
+    .cam-banner.b-1928{background:#b8860b}
+    .cam-banner.b-1954{background:#2e7d50}
+    .cam-banner.b-1956{background:#1a56a0}
 
     /* Riga nome + badge destra */
     .bk-row1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
@@ -134,13 +143,14 @@
     .cal-data-td.is-we{background:#fafaf8}
     .cal-data-td.mstart{border-left:2px solid var(--line)}
     .cal-data-td.room-td{position:sticky;left:0;z-index:5;background:#fff;border-right:2px solid var(--line);padding:0}
-    .cal-bar{height:32px;border-radius:6px;display:flex;align-items:center;cursor:pointer;position:relative;overflow:visible;transition:filter .15s}
-    .cal-bar:hover{filter:brightness(1.08)}
-    .cal-bar-inner{display:flex;align-items:center;height:32px;border-radius:6px;overflow:hidden;flex:1;padding:0 5px;gap:3px}
+    .cal-bar{height:32px;border-radius:6px;display:flex;align-items:center;cursor:pointer;position:relative;transition:filter .15s}
+    .cal-bar:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.18)}
+    .cal-bar-inner{display:flex;align-items:center;height:32px;border-radius:6px;overflow:hidden;flex:1;padding:0 8px;gap:4px}
     .cal-bar-name{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
-    .cal-bar-x{font-size:9px;color:rgba(255,255,255,.8);flex-shrink:0}
-    .cal-tip{display:none;position:absolute;z-index:500;background:var(--brown-d);color:#fff;border-radius:10px;padding:8px 12px;font-size:12px;white-space:nowrap;top:calc(100% + 5px);left:0;box-shadow:0 4px 20px rgba(0,0,0,.3);line-height:1.7;pointer-events:none}
-    .cal-bar:hover .cal-tip{display:block}
+    .cal-bar-nights{font-size:10px;font-weight:600;color:rgba(255,255,255,.85);flex-shrink:0;background:rgba(0,0,0,.18);padding:1px 6px;border-radius:8px}
+    #calTooltip{position:fixed;z-index:9999;background:var(--brown-d);color:#fff;border-radius:10px;padding:9px 13px;font-size:12.5px;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.35);line-height:1.7;pointer-events:none;display:none;max-width:300px;white-space:normal}
+    #calTooltip.show{display:block}
+    #calTooltip b{font-weight:700;font-size:13px;display:block;margin-bottom:3px}
     .today-strip{background:#f0fdf4;border:1px solid #86efac;border-radius:14px;padding:11px 14px;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .today-strip-title{font-size:13px;font-weight:700;color:var(--ink)}
     .today-pill{font-size:12px;font-weight:600;padding:3px 11px;border-radius:999px}
@@ -631,21 +641,33 @@ function renderPrenotazioni() {
     var cat = categorize(p);
     var isActive = selected && selected.id === p.id;
 
-    // Classe colore bordo per camera
-    var camNum = (p.camera||'').replace(/[^0-9]/g,'');
-    var camClass = camNum === '1954' ? 'cam-1954' : camNum === '1956' ? 'cam-1956' : camNum === '1920' ? 'cam-1920' : 'cam-none';
-    var cardClass = 'booking ' + camClass + (isActive ? ' active' : '');
+    // Classe bordo per CANALE di prenotazione
+    var canaleLow = (p.canale||'').toLowerCase();
+    var chClass = canaleLow === 'booking' ? 'ch-booking'
+                : canaleLow === 'airbnb' ? 'ch-airbnb'
+                : canaleLow === 'diretto' ? 'ch-diretto'
+                : 'ch-altro';
 
-    // Calcola giorni arrivo / partenza
+    // Banner laterale con numero camera
+    var camDisp = displayCamera(p.camera);
+    var bannerClass = camDisp === '1928' ? 'b-1928'
+                    : camDisp === '1954' ? 'b-1954'
+                    : camDisp === '1956' ? 'b-1956' : '';
+    var banner = '<div class="cam-banner ' + bannerClass + '">' + camDisp + '</div>';
+
+    var cardClass = 'booking ' + chClass + (isActive ? ' active' : '');
+
+    // Calcola giorni arrivo / partenza - testo con DATA ESPLICITA
     var today = new Date(); today.setHours(0,0,0,0);
 
     var arrivoTxt = '';
+    var diffArr = null;
     if (p.arrivo) {
       var arr = new Date(p.arrivo+'T12:00:00'); arr.setHours(0,0,0,0);
-      var diffArr = Math.round((arr - today) / 86400000);
+      diffArr = Math.round((arr - today) / 86400000);
       if (diffArr === 0) arrivoTxt = '<span class="tag-oggi tag-checkin">🛬 ARRIVA OGGI</span>';
-      else if (diffArr > 0) arrivoTxt = '<span class="bk-timing">Arriva tra <strong>' + diffArr + ' gg</strong></span>';
-      else arrivoTxt = '<span class="bk-timing" style="color:var(--muted)">Arrivato</span>';
+      else if (diffArr > 0) arrivoTxt = '<span class="bk-timing">Arriva il <strong>' + fmt(p.arrivo) + '</strong></span>';
+      else arrivoTxt = '<span class="bk-timing" style="color:var(--muted)">Arrivato il ' + fmt(p.arrivo) + '</span>';
     }
 
     var partenzaTxt = '';
@@ -653,13 +675,14 @@ function renderPrenotazioni() {
       var par = new Date(p.partenza+'T12:00:00'); par.setHours(0,0,0,0);
       var diffPar = Math.round((par - today) / 86400000);
       if (diffPar === 0) partenzaTxt = '<span class="tag-oggi tag-checkout">🛫 PARTE OGGI</span>';
-      else if (diffPar > 0 && diffArr <= 0) partenzaTxt = '<span class="tag-oggi tag-struttura">🏠 Parte tra ' + diffPar + ' gg</span>';
+      else if (diffPar > 0 && diffArr !== null && diffArr <= 0) partenzaTxt = '<span class="tag-oggi tag-struttura">🏠 Parte il ' + fmt(p.partenza) + '</span>';
       else if (diffPar > 0) partenzaTxt = '<span class="bk-timing" style="color:var(--muted)">Parte il ' + fmt(p.partenza) + '</span>';
     }
 
     var ospiti = p.num_ospiti ? '<span class="bk-ospiti">👥 ' + p.num_ospiti + ' ospiti</span>' : '';
 
     return '<div class="' + cardClass + '" onclick="seleziona(' + p.id + ')">' +
+      banner +
       '<div class="booking-body">' +
         '<div class="bk-row1">' +
           '<div>' +
@@ -672,7 +695,7 @@ function renderPrenotazioni() {
             '<button class="btn btn-sm" title="Elimina" onclick="eliminaPrenotazione(' + p.id + ',event)" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:5px 8px;font-size:13px;border-radius:8px">🗑️</button>' +
           '</div>' +
         '</div>' +
-        '<div class="bk-row2">' + arrivoTxt + (arrivoTxt && partenzaTxt ? '<span style="color:var(--line)">·</span>' : '') + partenzaTxt + '<span style="margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);background:var(--cream);border:1px solid var(--cream-d);border-radius:7px;padding:3px 9px">📷 Cam ' + displayCamera(p.camera) + '</span></div>' +
+        '<div class="bk-row2">' + arrivoTxt + (arrivoTxt && partenzaTxt ? '<span style="color:var(--line)">·</span>' : '') + partenzaTxt + '</div>' +
         '<div class="booking-actions">' +
           '<button class="btn btn-ghost btn-sm" onclick="modificaPrenotazione(' + p.id + ');event.stopPropagation()">✏️ Modifica</button>' +
           '<button class="btn btn-green btn-sm" onclick="waDiretto(' + p.id + ');event.stopPropagation()">WhatsApp</button>' +
@@ -1085,7 +1108,7 @@ function renderCalendario() {
           var lastVisDs = dayList[i+span-1].ds;
           var depD = new Date(pren.partenza+'T12:00:00'); depD.setDate(depD.getDate()-1);
           var isDep = depD.toISOString().slice(0,10) === lastVisDs;
-          var bar = '<div class="cal-bar" style="background:'+col+'"><div class="cal-bar-inner">'+(showArr?'<span class="cal-bar-x">▶</span>':'')+'<span class="cal-bar-name">'+esc(nome)+'</span>'+(span > 2?'<span class="cal-bar-x">'+nights+'n</span>':'')+(isDep?'<span class="cal-bar-x">◀</span>':'')+'</div><div class="cal-tip">'+esc(pren.nome||'')+'<br>'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'<br>'+nights+' notti · '+esc(stato)+'</div></div>';
+          var bar = '<div class="cal-bar" style="background:'+col+'" data-tip="'+esc(pren.nome||'')+'|'+fmt(pren.arrivo)+' → '+fmt(pren.partenza)+'|'+nights+' notti · '+esc(stato)+'"><div class="cal-bar-inner"><span class="cal-bar-name">'+esc(nome)+'</span>'+(span > 1?'<span class="cal-bar-nights">'+nights+'n</span>':'')+'</div></div>';
           tbody += '<td class="'+cls+'" colspan="'+span+'" style="padding:3px 2px">'+bar+'</td>';
           i += span;
         } else { tbody += '<td class="'+cls+'"></td>'; i++; }
@@ -1110,6 +1133,32 @@ function renderCalendario() {
   });
   var proxS = prox ? '<div style="margin-top:18px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Movimenti nel periodo</div>'+prox+'</div>' : '<div style="margin-top:14px;color:var(--muted);font-size:13px">Nessun movimento nel periodo selezionato.</div>';
   root.innerHTML = strip + nav + gotoRow + leg + tbl + proxS;
+
+  // ===== TOOLTIP FIXED (sopra tutto, senza clipping da overflow) =====
+  if (!document.getElementById('calTooltip')) {
+    var tt = document.createElement('div');
+    tt.id = 'calTooltip';
+    document.body.appendChild(tt);
+  }
+  var tooltip = document.getElementById('calTooltip');
+  root.querySelectorAll('.cal-bar').forEach(function(bar){
+    bar.addEventListener('mouseenter', function(e){
+      var parts = (bar.getAttribute('data-tip')||'').split('|');
+      tooltip.innerHTML = '<b>'+esc(parts[0]||'')+'</b>'+esc(parts[1]||'')+'<br>'+esc(parts[2]||'');
+      tooltip.classList.add('show');
+    });
+    bar.addEventListener('mousemove', function(e){
+      var tW = tooltip.offsetWidth, tH = tooltip.offsetHeight;
+      var x = e.clientX + 14, y = e.clientY - tH - 10;
+      if (x + tW > window.innerWidth - 8) x = window.innerWidth - tW - 8;
+      if (y < 8) y = e.clientY + 18;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    });
+    bar.addEventListener('mouseleave', function(){
+      tooltip.classList.remove('show');
+    });
+  });
 }
 
 // ===== MODAL CHECK-IN =====
