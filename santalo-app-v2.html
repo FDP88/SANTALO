@@ -32,7 +32,7 @@
     .card-title{font-size:1rem;font-weight:600;color:var(--brown);margin-bottom:14px}
     .tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
     .tab{padding:7px 13px;border-radius:8px 8px 0 0;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);font-family:inherit;transition:all .15s}
-    .tab.active{background:var(--brown);color:#fff}
+    .tab.active{background:var(--tab-active-bg, var(--brown));color:#fff}
     .list{display:flex;flex-direction:column;gap:10px;max-height:72vh;overflow-y:auto;padding-right:4px}
     .list::-webkit-scrollbar{width:4px}.list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
 
@@ -228,6 +228,7 @@
           <button class="tab" id="tab-calendario" onclick="showTab('calendario')">📅 Calendario</button>
           <button class="tab" id="tab-fatture" onclick="window.open('https://fdp88.github.io/SANTALO/santalo-fatture.html','_blank')">🧾 Fatture</button>
           <button class="tab" id="tab-spot" onclick="showTab('spot')">📊 SPOT Puglia</button>
+          <button class="tab" id="tab-cf" onclick="showTab('cf')" style="--tab-active-bg:#10b981">🆔 Codice Fiscale</button>
         </div>
 
         <div id="panel-lista">
@@ -345,6 +346,64 @@
 
           <div id="spotPreview" style="margin-top:14px"></div>
         </div>
+
+        <div id="panel-cf" style="display:none">
+          <div style="margin-bottom:16px">
+            <h2 style="margin:0 0 4px;font-size:1.4rem;color:var(--ink)">🆔 Calcolo Codice Fiscale</h2>
+            <p style="margin:0;color:var(--muted);font-size:13.5px">Calcola il CF italiano partendo dai dati anagrafici. Utile per verificare/correggere CF errati nei check-in degli ospiti o per la fatturazione elettronica.</p>
+          </div>
+
+          <div class="card" style="padding:18px;max-width:720px">
+            <div id="cfLoadingBar" style="display:none;padding:14px;background:var(--cream);border-radius:10px;margin-bottom:14px;color:var(--muted);font-size:13px">⏳ Caricamento database comuni...</div>
+
+            <div id="cfFormBox" style="display:none">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                <div class="ff">
+                  <label>Cognome *</label>
+                  <input id="cfCognome" type="text" placeholder="Rossi" oninput="cfLiveCalc()">
+                </div>
+                <div class="ff">
+                  <label>Nome *</label>
+                  <input id="cfNome" type="text" placeholder="Mario" oninput="cfLiveCalc()">
+                </div>
+                <div class="ff">
+                  <label>Sesso *</label>
+                  <select id="cfSesso" onchange="cfLiveCalc()">
+                    <option value="">--</option>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                  </select>
+                </div>
+                <div class="ff">
+                  <label>Data di nascita *</label>
+                  <input id="cfDataNascita" type="date" onchange="cfLiveCalc()">
+                </div>
+                <div class="ff" style="grid-column:1/-1;position:relative">
+                  <label>Comune (o stato) di nascita *</label>
+                  <input id="cfComuneSearch" type="text" placeholder="Inizia a digitare: Bari, Bitonto, Roma..." autocomplete="off" oninput="cfSearchComune()" onfocus="cfSearchComune()">
+                  <input id="cfCatastale" type="hidden">
+                  <div id="cfComuneResults" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.12);max-height:240px;overflow-y:auto;display:none;z-index:50;margin-top:2px"></div>
+                </div>
+              </div>
+
+              <div id="cfRisultato" style="display:none;padding:18px;background:#ecfdf5;border:1.5px solid #10b981;border-radius:12px;margin-top:12px">
+                <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#065f46;margin-bottom:4px">Codice Fiscale calcolato</div>
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                  <div id="cfOutput" style="font-family:'SF Mono','Monaco','Consolas',monospace;font-size:1.7rem;font-weight:700;color:#065f46;letter-spacing:.04em">—</div>
+                  <button class="btn btn-primary" onclick="cfCopia()" style="background:#10b981">📋 Copia</button>
+                </div>
+                <div id="cfDettagli" style="margin-top:10px;font-size:12px;color:#065f46;line-height:1.55"></div>
+              </div>
+
+              <div id="cfErrori" style="display:none;padding:14px;background:#fef2f2;border:1.5px solid #f87171;border-radius:10px;margin-top:12px;color:#991b1b;font-size:13px"></div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px;margin-top:16px;max-width:720px;background:#fff8eb;border:1px solid #f59e0b">
+            <strong style="color:#92400e">💡 Verifica CF di un ospite</strong>
+            <div style="font-size:13px;color:#92400e;margin-top:6px">Per verificare un CF già registrato (es. ospite che ha sbagliato a digitarlo): vai nella tab <strong>"Check-in ricevuti"</strong>, apri il dettaglio dell'ospite e clicca <strong>"🆔 Verifica CF"</strong>. Il sistema confronterà il CF inserito con quello calcolato e ti avviserà se differiscono.</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -402,6 +461,13 @@
         <button onclick="document.getElementById('ciModal').style.display='none'" style="background:var(--cream-d);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1.1rem;color:var(--muted)">&#x2715;</button>
       </div>
       <div id="ciModalBody" style="padding:18px 22px 22px"></div>
+    </div>
+  </div>
+
+  <!-- Modal SPOT mini check-in -->
+  <div id="spotMiniModal" style="display:none;position:fixed;inset:0;background:rgba(46,36,31,.55);z-index:1001;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)this.style.display='none'">
+    <div style="background:#fff;border-radius:18px;max-width:680px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(46,36,31,.22)">
+      <div id="spotMiniModalBody"></div>
     </div>
   </div>
 
@@ -473,7 +539,7 @@ function copy(text, ok) {
 
 // ===== TABS =====
 function showTab(t) {
-  ['lista','nuova','checkin','chat','alloggiati','calendario','spot'].forEach(function(x) {
+  ['lista','nuova','checkin','chat','alloggiati','calendario','spot','cf'].forEach(function(x) {
     document.getElementById('panel-'+x).style.display = x===t ? '' : 'none';
     var tabEl = document.getElementById('tab-'+x);
     if (tabEl) tabEl.classList.toggle('active', x===t);
@@ -493,6 +559,7 @@ function showTab(t) {
   if (t === 'alloggiati') loadAlloggiati();
   if (t === 'calendario') renderCalendario();
   if (t === 'spot') initSpotTab();
+  if (t === 'cf') initCfTab();
 
 }
 
@@ -1495,7 +1562,7 @@ function anteprimaSpot() {
           arr < anno + '-' + String(mese).padStart(2,'0') + '-32') {
         var ospP = dati.ospiti.filter(function(o){ return o.prenotazione_id === p.id; });
         if (!ospP.length) {
-          arriviSenzaCheckin.push({nome: p.nome, arrivo: p.arrivo, camera: displayCamera(p.camera)});
+          arriviSenzaCheckin.push({id: p.id, nome: p.nome, arrivo: p.arrivo, camera: displayCamera(p.camera), numOspiti: p.num_ospiti || 1});
         }
       }
     });
@@ -1512,13 +1579,13 @@ function anteprimaSpot() {
     if (arriviSenzaCheckin.length) {
       html += '<div style="padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;margin-bottom:14px">';
       html += '<strong style="color:#92400e">⚠️ Attenzione: ' + arriviSenzaCheckin.length + ' arrivi senza dati ospite</strong>';
-      html += '<div style="font-size:12.5px;color:#92400e;margin-top:6px">Questi non saranno inclusi nell\'XML. Completa i check-in prima di generare il file.</div>';
-      html += '<ul style="margin:8px 0 0;padding-left:20px;font-size:13px;color:#92400e">';
-      arriviSenzaCheckin.slice(0, 10).forEach(function(a) {
-        html += '<li>' + esc(a.nome) + ' — Camera ' + a.camera + ' — arrivo ' + fmt(a.arrivo) + '</li>';
+      html += '<div style="font-size:12.5px;color:#92400e;margin-top:6px">Questi non saranno inclusi nell\'XML. Clicca su un arrivo per compilare i dati minimi richiesti.</div>';
+      html += '<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">';
+      arriviSenzaCheckin.forEach(function(a) {
+        html += '<button class="btn btn-sm" onclick="apriSpotMini(' + a.id + ')" style="background:#fff;border:1px solid #f59e0b;color:#92400e;text-align:left;padding:8px 12px;font-weight:500;cursor:pointer;border-radius:8px">' +
+          '✎ ' + esc(a.nome) + ' — Camera ' + a.camera + ' — arrivo ' + fmt(a.arrivo) + ' (' + a.numOspiti + ' ospit' + (a.numOspiti>1?'i':'e') + ')</button>';
       });
-      if (arriviSenzaCheckin.length > 10) html += '<li>... e altri ' + (arriviSenzaCheckin.length - 10) + '</li>';
-      html += '</ul></div>';
+      html += '</div></div>';
     }
 
     // Tabella riepilogo per giorno (solo giorni con movimento)
@@ -1562,6 +1629,530 @@ function scaricaSpotXML() {
   setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 100);
 }
 
+// ===== CALCOLO CODICE FISCALE — DPR 605/1973 =====
+
+var CF_COMUNI_DB = null; // Caricato lazy quando si apre la tab
+var CF_COMUNI_LOADED = false;
+
+function cfNormalizza(s) {
+  return String(s||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z]/g,'');
+}
+function cfConsonanti(s) { return cfNormalizza(s).replace(/[AEIOU]/g,''); }
+function cfVocali(s) { return cfNormalizza(s).replace(/[^AEIOU]/g,''); }
+
+function cfCognome(cog) {
+  var c = cfConsonanti(cog), v = cfVocali(cog);
+  return (c + v + 'XXX').slice(0, 3);
+}
+function cfNome(nome) {
+  var c = cfConsonanti(nome);
+  if (c.length >= 4) return c[0] + c[2] + c[3];
+  var v = cfVocali(nome);
+  return (c + v + 'XXX').slice(0, 3);
+}
+
+var CF_MESI = 'ABCDEHLMPRST';
+function cfData(dataNascita, sesso) {
+  var d = dataNascita.split('-');
+  var anno = d[0].slice(2);
+  var mese = CF_MESI[parseInt(d[1],10)-1];
+  var giorno = parseInt(d[2],10);
+  if (sesso === 'F' || sesso === '2' || sesso === 'f') giorno += 40;
+  return anno + mese + (giorno < 10 ? '0' + giorno : '' + giorno);
+}
+
+var CF_DISPARI = {'0':1,'1':0,'2':5,'3':7,'4':9,'5':13,'6':15,'7':17,'8':19,'9':21,
+  'A':1,'B':0,'C':5,'D':7,'E':9,'F':13,'G':15,'H':17,'I':19,'J':21,'K':2,'L':4,'M':18,'N':20,
+  'O':11,'P':3,'Q':6,'R':8,'S':12,'T':14,'U':16,'V':10,'W':22,'X':25,'Y':24,'Z':23};
+var CF_PARI = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
+  'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11,'M':12,'N':13,
+  'O':14,'P':15,'Q':16,'R':17,'S':18,'T':19,'U':20,'V':21,'W':22,'X':23,'Y':24,'Z':25};
+var CF_CONTROLLO = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function cfControllo(cf15) {
+  var sum = 0;
+  for (var i = 0; i < 15; i++) {
+    var ch = cf15[i];
+    if ((i+1) % 2 === 1) sum += CF_DISPARI[ch] || 0;
+    else sum += CF_PARI[ch] || 0;
+  }
+  return CF_CONTROLLO[sum % 26];
+}
+
+function calcolaCF(cognome, nome, sesso, dataNascita, codiceCatastale) {
+  if (!cognome || !nome || !sesso || !dataNascita || !codiceCatastale) return null;
+  var p1 = cfCognome(cognome);
+  var p2 = cfNome(nome);
+  var p3 = cfData(dataNascita, sesso);
+  var p4 = String(codiceCatastale).toUpperCase();
+  var cf15 = p1 + p2 + p3 + p4;
+  if (cf15.length !== 15) return null;
+  return cf15 + cfControllo(cf15);
+}
+
+// === Tab CF ===
+
+function initCfTab(prefillData) {
+  if (CF_COMUNI_LOADED) {
+    document.getElementById('cfFormBox').style.display = '';
+    if (prefillData) cfPrefill(prefillData);
+    return;
+  }
+  document.getElementById('cfLoadingBar').style.display = '';
+  document.getElementById('cfFormBox').style.display = 'none';
+
+  if (typeof CF_COMUNI !== 'undefined' && CF_COMUNI.length) {
+    CF_COMUNI_DB = CF_COMUNI;
+    CF_COMUNI_LOADED = true;
+    document.getElementById('cfLoadingBar').style.display = 'none';
+    document.getElementById('cfFormBox').style.display = '';
+    if (prefillData) cfPrefill(prefillData);
+    return;
+  }
+
+  var script = document.createElement('script');
+  script.src = 'cf-comuni.js';
+  script.onload = function() {
+    if (typeof CF_COMUNI !== 'undefined') {
+      CF_COMUNI_DB = CF_COMUNI;
+      CF_COMUNI_LOADED = true;
+      document.getElementById('cfLoadingBar').style.display = 'none';
+      document.getElementById('cfFormBox').style.display = '';
+      if (prefillData) cfPrefill(prefillData);
+    } else {
+      document.getElementById('cfLoadingBar').innerHTML = '⚠️ Database comuni non disponibile. Verifica che il file <code>cf-comuni.js</code> sia caricato sul sito.';
+    }
+  };
+  script.onerror = function() {
+    document.getElementById('cfLoadingBar').innerHTML = '⚠️ Errore caricamento database comuni. Il file <code>cf-comuni.js</code> deve essere presente nella stessa cartella di questa pagina.';
+  };
+  document.head.appendChild(script);
+}
+
+// Pre-compila la tab CF con dati di un ospite già esistente
+function cfPrefill(o) {
+  document.getElementById('cfCognome').value = o.cognome || '';
+  document.getElementById('cfNome').value = o.nome || '';
+  document.getElementById('cfSesso').value = o.sesso === '2' ? 'F' : (o.sesso === '1' ? 'M' : '');
+  document.getElementById('cfDataNascita').value = o.data_nascita || '';
+
+  // Risolvo catastale dal nome comune nascita
+  if (o.comune_nascita_nome && CF_COMUNI_DB) {
+    var nomeRicerca = o.comune_nascita_nome.toLowerCase();
+    var match = CF_COMUNI_DB.find(function(c){ return c[0].toLowerCase() === nomeRicerca; });
+    if (match) {
+      document.getElementById('cfComuneSearch').value = match[0] + ' (' + match[1] + ')';
+      document.getElementById('cfCatastale').value = match[2];
+    } else {
+      document.getElementById('cfComuneSearch').value = o.comune_nascita_nome;
+      document.getElementById('cfCatastale').value = '';
+    }
+  } else {
+    document.getElementById('cfComuneSearch').value = '';
+    document.getElementById('cfCatastale').value = '';
+  }
+  cfLiveCalc();
+}
+
+function cfSearchComune() {
+  var q = document.getElementById('cfComuneSearch').value.trim().toLowerCase();
+  var resDiv = document.getElementById('cfComuneResults');
+  if (!CF_COMUNI_DB || q.length < 2) { resDiv.style.display = 'none'; return; }
+  var matches = CF_COMUNI_DB.filter(function(c){
+    return c[0].toLowerCase().indexOf(q) >= 0;
+  }).slice(0, 12);
+  if (!matches.length) { resDiv.style.display = 'none'; return; }
+  resDiv.innerHTML = matches.map(function(c){
+    return '<div onclick="cfSelectComune(\''+c[2]+'\',\''+esc(c[0]).replace(/\'/g,'\\\'').replace(/"/g,'&quot;')+'\',\''+c[1]+'\')" onmouseover="this.style.background=\'#f5f0e8\'" onmouseout="this.style.background=\'#fff\'" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line);font-size:13.5px"><strong>'+esc(c[0])+'</strong> <span style="color:var(--muted)">('+c[1]+')</span> <span style="float:right;font-family:monospace;color:var(--muted);font-size:12px">'+c[2]+'</span></div>';
+  }).join('');
+  resDiv.style.display = 'block';
+}
+
+function cfSelectComune(catastale, nome, prov) {
+  document.getElementById('cfComuneSearch').value = nome + ' (' + prov + ')';
+  document.getElementById('cfCatastale').value = catastale;
+  document.getElementById('cfComuneResults').style.display = 'none';
+  cfLiveCalc();
+}
+
+// Chiudi dropdown se clicco fuori
+document.addEventListener('click', function(e) {
+  var resDiv = document.getElementById('cfComuneResults');
+  var input = document.getElementById('cfComuneSearch');
+  if (!resDiv) return;
+  if (e.target !== input && !resDiv.contains(e.target)) resDiv.style.display = 'none';
+});
+
+function cfLiveCalc() {
+  var cog = document.getElementById('cfCognome').value;
+  var nom = document.getElementById('cfNome').value;
+  var sesso = document.getElementById('cfSesso').value;
+  var data = document.getElementById('cfDataNascita').value;
+  var cat = document.getElementById('cfCatastale').value;
+
+  var risBox = document.getElementById('cfRisultato');
+  var errBox = document.getElementById('cfErrori');
+  errBox.style.display = 'none';
+
+  if (!cog || !nom || !sesso || !data || !cat) {
+    risBox.style.display = 'none';
+    return;
+  }
+  var cf = calcolaCF(cog, nom, sesso, data, cat);
+  if (!cf) {
+    errBox.textContent = 'Dati non sufficienti per il calcolo.';
+    errBox.style.display = '';
+    risBox.style.display = 'none';
+    return;
+  }
+
+  document.getElementById('cfOutput').textContent = cf;
+
+  // Decompongo per mostrare dettaglio
+  var det = '<strong>Cognome</strong>: '+cf.slice(0,3)+' · <strong>Nome</strong>: '+cf.slice(3,6)+' · <strong>Anno</strong>: '+cf.slice(6,8)+' · <strong>Mese</strong>: '+cf.slice(8,9)+' · <strong>Giorno</strong>: '+cf.slice(9,11)+' · <strong>Comune</strong>: '+cf.slice(11,15)+' · <strong>Controllo</strong>: '+cf.slice(15);
+  document.getElementById('cfDettagli').innerHTML = det;
+  risBox.style.display = '';
+}
+
+function cfCopia() {
+  var cf = document.getElementById('cfOutput').textContent;
+  if (!cf || cf === '—') return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(cf).then(function() {
+      var btn = event.target;
+      var orig = btn.textContent;
+      btn.textContent = '✓ Copiato';
+      setTimeout(function(){ btn.textContent = orig; }, 1500);
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = cf; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  }
+}
+
+// Verifica CF ospite dal modale check-in
+function verificaCFOspite(id) {
+  var o = ciData[id];
+  if (!o) return;
+  var resBox = document.getElementById('cfVerifyResult');
+
+  // Risolvo il codice catastale dal codice ISTAT comune di nascita
+  var catastale = null;
+  // Carico DB se non già fatto
+  if (!CF_COMUNI_DB && typeof CF_COMUNI !== 'undefined') CF_COMUNI_DB = CF_COMUNI;
+  if (!CF_COMUNI_DB) {
+    resBox.innerHTML = '<div style="padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;color:#92400e">⚠️ Apri prima la tab "🆔 Codice Fiscale" per caricare il database comuni, poi riprova.</div>';
+    resBox.style.display = '';
+    return;
+  }
+
+  // Cerco il comune per nome (più affidabile del codice ISTAT in molti DB)
+  if (o.comune_nascita_nome) {
+    var nomeRicerca = o.comune_nascita_nome.toLowerCase();
+    var match = CF_COMUNI_DB.find(function(c){ return c[0].toLowerCase() === nomeRicerca; });
+    if (match) catastale = match[2];
+  }
+
+  if (!catastale) {
+    resBox.innerHTML = '<div style="padding:12px;background:#fef2f2;border:1px solid #f87171;border-radius:8px;color:#991b1b">⚠️ Non riesco a trovare il codice catastale per <strong>'+esc(o.comune_nascita_nome||'(comune sconosciuto)')+'</strong>. Usa la tab "🆔 Codice Fiscale" inserendo manualmente il comune.</div>';
+    resBox.style.display = '';
+    return;
+  }
+
+  var sesso = o.sesso === '2' ? 'F' : 'M';
+  var cfCalcolato = calcolaCF(o.cognome, o.nome, sesso, o.data_nascita, catastale);
+  var cfInserito = (o.codice_fiscale||'').toUpperCase().trim();
+
+  var html = '';
+  if (!cfInserito) {
+    html = '<div style="padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;color:#92400e">⚠️ Nessun CF inserito dall\'ospite.<br><strong>CF calcolato:</strong> <span style="font-family:monospace;font-size:1.1em;font-weight:700">'+cfCalcolato+'</span> <button class="btn btn-sm" style="margin-left:8px;padding:4px 10px" onclick="aggiornaCFOspite('+id+',\''+cfCalcolato+'\')">Salva nel DB</button></div>';
+  } else if (cfInserito === cfCalcolato) {
+    html = '<div style="padding:12px;background:#ecfdf5;border:1px solid #10b981;border-radius:8px;color:#065f46">✅ <strong>Codice Fiscale corretto.</strong><br>Inserito e calcolato coincidono: <span style="font-family:monospace;font-weight:700">'+cfInserito+'</span></div>';
+  } else {
+    html = '<div style="padding:12px;background:#fef2f2;border:1.5px solid #f87171;border-radius:8px;color:#991b1b">';
+    html += '❌ <strong>CF NON corrispondente!</strong><br><br>';
+    html += '<strong>Inserito dall\'ospite:</strong> <span style="font-family:monospace;font-weight:700;background:#fee">'+cfInserito+'</span><br>';
+    html += '<strong>Calcolato:</strong> <span style="font-family:monospace;font-weight:700;background:#dfd">'+cfCalcolato+'</span><br><br>';
+    html += '<button class="btn btn-sm btn-primary" onclick="aggiornaCFOspite('+id+',\''+cfCalcolato+'\')">Correggi nel DB</button>';
+    html += '</div>';
+  }
+  resBox.innerHTML = html;
+  resBox.style.display = '';
+}
+
+function aggiornaCFOspite(id, nuovoCF) {
+  if (!confirm('Vuoi aggiornare il CF dell\'ospite con: ' + nuovoCF + ' ?')) return;
+  sb.from('checkin_ospiti').update({codice_fiscale: nuovoCF}).eq('id', id).then(function(r) {
+    if (r.error) { alert('Errore: ' + r.error.message); return; }
+    alert('CF aggiornato. Ricarico...');
+    apriCheckinModal(id);
+  });
+}
+
+// Apre la tab CF già precompilata coi dati di un ospite
+function apriCalcoloCFOspite(id) {
+  var o = ciData[id];
+  if (!o) return;
+  document.getElementById('ciModal').style.display = 'none';
+  showTab('cf');
+  // showTab chiama initCfTab senza prefill, quindi precompilo dopo
+  setTimeout(function(){
+    if (CF_COMUNI_LOADED) cfPrefill(o);
+    else {
+      // Aspetto caricamento DB
+      var attempts = 0;
+      var iv = setInterval(function(){
+        attempts++;
+        if (CF_COMUNI_LOADED) { clearInterval(iv); cfPrefill(o); }
+        else if (attempts > 20) clearInterval(iv);
+      }, 200);
+    }
+  }, 100);
+}
+
+// ===== MINI CHECK-IN per recuperare ospiti mancanti (solo dati SPOT) =====
+
+// Codici cittadinanze più comuni (italiani + UE + extra-UE frequenti)
+var SPOT_CITTADINANZE_COMUNI = [
+  {code:'100000100', name:'Italia'},
+  {code:'100000110', name:'Germania'},
+  {code:'100000115', name:'Francia'},
+  {code:'100000111', name:'Regno Unito'},
+  {code:'100000244', name:'Spagna'},
+  {code:'100000245', name:'Portogallo'},
+  {code:'100000218', name:'Paesi Bassi'},
+  {code:'100000201', name:'Belgio'},
+  {code:'100000254', name:'Svizzera'},
+  {code:'100000252', name:'Austria'},
+  {code:'100000247', name:'Polonia'},
+  {code:'100000232', name:'Romania'},
+  {code:'100000239', name:'Repubblica Ceca'},
+  {code:'100000219', name:'Croazia'},
+  {code:'100000211', name:'Grecia'},
+  {code:'100000215', name:'Stati Uniti d\'America'},
+  {code:'100000420', name:'Canada'},
+  {code:'100000400', name:'Brasile'},
+  {code:'100000503', name:'Australia'},
+  {code:'100000220', name:'Russia'},
+  {code:'100000209', name:'Ucraina'},
+  {code:'100000610', name:'Cina'},
+  {code:'100000608', name:'Giappone'},
+  {code:'100000605', name:'India'},
+];
+
+// Comuni italiani più frequenti per gli ospiti del B&B (codici ISTAT MIBAC)
+// Per altri comuni l'admin può inserire codice manuale
+var SPOT_COMUNI_FREQUENTI = [
+  {code:'416072006', name:'Bari', prov:'BA'},
+  {code:'416072011', name:'Bitonto', prov:'BA'},
+  {code:'416072017', name:'Modugno', prov:'BA'},
+  {code:'416072021', name:'Molfetta', prov:'BA'},
+  {code:'416072037', name:'Polignano a Mare', prov:'BA'},
+  {code:'416072041', name:'Putignano', prov:'BA'},
+  {code:'412058091', name:'Roma', prov:'RM'},
+  {code:'403015146', name:'Milano', prov:'MI'},
+  {code:'415063049', name:'Napoli', prov:'NA'},
+  {code:'401001272', name:'Torino', prov:'TO'},
+  {code:'408048017', name:'Firenze', prov:'FI'},
+  {code:'419087015', name:'Catania', prov:'CT'},
+  {code:'419082053', name:'Palermo', prov:'PA'},
+  {code:'410070027', name:'Bologna', prov:'BO'},
+  {code:'405027042', name:'Venezia', prov:'VE'},
+  {code:'410071024', name:'Genova', prov:'GE'},
+  {code:'416075035', name:'Lecce', prov:'LE'},
+  {code:'416074009', name:'Brindisi', prov:'BR'},
+  {code:'416071024', name:'Foggia', prov:'FG'},
+  {code:'416110015', name:'Taranto', prov:'TA'},
+];
+
+function apriSpotMini(prenotazioneId) {
+  // Trova prenotazione
+  var p = prenotazioni.find(function(x){ return x.id === prenotazioneId; });
+  if (!p) { alert('Prenotazione non trovata'); return; }
+
+  var numOsp = p.num_ospiti || 1;
+  var nomeFamiglia = (p.nome||'Ospite').split(' ');
+  var cognomePred = nomeFamiglia.length>1 ? nomeFamiglia[nomeFamiglia.length-1] : '';
+  var nomePred = nomeFamiglia[0] || '';
+
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--cream)">';
+  html += '<div style="font-size:1.05rem;font-weight:700;color:var(--brown)">⚡ Check-in rapido SPOT — ' + esc(p.nome) + '</div>';
+  html += '<button onclick="document.getElementById(\'spotMiniModal\').style.display=\'none\'" style="background:#fff;border:1px solid var(--line);border-radius:8px;width:30px;height:30px;cursor:pointer">&#x2715;</button>';
+  html += '</div>';
+  html += '<div style="padding:14px 18px;background:#fff8eb;border-bottom:1px solid #f59e0b;font-size:13px;color:#92400e">';
+  html += '<strong>Solo i dati richiesti per SPOT Puglia.</strong> Per il check-in completo (documenti, foto, ecc.) usa il link normale per l\'ospite.';
+  html += '</div>';
+  html += '<div style="padding:18px 22px;max-height:60vh;overflow-y:auto" id="spotMiniBody">';
+
+  for (var i = 0; i < numOsp; i++) {
+    var isCapo = i === 0;
+    html += '<div style="border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;background:#fff" data-osp-idx="' + i + '">';
+    html += '<div style="font-weight:700;color:var(--ink);margin-bottom:10px">' + (isCapo ? '👤 Capofamiglia / Singolo' : '👥 Componente ' + i) + '</div>';
+
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+
+    // Cognome + Nome
+    html += '<div><label style="font-size:12px;font-weight:600;color:var(--muted)">Cognome *</label><input class="sm-cognome" type="text" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:7px" value="' + (isCapo ? esc(cognomePred) : '') + '" /></div>';
+    html += '<div><label style="font-size:12px;font-weight:600;color:var(--muted)">Nome *</label><input class="sm-nome" type="text" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:7px" value="' + (isCapo ? esc(nomePred) : '') + '" /></div>';
+
+    // Sesso + Data Nascita
+    html += '<div><label style="font-size:12px;font-weight:600;color:var(--muted)">Sesso *</label><select class="sm-sesso" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:7px"><option value="">--</option><option value="1">M</option><option value="2">F</option></select></div>';
+    html += '<div><label style="font-size:12px;font-weight:600;color:var(--muted)">Data nascita *</label><input class="sm-nascita" type="date" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:7px" /></div>';
+
+    // Cittadinanza (datalist)
+    html += '<div style="grid-column:1/-1"><label style="font-size:12px;font-weight:600;color:var(--muted)">Cittadinanza *</label>';
+    html += '<select class="sm-cittadinanza" onchange="spotMiniToggleResidenza(this)" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:7px">';
+    SPOT_CITTADINANZE_COMUNI.forEach(function(c) {
+      html += '<option value="' + c.code + '"' + (c.code==='100000100'?' selected':'') + '>' + esc(c.name) + '</option>';
+    });
+    html += '</select></div>';
+
+    // Comune residenza (visibile per Italia)
+    html += '<div class="sm-residenza-it" style="grid-column:1/-1">';
+    html += '<label style="font-size:12px;font-weight:600;color:var(--muted)">Comune di residenza (Italia) *</label>';
+    html += '<select class="sm-comune-select" onchange="spotMiniCambiaComune(this)" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:7px">';
+    html += '<option value="">-- Seleziona --</option>';
+    SPOT_COMUNI_FREQUENTI.forEach(function(c) {
+      html += '<option value="' + c.code + '|' + c.prov + '|' + esc(c.name) + '">' + esc(c.name) + ' (' + c.prov + ')</option>';
+    });
+    html += '<option value="ALTRO">+ Altro (digita codice ISTAT)</option>';
+    html += '</select>';
+    html += '<div class="sm-comune-custom" style="display:none;margin-top:6px;display:none;grid-template-columns:2fr 1fr 1fr;gap:6px">';
+    html += '<input class="sm-comune-custom-nome" type="text" placeholder="Nome comune" style="padding:8px;border:1px solid var(--line);border-radius:7px">';
+    html += '<input class="sm-comune-custom-cod" type="text" placeholder="Codice ISTAT" style="padding:8px;border:1px solid var(--line);border-radius:7px">';
+    html += '<input class="sm-comune-custom-prov" type="text" placeholder="Prov" maxlength="2" style="padding:8px;border:1px solid var(--line);border-radius:7px;text-transform:uppercase">';
+    html += '</div>';
+    html += '<input class="sm-comune-residenza-cod" type="hidden" />';
+    html += '<input class="sm-comune-residenza-nome" type="hidden" />';
+    html += '<input class="sm-provincia" type="hidden" />';
+    html += '</div>';
+
+    // Tipologia alloggiato (auto)
+    html += '<input class="sm-tipologia" type="hidden" value="' + (isCapo && numOsp > 1 ? '17' : (isCapo ? '16' : '18')) + '">';
+
+    html += '</div></div>';
+  }
+
+  html += '</div>';
+  html += '<div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 22px;border-top:1px solid var(--line);background:var(--cream)">';
+  html += '<button class="btn btn-ghost" onclick="document.getElementById(\'spotMiniModal\').style.display=\'none\'">Annulla</button>';
+  html += '<button class="btn btn-primary" onclick="salvaSpotMini(' + prenotazioneId + ')">💾 Salva check-in</button>';
+  html += '</div>';
+
+  document.getElementById('spotMiniModalBody').innerHTML = html;
+  document.getElementById('spotMiniModal').style.display = 'flex';
+}
+
+function spotMiniToggleResidenza(selectEl) {
+  var card = selectEl.closest('[data-osp-idx]');
+  var resIt = card.querySelector('.sm-residenza-it');
+  resIt.style.display = selectEl.value === '100000100' ? '' : 'none';
+}
+
+// Gestisce cambio dropdown comune
+function spotMiniCambiaComune(selectEl) {
+  var card = selectEl.closest('[data-osp-idx]');
+  var customDiv = card.querySelector('.sm-comune-custom');
+  var val = selectEl.value;
+
+  if (val === 'ALTRO') {
+    customDiv.style.display = 'grid';
+    card.querySelector('.sm-comune-residenza-cod').value = '';
+    card.querySelector('.sm-comune-residenza-nome').value = '';
+    card.querySelector('.sm-provincia').value = '';
+  } else if (val) {
+    customDiv.style.display = 'none';
+    var parts = val.split('|');
+    card.querySelector('.sm-comune-residenza-cod').value = parts[0];
+    card.querySelector('.sm-provincia').value = parts[1];
+    card.querySelector('.sm-comune-residenza-nome').value = parts[2];
+  } else {
+    customDiv.style.display = 'none';
+    card.querySelector('.sm-comune-residenza-cod').value = '';
+    card.querySelector('.sm-comune-residenza-nome').value = '';
+    card.querySelector('.sm-provincia').value = '';
+  }
+}
+
+function salvaSpotMini(prenotazioneId) {
+  var modal = document.getElementById('spotMiniModal');
+  var cards = modal.querySelectorAll('[data-osp-idx]');
+  var record = [];
+  var errori = [];
+
+  cards.forEach(function(card, idx) {
+    var cognome = card.querySelector('.sm-cognome').value.trim();
+    var nome = card.querySelector('.sm-nome').value.trim();
+    var sesso = card.querySelector('.sm-sesso').value;
+    var dataNascita = card.querySelector('.sm-nascita').value;
+    var cittadinanza = card.querySelector('.sm-cittadinanza').value;
+    var tipologia = card.querySelector('.sm-tipologia').value;
+
+    // Comune residenza: dropdown + custom
+    var sel = card.querySelector('.sm-comune-select');
+    var comuneResCod = '', comuneResNome = '', provinciaRes = '';
+    if (cittadinanza === '100000100') {
+      if (sel.value === 'ALTRO') {
+        comuneResCod = card.querySelector('.sm-comune-custom-cod').value.trim();
+        comuneResNome = card.querySelector('.sm-comune-custom-nome').value.trim();
+        provinciaRes = card.querySelector('.sm-comune-custom-prov').value.trim().toUpperCase();
+      } else if (sel.value) {
+        comuneResCod = card.querySelector('.sm-comune-residenza-cod').value;
+        comuneResNome = card.querySelector('.sm-comune-residenza-nome').value;
+        provinciaRes = card.querySelector('.sm-provincia').value;
+      }
+    }
+
+    var label = 'Ospite ' + (idx+1);
+    if (!cognome) errori.push(label + ': cognome mancante');
+    if (!nome) errori.push(label + ': nome mancante');
+    if (!sesso) errori.push(label + ': sesso mancante');
+    if (!dataNascita) errori.push(label + ': data nascita mancante');
+    if (cittadinanza === '100000100' && !comuneResCod) errori.push(label + ': comune residenza mancante (italiani)');
+
+    var isCapo = idx === 0;
+    record.push({
+      prenotazione_id: prenotazioneId,
+      is_capofamiglia: isCapo,
+      numero_ospite: idx + 1,
+      cognome: cognome,
+      nome: nome,
+      sesso: sesso,
+      data_nascita: dataNascita,
+      cittadinanza_codice: cittadinanza,
+      cittadinanza_nome: (SPOT_CITTADINANZE_COMUNI.find(function(c){ return c.code===cittadinanza; })||{}).name || '',
+      tipo_alloggiato: tipologia,
+      // Residenza
+      comune_residenza_codice: cittadinanza === '100000100' ? comuneResCod : '',
+      comune_residenza_nome: cittadinanza === '100000100' ? comuneResNome : '',
+      provincia_residenza: cittadinanza === '100000100' ? provinciaRes : 'EE',
+      stato_residenza_codice: cittadinanza === '100000100' ? '100000100' : cittadinanza,
+      stato_residenza_nome: cittadinanza === '100000100' ? 'Italia' : ((SPOT_CITTADINANZE_COMUNI.find(function(c){ return c.code===cittadinanza; })||{}).name || ''),
+      // Nascita: vuota (mini check-in non la richiede), ma compilo con residenza come fallback
+      nato_italia: cittadinanza === '100000100',
+      privacy_accettata: true
+    });
+  });
+
+  if (errori.length) {
+    alert('Errori da correggere:\n\n' + errori.join('\n'));
+    return;
+  }
+
+  // Salva tutti gli ospiti
+  sb.from('checkin_ospiti').insert(record).then(function(r) {
+    if (r.error) {
+      alert('Errore salvataggio: ' + r.error.message);
+      return;
+    }
+    document.getElementById('spotMiniModal').style.display = 'none';
+    // Ricarica le prenotazioni e ri-genera anteprima
+    loadAll();
+    setTimeout(function(){ anteprimaSpot(); }, 800);
+  });
+}
+
 // ===== MODAL CHECK-IN =====
 var ciData = {};
 function apriCheckinModal(id) {
@@ -1569,13 +2160,18 @@ function apriCheckinModal(id) {
     if (!r.data) return;
     var o = r.data; ciData[id] = o;
     document.getElementById('ciModalTitle').textContent = (o.nome||'') + ' ' + (o.cognome||'');
-    var campi = [['Tipo alloggiato', o.tipo_alloggiato],['Sesso', o.sesso==='1'?'Maschio':'Femmina'],['Data nascita', fmt(o.data_nascita)],['Nato in Italia', o.nato_italia?'Si':'No'],['Comune nascita', o.comune_nascita_nome||o.comune_nascita_codice||'—'],['Provincia nascita', o.provincia_nascita||'—'],['Stato nascita', o.stato_nascita_nome||o.stato_nascita_codice||'—'],['Cittadinanza', o.cittadinanza_nome||o.cittadinanza_codice||'—'],['Tipo documento', o.tipo_documento||'—'],['Numero documento', o.numero_documento||'—'],['Data rilascio', fmt(o.data_rilascio_documento)],['Luogo rilascio', o.luogo_rilascio_nome||o.luogo_rilascio_codice||'—']];
+    var campi = [['Tipo alloggiato', o.tipo_alloggiato],['Sesso', o.sesso==='1'?'Maschio':'Femmina'],['Data nascita', fmt(o.data_nascita)],['Nato in Italia', o.nato_italia?'Si':'No'],['Comune nascita', o.comune_nascita_nome||o.comune_nascita_codice||'—'],['Provincia nascita', o.provincia_nascita||'—'],['Stato nascita', o.stato_nascita_nome||o.stato_nascita_codice||'—'],['Cittadinanza', o.cittadinanza_nome||o.cittadinanza_codice||'—'],['Codice Fiscale', o.codice_fiscale||'—'],['Tipo documento', o.tipo_documento||'—'],['Numero documento', o.numero_documento||'—'],['Data rilascio', fmt(o.data_rilascio_documento)],['Luogo rilascio', o.luogo_rilascio_nome||o.luogo_rilascio_codice||'—']];
     var grid = campi.map(function(f) { return '<div style="background:var(--cream);border-radius:9px;padding:9px 12px"><div style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:2px">'+esc(f[0])+'</div><div style="font-size:13px;font-weight:500">'+esc(String(f[1]||'—'))+'</div></div>'; }).join('');
     var fotos = '';
     if (o.documento_fronte_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_fronte_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Fronte</a> ';
     if (o.documento_retro_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.documento_retro_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Retro</a> ';
     if (o.selfie_documento_path) fotos += '<a href="'+SB_URL+'/storage/v1/object/public/documenti-checkin/'+o.selfie_documento_path+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--brown);color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600">Selfie</a>';
-    document.getElementById('ciModalBody').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'+(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')+'<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">✎ Modifica</button><button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca">🗑 Elimina</button></div>';
+    var cfVerifyBtn = '';
+    if (o.nato_italia && o.cognome && o.nome && o.sesso && o.data_nascita) {
+      cfVerifyBtn = '<button class="btn btn-sm" onclick="verificaCFOspite('+id+')" style="background:#fef3c7;color:#92400e;border:1px solid #f59e0b">🆔 Verifica CF</button>'+
+        '<button class="btn btn-sm" onclick="apriCalcoloCFOspite('+id+')" style="background:#10b981;color:#fff;border:none">🆔 Calcola CF</button>';
+    }
+    document.getElementById('ciModalBody').innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'+grid+'</div>'+(fotos?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+fotos+'</div>':'')+'<div id="cfVerifyResult" style="display:none;margin-bottom:14px"></div><div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="apriModificaCI('+id+')">✎ Modifica</button>'+cfVerifyBtn+'<button class="btn btn-danger btn-sm" onclick="eliminaCI('+id+')" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca">🗑 Elimina</button></div>';
     document.getElementById('ciModal').style.display = 'flex';
   });
 }
