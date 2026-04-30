@@ -206,7 +206,14 @@
             <div class="ff"><label>Cognome *</label><input id="pf-cognome" placeholder="Rossi"/></div>
             <div class="ff"><label>Nome *</label><input id="pf-nome" placeholder="Mario"/></div>
           </div>
-          <div class="ff"><label>Codice Fiscale *</label><input id="pf-cf" placeholder="RSSMRA80A01H501U" maxlength="16" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length===16?'var(--ok)':(this.value.length>0?'var(--err)':'')"/><div id="cf-hint" style="font-size:11px;color:var(--muted);margin-top:3px">16 caratteri obbligatori</div></div>
+          <div class="ff">
+            <label style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span>Codice Fiscale *</span>
+              <button type="button" onclick="apriCalcoloCFFattura()" style="background:#10b981;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🆔 Calcola</button>
+            </label>
+            <input id="pf-cf" placeholder="RSSMRA80A01H501U" maxlength="16" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length===16?'var(--ok)':(this.value.length>0?'var(--err)':'')"/>
+            <div id="cf-hint" style="font-size:11px;color:var(--muted);margin-top:3px">16 caratteri obbligatori</div>
+          </div>
           <div class="grid3">
             <div class="ff"><label>Indirizzo</label><input id="pf-via" placeholder="Via Roma 1"/></div>
             <div class="ff"><label>CAP</label><input id="pf-cap" placeholder="00100"/></div>
@@ -353,6 +360,47 @@
       <button class="btn btn-primary btn-sm" onclick="scaricaPDF()">⬇️ Scarica PDF</button>
       <button class="btn btn-green btn-sm" onclick="inviaWA()">📱 Invia WhatsApp</button>
       <button class="btn btn-ghost btn-sm" onclick="chiudiCopia()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CALCOLO CF -->
+<div id="cfModal" class="modal-overlay" onclick="if(event.target===this)chiudiCalcoloCF()">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-head">
+      <div class="modal-title">🆔 Calcolo Codice Fiscale</div>
+      <button class="modal-close" onclick="chiudiCalcoloCF()">✕</button>
+    </div>
+    <div style="padding:18px 22px">
+      <div id="cfLoadingBar" style="display:none;padding:12px;background:var(--cream);border-radius:8px;margin-bottom:12px;color:var(--muted);font-size:13px">⏳ Caricamento database comuni...</div>
+      <div id="cfFormBox" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div class="ff"><label>Cognome *</label><input id="cfMCognome" type="text" oninput="cfMLiveCalc()"></div>
+          <div class="ff"><label>Nome *</label><input id="cfMNome" type="text" oninput="cfMLiveCalc()"></div>
+          <div class="ff">
+            <label>Sesso *</label>
+            <select id="cfMSesso" onchange="cfMLiveCalc()">
+              <option value="">--</option><option value="M">M</option><option value="F">F</option>
+            </select>
+          </div>
+          <div class="ff"><label>Data nascita *</label><input id="cfMDataNascita" type="date" onchange="cfMLiveCalc()"></div>
+          <div class="ff" style="grid-column:1/-1;position:relative">
+            <label>Comune (o stato) di nascita *</label>
+            <input id="cfMComuneSearch" type="text" placeholder="Inizia a digitare: Bari, Bitonto, Roma..." autocomplete="off" oninput="cfMSearchComune()" onfocus="cfMSearchComune()">
+            <input id="cfMCatastale" type="hidden">
+            <div id="cfMComuneResults" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.12);max-height:200px;overflow-y:auto;display:none;z-index:50;margin-top:2px"></div>
+          </div>
+        </div>
+
+        <div id="cfMRisultato" style="display:none;padding:14px;background:#ecfdf5;border:1.5px solid #10b981;border-radius:10px;margin-top:8px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#065f46;margin-bottom:4px">Codice Fiscale calcolato</div>
+          <div style="font-family:'SF Mono','Monaco','Consolas',monospace;font-size:1.4rem;font-weight:700;color:#065f46;letter-spacing:.04em" id="cfMOutput">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-green btn-sm" onclick="usaCFCalcolato()" id="btnUsaCF">✓ Usa questo CF</button>
+      <button class="btn btn-ghost btn-sm" onclick="chiudiCalcoloCF()">Annulla</button>
     </div>
   </div>
 </div>
@@ -757,6 +805,197 @@ async function caricaFatture() {
   } catch(e) {
     el.innerHTML = '<div style="color:var(--err);font-size:13px;padding:12px">Errore: ' + esc(e.message) + '</div>';
   }
+}
+
+// ===== CALCOLO CODICE FISCALE — DPR 605/1973 =====
+
+var CF_COMUNI_DB = null;
+var CF_COMUNI_LOADED = false;
+
+function cfNormalizza(s) { return String(s||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z]/g,''); }
+function cfConsonanti(s) { return cfNormalizza(s).replace(/[AEIOU]/g,''); }
+function cfVocali(s) { return cfNormalizza(s).replace(/[^AEIOU]/g,''); }
+function cfCognome(cog) { var c = cfConsonanti(cog), v = cfVocali(cog); return (c + v + 'XXX').slice(0, 3); }
+function cfNome(nome) {
+  var c = cfConsonanti(nome);
+  if (c.length >= 4) return c[0] + c[2] + c[3];
+  var v = cfVocali(nome);
+  return (c + v + 'XXX').slice(0, 3);
+}
+var CF_MESI = 'ABCDEHLMPRST';
+function cfData(dataNascita, sesso) {
+  var d = dataNascita.split('-');
+  var anno = d[0].slice(2);
+  var mese = CF_MESI[parseInt(d[1],10)-1];
+  var giorno = parseInt(d[2],10);
+  if (sesso === 'F' || sesso === '2' || sesso === 'f') giorno += 40;
+  return anno + mese + (giorno < 10 ? '0' + giorno : '' + giorno);
+}
+var CF_DISPARI = {'0':1,'1':0,'2':5,'3':7,'4':9,'5':13,'6':15,'7':17,'8':19,'9':21,
+  'A':1,'B':0,'C':5,'D':7,'E':9,'F':13,'G':15,'H':17,'I':19,'J':21,'K':2,'L':4,'M':18,'N':20,
+  'O':11,'P':3,'Q':6,'R':8,'S':12,'T':14,'U':16,'V':10,'W':22,'X':25,'Y':24,'Z':23};
+var CF_PARI = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
+  'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11,'M':12,'N':13,
+  'O':14,'P':15,'Q':16,'R':17,'S':18,'T':19,'U':20,'V':21,'W':22,'X':23,'Y':24,'Z':25};
+var CF_CONTROLLO_TBL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function cfControllo(cf15) {
+  var sum = 0;
+  for (var i = 0; i < 15; i++) {
+    var ch = cf15[i];
+    if ((i+1) % 2 === 1) sum += CF_DISPARI[ch] || 0;
+    else sum += CF_PARI[ch] || 0;
+  }
+  return CF_CONTROLLO_TBL[sum % 26];
+}
+function calcolaCF(cognome, nome, sesso, dataNascita, codiceCatastale) {
+  if (!cognome || !nome || !sesso || !dataNascita || !codiceCatastale) return null;
+  var cf15 = cfCognome(cognome) + cfNome(nome) + cfData(dataNascita, sesso) + String(codiceCatastale).toUpperCase();
+  if (cf15.length !== 15) return null;
+  return cf15 + cfControllo(cf15);
+}
+
+// === Modal calcolo CF ===
+
+function apriCalcoloCFFattura() {
+  document.getElementById('cfModal').style.display = 'flex';
+
+  // Pre-compilo dai campi cognome/nome del form fattura se già compilati
+  var cog = document.getElementById('pf-cognome').value || '';
+  var nom = document.getElementById('pf-nome').value || '';
+  document.getElementById('cfMCognome').value = cog;
+  document.getElementById('cfMNome').value = nom;
+  document.getElementById('cfMSesso').value = '';
+  document.getElementById('cfMDataNascita').value = '';
+  document.getElementById('cfMComuneSearch').value = '';
+  document.getElementById('cfMCatastale').value = '';
+  document.getElementById('cfMRisultato').style.display = 'none';
+  document.getElementById('cfMOutput').textContent = '—';
+
+  var ospitePending = null; // store per applicare match comune dopo load DB
+
+  // Provo a recuperare altri dati dal check-in dell'ospite della prenotazione selezionata
+  if (selected) {
+    sb.from('checkin_ospiti').select('cognome,nome,sesso,data_nascita,comune_nascita_nome')
+      .eq('prenotazione_id', selected.id).eq('is_capofamiglia', true).limit(1)
+      .then(function(r) {
+        if (r.error || !r.data || !r.data.length) return;
+        var o = r.data[0];
+        if (o.cognome && !document.getElementById('cfMCognome').value) document.getElementById('cfMCognome').value = o.cognome;
+        if (o.nome && !document.getElementById('cfMNome').value) document.getElementById('cfMNome').value = o.nome;
+        if (o.sesso === '1') document.getElementById('cfMSesso').value = 'M';
+        else if (o.sesso === '2') document.getElementById('cfMSesso').value = 'F';
+        if (o.data_nascita) document.getElementById('cfMDataNascita').value = o.data_nascita;
+        ospitePending = o;
+        applyComuneFromOspite();
+        cfMLiveCalc();
+      });
+  }
+
+  function applyComuneFromOspite() {
+    if (!ospitePending || !ospitePending.comune_nascita_nome || !CF_COMUNI_DB) return;
+    var match = CF_COMUNI_DB.find(function(c){ return c[0].toLowerCase() === ospitePending.comune_nascita_nome.toLowerCase(); });
+    if (match) {
+      document.getElementById('cfMComuneSearch').value = match[0] + ' (' + match[1] + ')';
+      document.getElementById('cfMCatastale').value = match[2];
+      cfMLiveCalc();
+    }
+  }
+
+  // Carica DB comuni se non già caricato
+  if (CF_COMUNI_LOADED) {
+    document.getElementById('cfFormBox').style.display = '';
+    setTimeout(applyComuneFromOspite, 50);
+    return;
+  }
+  document.getElementById('cfLoadingBar').style.display = '';
+  if (typeof CF_COMUNI !== 'undefined' && CF_COMUNI.length) {
+    CF_COMUNI_DB = CF_COMUNI;
+    CF_COMUNI_LOADED = true;
+    document.getElementById('cfLoadingBar').style.display = 'none';
+    document.getElementById('cfFormBox').style.display = '';
+    setTimeout(applyComuneFromOspite, 50);
+    return;
+  }
+  var script = document.createElement('script');
+  script.src = 'cf-comuni.js';
+  script.onload = function() {
+    if (typeof CF_COMUNI !== 'undefined') {
+      CF_COMUNI_DB = CF_COMUNI;
+      CF_COMUNI_LOADED = true;
+      document.getElementById('cfLoadingBar').style.display = 'none';
+      document.getElementById('cfFormBox').style.display = '';
+      applyComuneFromOspite();
+    } else {
+      document.getElementById('cfLoadingBar').innerHTML = '⚠️ Database comuni non disponibile.';
+    }
+  };
+  script.onerror = function() {
+    document.getElementById('cfLoadingBar').innerHTML = '⚠️ Errore caricamento database comuni. Il file <code>cf-comuni.js</code> deve essere presente nella stessa cartella.';
+  };
+  document.head.appendChild(script);
+}
+
+function chiudiCalcoloCF() {
+  document.getElementById('cfModal').style.display = 'none';
+}
+
+function cfMSearchComune() {
+  var q = document.getElementById('cfMComuneSearch').value.trim().toLowerCase();
+  var resDiv = document.getElementById('cfMComuneResults');
+  if (!CF_COMUNI_DB || q.length < 2) { resDiv.style.display = 'none'; return; }
+  var matches = CF_COMUNI_DB.filter(function(c){
+    return c[0].toLowerCase().indexOf(q) >= 0;
+  }).slice(0, 12);
+  if (!matches.length) { resDiv.style.display = 'none'; return; }
+  resDiv.innerHTML = matches.map(function(c){
+    var safeName = c[0].replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    return '<div onclick="cfMSelectComune(\''+c[2]+'\',\''+safeName+'\',\''+c[1]+'\')" onmouseover="this.style.background=\'#f5f0e8\'" onmouseout="this.style.background=\'#fff\'" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line);font-size:13.5px"><strong>'+esc(c[0])+'</strong> <span style="color:var(--muted)">('+c[1]+')</span> <span style="float:right;font-family:monospace;color:var(--muted);font-size:12px">'+c[2]+'</span></div>';
+  }).join('');
+  resDiv.style.display = 'block';
+}
+
+function cfMSelectComune(catastale, nome, prov) {
+  document.getElementById('cfMComuneSearch').value = nome + ' (' + prov + ')';
+  document.getElementById('cfMCatastale').value = catastale;
+  document.getElementById('cfMComuneResults').style.display = 'none';
+  cfMLiveCalc();
+}
+
+// Chiudi dropdown comune se clicco fuori
+document.addEventListener('click', function(e) {
+  var resDiv = document.getElementById('cfMComuneResults');
+  var input = document.getElementById('cfMComuneSearch');
+  if (!resDiv) return;
+  if (e.target !== input && !resDiv.contains(e.target)) resDiv.style.display = 'none';
+});
+
+function cfMLiveCalc() {
+  var cog = document.getElementById('cfMCognome').value;
+  var nom = document.getElementById('cfMNome').value;
+  var sesso = document.getElementById('cfMSesso').value;
+  var data = document.getElementById('cfMDataNascita').value;
+  var cat = document.getElementById('cfMCatastale').value;
+  var risBox = document.getElementById('cfMRisultato');
+  if (!cog || !nom || !sesso || !data || !cat) {
+    risBox.style.display = 'none';
+    return;
+  }
+  var cf = calcolaCF(cog, nom, sesso, data, cat);
+  if (!cf) { risBox.style.display = 'none'; return; }
+  document.getElementById('cfMOutput').textContent = cf;
+  risBox.style.display = '';
+}
+
+function usaCFCalcolato() {
+  var cf = document.getElementById('cfMOutput').textContent;
+  if (!cf || cf === '—') { showEsito('Compila prima tutti i campi per calcolare il CF', 'warn'); return; }
+  document.getElementById('pf-cf').value = cf;
+  document.getElementById('pf-cf').dispatchEvent(new Event('input'));
+  // Se cognome/nome erano vuoti nel form fattura, copio anche quelli
+  if (!document.getElementById('pf-cognome').value) document.getElementById('pf-cognome').value = document.getElementById('cfMCognome').value;
+  if (!document.getElementById('pf-nome').value) document.getElementById('pf-nome').value = document.getElementById('cfMNome').value;
+  chiudiCalcoloCF();
+  showEsito('CF inserito: ' + cf, 'ok');
 }
 
 // ===== PRENOTAZIONI =====
