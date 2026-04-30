@@ -167,18 +167,31 @@
     .search-input:focus{outline:none;border-color:var(--brown)}
 
     /* ===== FILTRI PILL - NUOVI ===== */
-    .filter-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
-    .filter-pill{border:none;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;background:var(--cream-d);color:var(--muted);white-space:nowrap}
-    .filter-pill:hover{background:var(--sand-l);color:var(--brown)}
-    .filter-pill.active{background:var(--brown);color:#fff}
-    .filter-pill .pill-count{border-radius:999px;padding:1px 6px;font-size:10px;font-weight:700;background:rgba(107,45,31,.1);color:var(--brown)}
+    .filter-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .filter-pill{border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--ink);white-space:nowrap}
+    .filter-pill:hover{border-color:var(--brown);background:var(--cream)}
+    .filter-pill.active{background:var(--brown);border-color:var(--brown);color:#fff}
+    .filter-pill .pill-count{border-radius:999px;padding:1px 7px;font-size:11px;font-weight:700;background:var(--cream-d);color:var(--brown)}
     .filter-pill.active .pill-count{background:rgba(255,255,255,.25);color:#fff}
-    .filter-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:6px 0}
-    .filter-group{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-    .filter-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;margin-right:2px}
-    .mini-pill{border:1.5px solid var(--line);background:#fff;padding:3px 10px;border-radius:14px;font:inherit;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;white-space:nowrap}
-    .mini-pill:hover{border-color:var(--sand)}
-    .mini-pill.active{background:var(--mp-col,var(--ink));border-color:var(--mp-col,var(--ink));color:#fff}
+
+    .filter-sub{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px;padding:8px 12px;background:var(--cream);border-radius:10px;border-left:3px solid var(--brown)}
+    .filter-sub-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-right:4px}
+
+    .filter-secondary{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+    .filter-select{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 26px 6px 10px;font:inherit;font-size:11.5px;font-weight:600;color:var(--ink);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%236b7280' d='M5 6L0 0h10z'/></svg>");background-repeat:no-repeat;background-position:right 8px center;transition:all .15s;flex:1;min-width:130px;max-width:200px}
+    .filter-select:hover{border-color:var(--brown)}
+    .filter-select.has-filter{background-color:#fef3c7;border-color:#f59e0b;color:#92400e}
+
+    .mini-pill{border:1.5px solid var(--line);background:#fff;padding:4px 10px;border-radius:14px;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;white-space:nowrap}
+    .mini-pill:hover{border-color:var(--brown);color:var(--brown)}
+    .mini-pill.active{background:var(--brown);border-color:var(--brown);color:#fff}
+
+    .filter-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;padding:6px 0}
+    .filter-chip{display:inline-flex;align-items:center;gap:5px;background:#fef3c7;border:1px solid #f59e0b;border-radius:999px;padding:3px 4px 3px 11px;font-size:11.5px;font-weight:600;color:#92400e}
+    .filter-chip-x{background:#f59e0b;color:#fff;border:none;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;line-height:1;padding:0;font-family:inherit}
+    .filter-chip-x:hover{background:#b45309}
+    .filter-chip-reset{background:#f3f4f6;border:1px solid #d1d5db;color:#6b7280;border-radius:999px;padding:3px 11px;font-size:11.5px;font-weight:600;cursor:pointer}
+    .filter-chip-reset:hover{background:#e5e7eb;color:#374151}
 
     /* Colori per i nuovi filtri pill */
     .filter-pill[data-filter="checkin_oggi"]:not(.active){background:#dbeafe;color:#1e40af}
@@ -247,55 +260,52 @@
             </div>
           </div>
 
-          <!-- FILTRI STATO TEMPORALE -->
-          <div class="filter-pills">
-            <button class="filter-pill active" data-filter="in_corso" id="pill-in_corso" onclick="setFilter('in_corso')">🔵 In corso <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="checkin_oggi" id="pill-checkin_oggi" onclick="setFilter('checkin_oggi')">🛬 Check-in <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="permanenza" id="pill-permanenza" onclick="setFilter('permanenza')">🏠 Permanenza <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="checkout_oggi" id="pill-checkout_oggi" onclick="setFilter('checkout_oggi')">🛫 Check-out <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="arrivo_7gg" id="pill-arrivo_7gg" onclick="setFilter('arrivo_7gg')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="completate" id="pill-completate" onclick="setFilter('completate')">✓ Completate <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="tutte" id="pill-tutte" onclick="setFilter('tutte')">📋 Tutte <span class="pill-count">0</span></button>
+          <!-- FILTRI STATO PRIMARI (4 pillole sempre visibili) -->
+          <div class="filter-pills" id="filterPrimary">
+            <button class="filter-pill active" data-primary="oggi" id="pp-oggi" onclick="setPrimaryFilter('oggi')">🔴 Oggi <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-primary="prossime" id="pp-prossime" onclick="setPrimaryFilter('prossime')">🟢 Prossime <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-primary="completate" id="pp-completate" onclick="setPrimaryFilter('completate')">⚪ Completate <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-primary="tutte" id="pp-tutte" onclick="setPrimaryFilter('tutte')">📋 Tutte <span class="pill-count">0</span></button>
           </div>
 
-          <!-- FILTRI SECONDARI: canale, camera, check-in, fattura, mese -->
-          <div class="filter-row">
-            <div class="filter-group" id="canaleFilters">
-              <span class="filter-label">Canale:</span>
-              <button class="mini-pill active" data-canale="tutti" onclick="setCanaleFilter('tutti')">Tutti</button>
-              <button class="mini-pill" data-canale="Booking" onclick="setCanaleFilter('Booking')" style="--mp-col:#1a56a0">Booking</button>
-              <button class="mini-pill" data-canale="Airbnb" onclick="setCanaleFilter('Airbnb')" style="--mp-col:#e11d48">Airbnb</button>
-              <button class="mini-pill" data-canale="Diretto" onclick="setCanaleFilter('Diretto')" style="--mp-col:#6b7280">Diretto</button>
-            </div>
-            <div class="filter-group" id="cameraFilters">
-              <span class="filter-label">Camera:</span>
-              <button class="mini-pill active" data-camera="tutti" onclick="setCameraFilter('tutti')">Tutte</button>
-              <button class="mini-pill" data-camera="Camera 1920" onclick="setCameraFilter('Camera 1920')" style="--mp-col:#b8860b">1928</button>
-              <button class="mini-pill" data-camera="Camera 1954" onclick="setCameraFilter('Camera 1954')" style="--mp-col:#2e7d50">1954</button>
-              <button class="mini-pill" data-camera="Camera 1956" onclick="setCameraFilter('Camera 1956')" style="--mp-col:#1a56a0">1956</button>
-            </div>
+          <!-- SOTTO-PILLOLE (granularità contestuale) -->
+          <div class="filter-sub" id="filterSub" style="display:none">
+            <span class="filter-sub-label">Vista dettaglio:</span>
+            <button class="mini-pill active" data-sub="all" onclick="setSubFilter('all')">Tutte</button>
+            <span id="filterSubItems"></span>
           </div>
-          <div class="filter-row">
-            <div class="filter-group" id="checkinFilters">
-              <span class="filter-label">Check-in:</span>
-              <button class="mini-pill active" data-checkin="tutti" onclick="setCheckinFilter('tutti')">Tutti</button>
-              <button class="mini-pill" data-checkin="fatto" onclick="setCheckinFilter('fatto')" style="--mp-col:#16a34a">✓ Fatto</button>
-              <button class="mini-pill" data-checkin="da_fare" onclick="setCheckinFilter('da_fare')" style="--mp-col:#b45309">⚠ Da fare</button>
-            </div>
-            <div class="filter-group" id="fatturaFilters">
-              <span class="filter-label">Fattura:</span>
-              <button class="mini-pill active" data-fattura="tutti" onclick="setFatturaFilter('tutti')">Tutte</button>
-              <button class="mini-pill" data-fattura="emessa" onclick="setFatturaFilter('emessa')" style="--mp-col:#10b981">✓ Emessa</button>
-              <button class="mini-pill" data-fattura="da_emettere" onclick="setFatturaFilter('da_emettere')" style="--mp-col:#b45309">⚠ Da emettere</button>
-            </div>
-            <div class="filter-group">
-              <span class="filter-label">Mese:</span>
-              <select id="meseFilter" onchange="setMeseFilter(this.value)" style="border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:3px 10px;font:inherit;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer">
-                <option value="tutti">Tutti i mesi</option>
-              </select>
-            </div>
-            <button class="mini-pill" id="resetFilters" onclick="resetSecondaryFilters()" style="background:#f3f4f6;color:#6b7280;border:1.5px solid #d1d5db">↺ Reset</button>
+
+          <!-- FILTRI SECONDARI (dropdown compatti) -->
+          <div class="filter-secondary">
+            <select class="filter-select" id="canaleSelect" onchange="setCanaleFilter(this.value)">
+              <option value="tutti">📡 Canale: Tutti</option>
+              <option value="Booking">📡 Booking</option>
+              <option value="Airbnb">📡 Airbnb</option>
+              <option value="Diretto">📡 Diretto</option>
+            </select>
+            <select class="filter-select" id="cameraSelect" onchange="setCameraFilter(this.value)">
+              <option value="tutti">🏠 Camera: Tutte</option>
+              <option value="Camera 1920">🏠 Camera 1928</option>
+              <option value="Camera 1954">🏠 Camera 1954</option>
+              <option value="Camera 1956">🏠 Camera 1956</option>
+            </select>
+            <select class="filter-select" id="checkinSelect" onchange="setCheckinFilter(this.value)">
+              <option value="tutti">📋 Check-in: Tutti</option>
+              <option value="fatto">✓ Check-in fatto</option>
+              <option value="da_fare">⚠ Check-in da fare</option>
+            </select>
+            <select class="filter-select" id="fatturaSelect" onchange="setFatturaFilter(this.value)">
+              <option value="tutti">🧾 Fattura: Tutte</option>
+              <option value="emessa">✓ Fattura emessa</option>
+              <option value="da_emettere">⚠ Da emettere</option>
+            </select>
+            <select class="filter-select" id="meseFilter" onchange="setMeseFilter(this.value)">
+              <option value="tutti">📅 Mese: Tutti</option>
+            </select>
           </div>
+
+          <!-- CHIP FILTRI ATTIVI (visibili solo se almeno un secondario è impostato) -->
+          <div class="filter-chips" id="filterChips" style="display:none"></div>
 
           <div id="listaPrenotazioni" class="list">
             <div style="color:var(--muted);text-align:center;padding:30px">Caricamento...</div>
@@ -611,21 +621,21 @@ function showTab(t) {
 }
 
 // ===== FILTRI E RICERCA =====
-var currentFilter = 'in_corso';
+var currentPrimary = 'oggi';      // 'oggi' | 'prossime' | 'completate' | 'tutte'
+var currentSub = 'all';            // sotto-vista contestuale (es. 'checkin_oggi' quando primary='oggi')
 var currentCanale = 'tutti';
 var currentCamera = 'tutti';
 var currentCheckin = 'tutti';
 var currentFattura = 'tutti';
 var currentMese = 'tutti';
 var searchQuery = '';
-var checkinByPren = {}; // { prenotazione_id: count } popolato dopo loadAll
+var checkinByPren = {};
 
 function getTodayStr() {
   var d = new Date(); d.setHours(0,0,0,0);
   return d.toISOString().slice(0,10);
 }
 
-// Categorizzazione prenotazione - AGGIORNATA con nuove categorie
 function categorize(p) {
   if (!p.arrivo || !p.partenza) return 'altri';
   var today = new Date(); today.setHours(0,0,0,0);
@@ -641,12 +651,37 @@ function categorize(p) {
   return 'altri';
 }
 
-function matchesFilter(p, filter) {
+// Mappa primary → categorie incluse
+var PRIMARY_MAP = {
+  oggi:       ['checkin_oggi','checkout_oggi','permanenza'],
+  prossime:   ['arrivo_7gg','altri'],
+  completate: ['passati'],
+  tutte:      ['checkin_oggi','checkout_oggi','permanenza','arrivo_7gg','altri','passati']
+};
+
+// Configurazione sub-pillole per ogni primary
+var SUB_CONFIG = {
+  oggi: [
+    {id:'checkin_oggi',  label:'🛬 Check-in oggi'},
+    {id:'permanenza',    label:'🏠 In struttura'},
+    {id:'checkout_oggi', label:'🛫 Check-out oggi'}
+  ],
+  prossime: [
+    {id:'arrivo_7gg', label:'📅 Entro 7 giorni'},
+    {id:'altri',      label:'📆 Oltre 7 giorni'}
+  ],
+  completate: null,
+  tutte: null
+};
+
+function matchesPrimary(p) {
   var cat = categorize(p);
-  if (filter === 'in_corso') return cat !== 'passati';
-  if (filter === 'completate') return cat === 'passati';
-  if (filter === 'tutte') return true;
-  return cat === filter;
+  return PRIMARY_MAP[currentPrimary].indexOf(cat) >= 0;
+}
+
+function matchesSub(p) {
+  if (currentSub === 'all') return true;
+  return categorize(p) === currentSub;
 }
 
 function getCanaleClass(canale) {
@@ -684,14 +719,14 @@ function matchesFattura(p) {
 
 function matchesMese(p) {
   if (currentMese === 'tutti') return true;
-  // currentMese è formato "YYYY-MM"
   if (!p.arrivo) return false;
   return p.arrivo.slice(0,7) === currentMese;
 }
 
 function filterPrenotazioni() {
   return prenotazioni.filter(function(p) {
-    if (!matchesFilter(p, currentFilter)) return false;
+    if (!matchesPrimary(p)) return false;
+    if (!matchesSub(p)) return false;
     if (!matchesCanale(p)) return false;
     if (!matchesCamera(p)) return false;
     if (!matchesCheckin(p)) return false;
@@ -707,65 +742,95 @@ function filterPrenotazioni() {
   });
 }
 
-function countFor(filter) {
-  if (filter === 'in_corso') return prenotazioni.filter(function(p) { return categorize(p) !== 'passati'; }).length;
-  if (filter === 'completate') return prenotazioni.filter(function(p) { return categorize(p) === 'passati'; }).length;
-  if (filter === 'tutte') return prenotazioni.length;
-  return prenotazioni.filter(function(p) { return categorize(p) === filter; }).length;
+function countForPrimary(primary) {
+  var cats = PRIMARY_MAP[primary];
+  return prenotazioni.filter(function(p){ return cats.indexOf(categorize(p)) >= 0; }).length;
+}
+
+function countForSub(subId) {
+  return prenotazioni.filter(function(p){ return categorize(p) === subId; }).length;
 }
 
 function updateFilterCounts() {
-  ['in_corso','checkin_oggi','permanenza','checkout_oggi','arrivo_7gg','completate','tutte'].forEach(function(f) {
-    var el = document.getElementById('pill-'+f);
+  ['oggi','prossime','completate','tutte'].forEach(function(p) {
+    var el = document.getElementById('pp-'+p);
     if (el) {
       var c = el.querySelector('.pill-count');
-      if (c) c.textContent = countFor(f);
+      if (c) c.textContent = countForPrimary(p);
     }
   });
 }
 
-function setFilter(f) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-pill').forEach(function(p) {
-    p.classList.toggle('active', p.dataset.filter === f);
+function renderSubFilter() {
+  var box = document.getElementById('filterSub');
+  var items = document.getElementById('filterSubItems');
+  var cfg = SUB_CONFIG[currentPrimary];
+  if (!cfg) {
+    box.style.display = 'none';
+    return;
+  }
+  box.style.display = '';
+  // Pill "Tutte" già nell'HTML; aggiungo le specifiche
+  items.innerHTML = cfg.map(function(s) {
+    var n = countForSub(s.id);
+    var active = currentSub === s.id ? ' active' : '';
+    return '<button class="mini-pill'+active+'" data-sub="'+s.id+'" onclick="setSubFilter(\''+s.id+'\')">'+s.label+' <span style="opacity:.7;margin-left:3px">'+n+'</span></button>';
+  }).join('');
+  // Aggiorno la pillola "all"
+  document.querySelectorAll('#filterSub [data-sub]').forEach(function(b){
+    b.classList.toggle('active', b.dataset.sub === currentSub);
+  });
+}
+
+function setPrimaryFilter(p) {
+  currentPrimary = p;
+  currentSub = 'all'; // reset sub quando cambio primary
+  document.querySelectorAll('.filter-pill').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.primary === p);
+  });
+  renderSubFilter();
+  renderPrenotazioni();
+}
+
+function setSubFilter(s) {
+  currentSub = s;
+  document.querySelectorAll('#filterSub [data-sub]').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.sub === s);
   });
   renderPrenotazioni();
 }
 
 function setCanaleFilter(c) {
   currentCanale = c;
-  document.querySelectorAll('#canaleFilters .mini-pill').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.canale === c);
-  });
+  document.getElementById('canaleSelect').value = c;
+  document.getElementById('canaleSelect').classList.toggle('has-filter', c !== 'tutti');
   renderPrenotazioni();
 }
 
 function setCameraFilter(c) {
   currentCamera = c;
-  document.querySelectorAll('#cameraFilters .mini-pill').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.camera === c);
-  });
+  document.getElementById('cameraSelect').value = c;
+  document.getElementById('cameraSelect').classList.toggle('has-filter', c !== 'tutti');
   renderPrenotazioni();
 }
 
 function setCheckinFilter(c) {
   currentCheckin = c;
-  document.querySelectorAll('#checkinFilters .mini-pill').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.checkin === c);
-  });
+  document.getElementById('checkinSelect').value = c;
+  document.getElementById('checkinSelect').classList.toggle('has-filter', c !== 'tutti');
   renderPrenotazioni();
 }
 
 function setFatturaFilter(c) {
   currentFattura = c;
-  document.querySelectorAll('#fatturaFilters .mini-pill').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.fattura === c);
-  });
+  document.getElementById('fatturaSelect').value = c;
+  document.getElementById('fatturaSelect').classList.toggle('has-filter', c !== 'tutti');
   renderPrenotazioni();
 }
 
 function setMeseFilter(m) {
   currentMese = m;
+  document.getElementById('meseFilter').classList.toggle('has-filter', m !== 'tutti');
   renderPrenotazioni();
 }
 
@@ -782,10 +847,10 @@ function popolaMeseDropdown() {
   var sorted = Object.keys(mesi).sort().reverse();
   var MESI_NOMI = ['','Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
   var prev = sel.value;
-  sel.innerHTML = '<option value="tutti">Tutti i mesi</option>' + sorted.map(function(ym) {
+  sel.innerHTML = '<option value="tutti">📅 Mese: Tutti</option>' + sorted.map(function(ym) {
     var parts = ym.split('-');
     var label = MESI_NOMI[parseInt(parts[1],10)] + ' ' + parts[0] + ' (' + mesi[ym] + ')';
-    return '<option value="' + ym + '">' + label + '</option>';
+    return '<option value="' + ym + '">📅 ' + label + '</option>';
   }).join('');
   sel.value = prev || 'tutti';
 }
@@ -795,8 +860,42 @@ function resetSecondaryFilters() {
   setCameraFilter('tutti');
   setCheckinFilter('tutti');
   setFatturaFilter('tutti');
-  document.getElementById('meseFilter').value = 'tutti';
   setMeseFilter('tutti');
+}
+
+// Render dei chip dei filtri attivi
+function renderFilterChips() {
+  var chips = [];
+  if (currentCanale !== 'tutti') chips.push({label: '📡 ' + currentCanale, reset: function(){ setCanaleFilter('tutti'); }});
+  if (currentCamera !== 'tutti') chips.push({label: '🏠 ' + displayCamera(currentCamera), reset: function(){ setCameraFilter('tutti'); }});
+  if (currentCheckin !== 'tutti') chips.push({label: currentCheckin === 'fatto' ? '✓ Check-in fatto' : '⚠ Check-in da fare', reset: function(){ setCheckinFilter('tutti'); }});
+  if (currentFattura !== 'tutti') chips.push({label: currentFattura === 'emessa' ? '✓ Fattura emessa' : '⚠ Fattura da emettere', reset: function(){ setFatturaFilter('tutti'); }});
+  if (currentMese !== 'tutti') {
+    var MESI_NOMI = ['','Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var parts = currentMese.split('-');
+    chips.push({label: '📅 ' + MESI_NOMI[parseInt(parts[1],10)] + ' ' + parts[0], reset: function(){ setMeseFilter('tutti'); }});
+  }
+
+  var box = document.getElementById('filterChips');
+  if (!chips.length) { box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  box.innerHTML = '';
+  chips.forEach(function(c, i) {
+    var span = document.createElement('span');
+    span.className = 'filter-chip';
+    span.innerHTML = c.label + ' <button class="filter-chip-x" data-idx="'+i+'">×</button>';
+    box.appendChild(span);
+  });
+  // Reset all
+  var btn = document.createElement('button');
+  btn.className = 'filter-chip-reset';
+  btn.textContent = '↺ Rimuovi tutti';
+  btn.onclick = resetSecondaryFilters;
+  box.appendChild(btn);
+  // Event delegation per X
+  box.querySelectorAll('.filter-chip-x').forEach(function(x, i) {
+    x.onclick = function() { chips[i].reset(); };
+  });
 }
 
 function onSearch(val) {
@@ -862,9 +961,11 @@ function loadAll() {
         checkinByPren[c.prenotazione_id] = (checkinByPren[c.prenotazione_id] || 0) + 1;
       });
       popolaMeseDropdown();
+      renderSubFilter();
       renderPrenotazioni();
     });
 
+    renderSubFilter();
     renderPrenotazioni(); generaMessaggio(); aggiornaLink();
     loadBadgeCheckin();
     aggiornaPulizie();
@@ -904,9 +1005,10 @@ function renderPrenotazioni() {
   var root = document.getElementById('listaPrenotazioni');
   var filtered = filterPrenotazioni();
   updateFilterCounts();
+  renderFilterChips();
 
   // Se filtro "completate": ordino per partenza DECRESCENTE (le più recenti prima)
-  if (currentFilter === 'completate') {
+  if (currentPrimary === 'completate') {
     filtered = filtered.slice().sort(function(a,b){
       return (b.partenza||'').localeCompare(a.partenza||'');
     });
