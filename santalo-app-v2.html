@@ -167,12 +167,18 @@
     .search-input:focus{outline:none;border-color:var(--brown)}
 
     /* ===== FILTRI PILL - NUOVI ===== */
-    .filter-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+    .filter-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
     .filter-pill{border:none;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;background:var(--cream-d);color:var(--muted);white-space:nowrap}
     .filter-pill:hover{background:var(--sand-l);color:var(--brown)}
     .filter-pill.active{background:var(--brown);color:#fff}
     .filter-pill .pill-count{border-radius:999px;padding:1px 6px;font-size:10px;font-weight:700;background:rgba(107,45,31,.1);color:var(--brown)}
     .filter-pill.active .pill-count{background:rgba(255,255,255,.25);color:#fff}
+    .filter-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding:6px 0}
+    .filter-group{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+    .filter-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;margin-right:2px}
+    .mini-pill{border:1.5px solid var(--line);background:#fff;padding:3px 10px;border-radius:14px;font:inherit;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;white-space:nowrap}
+    .mini-pill:hover{border-color:var(--sand)}
+    .mini-pill.active{background:var(--mp-col,var(--ink));border-color:var(--mp-col,var(--ink));color:#fff}
 
     /* Colori per i nuovi filtri pill */
     .filter-pill[data-filter="checkin_oggi"]:not(.active){background:#dbeafe;color:#1e40af}
@@ -195,6 +201,7 @@
     .stato-badge{border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700;margin-left:4px;vertical-align:middle;display:inline-block}
     .stato-checkin-in{background:#dbeafe;color:#1e40af}
     .stato-permanenza{background:#dcfce7;color:#166534}
+    .stato-passata{background:#f1f5f9;color:#64748b}
     .stato-checkout-out{background:#fef3c7;color:#92400e}
   </style>
 </head>
@@ -240,14 +247,54 @@
             </div>
           </div>
 
-          <!-- NUOVI FILTRI PILL -->
+          <!-- FILTRI STATO TEMPORALE -->
           <div class="filter-pills">
-            <button class="filter-pill active" data-filter="tutti" id="pill-tutti" onclick="setFilter('tutti')">Tutte <span class="pill-count">0</span></button>
+            <button class="filter-pill active" data-filter="in_corso" id="pill-in_corso" onclick="setFilter('in_corso')">🔵 In corso <span class="pill-count">0</span></button>
             <button class="filter-pill" data-filter="checkin_oggi" id="pill-checkin_oggi" onclick="setFilter('checkin_oggi')">🛬 Check-in <span class="pill-count">0</span></button>
             <button class="filter-pill" data-filter="permanenza" id="pill-permanenza" onclick="setFilter('permanenza')">🏠 Permanenza <span class="pill-count">0</span></button>
             <button class="filter-pill" data-filter="checkout_oggi" id="pill-checkout_oggi" onclick="setFilter('checkout_oggi')">🛫 Check-out <span class="pill-count">0</span></button>
             <button class="filter-pill" data-filter="arrivo_7gg" id="pill-arrivo_7gg" onclick="setFilter('arrivo_7gg')">📅 In arrivo (7gg) <span class="pill-count">0</span></button>
-            <button class="filter-pill" data-filter="passati" id="pill-passati" onclick="setFilter('passati')">✓ Passati <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="completate" id="pill-completate" onclick="setFilter('completate')">✓ Completate <span class="pill-count">0</span></button>
+            <button class="filter-pill" data-filter="tutte" id="pill-tutte" onclick="setFilter('tutte')">📋 Tutte <span class="pill-count">0</span></button>
+          </div>
+
+          <!-- FILTRI SECONDARI: canale, camera, check-in, fattura, mese -->
+          <div class="filter-row">
+            <div class="filter-group" id="canaleFilters">
+              <span class="filter-label">Canale:</span>
+              <button class="mini-pill active" data-canale="tutti" onclick="setCanaleFilter('tutti')">Tutti</button>
+              <button class="mini-pill" data-canale="Booking" onclick="setCanaleFilter('Booking')" style="--mp-col:#1a56a0">Booking</button>
+              <button class="mini-pill" data-canale="Airbnb" onclick="setCanaleFilter('Airbnb')" style="--mp-col:#e11d48">Airbnb</button>
+              <button class="mini-pill" data-canale="Diretto" onclick="setCanaleFilter('Diretto')" style="--mp-col:#6b7280">Diretto</button>
+            </div>
+            <div class="filter-group" id="cameraFilters">
+              <span class="filter-label">Camera:</span>
+              <button class="mini-pill active" data-camera="tutti" onclick="setCameraFilter('tutti')">Tutte</button>
+              <button class="mini-pill" data-camera="Camera 1920" onclick="setCameraFilter('Camera 1920')" style="--mp-col:#b8860b">1928</button>
+              <button class="mini-pill" data-camera="Camera 1954" onclick="setCameraFilter('Camera 1954')" style="--mp-col:#2e7d50">1954</button>
+              <button class="mini-pill" data-camera="Camera 1956" onclick="setCameraFilter('Camera 1956')" style="--mp-col:#1a56a0">1956</button>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-group" id="checkinFilters">
+              <span class="filter-label">Check-in:</span>
+              <button class="mini-pill active" data-checkin="tutti" onclick="setCheckinFilter('tutti')">Tutti</button>
+              <button class="mini-pill" data-checkin="fatto" onclick="setCheckinFilter('fatto')" style="--mp-col:#16a34a">✓ Fatto</button>
+              <button class="mini-pill" data-checkin="da_fare" onclick="setCheckinFilter('da_fare')" style="--mp-col:#b45309">⚠ Da fare</button>
+            </div>
+            <div class="filter-group" id="fatturaFilters">
+              <span class="filter-label">Fattura:</span>
+              <button class="mini-pill active" data-fattura="tutti" onclick="setFatturaFilter('tutti')">Tutte</button>
+              <button class="mini-pill" data-fattura="emessa" onclick="setFatturaFilter('emessa')" style="--mp-col:#10b981">✓ Emessa</button>
+              <button class="mini-pill" data-fattura="da_emettere" onclick="setFatturaFilter('da_emettere')" style="--mp-col:#b45309">⚠ Da emettere</button>
+            </div>
+            <div class="filter-group">
+              <span class="filter-label">Mese:</span>
+              <select id="meseFilter" onchange="setMeseFilter(this.value)" style="border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:3px 10px;font:inherit;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer">
+                <option value="tutti">Tutti i mesi</option>
+              </select>
+            </div>
+            <button class="mini-pill" id="resetFilters" onclick="resetSecondaryFilters()" style="background:#f3f4f6;color:#6b7280;border:1.5px solid #d1d5db">↺ Reset</button>
           </div>
 
           <div id="listaPrenotazioni" class="list">
@@ -564,8 +611,14 @@ function showTab(t) {
 }
 
 // ===== FILTRI E RICERCA =====
-var currentFilter = 'tutti';
+var currentFilter = 'in_corso';
+var currentCanale = 'tutti';
+var currentCamera = 'tutti';
+var currentCheckin = 'tutti';
+var currentFattura = 'tutti';
+var currentMese = 'tutti';
 var searchQuery = '';
+var checkinByPren = {}; // { prenotazione_id: count } popolato dopo loadAll
 
 function getTodayStr() {
   var d = new Date(); d.setHours(0,0,0,0);
@@ -590,14 +643,60 @@ function categorize(p) {
 
 function matchesFilter(p, filter) {
   var cat = categorize(p);
-  if (filter === 'tutti') return cat !== 'passati';
-  if (filter === 'passati') return cat === 'passati';
+  if (filter === 'in_corso') return cat !== 'passati';
+  if (filter === 'completate') return cat === 'passati';
+  if (filter === 'tutte') return true;
   return cat === filter;
+}
+
+function getCanaleClass(canale) {
+  var c = (canale||'').toLowerCase();
+  if (c.indexOf('booking') >= 0) return 'Booking';
+  if (c.indexOf('airbnb') >= 0) return 'Airbnb';
+  if (c.indexOf('diretto') >= 0) return 'Diretto';
+  return 'Altro';
+}
+
+function matchesCanale(p) {
+  if (currentCanale === 'tutti') return true;
+  return getCanaleClass(p.canale) === currentCanale;
+}
+
+function matchesCamera(p) {
+  if (currentCamera === 'tutti') return true;
+  return (p.camera||'') === currentCamera;
+}
+
+function matchesCheckin(p) {
+  if (currentCheckin === 'tutti') return true;
+  var hasCheckin = (checkinByPren[p.id] || 0) > 0;
+  if (currentCheckin === 'fatto') return hasCheckin;
+  if (currentCheckin === 'da_fare') return !hasCheckin;
+  return true;
+}
+
+function matchesFattura(p) {
+  if (currentFattura === 'tutti') return true;
+  if (currentFattura === 'emessa') return !!p.fattura_emessa;
+  if (currentFattura === 'da_emettere') return !p.fattura_emessa;
+  return true;
+}
+
+function matchesMese(p) {
+  if (currentMese === 'tutti') return true;
+  // currentMese è formato "YYYY-MM"
+  if (!p.arrivo) return false;
+  return p.arrivo.slice(0,7) === currentMese;
 }
 
 function filterPrenotazioni() {
   return prenotazioni.filter(function(p) {
     if (!matchesFilter(p, currentFilter)) return false;
+    if (!matchesCanale(p)) return false;
+    if (!matchesCamera(p)) return false;
+    if (!matchesCheckin(p)) return false;
+    if (!matchesFattura(p)) return false;
+    if (!matchesMese(p)) return false;
     if (!searchQuery) return true;
     var q = searchQuery.toLowerCase();
     return (p.nome||'').toLowerCase().includes(q) ||
@@ -609,13 +708,14 @@ function filterPrenotazioni() {
 }
 
 function countFor(filter) {
-  if (filter === 'tutti') return prenotazioni.filter(function(p) { return categorize(p) !== 'passati'; }).length;
-  if (filter === 'passati') return prenotazioni.filter(function(p) { return categorize(p) === 'passati'; }).length;
+  if (filter === 'in_corso') return prenotazioni.filter(function(p) { return categorize(p) !== 'passati'; }).length;
+  if (filter === 'completate') return prenotazioni.filter(function(p) { return categorize(p) === 'passati'; }).length;
+  if (filter === 'tutte') return prenotazioni.length;
   return prenotazioni.filter(function(p) { return categorize(p) === filter; }).length;
 }
 
 function updateFilterCounts() {
-  ['tutti','checkin_oggi','permanenza','checkout_oggi','arrivo_7gg','passati'].forEach(function(f) {
+  ['in_corso','checkin_oggi','permanenza','checkout_oggi','arrivo_7gg','completate','tutte'].forEach(function(f) {
     var el = document.getElementById('pill-'+f);
     if (el) {
       var c = el.querySelector('.pill-count');
@@ -630,6 +730,73 @@ function setFilter(f) {
     p.classList.toggle('active', p.dataset.filter === f);
   });
   renderPrenotazioni();
+}
+
+function setCanaleFilter(c) {
+  currentCanale = c;
+  document.querySelectorAll('#canaleFilters .mini-pill').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.canale === c);
+  });
+  renderPrenotazioni();
+}
+
+function setCameraFilter(c) {
+  currentCamera = c;
+  document.querySelectorAll('#cameraFilters .mini-pill').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.camera === c);
+  });
+  renderPrenotazioni();
+}
+
+function setCheckinFilter(c) {
+  currentCheckin = c;
+  document.querySelectorAll('#checkinFilters .mini-pill').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.checkin === c);
+  });
+  renderPrenotazioni();
+}
+
+function setFatturaFilter(c) {
+  currentFattura = c;
+  document.querySelectorAll('#fatturaFilters .mini-pill').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.fattura === c);
+  });
+  renderPrenotazioni();
+}
+
+function setMeseFilter(m) {
+  currentMese = m;
+  renderPrenotazioni();
+}
+
+function popolaMeseDropdown() {
+  var sel = document.getElementById('meseFilter');
+  if (!sel) return;
+  var mesi = {};
+  prenotazioni.forEach(function(p) {
+    if (p.arrivo) {
+      var ym = p.arrivo.slice(0,7);
+      mesi[ym] = (mesi[ym]||0) + 1;
+    }
+  });
+  var sorted = Object.keys(mesi).sort().reverse();
+  var MESI_NOMI = ['','Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  var prev = sel.value;
+  sel.innerHTML = '<option value="tutti">Tutti i mesi</option>' + sorted.map(function(ym) {
+    var parts = ym.split('-');
+    var label = MESI_NOMI[parseInt(parts[1],10)] + ' ' + parts[0] + ' (' + mesi[ym] + ')';
+    return '<option value="' + ym + '">' + label + '</option>';
+  }).join('');
+  sel.value = prev || 'tutti';
+}
+
+function resetSecondaryFilters() {
+  setCanaleFilter('tutti');
+  setCameraFilter('tutti');
+  setCheckinFilter('tutti');
+  setFatturaFilter('tutti');
+  document.getElementById('meseFilter').value = 'tutti';
+  setMeseFilter('tutti');
 }
 
 function onSearch(val) {
@@ -687,6 +854,17 @@ function loadAll() {
     if (!selected && prenotazioni.length) selected = prenotazioni[0];
     else if (selected) selected = prenotazioni.find(function(p) { return p.id === selected.id; }) || prenotazioni[0] || null;
     el.textContent = prenotazioni.length + ' prenotazioni'; el.className = 'pill ok';
+
+    // Carico conteggio check-in per ogni prenotazione (per filtro Check-in fatto/da fare)
+    sb.from('checkin_ospiti').select('prenotazione_id').then(function(rCi) {
+      checkinByPren = {};
+      (rCi.data || []).forEach(function(c) {
+        checkinByPren[c.prenotazione_id] = (checkinByPren[c.prenotazione_id] || 0) + 1;
+      });
+      popolaMeseDropdown();
+      renderPrenotazioni();
+    });
+
     renderPrenotazioni(); generaMessaggio(); aggiornaLink();
     loadBadgeCheckin();
     aggiornaPulizie();
@@ -716,6 +894,9 @@ function presenceInfo(p) {
     var diffArr = Math.round((arr - today2) / 86400000);
     return {dot:'#7c3aed', label:'📅 Tra ' + diffArr + ' gg', cls:null};
   }
+  if (cat === 'passati') {
+    return {dot:'#94a3b8', label:'✓ Completata', cls:'stato-passata'};
+  }
   return null;
 }
 
@@ -723,6 +904,13 @@ function renderPrenotazioni() {
   var root = document.getElementById('listaPrenotazioni');
   var filtered = filterPrenotazioni();
   updateFilterCounts();
+
+  // Se filtro "completate": ordino per partenza DECRESCENTE (le più recenti prima)
+  if (currentFilter === 'completate') {
+    filtered = filtered.slice().sort(function(a,b){
+      return (b.partenza||'').localeCompare(a.partenza||'');
+    });
+  }
 
   if (!filtered.length) {
     root.innerHTML = '<div class="no-results">Nessuna prenotazione trovata per i filtri selezionati</div>';
