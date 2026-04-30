@@ -227,6 +227,7 @@
           <button class="tab" id="tab-alloggiati" onclick="showTab('alloggiati')">📋 Alloggiati</button>
           <button class="tab" id="tab-calendario" onclick="showTab('calendario')">📅 Calendario</button>
           <button class="tab" id="tab-fatture" onclick="window.open('https://fdp88.github.io/SANTALO/santalo-fatture.html','_blank')">🧾 Fatture</button>
+          <button class="tab" id="tab-spot" onclick="showTab('spot')">📊 SPOT Puglia</button>
         </div>
 
         <div id="panel-lista">
@@ -317,6 +318,32 @@
 
         <div id="panel-calendario" style="display:none">
           <div id="calRoot"></div>
+        </div>
+        <div id="panel-spot" style="display:none">
+          <div style="margin-bottom:16px">
+            <h2 style="margin:0 0 4px;font-size:1.4rem;color:var(--ink)">📊 SPOT Puglia — Movimentazione mensile</h2>
+            <p style="margin:0;color:var(--muted);font-size:13.5px">Genera l'XML conforme allo schema <code>movimentogiornaliero-0.5</code> da caricare su <a href="https://spot.pugliapromozione.it" target="_blank" style="color:var(--brown)">spot.pugliapromozione.it</a> entro il 5 del mese successivo.</p>
+          </div>
+
+          <div class="card" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;padding:18px">
+            <div class="ff">
+              <label>Mese</label>
+              <select id="spotMese" style="min-width:140px">
+                <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option>
+                <option value="4">Aprile</option><option value="5">Maggio</option><option value="6">Giugno</option>
+                <option value="7">Luglio</option><option value="8">Agosto</option><option value="9">Settembre</option>
+                <option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option>
+              </select>
+            </div>
+            <div class="ff">
+              <label>Anno</label>
+              <select id="spotAnno" style="min-width:100px"></select>
+            </div>
+            <button class="btn btn-primary" onclick="anteprimaSpot()">🔍 Anteprima</button>
+            <button class="btn btn-green" onclick="scaricaSpotXML()">📥 Scarica XML</button>
+          </div>
+
+          <div id="spotPreview" style="margin-top:14px"></div>
         </div>
       </div>
     </div>
@@ -446,7 +473,7 @@ function copy(text, ok) {
 
 // ===== TABS =====
 function showTab(t) {
-  ['lista','nuova','checkin','chat','alloggiati','calendario'].forEach(function(x) {
+  ['lista','nuova','checkin','chat','alloggiati','calendario','spot'].forEach(function(x) {
     document.getElementById('panel-'+x).style.display = x===t ? '' : 'none';
     var tabEl = document.getElementById('tab-'+x);
     if (tabEl) tabEl.classList.toggle('active', x===t);
@@ -465,6 +492,7 @@ function showTab(t) {
   if (t === 'chat') loadConversazioni();
   if (t === 'alloggiati') loadAlloggiati();
   if (t === 'calendario') renderCalendario();
+  if (t === 'spot') initSpotTab();
 
 }
 
@@ -1212,6 +1240,326 @@ function renderCalendario() {
       tooltip.classList.remove('show');
     });
   });
+}
+
+// ===== SPOT PUGLIA — Esportazione XML mensile =====
+// Conforme allo schema movimentogiornaliero-0.5 (Pugliapromozione/ISTAT)
+
+var SPOT_VENDOR = 'BB-Santalo';
+var SPOT_CAMERE_TOTALI = 3;
+var SPOT_POSTI_LETTO = 6;
+
+function initSpotTab() {
+  var sel = document.getElementById('spotAnno');
+  if (sel.options.length) return; // già inizializzato
+  var oggi = new Date();
+  var annoCorrente = oggi.getFullYear();
+  for (var y = annoCorrente; y >= annoCorrente - 3; y--) {
+    var opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    sel.appendChild(opt);
+  }
+  // Mese e anno: il MESE PRECEDENTE (è quello che si invia entro il 5 del mese successivo)
+  var meseDefault = oggi.getMonth(); // 0..11 → mese precedente in numerazione 1..12 = oggi.getMonth()
+  var annoDefault = annoCorrente;
+  if (meseDefault === 0) { meseDefault = 12; annoDefault = annoCorrente - 1; }
+  document.getElementById('spotMese').value = meseDefault;
+  sel.value = annoDefault;
+  document.getElementById('spotPreview').innerHTML = '';
+}
+
+function spotCalcolaEta(dataNascita, dataRiferimento) {
+  if (!dataNascita) return null;
+  var nasc = new Date(dataNascita);
+  var rif = new Date(dataRiferimento);
+  var eta = rif.getFullYear() - nasc.getFullYear();
+  var m = rif.getMonth() - nasc.getMonth();
+  if (m < 0 || (m === 0 && rif.getDate() < nasc.getDate())) eta--;
+  return eta >= 0 ? eta : null;
+}
+
+function spotEscapeXml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+
+function spotCodiceClienteSr(checkinId, numeroOspite) {
+  // Schema univoco: id × 10 + numero_ospite (capofamiglia=1, primo componente=2, ecc)
+  return checkinId * 10 + (numeroOspite || 1);
+}
+
+// Carica i dati necessari da Supabase per il mese richiesto
+function spotCaricaDati(anno, mese) {
+  // Range mese: dal 1° del mese al 1° del mese successivo
+  var dataInizio = new Date(anno, mese - 1, 1);
+  var dataFine = new Date(anno, mese, 1);
+  var dInizio = dataInizio.toISOString().slice(0,10);
+  var dFine = dataFine.toISOString().slice(0,10);
+
+  // Carica tutte le prenotazioni che si sovrappongono al mese
+  // (arrivo < dFine && partenza > dInizio - 1)
+  return sb.from('prenotazioni')
+    .select('*')
+    .lt('arrivo', dFine)
+    .gte('partenza', dInizio)
+    .then(function(rPren) {
+      if (rPren.error) throw rPren.error;
+      var prenotazioni = rPren.data || [];
+      if (!prenotazioni.length) return { prenotazioni: [], ospiti: [] };
+      var prenIds = prenotazioni.map(function(p){return p.id;});
+      return sb.from('checkin_ospiti')
+        .select('*')
+        .in('prenotazione_id', prenIds)
+        .then(function(rOsp) {
+          if (rOsp.error) throw rOsp.error;
+          return { prenotazioni: prenotazioni, ospiti: rOsp.data || [] };
+        });
+    });
+}
+
+// Costruisce la struttura giornaliera del mese
+function spotCostruisciMovimenti(anno, mese, prenotazioni, ospiti) {
+  var primoGiorno = new Date(anno, mese - 1, 1);
+  var ultimoGiorno = new Date(anno, mese, 0); // ultimo giorno del mese
+  var giorni = [];
+
+  // Indicizzo ospiti per prenotazione_id
+  var ospitiByPren = {};
+  ospiti.forEach(function(o) {
+    if (!ospitiByPren[o.prenotazione_id]) ospitiByPren[o.prenotazione_id] = [];
+    ospitiByPren[o.prenotazione_id].push(o);
+  });
+
+  // Per ogni giorno
+  for (var d = 1; d <= ultimoGiorno.getDate(); d++) {
+    var dataStr = anno + '-' + String(mese).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    var arrivi = []; // lista ospiti che arrivano oggi
+    var partenze = []; // lista codici cliente che partono oggi
+    var camereOccupate = 0;
+
+    prenotazioni.forEach(function(p) {
+      if (!p.arrivo || !p.partenza) return;
+      var ospitiPren = ospitiByPren[p.id] || [];
+      // Camera occupata oggi se: arrivo <= d < partenza
+      if (p.arrivo <= dataStr && dataStr < p.partenza) {
+        camereOccupate++;
+      }
+      // Arrivo oggi
+      if (p.arrivo === dataStr) {
+        // Capofamiglia + componenti: l'XML SPOT vuole un <arrivo> per nucleo familiare
+        // Ordiniamo: capofamiglia (numero_ospite=1 o is_capofamiglia=true) prima
+        var sortedOsp = ospitiPren.slice().sort(function(a,b){
+          if (a.is_capofamiglia && !b.is_capofamiglia) return -1;
+          if (!a.is_capofamiglia && b.is_capofamiglia) return 1;
+          return (a.numero_ospite||99) - (b.numero_ospite||99);
+        });
+        if (sortedOsp.length) {
+          arrivi.push({prenotazione: p, ospiti: sortedOsp});
+        }
+      }
+      // Partenza oggi
+      if (p.partenza === dataStr) {
+        var sortedOspP = ospitiPren.slice().sort(function(a,b){
+          if (a.is_capofamiglia && !b.is_capofamiglia) return -1;
+          if (!a.is_capofamiglia && b.is_capofamiglia) return 1;
+          return (a.numero_ospite||99) - (b.numero_ospite||99);
+        });
+        sortedOspP.forEach(function(o) {
+          partenze.push(spotCodiceClienteSr(o.id, o.numero_ospite));
+        });
+      }
+    });
+
+    giorni.push({
+      data: dataStr,
+      arrivi: arrivi,
+      partenze: partenze,
+      camereOccupate: camereOccupate
+    });
+  }
+  return giorni;
+}
+
+// Genera l'XML conforme allo schema 0.5
+function spotGeneraXML(anno, mese, giorni) {
+  var xml = '<?xml version="1.0"?>\n';
+  xml += '<movimenti xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="movimentogiornaliero-0.5.xsd" vendor="' + SPOT_VENDOR + '">';
+
+  giorni.forEach(function(g) {
+    var hasArrivi = g.arrivi.length > 0;
+    var hasPartenze = g.partenze.length > 0;
+    var type = (hasArrivi || hasPartenze) ? 'MP' : 'NM';
+
+    xml += '<movimento data="' + g.data + '" type="' + type + '">';
+
+    // Arrivi
+    if (hasArrivi) {
+      xml += '<arrivi>';
+      g.arrivi.forEach(function(arr) {
+        var capo = arr.ospiti[0];
+        var componenti = arr.ospiti.slice(1);
+
+        xml += '<arrivo>';
+        xml += '<codiceclientesr>' + spotCodiceClienteSr(capo.id, capo.numero_ospite) + '</codiceclientesr>';
+        xml += '<sesso>' + (capo.sesso === '1' ? 'M' : capo.sesso === '2' ? 'F' : 'M') + '</sesso>';
+        xml += '<cittadinanza>' + spotEscapeXml(capo.cittadinanza_codice || '100000100') + '</cittadinanza>';
+
+        // Residenza: comune se italiano, paese se straniero
+        var resCodIt = capo.comune_residenza_codice || capo.comune_nascita_codice;
+        var resCodEst = capo.stato_residenza_codice || capo.stato_nascita_codice;
+        if (resCodIt && resCodIt !== '') {
+          xml += '<comuneresidenza>' + spotEscapeXml(resCodIt) + '</comuneresidenza>';
+        } else {
+          xml += '<paeseresidenza>' + spotEscapeXml(resCodEst || '100000100') + '</paeseresidenza>';
+        }
+        xml += '<occupazionepostoletto>si</occupazionepostoletto>';
+        xml += '<dayuse>no</dayuse>';
+        xml += '<tipologiaalloggiato>' + spotEscapeXml(capo.tipo_alloggiato || (componenti.length ? '18' : '16')) + '</tipologiaalloggiato>';
+        var eta = spotCalcolaEta(capo.data_nascita, arr.prenotazione.arrivo);
+        if (eta != null) xml += '<eta>' + eta + '</eta>';
+
+        if (componenti.length) {
+          xml += '<componenti>';
+          componenti.forEach(function(c) {
+            xml += '<componente>';
+            xml += '<codiceclientesr>' + spotCodiceClienteSr(c.id, c.numero_ospite) + '</codiceclientesr>';
+            xml += '<sesso>' + (c.sesso === '1' ? 'M' : c.sesso === '2' ? 'F' : 'M') + '</sesso>';
+            xml += '<cittadinanza>' + spotEscapeXml(c.cittadinanza_codice || '100000100') + '</cittadinanza>';
+            var resCIt = c.comune_residenza_codice || c.comune_nascita_codice;
+            var resCEst = c.stato_residenza_codice || c.stato_nascita_codice;
+            if (resCIt && resCIt !== '') {
+              xml += '<comuneresidenza>' + spotEscapeXml(resCIt) + '</comuneresidenza>';
+            } else {
+              xml += '<paeseresidenza>' + spotEscapeXml(resCEst || '100000100') + '</paeseresidenza>';
+            }
+            xml += '<occupazionepostoletto>si</occupazionepostoletto>';
+            var etaC = spotCalcolaEta(c.data_nascita, arr.prenotazione.arrivo);
+            if (etaC != null) xml += '<eta>' + etaC + '</eta>';
+            xml += '</componente>';
+          });
+          xml += '</componenti>';
+        }
+        xml += '</arrivo>';
+      });
+      xml += '</arrivi>';
+    }
+
+    // Partenze
+    if (hasPartenze) {
+      xml += '<partenze>';
+      g.partenze.forEach(function(cod) {
+        xml += '<codiceclientesr>' + cod + '</codiceclientesr>';
+      });
+      xml += '</partenze>';
+    }
+
+    // Dati struttura (sempre presenti)
+    xml += '<datistruttura>';
+    xml += '<cameredisponibili>' + SPOT_CAMERE_TOTALI + '</cameredisponibili>';
+    xml += '<postilettodisponibili>' + SPOT_POSTI_LETTO + '</postilettodisponibili>';
+    xml += '<camereoccupate>' + g.camereOccupate + '</camereoccupate>';
+    xml += '</datistruttura>';
+
+    xml += '</movimento>';
+  });
+
+  xml += '</movimenti>';
+  return xml;
+}
+
+function anteprimaSpot() {
+  var anno = parseInt(document.getElementById('spotAnno').value);
+  var mese = parseInt(document.getElementById('spotMese').value);
+  var preview = document.getElementById('spotPreview');
+  preview.innerHTML = '<div style="padding:14px;color:var(--muted)">Caricamento dati...</div>';
+
+  spotCaricaDati(anno, mese).then(function(dati) {
+    var giorni = spotCostruisciMovimenti(anno, mese, dati.prenotazioni, dati.ospiti);
+    var totArrivi = 0, totPartenze = 0, totOspiti = 0, giorniNM = 0, giorniMP = 0;
+    var ospitiSenzaCheckin = 0;
+    var arriviSenzaCheckin = [];
+
+    giorni.forEach(function(g) {
+      totPartenze += g.partenze.length;
+      g.arrivi.forEach(function(a) {
+        totArrivi++;
+        totOspiti += a.ospiti.length;
+      });
+      if (g.arrivi.length || g.partenze.length) giorniMP++; else giorniNM++;
+    });
+
+    // Verifica integrità: prenotazioni del mese senza ospiti registrati
+    dati.prenotazioni.forEach(function(p) {
+      var arr = p.arrivo;
+      if (arr && arr >= anno + '-' + String(mese).padStart(2,'0') + '-01' &&
+          arr < anno + '-' + String(mese).padStart(2,'0') + '-32') {
+        var ospP = dati.ospiti.filter(function(o){ return o.prenotazione_id === p.id; });
+        if (!ospP.length) {
+          arriviSenzaCheckin.push({nome: p.nome, arrivo: p.arrivo, camera: displayCamera(p.camera)});
+        }
+      }
+    });
+
+    var html = '<div class="card" style="padding:18px">';
+    html += '<h3 style="margin:0 0 12px;font-size:1.1rem">Riepilogo ' + ['','Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'][mese] + ' ' + anno + '</h3>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px">';
+    html += '<div style="padding:12px;background:var(--cream);border-radius:10px"><div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase">Arrivi</div><div style="font-size:1.5rem;font-weight:700;color:var(--ink)">' + totArrivi + '</div></div>';
+    html += '<div style="padding:12px;background:var(--cream);border-radius:10px"><div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase">Partenze</div><div style="font-size:1.5rem;font-weight:700;color:var(--ink)">' + totPartenze + '</div></div>';
+    html += '<div style="padding:12px;background:var(--cream);border-radius:10px"><div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase">Tot. ospiti</div><div style="font-size:1.5rem;font-weight:700;color:var(--ink)">' + totOspiti + '</div></div>';
+    html += '<div style="padding:12px;background:var(--cream);border-radius:10px"><div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase">Giorni con movim.</div><div style="font-size:1.5rem;font-weight:700;color:var(--ink)">' + giorniMP + ' / ' + giorni.length + '</div></div>';
+    html += '</div>';
+
+    if (arriviSenzaCheckin.length) {
+      html += '<div style="padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;margin-bottom:14px">';
+      html += '<strong style="color:#92400e">⚠️ Attenzione: ' + arriviSenzaCheckin.length + ' arrivi senza dati ospite</strong>';
+      html += '<div style="font-size:12.5px;color:#92400e;margin-top:6px">Questi non saranno inclusi nell\'XML. Completa i check-in prima di generare il file.</div>';
+      html += '<ul style="margin:8px 0 0;padding-left:20px;font-size:13px;color:#92400e">';
+      arriviSenzaCheckin.slice(0, 10).forEach(function(a) {
+        html += '<li>' + esc(a.nome) + ' — Camera ' + a.camera + ' — arrivo ' + fmt(a.arrivo) + '</li>';
+      });
+      if (arriviSenzaCheckin.length > 10) html += '<li>... e altri ' + (arriviSenzaCheckin.length - 10) + '</li>';
+      html += '</ul></div>';
+    }
+
+    // Tabella riepilogo per giorno (solo giorni con movimento)
+    html += '<div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase">Dettaglio giorni con movimento</div>';
+    html += '<div style="max-height:340px;overflow-y:auto;border:1px solid var(--line);border-radius:10px"><table style="width:100%;border-collapse:collapse;font-size:13px">';
+    html += '<thead style="background:var(--cream);position:sticky;top:0"><tr><th style="text-align:left;padding:8px 12px">Data</th><th style="text-align:center;padding:8px">Arrivi</th><th style="text-align:center;padding:8px">Ospiti tot</th><th style="text-align:center;padding:8px">Partenze</th><th style="text-align:center;padding:8px">Camere occ.</th></tr></thead><tbody>';
+    giorni.forEach(function(g) {
+      if (!g.arrivi.length && !g.partenze.length) return;
+      var ospGiorno = 0;
+      g.arrivi.forEach(function(a){ ospGiorno += a.ospiti.length; });
+      html += '<tr style="border-top:1px solid var(--line)"><td style="padding:6px 12px">' + fmt(g.data) + '</td>';
+      html += '<td style="text-align:center;padding:6px">' + g.arrivi.length + '</td>';
+      html += '<td style="text-align:center;padding:6px;color:var(--muted)">' + ospGiorno + '</td>';
+      html += '<td style="text-align:center;padding:6px">' + g.partenze.length + '</td>';
+      html += '<td style="text-align:center;padding:6px;font-weight:600">' + g.camereOccupate + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '</div>';
+    preview.innerHTML = html;
+
+    // Memorizza il payload per il download
+    window._spotPayload = { anno: anno, mese: mese, giorni: giorni };
+  }).catch(function(err) {
+    preview.innerHTML = '<div style="padding:14px;color:var(--err);background:#fee2e2;border-radius:10px">Errore: ' + esc(err.message || err) + '</div>';
+  });
+}
+
+function scaricaSpotXML() {
+  var p = window._spotPayload;
+  if (!p) {
+    alert('Genera prima l\'anteprima cliccando "🔍 Anteprima"');
+    return;
+  }
+  var xml = spotGeneraXML(p.anno, p.mese, p.giorni);
+  var blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+  var nomeFile = 'SPOTPuglia_' + p.anno + String(p.mese).padStart(2,'0') + '_Santalo.xml';
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nomeFile;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 100);
 }
 
 // ===== MODAL CHECK-IN =====
