@@ -177,6 +177,7 @@ var T = {
     lbl_sesso:"Sesso *", lbl_ddn:"Data di nascita *",
     lbl_cf:"Codice Fiscale *", lbl_citt:"Cittadinanza *", lbl_nato:"Nato in Italia?",
     lbl_comune:"Comune di nascita *", lbl_prov:"Provincia nascita *", lbl_stato:"Stato di nascita *",
+    lbl_res_titolo:"Residenza", lbl_res_uguale:"La residenza coincide con il luogo di nascita?", lbl_res_comune:"Comune di residenza *", lbl_res_prov:"Provincia residenza *", lbl_res_stato:"Stato di residenza *",
     lbl_tdoc:"Tipo documento *", lbl_ndoc:"Numero documento *", lbl_ddoc:"Data rilascio documento *", lbl_luogo:"Comune/Ente rilascio *",
     lbl_fronte:"Documento fronte *", lbl_retro:"Documento retro *", lbl_selfie:"Selfie con documento *",
     btn_fronte:"📷 Scatta o carica foto fronte", btn_retro:"📷 Scatta o carica foto retro", btn_selfie:"🤳 Scatta selfie con documento",
@@ -203,6 +204,7 @@ var T = {
     lbl_sesso:"Gender *", lbl_ddn:"Date of birth *",
     lbl_cf:"Tax Code *", lbl_citt:"Citizenship *", lbl_nato:"Born in Italy?",
     lbl_comune:"City of birth *", lbl_prov:"Province *", lbl_stato:"Country of birth *",
+    lbl_res_titolo:"Residence", lbl_res_uguale:"Is your residence the same as your place of birth?", lbl_res_comune:"City of residence *", lbl_res_prov:"Province of residence *", lbl_res_stato:"Country of residence *",
     lbl_tdoc:"Document type *", lbl_ndoc:"Document number *", lbl_ddoc:"Issue date *", lbl_luogo:"Issuing authority *",
     lbl_fronte:"Document front *", lbl_retro:"Document back *", lbl_selfie:"Selfie with document *",
     btn_fronte:"📷 Take or upload front photo", btn_retro:"📷 Take or upload back photo", btn_selfie:"🤳 Take selfie with document",
@@ -228,6 +230,7 @@ var T = {
     lbl_sesso:"Sexe *", lbl_ddn:"Date de naissance *",
     lbl_cf:"Code fiscal *", lbl_citt:"Nationalité *", lbl_nato:"Né(e) en Italie ?",
     lbl_comune:"Ville de naissance *", lbl_prov:"Province *", lbl_stato:"Pays de naissance *",
+    lbl_res_titolo:"Résidence", lbl_res_uguale:"La résidence coïncide avec le lieu de naissance ?", lbl_res_comune:"Ville de résidence *", lbl_res_prov:"Province de résidence *", lbl_res_stato:"Pays de résidence *",
     lbl_tdoc:"Type de document *", lbl_ndoc:"Numéro *", lbl_ddoc:"Date d'émission *", lbl_luogo:"Autorité émettrice *",
     lbl_fronte:"Document recto *", lbl_retro:"Document verso *", lbl_selfie:"Selfie avec document *",
     btn_fronte:"📷 Photo recto", btn_retro:"📷 Photo verso", btn_selfie:"🤳 Selfie avec document",
@@ -253,6 +256,7 @@ var T = {
     lbl_sesso:"Geschlecht *", lbl_ddn:"Geburtsdatum *",
     lbl_cf:"Steuer-ID *", lbl_citt:"Staatsangehörigkeit *", lbl_nato:"In Italien geboren?",
     lbl_comune:"Geburtsort *", lbl_prov:"Provinz *", lbl_stato:"Geburtsland *",
+    lbl_res_titolo:"Wohnsitz", lbl_res_uguale:"Stimmt der Wohnsitz mit dem Geburtsort überein?", lbl_res_comune:"Wohnort *", lbl_res_prov:"Provinz Wohnort *", lbl_res_stato:"Wohnsitzland *",
     lbl_tdoc:"Dokumenttyp *", lbl_ndoc:"Dokumentnummer *", lbl_ddoc:"Ausstellungsdatum *", lbl_luogo:"Ausstellungsbehörde *",
     lbl_fronte:"Dokument Vorderseite *", lbl_retro:"Dokument Rückseite *", lbl_selfie:"Selfie mit Dokument *",
     btn_fronte:"📷 Foto Vorderseite", btn_retro:"📷 Foto Rückseite", btn_selfie:"🤳 Selfie mit Dokument",
@@ -278,6 +282,7 @@ var T = {
     lbl_sesso:"Sexo *", lbl_ddn:"Fecha de nacimiento *",
     lbl_cf:"NIF / Código fiscal *", lbl_citt:"Ciudadanía *", lbl_nato:"¿Nacido en Italia?",
     lbl_comune:"Ciudad de nacimiento *", lbl_prov:"Provincia *", lbl_stato:"País de nacimiento *",
+    lbl_res_titolo:"Residencia", lbl_res_uguale:"¿La residencia coincide con el lugar de nacimiento?", lbl_res_comune:"Ciudad de residencia *", lbl_res_prov:"Provincia de residencia *", lbl_res_stato:"País de residencia *",
     lbl_tdoc:"Tipo de documento *", lbl_ndoc:"Número *", lbl_ddoc:"Fecha de emisión *", lbl_luogo:"Organismo emisor *",
     lbl_fronte:"Documento anverso *", lbl_retro:"Documento reverso *", lbl_selfie:"Selfie con documento *",
     btn_fronte:"📷 Foto anverso", btn_retro:"📷 Foto reverso", btn_selfie:"🤳 Selfie con documento",
@@ -1722,6 +1727,18 @@ function guestTemplate(index, totalGuests) {
     '<div id="comune_nascita_wrap_'+index+'">'+'<label>'+L.lbl_comune+'</label></div>'+
     '<div><label>'+L.lbl_prov+'</label><input data-field="provincia_nascita" maxlength="2" placeholder="BA"></div>'+
     '<div id="stato_nascita_wrap_'+index+'" style="display:none">'+'<label>'+L.lbl_stato+'</label></div>'+
+    // ===== RESIDENZA (per SPOT Puglia) =====
+    '<div style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px dashed #cbd5e1;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
+      '<strong style="color:#3D2818">'+L.lbl_res_titolo+'</strong>'+
+      '<label style="font-weight:400;cursor:pointer;display:flex;align-items:center;gap:6px">'+
+        '<input type="checkbox" id="res_uguale_'+index+'" checked onchange="toggleResidenza('+index+')"> '+
+        L.lbl_res_uguale+
+      '</label>'+
+    '</div>'+
+    '<div id="residenza_box_'+index+'" style="display:none;grid-column:1/-1;grid-template-columns:1fr 1fr;gap:14px"></div>'+
+    '<div id="comune_residenza_wrap_'+index+'" style="display:none"><label>'+L.lbl_res_comune+'</label></div>'+
+    '<div id="provincia_residenza_wrap_'+index+'" style="display:none"><label>'+L.lbl_res_prov+'</label><input data-field="provincia_residenza" maxlength="2" placeholder="BA"></div>'+
+    '<div id="stato_residenza_wrap_'+index+'" style="display:none"><label>'+L.lbl_res_stato+'</label></div>'+
     '<div><label>'+L.lbl_tdoc+'</label><select data-field="tipo_documento" required>'+
     '<option value="">'+L.opt_sel+'</option>'+
     '<option value="IDENT">'+L.opt_ci+'</option>'+
@@ -1859,6 +1876,20 @@ function guestTemplate(index, totalGuests) {
   statoSearch.querySelector('input').dataset.field = 'stato_nascita_nome';
   statoWrap.appendChild(statoSearch);
 
+  // ===== RESIDENZA (search-box) =====
+  var comuneResWrap = div.querySelector('#comune_residenza_wrap_'+index);
+  var comuneResSearch = makeSearchField('comune_res_'+index, L.ph_comune, COMUNI_ITALIANI, function(codice) {
+    var found = COMUNI_ITALIANI.find(function(c){ return c.c === codice; });
+    if (found) { var p = div.querySelector('[data-field="provincia_residenza"]'); if (p && !p.value) p.value = found.p; }
+  });
+  comuneResSearch.querySelector('input').dataset.field = 'comune_residenza_nome';
+  comuneResWrap.appendChild(comuneResSearch);
+
+  var statoResWrap = div.querySelector('#stato_residenza_wrap_'+index);
+  var statoResSearch = makeSearchField('stato_res_'+index, L.ph_stato, [{n:'Italia',c:'100000100'}].concat(STATI_ESTERI), null);
+  statoResSearch.querySelector('input').dataset.field = 'stato_residenza_nome';
+  statoResWrap.appendChild(statoResSearch);
+
   var luogoWrap = div.querySelector('#luogo_rilascio_wrap_'+index);
   var luogoSearch = makeSearchField('luogo_'+index, L.ph_comune, COMUNI_ITALIANI, null);
   luogoSearch.querySelector('input').dataset.field = 'luogo_rilascio_nome';
@@ -1887,6 +1918,26 @@ function guestTemplate(index, totalGuests) {
   });
 
   return div;
+}
+
+function toggleResidenza(index) {
+  var card = document.querySelector('[data-guest-index="'+index+'"]');
+  if (!card) return;
+  var uguale = card.querySelector('#res_uguale_'+index).checked;
+  var natoIt = card.querySelector('#nato_italia_'+index).value === 'si';
+  var resBox = card.querySelector('#residenza_box_'+index);
+
+  if (uguale) {
+    // Nascondo i campi residenza espliciti
+    card.querySelector('#comune_residenza_wrap_'+index).style.display = 'none';
+    card.querySelector('#provincia_residenza_wrap_'+index).style.display = 'none';
+    card.querySelector('#stato_residenza_wrap_'+index).style.display = 'none';
+  } else {
+    // Mostro: comune+prov per italiani, stato per stranieri
+    card.querySelector('#comune_residenza_wrap_'+index).style.display = natoIt ? '' : 'none';
+    card.querySelector('#provincia_residenza_wrap_'+index).style.display = natoIt ? '' : 'none';
+    card.querySelector('#stato_residenza_wrap_'+index).style.display = natoIt ? 'none' : '';
+  }
 }
 
 function toggleFatTipo(index) {
@@ -2122,6 +2173,38 @@ document.getElementById('checkinForm').addEventListener('submit', async function
         obj.provincia_nascita = 'EE';
       }
       obj.cittadinanza_codice = getCodiceStato(card.querySelector('#cittadinanza_wrap_'+idx).querySelector('.search-wrap'));
+
+      // ===== RESIDENZA (per SPOT Puglia) =====
+      var resUguale = card.querySelector('#res_uguale_'+idx).checked;
+      if (resUguale) {
+        // Copia da nascita
+        if (natoItalia) {
+          obj.comune_residenza_codice = obj.comune_nascita_codice;
+          obj.comune_residenza_nome = obj.comune_nascita_nome;
+          obj.provincia_residenza = obj.provincia_nascita;
+          obj.stato_residenza_codice = '100000100';
+          obj.stato_residenza_nome = 'Italia';
+        } else {
+          obj.comune_residenza_codice = '';
+          obj.comune_residenza_nome = '';
+          obj.provincia_residenza = 'EE';
+          obj.stato_residenza_codice = obj.stato_nascita_codice;
+          obj.stato_residenza_nome = obj.stato_nascita_nome;
+        }
+      } else {
+        // Letta dai campi residenza
+        if (natoItalia) {
+          obj.comune_residenza_codice = getCodiceComune(card.querySelector('#comune_residenza_wrap_'+idx).querySelector('.search-wrap'));
+          obj.stato_residenza_codice = '100000100';
+          obj.stato_residenza_nome = 'Italia';
+        } else {
+          obj.comune_residenza_codice = '';
+          obj.comune_residenza_nome = '';
+          obj.provincia_residenza = 'EE';
+          obj.stato_residenza_codice = getCodiceStato(card.querySelector('#stato_residenza_wrap_'+idx).querySelector('.search-wrap'));
+        }
+      }
+
       // Luogo rilascio: comuni per italiani, stato per stranieri
       var luogoSW = card.querySelector('#luogo_rilascio_wrap_'+idx).querySelector('.search-wrap');
       if (natoItalia) {
