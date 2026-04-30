@@ -76,14 +76,40 @@
     .esito.err{background:var(--err-bg);color:var(--err)}
 
     /* PRENOTAZIONI SIDEBAR */
-    .pren-list{max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+    .pren-list{max-height:520px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
     .pren-list::-webkit-scrollbar{width:4px}.pren-list::-webkit-scrollbar-thumb{background:var(--sand-l);border-radius:4px}
-    .pren-item{border:2px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .15s;background:#fff}
+    .pren-item{position:relative;border:2px solid var(--line);border-left:5px solid var(--line);border-radius:12px;padding:11px 14px 11px 12px;cursor:pointer;transition:all .15s;background:#fff}
     .pren-item:hover{border-color:var(--sand);background:var(--cream)}
     .pren-item.selected{border-color:var(--brown);background:var(--cream)}
-    .pren-nome{font-weight:700;font-size:.9rem;margin-bottom:2px}
+    .pren-item.canale-booking{border-left-color:#1a56a0}
+    .pren-item.canale-airbnb{border-left-color:#e11d48}
+    .pren-item.canale-diretto, .pren-item.canale-altro{border-left-color:#6b7280}
+    .pren-item.fatturata{opacity:.62;background:#f8fafc}
+    .pren-item.fatturata .pren-nome{text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:#94a3b8}
+    .pren-nome{font-weight:700;font-size:.92rem;margin-bottom:2px;padding-right:24px;line-height:1.25}
     .pren-meta{font-size:11.5px;color:var(--muted)}
+    .pren-importo{font-size:14px;font-weight:700;color:var(--ink);margin-top:3px}
     .pren-cam{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;margin-top:4px}
+    .pren-fattflag{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all .15s;z-index:5}
+    .pren-fattflag:hover{border-color:#10b981;background:#ecfdf5}
+    .pren-fattflag.checked{background:#10b981;border-color:#10b981;color:#fff}
+    .pren-fattbadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;background:#ecfdf5;color:#065f46;border:1px solid #10b981;margin-left:6px;vertical-align:middle}
+    .pren-canalebadge{display:inline-block;font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;color:#fff;text-transform:uppercase;letter-spacing:.04em}
+    .pren-canalebadge.cb-booking{background:#1a56a0}
+    .pren-canalebadge.cb-airbnb{background:#e11d48}
+    .pren-canalebadge.cb-diretto, .pren-canalebadge.cb-altro{background:#6b7280}
+
+    .pren-filter-tabs{display:flex;gap:4px;margin-bottom:10px;background:var(--cream);border-radius:10px;padding:3px}
+    .pren-tab{flex:1;border:none;background:transparent;padding:7px 6px;border-radius:7px;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+    .pren-tab:hover{color:var(--ink)}
+    .pren-tab.active{background:#fff;color:var(--brown);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .pren-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:var(--sand-l);color:var(--muted);border-radius:9px;font-size:10.5px;font-weight:700}
+    .pren-tab.active .pren-count{background:var(--brown);color:#fff}
+
+    .pren-canale-filter{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+    .pren-cf-btn{border:1.5px solid var(--line);background:#fff;padding:4px 10px;border-radius:14px;font:inherit;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s}
+    .pren-cf-btn:hover{border-color:var(--sand)}
+    .pren-cf-btn.active{background:var(--cf-col, var(--ink));border-color:var(--cf-col, var(--ink));color:#fff}
     .cam-1954{background:#dcfce7;color:#166534}
     .cam-1956{background:#dbeafe;color:#1e40af}
     .cam-1920{background:#fef3c7;color:#92400e}
@@ -284,7 +310,24 @@
     <div>
       <div class="card" style="position:sticky;top:18px">
         <div class="card-title"><span>📅</span> Prenotazioni</div>
+
+        <!-- Tab filtro stato -->
+        <div class="pren-filter-tabs" id="prenFilterTabs">
+          <button class="pren-tab active" data-filter="da-fatturare" onclick="setPrenFilter('da-fatturare')">📝 Da fatturare <span class="pren-count" id="cntDa">0</span></button>
+          <button class="pren-tab" data-filter="fatturate" onclick="setPrenFilter('fatturate')">✅ Fatturate <span class="pren-count" id="cntFatt">0</span></button>
+          <button class="pren-tab" data-filter="tutte" onclick="setPrenFilter('tutte')">📋 Tutte <span class="pren-count" id="cntTot">0</span></button>
+        </div>
+
         <input class="search-pren" id="searchPren" placeholder="Cerca nome..." oninput="filtraPren()"/>
+
+        <!-- Filtro canale -->
+        <div class="pren-canale-filter">
+          <button class="pren-cf-btn active" data-canale="tutti" onclick="setCanaleFilter('tutti')">Tutti</button>
+          <button class="pren-cf-btn" data-canale="Booking" onclick="setCanaleFilter('Booking')" style="--cf-col:#1a56a0">Booking</button>
+          <button class="pren-cf-btn" data-canale="Airbnb" onclick="setCanaleFilter('Airbnb')" style="--cf-col:#e11d48">Airbnb</button>
+          <button class="pren-cf-btn" data-canale="Diretto" onclick="setCanaleFilter('Diretto')" style="--cf-col:#6b7280">Diretto</button>
+        </div>
+
         <div id="pren-list" class="pren-list">
           <div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Caricamento...</div>
         </div>
@@ -362,6 +405,13 @@ function fmt(d) {
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+// 1920 (chiave DB) → 1928 (numero civico reale visibile all'utente)
+function displayCamera(cam) {
+  if (!cam) return '';
+  var num = String(cam).replace(/[^0-9]/g, '');
+  if (num === '1920') return 'Camera 1928';
+  return String(cam);
+}
 function phone(p) {
   if (!p) return '';
   var c = String(p).replace(/[^\d+]/g, '');
@@ -435,8 +485,10 @@ function getPrezzoUnit() {
   var imp = parseFloat(document.getElementById('fat-importo').value) || 0;
   var pu  = parseFloat(document.getElementById('fat-prezzounit').value) || 0;
   var qta = parseFloat(document.getElementById('fat-qta').value) || 1;
-  if (imp > 0 && qta > 0) return (imp / qta).toFixed(2);
-  return pu.toFixed(2);
+  // SDI ammette fino a 8 decimali sul PrezzoUnitario: usiamo precisione massima
+  // per evitare rifiuti dovuti a Quantita × PrezzoUnitario ≠ PrezzoTotale
+  if (imp > 0 && qta > 0) return (imp / qta).toFixed(8);
+  return pu.toFixed(8);
 }
 
 // ===== DATI CLIENTE =====
@@ -630,6 +682,24 @@ function scaricaXML() {
   a.download = r.nomeFile;
   a.click();
   showEsito('XML scaricato: ' + r.nomeFile + ' (' + r.numero + ')', 'ok');
+  proponiFlagFatturata(r.numero);
+}
+
+// Dopo emissione XML / invio Aruba: se c'è una prenotazione selezionata, propone di marcarla come fatturata
+function proponiFlagFatturata(numero) {
+  if (!selected || selected.fattura_emessa) return;
+  setTimeout(function(){
+    if (!confirm('Marcare la prenotazione "' + (selected.nome||'') + '" come FATTURATA con ' + numero + '?')) return;
+    var oggi = new Date().toISOString().slice(0,10);
+    sb.from('prenotazioni').update({fattura_emessa: true, fattura_numero: numero, fattura_data: oggi}).eq('id', selected.id).then(function(r) {
+      if (r.error) { showEsito('Errore aggiornamento DB: ' + r.error.message, 'err'); return; }
+      selected.fattura_emessa = true;
+      selected.fattura_numero = numero;
+      selected.fattura_data = oggi;
+      renderPren();
+      showEsito('Prenotazione marcata come fatturata ✓', 'ok');
+    });
+  }, 600);
 }
 
 // ===== INVIA ARUBA =====
@@ -655,6 +725,7 @@ async function inviaAruba() {
       aggiornaPreview();
       showEsito('Fattura ' + r.numero + ' inviata ad Aruba con successo!', 'ok');
       caricaFatture();
+      proponiFlagFatturata(r.numero);
     } else {
       showEsito('Errore: ' + JSON.stringify(data.risposta || data.error), 'err');
     }
@@ -689,6 +760,10 @@ async function caricaFatture() {
 }
 
 // ===== PRENOTAZIONI =====
+// === Filtri pannello prenotazioni ===
+var prenFilterStato = 'da-fatturare'; // 'da-fatturare' | 'fatturate' | 'tutte'
+var prenFilterCanale = 'tutti';        // 'tutti' | 'Booking' | 'Airbnb' | 'Diretto'
+
 function caricaPrenotazioni() {
   sb.from('prenotazioni').select('*').order('arrivo', {ascending: true}).then(function(r) {
     if (r.error) { document.getElementById('pren-list').innerHTML = '<div style="color:var(--err);font-size:13px;padding:12px">Errore Supabase</div>'; return; }
@@ -700,34 +775,110 @@ function caricaPrenotazioni() {
       return par >= limit;
     });
     prenotazioni.sort(function(a,b) { return (a.arrivo||'') > (b.arrivo||'') ? 1 : -1; });
-    renderPren(prenotazioni);
+    renderPren();
   });
 }
 
-function renderPren(list) {
+function getCanaleClass(canale) {
+  var c = (canale||'').toLowerCase();
+  if (c.indexOf('booking') >= 0) return 'booking';
+  if (c.indexOf('airbnb') >= 0) return 'airbnb';
+  if (c.indexOf('diretto') >= 0) return 'diretto';
+  return 'altro';
+}
+
+function getPrenFiltrate() {
+  var q = (document.getElementById('searchPren').value || '').toLowerCase();
+  return prenotazioni.filter(function(p) {
+    // Filtro stato fattura
+    var isFatt = !!p.fattura_emessa;
+    if (prenFilterStato === 'da-fatturare' && isFatt) return false;
+    if (prenFilterStato === 'fatturate' && !isFatt) return false;
+    // Filtro canale
+    if (prenFilterCanale !== 'tutti' && getCanaleClass(p.canale) !== prenFilterCanale.toLowerCase()) return false;
+    // Search nome
+    if (q && (p.nome||'').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+}
+
+function aggiornaContatori() {
+  var da = 0, fatt = 0;
+  prenotazioni.forEach(function(p) { if (p.fattura_emessa) fatt++; else da++; });
+  document.getElementById('cntDa').textContent = da;
+  document.getElementById('cntFatt').textContent = fatt;
+  document.getElementById('cntTot').textContent = prenotazioni.length;
+}
+
+function renderPren() {
+  aggiornaContatori();
   var el = document.getElementById('pren-list');
-  if (!list.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Nessuna prenotazione</div>'; return; }
+  var list = getPrenFiltrate();
+  if (!list.length) {
+    var msg = prenFilterStato === 'da-fatturare' ? 'Nessuna prenotazione da fatturare 🎉' :
+              prenFilterStato === 'fatturate' ? 'Nessuna fattura ancora emessa' :
+              'Nessuna prenotazione';
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">' + msg + '</div>';
+    return;
+  }
   el.innerHTML = list.map(function(p) {
     var isSelected = selected && selected.id === p.id;
+    var canaleClass = getCanaleClass(p.canale);
     var camNum = (p.camera||'').replace(/[^0-9]/g,'');
     var camClass = camNum === '1954' ? 'cam-1954' : camNum === '1956' ? 'cam-1956' : camNum === '1920' ? 'cam-1920' : '';
-    return '<div class="pren-item' + (isSelected ? ' selected' : '') + '" onclick="selezionaPren(' + p.id + ')">'
-      + '<div class="pren-nome">' + esc(p.nome || '--') + '</div>'
+    var fattClass = p.fattura_emessa ? ' fatturata' : '';
+    var checkClass = p.fattura_emessa ? ' checked' : '';
+    var fattBadge = p.fattura_emessa && p.fattura_numero ? '<span class="pren-fattbadge" title="Emessa il '+(p.fattura_data||'')+'">FPR ' + esc(p.fattura_numero) + '</span>' : '';
+    var importoRow = p.importo ? '<div class="pren-importo">EUR ' + parseFloat(p.importo).toFixed(2).replace('.',',') + '</div>' : '';
+
+    return '<div class="pren-item canale-'+canaleClass+(isSelected?' selected':'')+fattClass+'" onclick="selezionaPren(' + p.id + ')">'
+      + '<button class="pren-fattflag'+checkClass+'" onclick="event.stopPropagation();toggleFatturata('+p.id+')" title="'+(p.fattura_emessa?'Sflagga (rimetti in da fatturare)':'Marca come fatturata')+'">✓</button>'
+      + '<div class="pren-nome">' + esc(p.nome || '--') + fattBadge + '</div>'
       + '<div class="pren-meta">' + fmt(p.arrivo) + ' → ' + fmt(p.partenza) + '</div>'
-      + '<div class="pren-meta">' + esc(p.canale || '') + (p.importo ? ' · EUR ' + parseFloat(p.importo).toFixed(2) : '') + '</div>'
-      + '<span class="pren-cam ' + camClass + '">' + esc(p.camera || '') + '</span>'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-top:4px">'
+      +   '<div>'
+      +     '<span class="pren-canalebadge cb-'+canaleClass+'">' + esc(p.canale || 'Altro') + '</span> '
+      +     '<span class="pren-cam ' + camClass + '">' + esc(displayCamera(p.camera)) + '</span>'
+      +   '</div>'
+      +   importoRow
+      + '</div>'
       + '</div>';
   }).join('');
 }
 
-function filtraPren() {
-  var q = document.getElementById('searchPren').value.toLowerCase();
-  renderPren(prenotazioni.filter(function(p) { return (p.nome||'').toLowerCase().includes(q); }));
+function filtraPren() { renderPren(); }
+
+function setPrenFilter(filter) {
+  prenFilterStato = filter;
+  document.querySelectorAll('.pren-tab').forEach(function(b){ b.classList.toggle('active', b.dataset.filter === filter); });
+  renderPren();
+}
+
+function setCanaleFilter(canale) {
+  prenFilterCanale = canale;
+  document.querySelectorAll('.pren-cf-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.canale === canale); });
+  renderPren();
+}
+
+function toggleFatturata(id) {
+  var p = prenotazioni.find(function(x){ return x.id === id; });
+  if (!p) return;
+  var newVal = !p.fattura_emessa;
+  var msg = newVal ? 'Marcare "' + (p.nome||'') + '" come fatturata?' : 'Rimuovere il flag "fatturata" da "' + (p.nome||'') + '"?';
+  if (!confirm(msg)) return;
+  var update = { fattura_emessa: newVal };
+  if (!newVal) { update.fattura_numero = null; update.fattura_data = null; }
+  sb.from('prenotazioni').update(update).eq('id', id).then(function(r) {
+    if (r.error) { showEsito('Errore: ' + r.error.message, 'err'); return; }
+    p.fattura_emessa = newVal;
+    if (!newVal) { p.fattura_numero = null; p.fattura_data = null; }
+    renderPren();
+  });
 }
 
 function selezionaPren(id) {
   selected = prenotazioni.find(function(p) { return p.id === id; }) || null;
-  renderPren(document.getElementById('searchPren').value ? prenotazioni.filter(function(p) { return (p.nome||'').toLowerCase().includes(document.getElementById('searchPren').value.toLowerCase()); }) : prenotazioni);
+  renderPren();
 }
 
 // ===== PRECOMPILA DA PRENOTAZIONE =====
@@ -856,7 +1007,7 @@ async function precompila() {
     var notti = Math.max(1, Math.round((new Date(p.partenza+'T12:00:00') - new Date(p.arrivo+'T12:00:00')) / 86400000));
     document.getElementById('fat-qta').value = notti;
     desc = 'Soggiorno B&B Santalo dal ' + fmt(p.arrivo) + ' al ' + fmt(p.partenza);
-    if (p.camera) desc += ' - ' + p.camera;
+    if (p.camera) desc += ' - ' + displayCamera(p.camera);
   }
   document.getElementById('fat-desc').value = desc;
 
