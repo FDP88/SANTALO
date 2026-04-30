@@ -396,6 +396,9 @@
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#065f46;margin-bottom:4px">Codice Fiscale calcolato</div>
           <div style="font-family:'SF Mono','Monaco','Consolas',monospace;font-size:1.4rem;font-weight:700;color:#065f46;letter-spacing:.04em" id="cfMOutput">—</div>
         </div>
+
+        <!-- Diagnostica: confronto col CF già inserito nel form fattura -->
+        <div id="cfMDiagBox" style="display:none;margin-top:10px;padding:12px;border-radius:10px;font-size:13px;line-height:1.5"></div>
       </div>
     </div>
     <div class="modal-actions">
@@ -854,6 +857,85 @@ function calcolaCF(cognome, nome, sesso, dataNascita, codiceCatastale) {
   return cf15 + cfControllo(cf15);
 }
 
+// Analizza un CF inserito confrontandolo coi dati anagrafici, blocco per blocco.
+// Ritorna { stato: 'ok'|'errore'|'invertito'|'parziale', messaggio, cfCorretto, swap: bool }
+function analizzaCF(cfInserito, cognome, nome, sesso, dataNascita, codiceCatastale) {
+  cfInserito = String(cfInserito||'').toUpperCase().trim();
+  if (cfInserito.length !== 16) {
+    return { stato:'errore', messaggio:'Il CF deve essere di 16 caratteri (ne hai inseriti '+cfInserito.length+').', cfCorretto:null, swap:false };
+  }
+  if (!cognome || !nome || !sesso || !dataNascita || !codiceCatastale) {
+    return { stato:'errore', messaggio:'Dati anagrafici incompleti per la verifica.', cfCorretto:null, swap:false };
+  }
+
+  // Calcolo cosa "dovrebbe" essere
+  var cfCalcolato = calcolaCF(cognome, nome, sesso, dataNascita, codiceCatastale);
+  var cfSwapped = calcolaCF(nome, cognome, sesso, dataNascita, codiceCatastale); // cognome e nome invertiti
+
+  // Caso 1: CF perfettamente corretto
+  if (cfInserito === cfCalcolato) {
+    return { stato:'ok', messaggio:'Il CF è corretto e coerente con i dati anagrafici.', cfCorretto:cfInserito, swap:false };
+  }
+
+  // Caso 2: CF corretto ma cognome/nome sono invertiti
+  if (cfInserito === cfSwapped) {
+    return {
+      stato:'invertito',
+      messaggio:'Il CF è corretto, ma cognome e nome risultano invertiti rispetto a come sono stati inseriti.',
+      cfCorretto:cfInserito,
+      swap:true,
+      cognomeCorretto: nome,
+      nomeCorretto: cognome
+    };
+  }
+
+  // Caso 3: CF errato. Analizzo blocco per blocco per dire dove è l'errore.
+  var blocchi = [];
+  var cogPart = cfCognome(cognome), nomPart = cfNome(nome);
+  var cogPartSwap = cfCognome(nome), nomPartSwap = cfNome(cognome);
+  var dataPart = cfData(dataNascita, sesso);
+  var catPart = String(codiceCatastale).toUpperCase();
+
+  // Verifica blocco cognome (3 char)
+  var inserCog = cfInserito.slice(0,3);
+  var inserNom = cfInserito.slice(3,6);
+  var inserData = cfInserito.slice(6,11);
+  var inserCat = cfInserito.slice(11,15);
+  var inserCtrl = cfInserito.slice(15);
+
+  if (inserCog !== cogPart) {
+    if (inserCog === cogPartSwap && inserNom === nomPartSwap) {
+      // già coperto da caso "invertito"? — no perché ci entriamo solo se cfInserito != cfSwapped (es. data o comune diversi)
+      blocchi.push('Cognome e nome sembrano invertiti');
+    } else {
+      blocchi.push('Cognome: il CF inizia per "'+inserCog+'", ma da "'+cognome+'" mi aspetto "'+cogPart+'"');
+    }
+  }
+  if (inserNom !== nomPart && !(inserCog === cogPartSwap && inserNom === nomPartSwap)) {
+    blocchi.push('Nome: nel CF c\'è "'+inserNom+'", ma da "'+nome+'" mi aspetto "'+nomPart+'"');
+  }
+  if (inserData !== dataPart) {
+    // Decodifico anno/mese/giorno dal CF inserito per fare diagnostica
+    var diagSesso = '';
+    var giornoIns = parseInt(inserData.slice(3,5), 10);
+    if (giornoIns > 40) { diagSesso = 'F'; giornoIns -= 40; } else diagSesso = 'M';
+    var meseIns = CF_MESI.indexOf(inserData.charAt(2)) + 1;
+    var annoIns = parseInt(inserData.slice(0,2), 10);
+    var dataDecodificata = (giornoIns<10?'0':'')+giornoIns+'/'+(meseIns<10?'0':'')+meseIns+'/'+(annoIns<10?'0':'')+annoIns;
+    blocchi.push('Data o sesso: nel CF risulta '+dataDecodificata+' '+diagSesso+', i dati inseriti dicono '+dataNascita+' '+sesso);
+  }
+  if (inserCat !== catPart) {
+    blocchi.push('Comune di nascita: il CF ha il codice "'+inserCat+'", il comune inserito dà "'+catPart+'"');
+  }
+
+  return {
+    stato:'errore',
+    messaggio:blocchi.join(' · ') || 'Il CF non corrisponde ai dati anagrafici.',
+    cfCorretto:cfCalcolato,
+    swap:false
+  };
+}
+
 // === Modal calcolo CF ===
 
 function apriCalcoloCFFattura() {
@@ -976,14 +1058,68 @@ function cfMLiveCalc() {
   var data = document.getElementById('cfMDataNascita').value;
   var cat = document.getElementById('cfMCatastale').value;
   var risBox = document.getElementById('cfMRisultato');
+  var diagBox = document.getElementById('cfMDiagBox');
+
   if (!cog || !nom || !sesso || !data || !cat) {
     risBox.style.display = 'none';
+    diagBox.style.display = 'none';
     return;
   }
   var cf = calcolaCF(cog, nom, sesso, data, cat);
-  if (!cf) { risBox.style.display = 'none'; return; }
+  if (!cf) { risBox.style.display = 'none'; diagBox.style.display = 'none'; return; }
   document.getElementById('cfMOutput').textContent = cf;
   risBox.style.display = '';
+
+  // === Diagnostica sul CF già presente nel form fattura ===
+  var cfFormFattura = (document.getElementById('pf-cf').value || '').toUpperCase().trim();
+  if (cfFormFattura.length === 16 && cfFormFattura !== cf) {
+    var analisi = analizzaCF(cfFormFattura, cog, nom, sesso, data, cat);
+    if (analisi.stato === 'invertito') {
+      diagBox.style.background = '#fef3c7';
+      diagBox.style.border = '1.5px solid #f59e0b';
+      diagBox.style.color = '#92400e';
+      diagBox.innerHTML =
+        '<strong>⚠️ Attenzione: cognome e nome sono invertiti</strong><br>' +
+        'Il CF nel form fattura (<span style="font-family:monospace;font-weight:700">'+esc(cfFormFattura)+'</span>) è in realtà <strong>corretto</strong>, ' +
+        'ma è stato calcolato con cognome <strong>"'+esc(analisi.cognomeCorretto)+'"</strong> e nome <strong>"'+esc(analisi.nomeCorretto)+'"</strong> invertiti rispetto a come li hai messi qui.<br><br>' +
+        '<button class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none" onclick="cfMSwapCogNom()">🔄 Inverti Cognome ↔ Nome</button> ' +
+        '<span style="color:#92400e;font-size:12px">Il CF resterà '+esc(cfFormFattura)+'</span>';
+      diagBox.style.display = '';
+    } else if (analisi.stato === 'errore') {
+      diagBox.style.background = '#fef2f2';
+      diagBox.style.border = '1.5px solid #f87171';
+      diagBox.style.color = '#991b1b';
+      diagBox.innerHTML =
+        '<strong>❌ CF nel form fattura non corretto</strong><br>' +
+        'Inserito: <span style="font-family:monospace;font-weight:700">'+esc(cfFormFattura)+'</span><br>' +
+        'Calcolato: <span style="font-family:monospace;font-weight:700;color:#065f46">'+esc(cf)+'</span><br>' +
+        '<span style="font-size:12px">'+esc(analisi.messaggio)+'</span>';
+      diagBox.style.display = '';
+    } else {
+      diagBox.style.display = 'none';
+    }
+  } else if (cfFormFattura === cf) {
+    diagBox.style.background = '#ecfdf5';
+    diagBox.style.border = '1.5px solid #10b981';
+    diagBox.style.color = '#065f46';
+    diagBox.innerHTML = '✅ Il CF nel form fattura è già corretto.';
+    diagBox.style.display = '';
+  } else {
+    diagBox.style.display = 'none';
+  }
+}
+
+// Inverte cognome e nome nel modale CF e nel form fattura
+function cfMSwapCogNom() {
+  var cog = document.getElementById('cfMCognome').value;
+  var nom = document.getElementById('cfMNome').value;
+  document.getElementById('cfMCognome').value = nom;
+  document.getElementById('cfMNome').value = cog;
+  // Aggiorno anche il form fattura
+  document.getElementById('pf-cognome').value = nom;
+  document.getElementById('pf-nome').value = cog;
+  cfMLiveCalc();
+  showEsito('Cognome e nome invertiti', 'ok');
 }
 
 function usaCFCalcolato() {
